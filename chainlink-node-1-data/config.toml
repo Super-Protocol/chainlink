@@ -17,9 +17,37 @@ Name = 'opBNB Testnet'
 WSURL = 'wss://opbnb-testnet.nodereal.io/ws/v1/e9a36765eb8a40b9bd12e680a1fd2bc5'
 HTTPURL = 'https://opbnb-testnet-rpc.bnbchain.org'
 
+#[EVM.GasEstimator]
+#Mode = 'FixedPrice'
+#PriceDefault = '1000000000'
+
 [EVM.GasEstimator]
 Mode = 'FixedPrice'
-PriceDefault = '1000000000'
+PriceDefault = '20'
+PriceMax = '115792089237316195423570985008687907853269984665.640564039457584007913129639935 tether'
+PriceMin = '1 wei'
+LimitDefault = 500000
+LimitMax = 500000
+LimitMultiplier = '1'
+LimitTransfer = 21000
+EstimateLimit = false
+BumpMin = '100 wei'
+BumpPercent = 20
+BumpThreshold = 3
+EIP1559DynamicFees = true
+FeeCapDefault = '1000000'
+TipCapDefault = '1 wei'
+TipCapMin = '1 wei'
+
+[EVM.GasEstimator.BlockHistory]
+BatchSize = 25
+BlockHistorySize = 24
+CheckInclusionBlocks = 12
+CheckInclusionPercentile = 90
+TransactionPercentile = 60
+
+[EVM.GasEstimator.FeeHistory]
+CacheTimeout = '10s'
 
 [OCR]
 Enabled = true
@@ -40,7 +68,7 @@ TraceLogging = false # Default
 [P2P.V2]
 Enabled = true # Default
 AnnounceAddresses = ['10.5.0.9:9999'] # Example
-DefaultBootstrappers = ['12D3KooWJxKTff9iStekSuR3EU5bxxqe9FUSVgATsyChdB3N6nuH@10.5.0.9:9999'] # Example
+DefaultBootstrappers = ['12D3KooWJA8AZ7UnmLZY1n3uWZhhX8VFg5xnNuUScMuAHrafVWHG@10.5.0.9:9999'] # Example
 DeltaDial = '15s' # Default
 DeltaReconcile = '1m' # Default
 ListenAddresses = ['0.0.0.0:9999'] # Example
