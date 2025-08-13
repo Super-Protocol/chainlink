@@ -9,7 +9,7 @@ contractAddress = "0x85C01B343a7f264Aa3D4EEE97459C46CfaD1487C"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
-isBootstrapPeer = false
+isBootstrapPeer = $IS_BOOTSTRAP
 p2pPeerID = "$P2P_PEER_ID"
 p2pBootstrapPeers = [
   "/ip4/$BOOTSTRAP_IP/tcp/9999/p2p/$BOOTSTRAP_PEER_ID"

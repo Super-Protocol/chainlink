@@ -121,6 +121,19 @@ require_bin jq
 require_bin envsubst
 require_bin uuidgen
 
+# Cross-platform sed -i helper
+is_darwin=false
+case "$(uname)" in
+  Darwin*) is_darwin=true ;;
+esac
+sed_inplace() {
+  if $is_darwin; then
+    sed -i '' -e "$1" "$2"
+  else
+    sed -i -e "$1" "$2"
+  fi
+}
+
 # Login and capture cookie for a node
 login_node() {
   local node_num="$1"
@@ -320,6 +333,7 @@ main() {
     rendered_file="${job_dir}/btc-usd.node-${node_num}.toml"
 
     echo "Rendering template -> ${rendered_file}"
+    IS_BOOTSTRAP=$([[ "${node_num}" == "${BOOTSTRAP_NODE}" ]] && echo true || echo false) \
     EXTERNAL_JOB_ID="${ext_job_id}" \
     P2P_PEER_ID="${peer_id#p2p_}" \
     BOOTSTRAP_IP="${bootstrap_ip}" \
@@ -328,6 +342,22 @@ main() {
     TRANSMITTER_ADDRESS="${transmitter}" \
     EVM_CHAIN_ID="${EVM_CHAIN_ID}" \
       envsubst < "${TEMPLATE_PATH}" > "${rendered_file}"
+
+    # For bootstrap peer jobs, remove fields not allowed: observationSource, keyBundleID, transmitterAddress
+    if [[ "${node_num}" == "${BOOTSTRAP_NODE}" ]]; then
+      tmpfile="$(mktemp)"
+      awk '
+        BEGIN{skip=0}
+        /^[[:space:]]*observationSource[[:space:]]*=[[:space:]]*"""/ { skip=1; next }
+        skip && /^[[:space:]]*"""[[:space:]]*$/ { skip=0; next }
+        skip { next }
+        { print }
+      ' "${rendered_file}" > "${tmpfile}"
+      mv "${tmpfile}" "${rendered_file}"
+      # Drop single-line forbidden keys if present
+      sed_inplace '/^[[:space:]]*keyBundleID[[:space:]]*=.*/d' "${rendered_file}"
+      sed_inplace '/^[[:space:]]*transmitterAddress[[:space:]]*=.*/d' "${rendered_file}"
+    fi
 
     if [[ "${PUBLISH}" == "true" ]]; then
       echo "Creating job via API..."
