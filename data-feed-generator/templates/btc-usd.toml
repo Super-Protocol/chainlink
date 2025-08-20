@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: BTC/USD Price Feed"
-externalJobID = "$EXTERNAL_JOB_ID"
+externalJobID = "274b0bf5-3eb7-4b88-85b3-44f5969410f1"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
@@ -11,9 +11,7 @@ contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
 isBootstrapPeer = $IS_BOOTSTRAP
 p2pPeerID = "$P2P_PEER_ID"
-p2pBootstrapPeers = [
-  "/ip4/$BOOTSTRAP_IP/tcp/9999/p2p/$BOOTSTRAP_PEER_ID"
-]
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
 keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"

@@ -3,14 +3,20 @@ set -euo pipefail
 
 have_jq() { command -v jq >/dev/null 2>&1; }
 
-ensure_jq() {
+install_jq() {
   if have_jq; then return 0; fi
-  if command -v apt-get >/dev/null 2>&1; then
-    apt-get update -qq || true
-    apt-get install -y -qq jq || true
+  if command -v apk >/dev/null 2>&1; then
+    apk add --no-cache jq >/dev/null 2>&1 || true
+  elif command -v apt-get >/dev/null 2>&1; then
+    apt-get update -y >/dev/null 2>&1 || true
+    apt-get install -y jq >/dev/null 2>&1 || true
+  elif command -v yum >/dev/null 2>&1; then
+    yum install -y jq >/dev/null 2>&1 || true
   fi
   have_jq
 }
+
+ensure_jq() { have_jq || install_jq; }
 
 json_escape() {
   # Escapes input for safe embedding as a JSON string
@@ -23,7 +29,105 @@ json_escape() {
 
 API_URL="http://127.0.0.1:6688"
 JOBS_DIR="/chainlink/jobs"
+TEMPLATES_DIR="${TEMPLATES_DIR:-/templates}"
+TEMPLATE_FILE="${TEMPLATE_FILE:-${TEMPLATES_DIR}/btc-usd.toml}"
 COOKIE_FILE="/tmp/cl_cookie"
+
+# Compose IP helper
+ip_for_node() {
+  local n="$1"; echo "10.5.0.$((8 + n))";
+}
+
+# Read local credentials
+read_creds() {
+  local email password
+  email=$(sed -n '1p' /chainlink/apicredentials 2>/dev/null || echo "")
+  password=$(sed -n '2p' /chainlink/apicredentials 2>/dev/null || echo "")
+  printf '%s|%s' "$email" "$password"
+}
+
+# Login to remote node and fetch its p2p peer id
+fetch_bootstrap_peer_from_env() {
+  local bs_env="${BOOTSTRAP_NODES:-1}"
+  local IFS=' \t,'; read -r -a bs_nodes <<< "$bs_env"
+  [[ ${#bs_nodes[@]} -gt 0 ]] || { echo "|"; return; }
+  local first_bs="${bs_nodes[0]}"
+  local host; host=$(ip_for_node "$first_bs")
+  local port=6688
+  local cookie_file="/tmp/cl_cookie_bootstrap"
+  rm -f "$cookie_file" || true
+  IFS='|' read -r email password < <(read_creds)
+  if [[ -z "$email" || -z "$password" ]]; then echo "|"; return; fi
+  local http_code peer_id tries=0 max_tries=${WAIT_BOOTSTRAP_PEER_TRIES:-180}
+  while [ $tries -lt $max_tries ]; do
+    http_code=$(curl -sS -o /tmp/login_bs.json -w '%{http_code}' \
+      -X POST "http://${host}:${port}/sessions" \
+      -H 'Content-Type: application/json' \
+      -c "$cookie_file" \
+      --data "{\"email\":\"${email}\",\"password\":\"${password}\"}")
+    if [[ "$http_code" == "200" || "$http_code" == "201" ]]; then
+      if have_jq; then
+        peer_id=$(curl -sS -X GET "http://${host}:${port}/v2/keys/p2p" -b "$cookie_file" | jq -r '.data[0] | (.attributes.peerId // .peerId // .id // empty) | sub("^p2p_";"")')
+      else
+        peer_id=$(curl -sS -X GET "http://${host}:${port}/v2/keys/p2p" -b "$cookie_file" | sed -n 's/.*"peerId"\s*:\s*"\([^"]*\)".*/\1/p' | sed 's/^p2p_//' | head -n1)
+        [[ -z "$peer_id" ]] && peer_id=$(curl -sS -X GET "http://${host}:${port}/v2/keys/p2p" -b "$cookie_file" | sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' | head -n1 | sed 's/^p2p_//')
+      fi
+      if [[ -n "$peer_id" ]]; then break; fi
+    fi
+    tries=$((tries+1)); sleep 1
+  done
+  rm -f "$cookie_file" || true
+  echo "${peer_id}|${host}"
+}
+
+# Determine node number and role
+determine_node_number() {
+  if [[ -n "${NODE_NUMBER:-}" ]]; then
+    echo "${NODE_NUMBER}"
+    return
+  fi
+  echo "${HOSTNAME}" | grep -oE '[0-9]+$' || echo "1"
+}
+
+is_node_bootstrap() {
+  local node_num="$1"
+  local bstr="${BOOTSTRAP_NODES:-1}"
+  local IFS=' \t,'; read -r -a bs_nodes <<< "$bstr"
+  for bn in "${bs_nodes[@]}"; do
+    if [[ "$bn" == "$node_num" ]]; then
+      echo true; return
+    fi
+  done
+  echo false
+}
+
+# Parse first bootstrap entry from config.toml DefaultBootstrappers and convert to multiaddr
+bootstrap_peers_multiaddr_from_config() {
+  local cfg="/chainlink/config.toml"
+  [[ -f "$cfg" ]] || { echo "[]"; return; }
+  local entry
+  entry=$(awk '
+    /^\s*\[P2P\.V2\]\s*$/ {inblock=1; next}
+    inblock && /^\s*\[/ {inblock=0}
+    inblock && /DefaultBootstrappers/ {print; exit}
+  ' "$cfg")
+  local peer ip
+  peer=$(printf '%s\n' "$entry" | sed -n "s/.*'\([^'@]*\)@.*/\1/p")
+  if [[ -z "$peer" ]]; then peer=$(printf '%s\n' "$entry" | sed -n 's/.*"\([^"@]*\)@.*/\1/p'); fi
+  ip=$(printf '%s\n' "$entry" | sed -n "s/.*@\([^:'\"]*\):.*/\1/p")
+  if [[ -n "$peer" && -n "$ip" ]]; then
+    echo "[\"/ip4/${ip}/tcp/9999/p2p/${peer}\"]"
+  else
+    echo "[]"
+  fi
+}
+
+# Extract EVM ChainID from config.toml
+chain_id_from_config() {
+  local cfg="/chainlink/config.toml"
+  [[ -f "$cfg" ]] || { echo ""; return; }
+  awk -F"'" '/^\s*\[\[EVM\]\]/{f=1} f && /ChainID/{print $2; exit}' "$cfg" || true
+}
 
 email=$(sed -n '1p' /chainlink/apicredentials 2>/dev/null || echo "")
 password=$(sed -n '2p' /chainlink/apicredentials 2>/dev/null || echo "")
@@ -69,7 +173,55 @@ csrf() {
 }
 
 publish_jobs() {
-  [[ -d "${JOBS_DIR}" ]] || return 0
+  [[ -d "${JOBS_DIR}" ]] || mkdir -p "${JOBS_DIR}"
+
+  # Render a job from template into JOBS_DIR
+  local node_num is_bootstrap bootstrap_peers evm_chain_id rendered_file tmpfile
+  node_num=$(determine_node_number)
+  is_bootstrap=$(is_node_bootstrap "$node_num")
+  # Prefer discovering bootstrap peer via API of the first bootstrap node from env
+  IFS='|' read -r bs_peer bs_ip < <(fetch_bootstrap_peer_from_env)
+  if [[ -n "$bs_peer" && -n "$bs_ip" ]]; then
+    bootstrap_peers="[\"/ip4/${bs_ip}/tcp/9999/p2p/${bs_peer}\"]"
+  else
+    bootstrap_peers=$(bootstrap_peers_multiaddr_from_config)
+  fi
+  evm_chain_id=$(chain_id_from_config)
+  rendered_file="${JOBS_DIR}/btc-usd.node-${node_num}.toml"
+
+  if [[ -f "${TEMPLATE_FILE}" ]]; then
+    cp "${TEMPLATE_FILE}" "${rendered_file}"
+  fi
+
+  # Ensure critical fields exist in the rendered file even before key discovery
+  if [[ -f "${rendered_file}" ]]; then
+    # p2pBootstrapPeers
+    if [[ -n "$bootstrap_peers" ]]; then
+      if grep -qE '^\s*p2pBootstrapPeers\s*=' "${rendered_file}"; then
+        sed -i'' -E "s#^\s*p2pBootstrapPeers\s*=.*#p2pBootstrapPeers = ${bootstrap_peers}#" "${rendered_file}"
+      else
+        printf '\n%s\n' "p2pBootstrapPeers = ${bootstrap_peers}" >> "${rendered_file}"
+      fi
+    fi
+    # isBootstrapPeer
+    if grep -qE '^\s*isBootstrapPeer\s*=' "${rendered_file}"; then
+      if [[ "$is_bootstrap" == "true" ]]; then
+        sed -i'' -E "s#^\s*isBootstrapPeer\s*=.*#isBootstrapPeer = true#" "${rendered_file}"
+      else
+        sed -i'' -E "s#^\s*isBootstrapPeer\s*=.*#isBootstrapPeer = false#" "${rendered_file}"
+      fi
+    else
+      printf '\n%s\n' "isBootstrapPeer = ${is_bootstrap}" >> "${rendered_file}"
+    fi
+    # evmChainID
+    if [[ -n "$evm_chain_id" ]]; then
+      if grep -qE '^\s*evmChainID\s*=' "${rendered_file}"; then
+        sed -i'' -E "s#^\s*evmChainID\s*=\s*\".*\"#evmChainID = \"${evm_chain_id}\"#" "${rendered_file}" || true
+      else
+        printf '\n%s\n' "evmChainID = \"${evm_chain_id}\"" >> "${rendered_file}"
+      fi
+    fi
+  fi
   local token
   token=$(csrf || true)
   # Fetch live keys to align TOML with node state
@@ -85,7 +237,7 @@ publish_jobs() {
     evm_addr=$(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | sed -n 's/.*"address"\s*:\s*"\(0x[0-9a-fA-F]\{40\}\)".*/\1/p' | head -n1)
   fi
 
-  for f in "${JOBS_DIR}"/*.toml; do
+  for f in "${rendered_file}"; do
     [[ -f "$f" ]] || continue
     # Rewrite a temp file with live keys if available
     local src="$f" tmp=""
@@ -98,8 +250,36 @@ publish_jobs() {
       src="$tmp"
     fi
 
+    # Always ensure p2pBootstrapPeers, isBootstrapPeer, evmChainID
+    if [[ -z "$tmp" ]]; then tmp=$(mktemp); cp "$src" "$tmp"; src="$tmp"; fi
+    if [[ -n "$bootstrap_peers" ]]; then
+      if grep -qE '^\s*p2pBootstrapPeers\s*=' "$src"; then
+        sed -i'' -E "s#^\s*p2pBootstrapPeers\s*=.*#p2pBootstrapPeers = ${bootstrap_peers}#" "$src"
+      else
+        printf '\n%s\n' "p2pBootstrapPeers = ${bootstrap_peers}" >> "$src"
+      fi
+    fi
+    if [[ -n "$evm_chain_id" ]]; then
+      sed -i'' -E "s#^\s*evmChainID\s*=\s*\".*\"#evmChainID = \"${evm_chain_id}\"#" "$src" || true
+    fi
+    if [[ "$is_bootstrap" == "true" ]]; then
+      sed -i'' -E "s#^\s*isBootstrapPeer\s*=.*#isBootstrapPeer = true#" "$src" || true
+      # Remove observationSource block and forbidden fields for bootstrap peer
+      awk '
+        BEGIN{skip=0}
+        /^[[:space:]]*observationSource[[:space:]]*=[[:space:]]*"""/ { skip=1; next }
+        skip && /^[[:space:]]*"""[[:space:]]*$/ { skip=0; next }
+        skip { next }
+        { print }
+      ' "$src" > "${src}.clean" && mv "${src}.clean" "$src"
+      sed -i'' -E '/^[[:space:]]*keyBundleID[[:space:]]*=.*/d' "$src"
+      sed -i'' -E '/^[[:space:]]*transmitterAddress[[:space:]]*=.*/d' "$src"
+    else
+      sed -i'' -E "s#^\s*isBootstrapPeer\s*=.*#isBootstrapPeer = false#" "$src" || true
+    fi
+
     # JSON {toml:"..."} using jq to guarantee valid JSON string
-    ensure_jq || { echo "[publish] jq not available; cannot safely encode JSON" >&2; continue; }
+    ensure_jq || { echo "[publish] jq not available; skip publishing $f" >&2; continue; }
     local body
     body=$(jq -Rs '. as $toml | {toml:$toml}' < "$src")
     http_code=$(curl -sS -o /tmp/job_resp.json -w '%{http_code}' -X POST "${API_URL}/v2/jobs" \

@@ -110,7 +110,7 @@ func main() {
 	//     panic(err)
 	// }
 
-	// Массив публичных ключей
+	// Массив публичных ключей не_бутстрап нод
 	publicKeyHexes := []string{
 		"8c73c450b5bde91f441fba73a08115ac40cec7409fdcd5e5c2aa341ada7f140c",
 		"1a58be107c3757910721dd6d0f010f921fd9a9c698aedebc945d016f8a2d6837",

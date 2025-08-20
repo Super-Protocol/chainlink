@@ -85,6 +85,22 @@ read_bootstrap_from_configs() {
   fi
 }
 
+build_p2p_bootstrap_peers_array() {
+  # Build TOML array literal from one or more bootstrap entries
+  local entries_csv="$1" # "peer@ip:9999,peer2@ip2:9999"
+  local arr=()
+  local IFS=','; read -r -a parts <<< "${entries_csv}"
+  for e in "${parts[@]}"; do
+    [[ -z "$e" ]] && continue
+    arr+=("\"/ip4/${e#*@}/tcp/9999/p2p/${e%@*@}\"")
+  done
+  if [[ ${#arr[@]} -eq 0 ]]; then
+    echo "[]"
+  else
+    local IFS=','; echo "[${arr[*]}]"
+  fi
+}
+
 require_bin() {
   local bin="$1"
   if ! command -v "$bin" >/dev/null 2>&1; then
@@ -288,19 +304,17 @@ main() {
     fi
   fi
 
+  # Use one external job ID across all nodes unless explicitly overridden per-run
+  local EXTERNAL_JOB_ID_GLOBAL
+  EXTERNAL_JOB_ID_GLOBAL=${EXTERNAL_JOB_ID:-$(uuidgen)}
+
   # CONTRACT_ADDRESS is fixed in the template; no env required
 
-  local bootstrap_peer_id bootstrap_ip
-  IFS='|' read -r bootstrap_peer_id bootstrap_ip < <(read_bootstrap_from_configs "${NODES_LIST}")
-  if [[ -z "${bootstrap_peer_id}" ]]; then
-    echo "Error: could not parse bootstrap peer id from node configs (P2P.V2.DefaultBootstrappers). Set DEBUG=1 for details." >&2
-    exit 1
-  fi
-  if [[ -z "${bootstrap_ip}" ]]; then
-    bootstrap_ip="$(ip_for_node "${BOOTSTRAP_NODE}")"
-    echo "Warning: bootstrap IP not found in configs; using ${bootstrap_ip} from docker-compose mapping" >&2
-  fi
-  echo "Bootstrap resolved from configs: peer_id=${bootstrap_peer_id}, ip=${bootstrap_ip}"
+  local bootstrap_peer_id="" bootstrap_ip=""
+  # We no longer require DefaultBootstrappers to be populated offline.
+  # Use compose-mapped IP for bootstrap; peer id will be injected by publisher at runtime.
+  bootstrap_ip="$(ip_for_node "${BOOTSTRAP_NODE}")"
+  echo "Bootstrap (offline): ip=${bootstrap_ip}; peer id will be injected at publish-time"
 
   for node_num in ${NODES_LIST}; do
     local port cookie_file node_ip peer_id ocr_key_id transmitter ext_job_id rendered_file
@@ -325,7 +339,7 @@ main() {
       continue
     fi
 
-    ext_job_id=$(uuidgen)
+    ext_job_id="${EXTERNAL_JOB_ID_GLOBAL}"
     # Save rendered TOML inside the node's config directory under a dedicated subdir
     local node_dir="${REPO_ROOT}/chainlink-node-${node_num}-data"
     local job_dir="${node_dir}/jobs"
@@ -333,11 +347,12 @@ main() {
     rendered_file="${job_dir}/btc-usd.node-${node_num}.toml"
 
     echo "Rendering template -> ${rendered_file}"
+    # Offline: put empty peers; publisher fills actual peers at runtime
+    P2P_BOOTSTRAP_PEERS="[]"
     IS_BOOTSTRAP=$([[ "${node_num}" == "${BOOTSTRAP_NODE}" ]] && echo true || echo false) \
     EXTERNAL_JOB_ID="${ext_job_id}" \
     P2P_PEER_ID="${peer_id#p2p_}" \
-    BOOTSTRAP_IP="${bootstrap_ip}" \
-    BOOTSTRAP_PEER_ID="${bootstrap_peer_id}" \
+    P2P_BOOTSTRAP_PEERS="${P2P_BOOTSTRAP_PEERS}" \
     OCR_KEY_BUNDLE_ID="${ocr_key_id}" \
     TRANSMITTER_ADDRESS="${transmitter}" \
     EVM_CHAIN_ID="${EVM_CHAIN_ID}" \
