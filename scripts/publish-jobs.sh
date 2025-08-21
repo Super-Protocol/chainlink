@@ -34,6 +34,7 @@ TEMPLATE_FILE="${TEMPLATE_FILE:-${TEMPLATES_DIR}/btc-usd.toml}"
 COOKIE_FILE="/tmp/cl_cookie"
 SHARED_SECRETS_DIR="/sp/secrets"
 EVM_EXPORT_PASSWORD="${EVM_EXPORT_PASSWORD:-${CHAINLINK_KEYSTORE_PASSWORD:-export}}"
+OCR_EXPORT_PASSWORD="${OCR_EXPORT_PASSWORD:-${EVM_EXPORT_PASSWORD}}"
 
 # Compose IP helper
 ip_for_node() {
@@ -280,6 +281,33 @@ publish_jobs() {
       echo "[publish] Skipping EVM key import: evm_chain_id is empty" >&2
     fi
   fi
+
+  # If there is a persisted OCR key, try to import it before ensuring keys
+  DID_IMPORT_OCR=false
+  IMPORTED_OCR_ID=""
+  if [[ -f "/chainlink/ocr_key.json" ]]; then
+    imp_ocr_code=$(curl -sS -o /tmp/ocr_import.json -w '%{http_code}' \
+      -X POST "${API_URL}/v2/keys/ocr/import?oldpassword=${OCR_EXPORT_PASSWORD}" \
+      -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
+      -b "${COOKIE_FILE}" \
+      --data-binary @/chainlink/ocr_key.json || true)
+    echo "[publish] OCR key import http=${imp_ocr_code} (200/201 OK; 409 already exists)" >&2
+    if [[ "${imp_ocr_code}" == "200" || "${imp_ocr_code}" == "201" ]]; then
+      if ensure_jq; then
+        IMPORTED_OCR_ID=$(jq -r '.data.id // .data.attributes.id // .id // empty' /tmp/ocr_import.json)
+      else
+        IMPORTED_OCR_ID=$(sed -n 's/.*"id"\s*:\s*"\([0-9a-fA-F]\{64\}\)".*/\1/p' /tmp/ocr_import.json | head -n1)
+      fi
+      DID_IMPORT_OCR=true
+    elif [[ "${imp_ocr_code}" == "409" ]]; then
+      if ensure_jq; then
+        IMPORTED_OCR_ID=$(jq -r '.id // .data.id // .data.attributes.id // empty' /chainlink/ocr_key.json)
+      else
+        IMPORTED_OCR_ID=$(sed -n 's/.*"id"\s*:\s*"\([0-9a-fA-F]\{64\}\)".*/\1/p' /chainlink/ocr_key.json | head -n1)
+      fi
+      DID_IMPORT_OCR=true
+    fi
+  fi
   # Fetch live keys to align TOML with node state
   local p2p_id ocr_id evm_addr
   if ensure_jq; then
@@ -291,6 +319,16 @@ publish_jobs() {
     [ -z "$p2p_id" ] && p2p_id=$(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' | head -n1 | sed 's/^p2p_//')
     ocr_id=$(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\([0-9a-f]\{64\}\)".*/\1/p' | head -n1)
     evm_addr=$(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | sed -n 's/.*"address"\s*:\s*"\(0x[0-9a-fA-F]\{40\}\)".*/\1/p' | head -n1)
+  fi
+
+  # Persist exported OCR key JSON if not yet saved
+  if [[ -n "${ocr_id}" && ! -f "/chainlink/ocr_key.json" ]]; then
+    exp_ocr_code=$(curl -sS -o /chainlink/ocr_key.json -w '%{http_code}' \
+      -X POST "${API_URL}/v2/keys/ocr/export/${ocr_id}?newpassword=${OCR_EXPORT_PASSWORD}" \
+      -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
+      -b "${COOKIE_FILE}" || true)
+    chmod 600 /chainlink/ocr_key.json || true
+    echo "[publish] OCR key export http=${exp_ocr_code} -> /chainlink/ocr_key.json" >&2
   fi
 
   # If this is a bootstrap node, write its peer id and IP into shared secrets for workers
@@ -325,6 +363,24 @@ publish_jobs() {
           -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
           -b "${COOKIE_FILE}" || true)
         echo "[publish] Deleted extra EVM key ${addr}, http=${del_code}" >&2
+      fi
+    done
+  fi
+
+  # If we imported (or already had) an external OCR key, delete any extra OCR keys not matching it
+  if $DID_IMPORT_OCR && [[ -n "${IMPORTED_OCR_ID}" ]]; then
+    if ensure_jq; then
+      mapfile -t ocr_ids < <(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | jq -r '.data[] | (.id // .attributes.id)')
+    else
+      IFS=$'\n' read -r -d '' -a ocr_ids < <(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\([0-9a-f]\{64\}\)".*/\1/p' && printf '\0')
+    fi
+    for id in "${ocr_ids[@]}"; do
+      if [[ -n "$id" && "${id,,}" != "${IMPORTED_OCR_ID,,}" ]]; then
+        del_ocr_code=$(curl -sS -o /tmp/ocr_delete_${id}.json -w '%{http_code}' \
+          -X DELETE "${API_URL}/v2/keys/ocr/${id}" \
+          -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
+          -b "${COOKIE_FILE}" || true)
+        echo "[publish] Deleted extra OCR key ${id}, http=${del_ocr_code}" >&2
       fi
     done
   fi

@@ -1,4 +1,4 @@
 .idea
 .env
 /chainlink-node-*-data/jobs
-evm_key.json
+*_key.json
