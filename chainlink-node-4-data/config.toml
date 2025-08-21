@@ -61,7 +61,7 @@ TraceLogging = true # Default
 [P2P.V2]
 Enabled = true # Default
 AnnounceAddresses = ['10.5.0.12:9999']
-DefaultBootstrappers = ['12D3KooWJ8x6q4SyRKXyg2u7QCqM2toU2j97tZEMrZY9VnP7dSnA@10.5.0.9:9999']
+DefaultBootstrappers = ['12D3KooWAPU1QrttV6gJXCLVgMNx8R2Df6fcNoYhg59QoqehD6Zs@10.5.0.9:9999']
 DeltaDial = '15s' # Default
 DeltaReconcile = '1m' # Default
 ListenAddresses = ['0.0.0.0:9999'] # Example

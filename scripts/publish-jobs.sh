@@ -33,6 +33,7 @@ TEMPLATES_DIR="${TEMPLATES_DIR:-/templates}"
 TEMPLATE_FILE="${TEMPLATE_FILE:-${TEMPLATES_DIR}/btc-usd.toml}"
 COOKIE_FILE="/tmp/cl_cookie"
 SHARED_SECRETS_DIR="/sp/secrets"
+EVM_EXPORT_PASSWORD="${EVM_EXPORT_PASSWORD:-${CHAINLINK_KEYSTORE_PASSWORD:-export}}"
 
 # Compose IP helper
 ip_for_node() {
@@ -246,6 +247,39 @@ publish_jobs() {
   fi
   local token
   token=$(csrf || true)
+
+  # If there is a persisted EVM private key, try to import it before ensuring keys
+  DID_IMPORT=false
+  IMPORTED_ADDR=""
+  if [[ -f "/chainlink/evm_key.json" ]]; then
+    if [[ -n "${evm_chain_id}" ]]; then
+      imp_code=$(curl -sS -o /tmp/evm_import.json -w '%{http_code}' \
+        -X POST "${API_URL}/v2/keys/evm/import?oldpassword=${EVM_EXPORT_PASSWORD}&evmChainID=${evm_chain_id}" \
+        -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
+        -b "${COOKIE_FILE}" \
+        --data-binary @/chainlink/evm_key.json || true)
+      echo "[publish] EVM key import http=${imp_code} (200/201 OK; 409 already exists)" >&2
+      if [[ "${imp_code}" == "200" || "${imp_code}" == "201" ]]; then
+        # Try to read imported address from import response
+        if have_jq; then
+          IMPORTED_ADDR=$(jq -r '.data.attributes.address // .data.address // .attributes.address // .address // empty' /tmp/evm_import.json)
+        else
+          IMPORTED_ADDR=$(sed -n 's/.*"address"\s*:\s*"\(0x[0-9a-fA-F]\{40\}\)".*/\1/p' /tmp/evm_import.json | head -n1)
+        fi
+        DID_IMPORT=true
+      elif [[ "${imp_code}" == "409" ]]; then
+        # Already imported previously; attempt to extract address from file
+        if have_jq; then
+          IMPORTED_ADDR=$(jq -r '.address // .data.attributes.address // .attributes.address // empty' /chainlink/evm_key.json)
+        else
+          IMPORTED_ADDR=$(sed -n 's/.*\(0x[0-9a-fA-F]\{40\}\).*/\1/p' /chainlink/evm_key.json | head -n1)
+        fi
+        DID_IMPORT=true
+      fi
+    else
+      echo "[publish] Skipping EVM key import: evm_chain_id is empty" >&2
+    fi
+  fi
   # Fetch live keys to align TOML with node state
   local p2p_id ocr_id evm_addr
   if ensure_jq; then
@@ -264,6 +298,35 @@ publish_jobs() {
     mkdir -p "${SHARED_SECRETS_DIR}"
     echo "${p2p_id}" | sed 's/^p2p_//' > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.peerid"
     echo "$(ip_for_node "${node_num}")" > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.ip"
+  fi
+
+  # Persist exported EVM key JSON if not yet saved
+  if [[ -n "${evm_addr}" && ! -f "/chainlink/evm_key.json" ]]; then
+    exp_code=$(curl -sS -o /chainlink/evm_key.json -w '%{http_code}' \
+      -X POST "${API_URL}/v2/keys/evm/export/${evm_addr}?newpassword=${EVM_EXPORT_PASSWORD}" \
+      -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
+      -b "${COOKIE_FILE}" || true)
+    chmod 600 /chainlink/evm_key.json || true
+    echo "[publish] EVM key export http=${exp_code} -> /chainlink/evm_key.json" >&2
+  fi
+
+  # If we imported (or already had) an external key, delete any extra EVM keys not matching it
+  if $DID_IMPORT && [[ -n "${IMPORTED_ADDR}" ]]; then
+    # Fetch all EVM keys and delete those not equal to IMPORTED_ADDR
+    if ensure_jq; then
+      mapfile -t evm_addrs < <(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | jq -r '.data[] | (.attributes.address // .address)')
+    else
+      IFS=$'\n' read -r -d '' -a evm_addrs < <(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | sed -n 's/.*"address"\s*:\s*"\(0x[0-9a-fA-F]\{40\}\)".*/\1/p' && printf '\0')
+    fi
+    for addr in "${evm_addrs[@]}"; do
+      if [[ -n "$addr" && "${addr,,}" != "${IMPORTED_ADDR,,}" ]]; then
+        del_code=$(curl -sS -o /tmp/evm_delete_${addr}.json -w '%{http_code}' \
+          -X DELETE "${API_URL}/v2/keys/evm/${addr}" \
+          -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
+          -b "${COOKIE_FILE}" || true)
+        echo "[publish] Deleted extra EVM key ${addr}, http=${del_code}" >&2
+      fi
+    done
   fi
 
   for f in "${rendered_file}"; do
