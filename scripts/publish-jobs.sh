@@ -32,6 +32,7 @@ JOBS_DIR="/chainlink/jobs"
 TEMPLATES_DIR="${TEMPLATES_DIR:-/templates}"
 TEMPLATE_FILE="${TEMPLATE_FILE:-${TEMPLATES_DIR}/btc-usd.toml}"
 COOKIE_FILE="/tmp/cl_cookie"
+SHARED_SECRETS_DIR="/sp/secrets"
 
 # Compose IP helper
 ip_for_node() {
@@ -44,6 +45,24 @@ read_creds() {
   email=$(sed -n '1p' /chainlink/apicredentials 2>/dev/null || echo "")
   password=$(sed -n '2p' /chainlink/apicredentials 2>/dev/null || echo "")
   printf '%s|%s' "$email" "$password"
+}
+
+# Prefer reading bootstrap info from shared secrets written by bootstrap nodes
+bootstrap_info_from_shared_secrets() {
+  local bs_env="${BOOTSTRAP_NODES:-1}"
+  local IFS=' \t,'; read -r -a bs_nodes <<< "$bs_env"
+  [[ ${#bs_nodes[@]} -gt 0 ]] || { echo "|"; return; }
+  local first_bs="${bs_nodes[0]}"
+  local fpeer="$SHARED_SECRETS_DIR/bootstrap-${first_bs}.peerid"
+  local fip="$SHARED_SECRETS_DIR/bootstrap-${first_bs}.ip"
+  if [[ -s "$fpeer" && -s "$fip" ]]; then
+    local peer ip
+    peer=$(sed -n '1p' "$fpeer" | sed 's/^p2p_//')
+    ip=$(sed -n '1p' "$fip")
+    echo "${peer}|${ip}"
+  else
+    echo "|"
+  fi
 }
 
 # Login to remote node and fetch its p2p peer id
@@ -180,7 +199,10 @@ publish_jobs() {
   node_num=$(determine_node_number)
   is_bootstrap=$(is_node_bootstrap "$node_num")
   # Prefer discovering bootstrap peer via API of the first bootstrap node from env
-  IFS='|' read -r bs_peer bs_ip < <(fetch_bootstrap_peer_from_env)
+  IFS='|' read -r bs_peer bs_ip < <(bootstrap_info_from_shared_secrets)
+  if [[ -z "$bs_peer" || -z "$bs_ip" ]]; then
+    IFS='|' read -r bs_peer bs_ip < <(fetch_bootstrap_peer_from_env)
+  fi
   if [[ -n "$bs_peer" && -n "$bs_ip" ]]; then
     bootstrap_peers="[\"/ip4/${bs_ip}/tcp/9999/p2p/${bs_peer}\"]"
   else
@@ -235,6 +257,13 @@ publish_jobs() {
     [ -z "$p2p_id" ] && p2p_id=$(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' | head -n1 | sed 's/^p2p_//')
     ocr_id=$(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\([0-9a-f]\{64\}\)".*/\1/p' | head -n1)
     evm_addr=$(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | sed -n 's/.*"address"\s*:\s*"\(0x[0-9a-fA-F]\{40\}\)".*/\1/p' | head -n1)
+  fi
+
+  # If this is a bootstrap node, write its peer id and IP into shared secrets for workers
+  if [[ "${is_bootstrap}" == "true" && -n "${p2p_id}" ]]; then
+    mkdir -p "${SHARED_SECRETS_DIR}"
+    echo "${p2p_id}" | sed 's/^p2p_//' > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.peerid"
+    echo "$(ip_for_node "${node_num}")" > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.ip"
   fi
 
   for f in "${rendered_file}"; do

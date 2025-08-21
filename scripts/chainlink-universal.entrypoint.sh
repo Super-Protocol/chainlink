@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # Ensure Chainlink node stays PID 1. If present, run publisher in background.
+# Bootstrap nodes write their P2P details to shared secrets for workers
 if [ -x "/init-chainlink.sh" ]; then
   /init-chainlink.sh || true
 fi

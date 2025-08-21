@@ -2,6 +2,7 @@
 set -euo pipefail
 
 CHAINLINK_DIR="/chainlink"
+SHARED_SECRETS_DIR="/sp/secrets"
 
 log() { echo "[init] $*"; }
 
@@ -53,19 +54,7 @@ wait_for_health() {
 }
 
 wait_for_bootstrap_nodes() {
-  local node_num="$1"
-  local bootstrap_nodes_str="${BOOTSTRAP_NODES:-1}"
-  local IFS=' \t,'; read -r -a bs_nodes <<< "$bootstrap_nodes_str"
-  for bn in "${bs_nodes[@]}"; do
-    # skip self
-    if [[ "$bn" == "$node_num" ]]; then continue; fi
-    local host; host=$(ip_for_node "$bn")
-    local port; port=$(http_port_for_node "$bn")
-    log "waiting for bootstrap node ${bn} at ${host}:${port}"
-    if ! wait_for_health "$host" "$port"; then
-      log "bootstrap node ${bn} ${host}:${port} not healthy in time; proceeding with current config"
-    fi
-  done
+  : # no-op: network-based waiting removed in favor of shared secrets
 }
 
 # Wait until bootstrap nodes expose a P2P peerId via /v2/keys/p2p
@@ -73,28 +62,26 @@ wait_for_bootstrap_peer_ids() {
   local node_num="$1"
   local bootstrap_nodes_str="${BOOTSTRAP_NODES:-1}"
   local IFS=' \t,'; read -r -a bs_nodes <<< "$bootstrap_nodes_str"
-  local max_tries="${WAIT_BOOTSTRAP_PEER_TRIES:-180}"
+  local max_tries="${WAIT_BOOTSTRAP_PEER_TRIES:-300}"
+  mkdir -p "$SHARED_SECRETS_DIR"
   for bn in "${bs_nodes[@]}"; do
-    # skip self
     if [[ "$bn" == "$node_num" ]]; then continue; fi
-    local host; host=$(ip_for_node "$bn")
-    local port; port=$(http_port_for_node "$bn")
+    local fpeer="$SHARED_SECRETS_DIR/bootstrap-${bn}.peerid"
+    local fip="$SHARED_SECRETS_DIR/bootstrap-${bn}.ip"
     local tries=0
+    log "waiting for shared secrets of bootstrap node ${bn} in ${SHARED_SECRETS_DIR}"
     while [ "$tries" -lt "$max_tries" ]; do
-      local cookie; cookie=$(mktemp)
-      if login_and_get_cookie "$host" "$port" "$cookie"; then
-        local peer; peer=$(fetch_peer_id "$host" "$port" "$cookie" || true)
-        rm -f "$cookie" || true
-        if [[ -n "$peer" ]]; then
+      if [[ -s "$fpeer" && -s "$fip" ]]; then
+        local peer; peer=$(sed -n '1p' "$fpeer" | sed 's/^p2p_//')
+        local ip; ip=$(sed -n '1p' "$fip")
+        if [[ -n "$peer" && -n "$ip" ]]; then
           log "bootstrap node ${bn} peerId available: ${peer}"
           break
         fi
-      else
-        rm -f "$cookie" || true
       fi
       tries=$((tries+1)); sleep 1
       if [ "$tries" -eq "$max_tries" ]; then
-        log "bootstrap node ${bn} ${host}:${port} peerId not available in time; proceeding"
+        log "shared secrets for bootstrap ${bn} not available in time; proceeding"
       fi
     done
   done
@@ -114,17 +101,16 @@ set_default_bootstrappers() {
     if [[ "$bn" == "$1" ]]; then is_bootstrap=true; break; fi
   done
 
-  # Build entries peer@ip:9999 by polling each bootstrap node API
+  # Build entries peer@ip:9999 by reading from shared secrets
   local entries=()
   for bn in "${bs_nodes[@]}"; do
-    local host; host=$(ip_for_node "$bn"); local port; port=$(http_port_for_node "$bn"); local cookie; cookie=$(mktemp)
-    if login_and_get_cookie "$host" "$port" "$cookie"; then
-      local peer; peer=$(fetch_peer_id "$host" "$port" "$cookie")
-      if [[ -n "$peer" ]]; then
-        entries+=("${peer}@${host}:9999")
-      fi
+    local fpeer="$SHARED_SECRETS_DIR/bootstrap-${bn}.peerid"
+    local fip="$SHARED_SECRETS_DIR/bootstrap-${bn}.ip"
+    if [[ -s "$fpeer" && -s "$fip" ]]; then
+      local peer; peer=$(sed -n '1p' "$fpeer" | sed 's/^p2p_//')
+      local host; host=$(sed -n '1p' "$fip")
+      entries+=("${peer}@${host}:9999")
     fi
-    rm -f "$cookie" || true
   done
 
   if $is_bootstrap; then
@@ -251,6 +237,7 @@ ensure_admin_creds_in_config() {
 
 main() {
   mkdir -p "${CHAINLINK_DIR}/jobs"
+  mkdir -p "${SHARED_SECRETS_DIR}"
   local node_num
   node_num=$(determine_node_number)
   log "node number = ${node_num}"
@@ -275,11 +262,29 @@ main() {
     log "set AnnounceAddresses = ['${ip}:9999']"
   fi
 
-  # Set DefaultBootstrappers dynamically (requires bootstrap nodes to be up)
-  wait_for_bootstrap_nodes "${node_num}"
-  # Additionally wait for bootstrap peerIds so we can populate entries
-  wait_for_bootstrap_peer_ids "${node_num}"
-  set_default_bootstrappers "${node_num}"
+  # Produce or consume shared secrets
+  local bootstrap_nodes_str="${BOOTSTRAP_NODES:-1}"
+  local IFS=' \t,'; read -r -a bs_nodes <<< "$bootstrap_nodes_str"
+  local is_bootstrap=false
+  for bn in "${bs_nodes[@]}"; do if [[ "$bn" == "${node_num}" ]]; then is_bootstrap=true; fi; done
+
+  if $is_bootstrap; then
+    # Try to login locally and write our p2p peer id and IP to shared secrets
+    local cookie_file; cookie_file=$(mktemp)
+    if login_and_get_cookie "127.0.0.1" "$(http_port_for_node "$node_num")" "$cookie_file"; then
+      local peer; peer=$(fetch_peer_id "127.0.0.1" "$(http_port_for_node "$node_num")" "$cookie_file" || true)
+      if [[ -n "$peer" ]]; then
+        echo "$peer" > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.peerid"
+        echo "$(ip_for_node "$node_num")" > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.ip"
+        log "wrote shared secrets for bootstrap node ${node_num}"
+      fi
+    fi
+    rm -f "$cookie_file" || true
+  else
+    # Workers wait for bootstrap secrets and set DefaultBootstrappers
+    wait_for_bootstrap_peer_ids "${node_num}"
+    set_default_bootstrappers "${node_num}"
+  fi
 }
 
 main "$@"
