@@ -14,8 +14,8 @@ LogBackfillBatchSize = 500
 
 [[EVM.Nodes]]
 Name = 'opBNB Testnet'
-WSURL = 'wss://opbnb-testnet.nodereal.io/ws/v1/e9a36765eb8a40b9bd12e680a1fd2bc5'
-HTTPURL = 'https://opbnb-testnet-rpc.bnbchain.org'
+WSURL = 'wss://opbnb-testnet-rpc.publicnode.com'
+HTTPURL = 'https://opbnb-testnet-rpc.publicnode.com'
 
 #[EVM.GasEstimator]
 #Mode = 'FixedPrice'
@@ -61,7 +61,7 @@ TraceLogging = true # Default
 [P2P.V2]
 Enabled = true # Default
 AnnounceAddresses = ['10.5.0.10:9999']
-DefaultBootstrappers = ['12D3KooWQ5SGvyb5bpP4BqVqbva5k6kWVm3QAnQ4rte8u1DRgMAk@10.5.0.9:9999']
+DefaultBootstrappers = ['12D3KooWHWLSpbDqmpTRL6fHtowzkGqxKxwF1LrQXfALV5gNocG4@10.5.0.9:9999']
 DeltaDial = '15s' # Default
 DeltaReconcile = '1m' # Default
 ListenAddresses = ['0.0.0.0:9999'] # Example
