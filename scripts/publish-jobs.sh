@@ -35,6 +35,7 @@ COOKIE_FILE="/tmp/cl_cookie"
 SHARED_SECRETS_DIR="/sp/secrets"
 EVM_EXPORT_PASSWORD="${EVM_EXPORT_PASSWORD:-${CHAINLINK_KEYSTORE_PASSWORD:-export}}"
 OCR_EXPORT_PASSWORD="${OCR_EXPORT_PASSWORD:-${EVM_EXPORT_PASSWORD}}"
+P2P_EXPORT_PASSWORD="${P2P_EXPORT_PASSWORD:-${EVM_EXPORT_PASSWORD}}"
 
 # Compose IP helper
 ip_for_node() {
@@ -282,6 +283,35 @@ publish_jobs() {
     fi
   fi
 
+  # If there is a persisted P2P key, try to import it before ensuring keys
+  DID_IMPORT_P2P=false
+  IMPORTED_P2P_ID=""
+  if [[ -f "/chainlink/p2p_key.json" ]]; then
+    imp_p2p_code=$(curl -sS -o /tmp/p2p_import.json -w '%{http_code}' \
+      -X POST "${API_URL}/v2/keys/p2p/import?oldpassword=${P2P_EXPORT_PASSWORD}" \
+      -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
+      -b "${COOKIE_FILE}" \
+      --data-binary @/chainlink/p2p_key.json || true)
+    echo "[publish] P2P key import http=${imp_p2p_code} (200/201 OK; 409 already exists)" >&2
+    if [[ "${imp_p2p_code}" == "200" || "${imp_p2p_code}" == "201" ]]; then
+      if ensure_jq; then
+        IMPORTED_P2P_ID=$(jq -r '.data | (.attributes.peerId // .peerId // .id // empty)' /tmp/p2p_import.json | sed 's/^p2p_//')
+      else
+        IMPORTED_P2P_ID=$(sed -n 's/.*"peerId"\s*:\s*"\([^"]*\)".*/\1/p' /tmp/p2p_import.json | sed 's/^p2p_//' | head -n1)
+        [[ -z "$IMPORTED_P2P_ID" ]] && IMPORTED_P2P_ID=$(sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' /tmp/p2p_import.json | sed 's/^p2p_//' | head -n1)
+      fi
+      DID_IMPORT_P2P=true
+    elif [[ "${imp_p2p_code}" == "409" ]]; then
+      if ensure_jq; then
+        IMPORTED_P2P_ID=$(jq -r '.peerId // .attributes.peerId // .id // empty' /chainlink/p2p_key.json | sed 's/^p2p_//')
+      else
+        IMPORTED_P2P_ID=$(sed -n 's/.*"peerId"\s*:\s*"\([^"]*\)".*/\1/p' /chainlink/p2p_key.json | sed 's/^p2p_//' | head -n1)
+        [[ -z "$IMPORTED_P2P_ID" ]] && IMPORTED_P2P_ID=$(sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' /chainlink/p2p_key.json | sed 's/^p2p_//' | head -n1)
+      fi
+      DID_IMPORT_P2P=true
+    fi
+  fi
+
   # If there is a persisted OCR key, try to import it before ensuring keys
   DID_IMPORT_OCR=false
   IMPORTED_OCR_ID=""
@@ -319,6 +349,23 @@ publish_jobs() {
     [ -z "$p2p_id" ] && p2p_id=$(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' | head -n1 | sed 's/^p2p_//')
     ocr_id=$(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\([0-9a-f]\{64\}\)".*/\1/p' | head -n1)
     evm_addr=$(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | sed -n 's/.*"address"\s*:\s*"\(0x[0-9a-fA-F]\{40\}\)".*/\1/p' | head -n1)
+  fi
+
+  # Persist exported P2P key JSON if not yet saved
+  if [[ -n "${p2p_id}" && ! -f "/chainlink/p2p_key.json" ]]; then
+    # Use clean base58 peer id (no p2p_ prefix) in API path
+    local p2p_api_id="${p2p_id}"
+    exp_p2p_code=$(curl -sS -o /chainlink/p2p_key.json -w '%{http_code}' \
+      -X POST "${API_URL}/v2/keys/p2p/export/${p2p_api_id}?newpassword=${P2P_EXPORT_PASSWORD}" \
+      -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
+      -b "${COOKIE_FILE}" || true)
+    chmod 600 /chainlink/p2p_key.json || true
+    echo "[publish] P2P key export http=${exp_p2p_code} -> /chainlink/p2p_key.json" >&2
+    # If export returned an error JSON, remove the bad file to avoid future bad imports
+    if grep -q '"errors"' /chainlink/p2p_key.json 2>/dev/null; then
+      echo "[publish] P2P key export returned error payload; removing /chainlink/p2p_key.json" >&2
+      rm -f /chainlink/p2p_key.json || true
+    fi
   fi
 
   # Persist exported OCR key JSON if not yet saved
@@ -363,6 +410,28 @@ publish_jobs() {
           -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
           -b "${COOKIE_FILE}" || true)
         echo "[publish] Deleted extra EVM key ${addr}, http=${del_code}" >&2
+      fi
+    done
+  fi
+
+  # If we imported (or already had) an external P2P key, delete any extra P2P keys not matching it
+  if $DID_IMPORT_P2P && [[ -n "${IMPORTED_P2P_ID}" ]]; then
+    if ensure_jq; then
+      mapfile -t p2p_ids_raw < <(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | jq -r '.data[] | (.attributes.peerId // .peerId // .id)')
+    else
+      IFS=$'\n' read -r -d '' -a p2p_ids_raw < <(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | sed -n 's/.*"peerId"\s*:\s*"\([^"]*\)".*/\1/p' && printf '\0')
+      if [[ ${#p2p_ids_raw[@]} -eq 0 ]]; then
+        IFS=$'\n' read -r -d '' -a p2p_ids_raw < <(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' && printf '\0')
+      fi
+    fi
+    for raw in "${p2p_ids_raw[@]}"; do
+      norm=$(printf '%s' "$raw" | sed 's/^p2p_//')
+      if [[ -n "$norm" && "$norm" != "$IMPORTED_P2P_ID" ]]; then
+        del_p2p_code=$(curl -sS -o /tmp/p2p_delete_${norm}.json -w '%{http_code}' \
+          -X DELETE "${API_URL}/v2/keys/p2p/${norm}" \
+          -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
+          -b "${COOKIE_FILE}" || true)
+        echo "[publish] Deleted extra P2P key ${raw}, http=${del_p2p_code}" >&2
       fi
     done
   fi
