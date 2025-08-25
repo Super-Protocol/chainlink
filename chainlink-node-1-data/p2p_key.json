@@ -1,1 +1,21 @@
-{"keyType":"P2P","publicKey":"d3dff8f7fd0b214ac72ef51c8ade270351323648e32e0f9cd279afb70c10311d","peerID":"p2p_12D3KooWQ5SGvyb5bpP4BqVqbva5k6kWVm3QAnQ4rte8u1DRgMAk","crypto":{"cipher":"aes-128-ctr","ciphertext":"427847de0b1cda2312e2312a6d9d2a85187d3b9271ee683b3e7e97fff013ccffba4a4d8d7f64d51a81d3075cb1108552217209a33c3f225339e0d230c4c2a0bc2fda0894","cipherparams":{"iv":"c81d485e14415fc694f33a917cc7f0c1"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"0ce81af059be13d74a163f34fa070da8033da93f257a4c13e0892e6be2aef4ca"},"mac":"47f0bb99a2f00ca00f3abaa6d4a5bc694c9e7378816f793967fd3d61fed25231"}}
+{
+  "keyType": "P2P",
+  "publicKey": "49927dec9169635357483573f4c820996f6b0d73c69d0e805052ed7e02a74bb2",
+  "peerID": "p2p_12D3KooWEmZVJyQwPs49XeoBsX69b4B6suaXBNEKGdbNp9P524jT",
+  "crypto": {
+    "cipher": "aes-128-ctr",
+    "ciphertext": "80ed53357504e9e7b96acde0c019a5bead5ff8cfd8163b95716e967fa0ce5327b971f7bb48b823a6e15de71f7b16d819ab726f60c441fe3aa91336e0847573e07881d539",
+    "cipherparams": {
+      "iv": "0fb8ad7c75b6ce6c3d78c35cb0196b65"
+    },
+    "kdf": "scrypt",
+    "kdfparams": {
+      "dklen": 32,
+      "n": 262144,
+      "p": 1,
+      "r": 8,
+      "salt": "31b383fceaaffda4a8ddd98b3e076d83f1cc9cf8d939e6ae65da670b6dd20006"
+    },
+    "mac": "4f79dbfdd5d7a2a96f4f24f25fd1e72c539d97f940d26abf2c4b64278c510b85"
+  }
+}
