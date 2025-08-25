@@ -30,7 +30,7 @@ services:
     ports:
       - '6688:6688'
     volumes:
-      - ./scripts/chainlink-universal.entrypoint.sh:/entrypoint.sh:ro
+      - ./scripts/entrypoint.sh:/entrypoint.sh:ro
       - chainlink-node-1-data:/chainlink
     depends_on:
       db:
@@ -50,7 +50,7 @@ services:
     ports:
       - '6689:6688'
     volumes:
-      - ./scripts/chainlink-universal.entrypoint.sh:/entrypoint.sh:ro
+      - ./scripts/entrypoint.sh:/entrypoint.sh:ro
       - chainlink-node-2-data:/chainlink
     depends_on:
       db:
@@ -71,7 +71,7 @@ services:
     ports:
       - '6690:6688'
     volumes:
-      - ./scripts/chainlink-universal.entrypoint.sh:/entrypoint.sh:ro
+      - ./scripts/entrypoint.sh:/entrypoint.sh:ro
       - chainlink-node-3-data:/chainlink
     depends_on:
       db:
@@ -91,7 +91,7 @@ services:
     ports:
       - '6691:6688'
     volumes:
-      - ./scripts/chainlink-universal.entrypoint.sh:/entrypoint.sh:ro
+      - ./scripts/entrypoint.sh:/entrypoint.sh:ro
       - chainlink-node-4-data:/chainlink
     depends_on:
       db:
@@ -111,7 +111,7 @@ services:
     ports:
       - '6692:6688'
     volumes:
-      - ./scripts/chainlink-universal.entrypoint.sh:/entrypoint.sh:ro
+      - ./scripts/entrypoint.sh:/entrypoint.sh:ro
       - chainlink-node-5-data:/chainlink
     depends_on:
       db:

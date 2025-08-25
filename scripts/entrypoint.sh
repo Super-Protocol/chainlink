@@ -13,7 +13,6 @@ fi
 if [ -f "/chainlink/apicredentials" ]; then
   chmod 600 /chainlink/apicredentials || true
   export CL_ADMIN_CREDENTIALS_FILE="/chainlink/apicredentials"
-  export CHAINLINK_ADMIN_CREDENTIALS_FILE="/chainlink/apicredentials"
 fi
 
 cd /chainlink || exit 1

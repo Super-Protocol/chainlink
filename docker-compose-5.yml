@@ -46,7 +46,7 @@ services:
     entrypoint: &cl_entrypoint ["/entrypoint.sh"]
     volumes:
       - ./chainlink-node-1-data:/chainlink
-      - &cl_script_entry ./scripts/chainlink-universal.entrypoint.sh:/entrypoint.sh:ro
+      - &cl_script_entry ./scripts/entrypoint.sh:/entrypoint.sh:ro
       - &cl_script_init ./scripts/init-chainlink.sh:/init-chainlink.sh:ro
       - &cl_script_publish ./scripts/publish-jobs.sh:/publish-jobs.sh:ro
       - &cl_templates ./data-feed-generator/templates:/templates:ro

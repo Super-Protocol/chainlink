@@ -14,7 +14,7 @@ This guide walks through setting up multiple Chainlink Oracle Nodes with Docker 
 ├── .env.example                       # Environment variables example
 ├── scripts/
 │   ├── init-database.sql      # Database initialization script
-│   └── chainlink-universal.entrypoint.sh # Universal node startup script
+│   └── entrypoint.sh # Universal node startup script
 └── README.md
 ```
 
