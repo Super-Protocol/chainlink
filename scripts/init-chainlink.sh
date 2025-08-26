@@ -11,51 +11,6 @@ sed_inplace() {
   sed -i -e "$1" "$2"
 }
 
-http_port_for_node() {
-  # Internal container port for Chainlink HTTP API
-  echo 6688
-}
-
-ip_for_node() {
-  local n="$1"; echo "10.5.0.$((8 + n))";
-}
-
-login_and_get_cookie() {
-  local host="$1"; local port="$2"; local cookie_file="$3";
-  local email password
-  email=$(sed -n '1p' "${CHAINLINK_DIR}/apicredentials" 2>/dev/null || echo "")
-  password=$(sed -n '2p' "${CHAINLINK_DIR}/apicredentials" 2>/dev/null || echo "")
-  [[ -n "$email" && -n "$password" ]] || return 1
-  curl -sS -X POST "http://${host}:${port}/sessions" \
-    -H 'Content-Type: application/json' -c "$cookie_file" \
-    --data "{\"email\":\"${email}\",\"password\":\"${password}\"}" >/dev/null || true
-  grep -q 'clsession' "$cookie_file" 2>/dev/null
-}
-
-fetch_peer_id() {
-  local host="$1"; local port="$2"; local cookie_file="$3";
-  local raw
-  raw=$(curl -sS -X GET "http://${host}:${port}/v2/keys/p2p" -b "$cookie_file" || true)
-  # Try to extract attributes.peerId (strip p2p_), else id (strip p2p_)
-  printf '%s' "$raw" | sed -n 's/.*"peerId"\s*:\s*"\([^"]*\)".*/\1/p' | sed 's/^p2p_//' | head -n1 && return 0
-  printf '%s' "$raw" | sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' | head -n1 | sed 's/^p2p_//' && return 0
-  return 1
-}
-
-wait_for_health() {
-  local host="$1"; local port="$2"; local tries=0; local max_tries="${WAIT_BOOTSTRAP_TRIES:-120}"
-  while [ "$tries" -lt "$max_tries" ]; do
-    if curl -sS "http://${host}:${port}/health" >/dev/null 2>&1; then
-      return 0
-    fi
-    tries=$((tries+1)); sleep 1
-  done
-  return 1
-}
-
-wait_for_bootstrap_nodes() {
-  : # no-op: network-based waiting removed in favor of shared secrets
-}
 
 # Wait until bootstrap nodes expose a P2P peerId via /v2/keys/p2p
 wait_for_bootstrap_peer_ids() {
@@ -113,7 +68,7 @@ set_default_bootstrappers() {
     fi
   done
 
-  if $is_bootstrap; then
+  if [[ "$is_bootstrap" == true ]]; then
     # For any bootstrap node, ensure empty DefaultBootstrappers
     local list_str="[]"
     if grep -qE '^\s*DefaultBootstrappers\s*=' "$cfg"; then
@@ -161,8 +116,8 @@ ensure_config() {
     log "config.toml exists; leaving as is"
     return
   fi
-  if [[ -z "${CHAINLINK_CHAIN_ID:-}" || -z "${CHAINLINK_HTTP_URL:-}" ]]; then
-    log "CHAINLINK_CHAIN_ID/CHAINLINK_HTTP_URL not set; skip config generation"
+  if [[ -z "${CHAINLINK_CHAIN_ID:-}" || -z "${CHAINLINK_RPC_HTTP_URL:-}" ]]; then
+    log "CHAINLINK_CHAIN_ID/CHAINLINK_RPC_HTTP_URL not set; skip config generation"
     return
   fi
   cat > "${CHAINLINK_DIR}/config.toml" <<EOF
@@ -182,7 +137,7 @@ LogBackfillBatchSize = 500
 
 [[EVM.Nodes]]
 Name = 'primary'
-HTTPURL = '${CHAINLINK_HTTP_URL}'
+HTTPURL = '${CHAINLINK_RPC_HTTP_URL}'
 EOF
   log "generated config.toml"
 }
@@ -268,18 +223,9 @@ main() {
   local is_bootstrap=false
   for bn in "${bs_nodes[@]}"; do if [[ "$bn" == "${node_num}" ]]; then is_bootstrap=true; fi; done
 
-  if $is_bootstrap; then
-    # Try to login locally and write our p2p peer id and IP to shared secrets
-    local cookie_file; cookie_file=$(mktemp)
-    if login_and_get_cookie "127.0.0.1" "$(http_port_for_node "$node_num")" "$cookie_file"; then
-      local peer; peer=$(fetch_peer_id "127.0.0.1" "$(http_port_for_node "$node_num")" "$cookie_file" || true)
-      if [[ -n "$peer" ]]; then
-        echo "$peer" > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.peerid"
-        echo "$(ip_for_node "$node_num")" > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.ip"
-        log "wrote shared secrets for bootstrap node ${node_num}"
-      fi
-    fi
-    rm -f "$cookie_file" || true
+  if [[ "$is_bootstrap" == true ]]; then
+    # Defer writing bootstrap peer secrets to post-start scripts (import-keys/publish-jobs)
+    :
   else
     # Workers wait for bootstrap secrets and set DefaultBootstrappers
     wait_for_bootstrap_peer_ids "${node_num}"
@@ -288,5 +234,3 @@ main() {
 }
 
 main "$@"
-
-

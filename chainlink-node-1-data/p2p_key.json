@@ -1,12 +1,12 @@
 {
   "keyType": "P2P",
-  "publicKey": "49927dec9169635357483573f4c820996f6b0d73c69d0e805052ed7e02a74bb2",
-  "peerID": "p2p_12D3KooWEmZVJyQwPs49XeoBsX69b4B6suaXBNEKGdbNp9P524jT",
+  "publicKey": "d7c76bc0cdcc3727a5506b58c392214704c7fe78759f3bf2026bd14e9db75542",
+  "peerID": "p2p_12D3KooWQLgC8USz5FJEBeui67V8kxcEBrMsC6DLY5xKDZip7Khj",
   "crypto": {
     "cipher": "aes-128-ctr",
-    "ciphertext": "80ed53357504e9e7b96acde0c019a5bead5ff8cfd8163b95716e967fa0ce5327b971f7bb48b823a6e15de71f7b16d819ab726f60c441fe3aa91336e0847573e07881d539",
+    "ciphertext": "8750c430aa0c20c4be6652e0fea45eb199769b3ffa4304ea9686e081decaf80d1dc01c22d18eff6a7b6ebec8ca7b94af021ddb20d93397f34b7127e3f2a4e7aa78f8593e",
     "cipherparams": {
-      "iv": "0fb8ad7c75b6ce6c3d78c35cb0196b65"
+      "iv": "398a39f9df26b911d98fa549c33e796e"
     },
     "kdf": "scrypt",
     "kdfparams": {
@@ -14,8 +14,8 @@
       "n": 262144,
       "p": 1,
       "r": 8,
-      "salt": "31b383fceaaffda4a8ddd98b3e076d83f1cc9cf8d939e6ae65da670b6dd20006"
+      "salt": "eefacb046badca51534dd7edb66fb4c8f2f8f54083063df8344285cb9a00ee96"
     },
-    "mac": "4f79dbfdd5d7a2a96f4f24f25fd1e72c539d97f940d26abf2c4b64278c510b85"
+    "mac": "9903592514a5e7cd2d6ac55e14969cba02b185f7cec9695687e1da8af31c49d7"
   }
 }

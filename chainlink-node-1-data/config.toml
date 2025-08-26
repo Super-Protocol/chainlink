@@ -17,10 +17,6 @@ Name = 'opBNB Testnet'
 WSURL = 'wss://opbnb-testnet-rpc.publicnode.com'
 HTTPURL = 'https://opbnb-testnet-rpc.publicnode.com'
 
-#[EVM.GasEstimator]
-#Mode = 'FixedPrice'
-#PriceDefault = '1000000000'
-
 [EVM.GasEstimator]
 Mode = 'FixedPrice'
 PriceDefault = '20'
@@ -51,19 +47,11 @@ CacheTimeout = '10s'
 
 [OCR]
 Enabled = true
-# ObservationTimeout = '10s'
-# BlockchainTimeout = '20s'
-# ContractPollInterval = '1m'
-# ContractSubscribeInterval = '2m'
-# DefaultTransactionQueueDepth = 1
-
 
 [P2P]
 IncomingMessageBufferSize = 10 # Default
 OutgoingMessageBufferSize = 10 # Default
-# PeerID = '12D3KooWMoejJznyDuEk5aX6GvbjaG12UzeornPCBNzMRqdwrFJw' # Example
-TraceLogging = false # Default
-# Enabled = false
+TraceLogging = true # Default
 
 [P2P.V2]
 Enabled = true # Default

@@ -1,23 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-have_jq() { command -v jq >/dev/null 2>&1; }
-
-install_jq() {
-  if have_jq; then return 0; fi
-  if command -v apk >/dev/null 2>&1; then
-    apk add --no-cache jq >/dev/null 2>&1 || true
-  elif command -v apt-get >/dev/null 2>&1; then
-    apt-get update -y >/dev/null 2>&1 || true
-    apt-get install -y jq >/dev/null 2>&1 || true
-  elif command -v yum >/dev/null 2>&1; then
-    yum install -y jq >/dev/null 2>&1 || true
-  fi
-  have_jq
-}
-
-ensure_jq() { have_jq || install_jq; }
-
 json_escape() {
   # Escapes input for safe embedding as a JSON string
   sed -e 's/\\/\\\\/g' \
@@ -90,12 +73,7 @@ fetch_bootstrap_peer_from_env() {
       -c "$cookie_file" \
       --data "{\"email\":\"${email}\",\"password\":\"${password}\"}")
     if [[ "$http_code" == "200" || "$http_code" == "201" ]]; then
-      if have_jq; then
-        peer_id=$(curl -sS -X GET "http://${host}:${port}/v2/keys/p2p" -b "$cookie_file" | jq -r '.data[0] | (.attributes.peerId // .peerId // .id // empty) | sub("^p2p_";"")')
-      else
-        peer_id=$(curl -sS -X GET "http://${host}:${port}/v2/keys/p2p" -b "$cookie_file" | sed -n 's/.*"peerId"\s*:\s*"\([^"]*\)".*/\1/p' | sed 's/^p2p_//' | head -n1)
-        [[ -z "$peer_id" ]] && peer_id=$(curl -sS -X GET "http://${host}:${port}/v2/keys/p2p" -b "$cookie_file" | sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' | head -n1 | sed 's/^p2p_//')
-      fi
+      peer_id=$(curl -sS -X GET "http://${host}:${port}/v2/keys/p2p" -b "$cookie_file" | jq -r '.data[0] | (.attributes.peerId // .peerId // .id // empty) | sub("^p2p_";"")')
       if [[ -n "$peer_id" ]]; then break; fi
     fi
     tries=$((tries+1)); sleep 1
@@ -156,16 +134,6 @@ chain_id_from_config() {
 email=$(sed -n '1p' /chainlink/apicredentials 2>/dev/null || echo "")
 password=$(sed -n '2p' /chainlink/apicredentials 2>/dev/null || echo "")
 
-wait_for_api() {
-  for i in {1..120}; do
-    if curl -sS "${API_URL}/health" >/dev/null 2>&1; then
-      return 0
-    fi
-    sleep 1
-  done
-  return 1
-}
-
 login() {
   [[ -n "$email" && -n "$password" ]] || return 1
   local tries=0
@@ -188,11 +156,7 @@ csrf() {
   token=$(curl -sSI -X GET "${API_URL}/v2/csrf" -b "${COOKIE_FILE}" | awk -F': ' 'BEGIN{IGNORECASE=1} tolower($1)=="x-csrf-token" {gsub(/\r/,"",$2); print $2}')
   if [ -n "$token" ]; then echo "$token"; return 0; fi
   # Fallback to JSON body
-  if have_jq; then
-    token=$(curl -sS -X GET "${API_URL}/v2/csrf" -b "${COOKIE_FILE}" | jq -r '.data.csrfToken // .token // empty')
-  else
-    token=$(curl -sS -X GET "${API_URL}/v2/csrf" -b "${COOKIE_FILE}" | sed -n 's/.*\"csrfToken\"\s*:\s*\"\([^\"]*\)\".*/\1/p')
-  fi
+  token=$(curl -sS -X GET "${API_URL}/v2/csrf" -b "${COOKIE_FILE}" | jq -r '.data.csrfToken // .token // empty')
   echo "$token"
 }
 
@@ -251,95 +215,6 @@ publish_jobs() {
   fi
   local token
   token=$(csrf || true)
-
-  # If there is a persisted EVM private key, try to import it before ensuring keys
-  DID_IMPORT=false
-  IMPORTED_ADDR=""
-  if [[ -f "/chainlink/evm_key.json" ]]; then
-    if [[ -n "${evm_chain_id}" ]]; then
-      imp_code=$(curl -sS -o /tmp/evm_import.json -w '%{http_code}' \
-        -X POST "${API_URL}/v2/keys/evm/import?oldpassword=${EVM_EXPORT_PASSWORD}&evmChainID=${evm_chain_id}" \
-        -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
-        -b "${COOKIE_FILE}" \
-        --data-binary @/chainlink/evm_key.json || true)
-      echo "[publish] EVM key import http=${imp_code} (200/201 OK; 409 already exists)" >&2
-      if [[ "${imp_code}" == "200" || "${imp_code}" == "201" ]]; then
-        # Try to read imported address from import response
-        if have_jq; then
-          IMPORTED_ADDR=$(jq -r '.data.attributes.address // .data.address // .attributes.address // .address // empty' /tmp/evm_import.json)
-        else
-          IMPORTED_ADDR=$(sed -n 's/.*"address"\s*:\s*"\(0x[0-9a-fA-F]\{40\}\)".*/\1/p' /tmp/evm_import.json | head -n1)
-        fi
-        DID_IMPORT=true
-      elif [[ "${imp_code}" == "409" ]]; then
-        # Already imported previously; attempt to extract address from file
-        if have_jq; then
-          IMPORTED_ADDR=$(jq -r '.address // .data.attributes.address // .attributes.address // empty' /chainlink/evm_key.json)
-        else
-          IMPORTED_ADDR=$(sed -n 's/.*\(0x[0-9a-fA-F]\{40\}\).*/\1/p' /chainlink/evm_key.json | head -n1)
-        fi
-        DID_IMPORT=true
-      fi
-    else
-      echo "[publish] Skipping EVM key import: evm_chain_id is empty" >&2
-    fi
-  fi
-
-  # If there is a persisted P2P key, try to import it before ensuring keys
-  DID_IMPORT_P2P=false
-  IMPORTED_P2P_ID=""
-  if [[ -f "/chainlink/p2p_key.json" ]]; then
-    imp_p2p_code=$(curl -sS -o /tmp/p2p_import.json -w '%{http_code}' \
-      -X POST "${API_URL}/v2/keys/p2p/import?oldpassword=${P2P_EXPORT_PASSWORD}" \
-      -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
-      -b "${COOKIE_FILE}" \
-      --data-binary @/chainlink/p2p_key.json || true)
-    echo "[publish] P2P key import http=${imp_p2p_code} (200/201 OK; 409 already exists)" >&2
-    if [[ "${imp_p2p_code}" == "200" || "${imp_p2p_code}" == "201" ]]; then
-      if ensure_jq; then
-        IMPORTED_P2P_ID=$(jq -r '.data | (.attributes.peerId // .peerId // .id // empty)' /tmp/p2p_import.json | sed 's/^p2p_//')
-      else
-        IMPORTED_P2P_ID=$(sed -n 's/.*"peerId"\s*:\s*"\([^"]*\)".*/\1/p' /tmp/p2p_import.json | sed 's/^p2p_//' | head -n1)
-        [[ -z "$IMPORTED_P2P_ID" ]] && IMPORTED_P2P_ID=$(sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' /tmp/p2p_import.json | sed 's/^p2p_//' | head -n1)
-      fi
-      DID_IMPORT_P2P=true
-    elif [[ "${imp_p2p_code}" == "409" ]]; then
-      if ensure_jq; then
-        IMPORTED_P2P_ID=$(jq -r '.peerId // .attributes.peerId // .id // empty' /chainlink/p2p_key.json | sed 's/^p2p_//')
-      else
-        IMPORTED_P2P_ID=$(sed -n 's/.*"peerId"\s*:\s*"\([^"]*\)".*/\1/p' /chainlink/p2p_key.json | sed 's/^p2p_//' | head -n1)
-        [[ -z "$IMPORTED_P2P_ID" ]] && IMPORTED_P2P_ID=$(sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' /chainlink/p2p_key.json | sed 's/^p2p_//' | head -n1)
-      fi
-      DID_IMPORT_P2P=true
-    fi
-  fi
-
-  # If there is a persisted OCR key, try to import it before ensuring keys
-  DID_IMPORT_OCR=false
-  IMPORTED_OCR_ID=""
-  if [[ -f "/chainlink/ocr_key.json" ]]; then
-    imp_ocr_code=$(curl -sS -o /tmp/ocr_import.json -w '%{http_code}' \
-      -X POST "${API_URL}/v2/keys/ocr/import?oldpassword=${OCR_EXPORT_PASSWORD}" \
-      -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
-      -b "${COOKIE_FILE}" \
-      --data-binary @/chainlink/ocr_key.json || true)
-    echo "[publish] OCR key import http=${imp_ocr_code} (200/201 OK; 409 already exists)" >&2
-    if [[ "${imp_ocr_code}" == "200" || "${imp_ocr_code}" == "201" ]]; then
-      if ensure_jq; then
-        IMPORTED_OCR_ID=$(jq -r '.data.id // .data.attributes.id // .id // empty' /tmp/ocr_import.json)
-      else
-        IMPORTED_OCR_ID=$(sed -n 's/.*"id"\s*:\s*"\([0-9a-fA-F]\{64\}\)".*/\1/p' /tmp/ocr_import.json | head -n1)
-      fi
-      DID_IMPORT_OCR=true
-    elif [[ "${imp_ocr_code}" == "409" ]]; then
-      if ensure_jq; then
-        IMPORTED_OCR_ID=$(jq -r '.id // .data.id // .data.attributes.id // empty' /chainlink/ocr_key.json)
-      else
-        IMPORTED_OCR_ID=$(sed -n 's/.*"id"\s*:\s*"\([0-9a-fA-F]\{64\}\)".*/\1/p' /chainlink/ocr_key.json | head -n1)
-      fi
-      DID_IMPORT_OCR=true
-    fi
-  fi
   # Fetch live keys to align TOML with node state
   local p2p_id ocr_id evm_addr
   if ensure_jq; then
@@ -353,107 +228,11 @@ publish_jobs() {
     evm_addr=$(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | sed -n 's/.*"address"\s*:\s*"\(0x[0-9a-fA-F]\{40\}\)".*/\1/p' | head -n1)
   fi
 
-  # Persist exported P2P key JSON if not yet saved
-  if [[ -n "${p2p_id}" && ! -f "/chainlink/p2p_key.json" ]]; then
-    # Use clean base58 peer id (no p2p_ prefix) in API path
-    local p2p_api_id="${p2p_id}"
-    exp_p2p_code=$(curl -sS -o /chainlink/p2p_key.json -w '%{http_code}' \
-      -X POST "${API_URL}/v2/keys/p2p/export/${p2p_api_id}?newpassword=${P2P_EXPORT_PASSWORD}" \
-      -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
-      -b "${COOKIE_FILE}" || true)
-    chmod 600 /chainlink/p2p_key.json || true
-    echo "[publish] P2P key export http=${exp_p2p_code} -> /chainlink/p2p_key.json" >&2
-    # If export returned an error JSON, remove the bad file to avoid future bad imports
-    if grep -q '"errors"' /chainlink/p2p_key.json 2>/dev/null; then
-      echo "[publish] P2P key export returned error payload; removing /chainlink/p2p_key.json" >&2
-      rm -f /chainlink/p2p_key.json || true
-    fi
-  fi
-
-  # Persist exported OCR key JSON if not yet saved
-  if [[ -n "${ocr_id}" && ! -f "/chainlink/ocr_key.json" ]]; then
-    exp_ocr_code=$(curl -sS -o /chainlink/ocr_key.json -w '%{http_code}' \
-      -X POST "${API_URL}/v2/keys/ocr/export/${ocr_id}?newpassword=${OCR_EXPORT_PASSWORD}" \
-      -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
-      -b "${COOKIE_FILE}" || true)
-    chmod 600 /chainlink/ocr_key.json || true
-    echo "[publish] OCR key export http=${exp_ocr_code} -> /chainlink/ocr_key.json" >&2
-  fi
-
   # If this is a bootstrap node, write its peer id and IP into shared secrets for workers
   if [[ "${is_bootstrap}" == "true" && -n "${p2p_id}" ]]; then
     mkdir -p "${SHARED_SECRETS_DIR}"
     echo "${p2p_id}" | sed 's/^p2p_//' > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.peerid"
     echo "$(ip_for_node "${node_num}")" > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.ip"
-  fi
-
-  # Persist exported EVM key JSON if not yet saved
-  if [[ -n "${evm_addr}" && ! -f "/chainlink/evm_key.json" ]]; then
-    exp_code=$(curl -sS -o /chainlink/evm_key.json -w '%{http_code}' \
-      -X POST "${API_URL}/v2/keys/evm/export/${evm_addr}?newpassword=${EVM_EXPORT_PASSWORD}" \
-      -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
-      -b "${COOKIE_FILE}" || true)
-    chmod 600 /chainlink/evm_key.json || true
-    echo "[publish] EVM key export http=${exp_code} -> /chainlink/evm_key.json" >&2
-  fi
-
-  # If we imported (or already had) an external key, delete any extra EVM keys not matching it
-  if $DID_IMPORT && [[ -n "${IMPORTED_ADDR}" ]]; then
-    # Fetch all EVM keys and delete those not equal to IMPORTED_ADDR
-    if ensure_jq; then
-      mapfile -t evm_addrs < <(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | jq -r '.data[] | (.attributes.address // .address)')
-    else
-      IFS=$'\n' read -r -d '' -a evm_addrs < <(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | sed -n 's/.*"address"\s*:\s*"\(0x[0-9a-fA-F]\{40\}\)".*/\1/p' && printf '\0')
-    fi
-    for addr in "${evm_addrs[@]}"; do
-      if [[ -n "$addr" && "${addr,,}" != "${IMPORTED_ADDR,,}" ]]; then
-        del_code=$(curl -sS -o /tmp/evm_delete_${addr}.json -w '%{http_code}' \
-          -X DELETE "${API_URL}/v2/keys/evm/${addr}" \
-          -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
-          -b "${COOKIE_FILE}" || true)
-        echo "[publish] Deleted extra EVM key ${addr}, http=${del_code}" >&2
-      fi
-    done
-  fi
-
-  # If we imported (or already had) an external P2P key, delete any extra P2P keys not matching it
-  if $DID_IMPORT_P2P && [[ -n "${IMPORTED_P2P_ID}" ]]; then
-    if ensure_jq; then
-      mapfile -t p2p_ids_raw < <(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | jq -r '.data[] | (.attributes.peerId // .peerId // .id)')
-    else
-      IFS=$'\n' read -r -d '' -a p2p_ids_raw < <(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | sed -n 's/.*"peerId"\s*:\s*"\([^"]*\)".*/\1/p' && printf '\0')
-      if [[ ${#p2p_ids_raw[@]} -eq 0 ]]; then
-        IFS=$'\n' read -r -d '' -a p2p_ids_raw < <(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' && printf '\0')
-      fi
-    fi
-    for raw in "${p2p_ids_raw[@]}"; do
-      norm=$(printf '%s' "$raw" | sed 's/^p2p_//')
-      if [[ -n "$norm" && "$norm" != "$IMPORTED_P2P_ID" ]]; then
-        del_p2p_code=$(curl -sS -o /tmp/p2p_delete_${norm}.json -w '%{http_code}' \
-          -X DELETE "${API_URL}/v2/keys/p2p/${norm}" \
-          -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
-          -b "${COOKIE_FILE}" || true)
-        echo "[publish] Deleted extra P2P key ${raw}, http=${del_p2p_code}" >&2
-      fi
-    done
-  fi
-
-  # If we imported (or already had) an external OCR key, delete any extra OCR keys not matching it
-  if $DID_IMPORT_OCR && [[ -n "${IMPORTED_OCR_ID}" ]]; then
-    if ensure_jq; then
-      mapfile -t ocr_ids < <(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | jq -r '.data[] | (.id // .attributes.id)')
-    else
-      IFS=$'\n' read -r -d '' -a ocr_ids < <(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\([0-9a-f]\{64\}\)".*/\1/p' && printf '\0')
-    fi
-    for id in "${ocr_ids[@]}"; do
-      if [[ -n "$id" && "${id,,}" != "${IMPORTED_OCR_ID,,}" ]]; then
-        del_ocr_code=$(curl -sS -o /tmp/ocr_delete_${id}.json -w '%{http_code}' \
-          -X DELETE "${API_URL}/v2/keys/ocr/${id}" \
-          -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
-          -b "${COOKIE_FILE}" || true)
-        echo "[publish] Deleted extra OCR key ${id}, http=${del_ocr_code}" >&2
-      fi
-    done
   fi
 
   for f in "${rendered_file}"; do
@@ -514,5 +293,4 @@ publish_jobs() {
   done
 }
 
-wait_for_api && login && publish_jobs || true
-
+login && publish_jobs || true

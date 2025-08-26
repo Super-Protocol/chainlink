@@ -9,17 +9,13 @@ SecureCookies = false
 HTTPSPort = 0
 
 [[EVM]]
-ChainID = '5611'
+ChainID = '$CHAINLINK_CHAIN_ID'
 LogBackfillBatchSize = 500
 
 [[EVM.Nodes]]
-Name = 'opBNB Testnet'
-WSURL = 'wss://opbnb-testnet-rpc.publicnode.com'
-HTTPURL = 'https://opbnb-testnet-rpc.publicnode.com'
-
-#[EVM.GasEstimator]
-#Mode = 'FixedPrice'
-#PriceDefault = '1000000000'
+Name = '$CHAINLINK_RPC_NAME'
+WSURL = '$CHAINLINK_RPC_WS_URL'
+HTTPURL = '$CHAINLINK_RPC_HTTP_URL'
 
 [EVM.GasEstimator]
 Mode = 'FixedPrice'
@@ -55,13 +51,12 @@ Enabled = true
 [P2P]
 IncomingMessageBufferSize = 10 # Default
 OutgoingMessageBufferSize = 10 # Default
-# PeerID = '12D3KooWMoejJznyDuEk5aX6GvbjaG12UzeornPCBNzMRqdwrFJw' # Example
 TraceLogging = true # Default
 
 [P2P.V2]
 Enabled = true # Default
-AnnounceAddresses = ['10.5.0.13:9999']
-DefaultBootstrappers = ['12D3KooWQLgC8USz5FJEBeui67V8kxcEBrMsC6DLY5xKDZip7Khj@10.5.0.9:9999']
+AnnounceAddresses = ['10.5.0.10:9999']
+DefaultBootstrappers = $DEFAULT_BOOTSTRAPERS
 DeltaDial = '15s' # Default
 DeltaReconcile = '1m' # Default
 ListenAddresses = ['0.0.0.0:9999'] # Example

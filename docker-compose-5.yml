@@ -26,7 +26,10 @@ services:
       start_period: 5s
 
   chainlink-node-1:
-    image: &cl_image smartcontract/chainlink:2.27.0
+    image: &cl_image sp-chainlink:latest
+    build:
+      context: .
+      dockerfile: dockerfile
     container_name: chainlink-node-1
     platform: linux/arm64
     user: '0:0' # Run as root
@@ -43,17 +46,18 @@ services:
       - NODE_NUMBER=1
     env_file:
       - .env
-    entrypoint: &cl_entrypoint ["/entrypoint.sh"]
+    entrypoint: &cl_entrypoint ["/scripts/entrypoint.sh"]
     volumes:
       - ./chainlink-node-1-data:/chainlink
-      - &cl_script_entry ./scripts/entrypoint.sh:/entrypoint.sh:ro
-      - &cl_script_init ./scripts/init-chainlink.sh:/init-chainlink.sh:ro
-      - &cl_script_publish ./scripts/publish-jobs.sh:/publish-jobs.sh:ro
+      - &cl_scripts ./scripts/:/scripts:ro
       - &cl_templates ./data-feed-generator/templates:/templates:ro
       - &cl_sp_secrets spsecrets:/sp/secrets:rw
 
   chainlink-node-2:
     image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
     container_name: chainlink-node-2
     platform: linux/arm64
     user: '0:0'
@@ -70,9 +74,7 @@ services:
     entrypoint: *cl_entrypoint
     volumes:
       - ./chainlink-node-2-data:/chainlink
-      - *cl_script_entry
-      - *cl_script_init
-      - *cl_script_publish
+      - *cl_scripts
       - *cl_templates
       - *cl_sp_secrets
     restart: unless-stopped
@@ -84,6 +86,9 @@ services:
   # Легко добавить третью ноду
   chainlink-node-3:
     image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
     container_name: chainlink-node-3
     platform: linux/arm64
     user: '0:0'
@@ -92,9 +97,7 @@ services:
     entrypoint: *cl_entrypoint
     volumes:
       - ./chainlink-node-3-data:/chainlink
-      - *cl_script_entry
-      - *cl_script_init
-      - *cl_script_publish
+      - *cl_scripts
       - *cl_templates
       - *cl_sp_secrets
     networks:
@@ -113,6 +116,9 @@ services:
 
   chainlink-node-4:
     image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
     container_name: chainlink-node-4
     platform: linux/arm64
     user: '0:0'
@@ -129,9 +135,7 @@ services:
     entrypoint: *cl_entrypoint
     volumes:
       - ./chainlink-node-4-data:/chainlink
-      - *cl_script_entry
-      - *cl_script_init
-      - *cl_script_publish
+      - *cl_scripts
       - *cl_templates
       - *cl_sp_secrets
     restart: unless-stopped
@@ -142,6 +146,9 @@ services:
 
   chainlink-node-5:
     image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
     container_name: chainlink-node-5
     platform: linux/arm64
     user: '0:0'
@@ -158,9 +165,7 @@ services:
     entrypoint: *cl_entrypoint
     volumes:
       - ./chainlink-node-5-data:/chainlink
-      - *cl_script_entry
-      - *cl_script_init
-      - *cl_script_publish
+      - *cl_scripts
       - *cl_templates
       - *cl_sp_secrets
     restart: unless-stopped
