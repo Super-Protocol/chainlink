@@ -14,5 +14,6 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | b
 RUN bash -c "source $NVM_DIR/nvm.sh && nvm install $NODE_VERSION"
 
 COPY scripts /scripts
+COPY data-feed-generator/templates /job-templates
 
 RUN cd /scripts/secrets && npm ci

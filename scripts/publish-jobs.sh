@@ -11,16 +11,14 @@ json_escape() {
 }
 
 API_URL="http://127.0.0.1:6688"
-JOBS_DIR="/chainlink/jobs"
-TEMPLATES_DIR="${TEMPLATES_DIR:-/templates}"
-TEMPLATE_FILE="${TEMPLATE_FILE:-${TEMPLATES_DIR}/btc-usd.toml}"
+JOB_TEMPLATES_DIR="${JOB_TEMPLATES_DIR:-/job-templates}"
+JOB_RENDERS_DIR="${JOB_RENDERS_DIR:-/tmp/job-renders}"
 COOKIE_FILE="/tmp/cl_cookie"
 SHARED_SECRETS_DIR="/sp/secrets"
 EVM_EXPORT_PASSWORD="${EVM_EXPORT_PASSWORD:-${CHAINLINK_KEYSTORE_PASSWORD:-export}}"
 OCR_EXPORT_PASSWORD="${OCR_EXPORT_PASSWORD:-${EVM_EXPORT_PASSWORD}}"
 P2P_EXPORT_PASSWORD="${P2P_EXPORT_PASSWORD:-${EVM_EXPORT_PASSWORD}}"
-
-echo "EVM_EXPORT_PASSWORD: ${EVM_EXPORT_PASSWORD}"
+mkdir -p $JOB_RENDERS_DIR
 
 # Compose IP helper
 ip_for_node() {
@@ -160,118 +158,85 @@ csrf() {
   echo "$token"
 }
 
-publish_jobs() {
-  [[ -d "${JOBS_DIR}" ]] || mkdir -p "${JOBS_DIR}"
-
-  # Render a job from template into JOBS_DIR
-  local node_num is_bootstrap bootstrap_peers evm_chain_id rendered_file tmpfile
+render_jobs() {
+  mkdir -p "${JOB_RENDERS_DIR}"
+  local node_num is_bootstrap bootstrap_peers evm_chain_id
   node_num=$(determine_node_number)
   is_bootstrap=$(is_node_bootstrap "$node_num")
-  # Prefer discovering bootstrap peer via API of the first bootstrap node from env
-  IFS='|' read -r bs_peer bs_ip < <(bootstrap_info_from_shared_secrets)
-  if [[ -z "$bs_peer" || -z "$bs_ip" ]]; then
-    IFS='|' read -r bs_peer bs_ip < <(fetch_bootstrap_peer_from_env)
-  fi
-  if [[ -n "$bs_peer" && -n "$bs_ip" ]]; then
-    bootstrap_peers="[\"/ip4/${bs_ip}/tcp/9999/p2p/${bs_peer}\"]"
-  else
-    bootstrap_peers=$(bootstrap_peers_multiaddr_from_config)
-  fi
-  evm_chain_id=$(chain_id_from_config)
-  rendered_file="${JOBS_DIR}/btc-usd.node-${node_num}.toml"
 
-  if [[ -f "${TEMPLATE_FILE}" ]]; then
-    cp "${TEMPLATE_FILE}" "${rendered_file}"
-  fi
+  # Resolve bootstrap peers from config
+  bootstrap_peers=$(bootstrap_peers_multiaddr_from_config)
+  # Resolve chain id from config or env
+  evm_chain_id=${CHAINLINK_CHAIN_ID:-$(chain_id_from_config)}
 
-  # Ensure critical fields exist in the rendered file even before key discovery
-  if [[ -f "${rendered_file}" ]]; then
-    # p2pBootstrapPeers
-    if [[ -n "$bootstrap_peers" ]]; then
-      if grep -qE '^\s*p2pBootstrapPeers\s*=' "${rendered_file}"; then
-        sed -i'' -E "s#^\s*p2pBootstrapPeers\s*=.*#p2pBootstrapPeers = ${bootstrap_peers}#" "${rendered_file}"
-      else
-        printf '\n%s\n' "p2pBootstrapPeers = ${bootstrap_peers}" >> "${rendered_file}"
-      fi
-    fi
-    # isBootstrapPeer
-    if grep -qE '^\s*isBootstrapPeer\s*=' "${rendered_file}"; then
-      if [[ "$is_bootstrap" == "true" ]]; then
-        sed -i'' -E "s#^\s*isBootstrapPeer\s*=.*#isBootstrapPeer = true#" "${rendered_file}"
-      else
-        sed -i'' -E "s#^\s*isBootstrapPeer\s*=.*#isBootstrapPeer = false#" "${rendered_file}"
-      fi
-    else
-      printf '\n%s\n' "isBootstrapPeer = ${is_bootstrap}" >> "${rendered_file}"
-    fi
-    # evmChainID
-    if [[ -n "$evm_chain_id" ]]; then
-      if grep -qE '^\s*evmChainID\s*=' "${rendered_file}"; then
-        sed -i'' -E "s#^\s*evmChainID\s*=\s*\".*\"#evmChainID = \"${evm_chain_id}\"#" "${rendered_file}" || true
-      else
-        printf '\n%s\n' "evmChainID = \"${evm_chain_id}\"" >> "${rendered_file}"
-      fi
-    fi
-  fi
-  local token
-  token=$(csrf || true)
-  # Fetch live keys to align TOML with node state
+  # Try to resolve IDs; prefer API for EVM address to keep EIP55 checksum
+  local secrets_dir="${SHARED_SECRETS_DIR}/cl-secrets/${node_num}"
   local p2p_id ocr_id evm_addr
-
-  p2p_id=$(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | jq -r '.data[0].attributes.peerId // .data[0].peerId // (.data[0].id|sub("^p2p_";"")) // empty')
-  ocr_id=$(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | jq -r '.data[0].id // .data[0].attributes.id // empty')
-  evm_addr=$(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | jq -r '.data[0].attributes.address // .data[0].address // empty')
-
-  # If this is a bootstrap node, write its peer id and IP into shared secrets for workers
-  if [[ "${is_bootstrap}" == "true" && -n "${p2p_id}" ]]; then
-    mkdir -p "${SHARED_SECRETS_DIR}"
-    echo "${p2p_id}" | sed 's/^p2p_//' > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.peerid"
-    echo "$(ip_for_node "${node_num}")" > "${SHARED_SECRETS_DIR}/bootstrap-${node_num}.ip"
+  # P2P
+  p2p_id=$(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | jq -r '.data[0].attributes.peerId // .data[0].id // empty' | sed 's/^p2p_//')
+  if [[ -z "$p2p_id" && -f "${secrets_dir}/p2p_key.json" ]]; then
+    p2p_id=$(jq -r '(.peerID // .peerId // empty)' "${secrets_dir}/p2p_key.json" | sed 's/^p2p_//')
+  fi
+  # OCR
+  ocr_id=$(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | jq -r '.data[0].id // empty')
+  if [[ -z "$ocr_id" && -f "${secrets_dir}/ocr_key.json" ]]; then
+    ocr_id=$(jq -r '.id // empty' "${secrets_dir}/ocr_key.json")
+  fi
+  # EVM (prefer API to keep EIP55 checksum)
+  evm_addr=$(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | jq -r '.data[0].attributes.address // empty')
+  if [[ -z "$evm_addr" && -f "${secrets_dir}/evm_key.json" ]]; then
+    evm_addr_raw=$(jq -r '.address // empty' "${secrets_dir}/evm_key.json")
+    [[ -n "$evm_addr_raw" ]] && evm_addr="0x${evm_addr_raw}"
   fi
 
-  for f in "${rendered_file}"; do
-    [[ -f "$f" ]] || continue
-    # Rewrite a temp file with live keys if available
-    local src="$f" tmp=""
-    if [ -n "$p2p_id" ] || [ -n "$ocr_id" ] || [ -n "$evm_addr" ]; then
-      tmp=$(mktemp)
-      cp "$f" "$tmp"
-      [ -n "$p2p_id" ] && sed -i'' -E "s/^(\s*p2pPeerID\s*=\s*)\".*\"/\1\"${p2p_id}\"/" "$tmp"
-      [ -n "$ocr_id" ] && sed -i'' -E "s/^(\s*keyBundleID\s*=\s*)\".*\"/\1\"${ocr_id}\"/" "$tmp"
-      [ -n "$evm_addr" ] && sed -i'' -E "s/^(\s*transmitterAddress\s*=\s*)\".*\"/\1\"${evm_addr}\"/" "$tmp"
-      src="$tmp"
-    fi
+  # Export variables for envsubst
+  export EVM_CHAIN_ID="${evm_chain_id:-}"
+  export IS_BOOTSTRAP=$([[ "$is_bootstrap" == "true" ]] && echo true || echo false)
+  export P2P_PEER_ID="${p2p_id:-}"
+  export P2P_BOOTSTRAP_PEERS="${bootstrap_peers:-[] }"
+  export OCR_KEY_BUNDLE_ID="${ocr_id:-}"
+  export TRANSMITTER_ADDRESS="${evm_addr:-}"
 
-    # Always ensure p2pBootstrapPeers, isBootstrapPeer, evmChainID
-    if [[ -z "$tmp" ]]; then tmp=$(mktemp); cp "$src" "$tmp"; src="$tmp"; fi
-    if [[ -n "$bootstrap_peers" ]]; then
-      if grep -qE '^\s*p2pBootstrapPeers\s*=' "$src"; then
-        sed -i'' -E "s#^\s*p2pBootstrapPeers\s*=.*#p2pBootstrapPeers = ${bootstrap_peers}#" "$src"
-      else
-        printf '\n%s\n' "p2pBootstrapPeers = ${bootstrap_peers}" >> "$src"
-      fi
-    fi
-    if [[ -n "$evm_chain_id" ]]; then
-      sed -i'' -E "s#^\s*evmChainID\s*=\s*\".*\"#evmChainID = \"${evm_chain_id}\"#" "$src" || true
-    fi
-    if [[ "$is_bootstrap" == "true" ]]; then
-      sed -i'' -E "s#^\s*isBootstrapPeer\s*=.*#isBootstrapPeer = true#" "$src" || true
-      # Remove observationSource block and forbidden fields for bootstrap peer
+  # Render all templates
+  shopt -s nullglob
+  for tpl in "${JOB_TEMPLATES_DIR}"/*.toml; do
+    local base out
+    base=$(basename "$tpl" .toml)
+    out="${JOB_RENDERS_DIR}/${base}.node-${node_num}.toml"
+    envsubst < "$tpl" > "$out"
+    # For bootstrap node, mirror generate.sh behavior: drop fields not allowed
+    if [[ "$IS_BOOTSTRAP" == "true" ]]; then
+      # Remove observationSource multiline block
       awk '
         BEGIN{skip=0}
         /^[[:space:]]*observationSource[[:space:]]*=[[:space:]]*"""/ { skip=1; next }
         skip && /^[[:space:]]*"""[[:space:]]*$/ { skip=0; next }
         skip { next }
         { print }
-      ' "$src" > "${src}.clean" && mv "${src}.clean" "$src"
-      sed -i'' -E '/^[[:space:]]*keyBundleID[[:space:]]*=.*/d' "$src"
-      sed -i'' -E '/^[[:space:]]*transmitterAddress[[:space:]]*=.*/d' "$src"
-    else
-      sed -i'' -E "s#^\s*isBootstrapPeer\s*=.*#isBootstrapPeer = false#" "$src" || true
+      ' "$out" > "${out}.clean" && mv "${out}.clean" "$out"
+      # Remove single-line forbidden keys
+      sed -i'' -E '/^[[:space:]]*keyBundleID[[:space:]]*=.*/d' "$out"
+      sed -i'' -E '/^[[:space:]]*transmitterAddress[[:space:]]*=.*/d' "$out"
+      # Ensure flag is true
+      sed -i'' -E "s#^\s*isBootstrapPeer\s*=.*#isBootstrapPeer = true#" "$out" || true
     fi
+    echo "[render] Wrote $out"
+  done
+}
 
+# Only render into /job-renders as requested
+login || true
+render_jobs || true
+
+publish_rendered_jobs() {
+  [[ "${PUBLISH:-true}" == "true" ]] || return 0
+  local token http_code
+  token=$(csrf || true)
+  shopt -s nullglob
+  for f in "${JOB_RENDERS_DIR}"/*.toml; do
+    [[ -f "$f" ]] || continue
     local body
-    body=$(jq -Rs '. as $toml | {toml:$toml}' < "$src")
+    body=$(jq -Rs '. as $toml | {toml:$toml}' < "$f")
     http_code=$(curl -sS -o /tmp/job_resp.json -w '%{http_code}' -X POST "${API_URL}/v2/jobs" \
       -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
       -b "${COOKIE_FILE}" --data "${body}")
@@ -281,8 +246,7 @@ publish_jobs() {
     else
       echo "[publish] Created job from $f"
     fi
-    [ -n "$tmp" ] && rm -f "$tmp" || true
   done
 }
 
-login && publish_jobs || true
+publish_rendered_jobs || true
