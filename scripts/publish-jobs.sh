@@ -217,16 +217,10 @@ publish_jobs() {
   token=$(csrf || true)
   # Fetch live keys to align TOML with node state
   local p2p_id ocr_id evm_addr
-  if ensure_jq; then
-    p2p_id=$(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | jq -r '.data[0].attributes.peerId // .data[0].peerId // (.data[0].id|sub("^p2p_";"")) // empty')
-    ocr_id=$(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | jq -r '.data[0].id // .data[0].attributes.id // empty')
-    evm_addr=$(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | jq -r '.data[0].attributes.address // .data[0].address // empty')
-  else
-    p2p_id=$(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | sed -n 's/.*"peerId"\s*:\s*"\([^"]*\)".*/\1/p' | head -n1)
-    [ -z "$p2p_id" ] && p2p_id=$(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\(p2p_[^"]*\)".*/\1/p' | head -n1 | sed 's/^p2p_//')
-    ocr_id=$(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | sed -n 's/.*"id"\s*:\s*"\([0-9a-f]\{64\}\)".*/\1/p' | head -n1)
-    evm_addr=$(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | sed -n 's/.*"address"\s*:\s*"\(0x[0-9a-fA-F]\{40\}\)".*/\1/p' | head -n1)
-  fi
+
+  p2p_id=$(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | jq -r '.data[0].attributes.peerId // .data[0].peerId // (.data[0].id|sub("^p2p_";"")) // empty')
+  ocr_id=$(curl -sS -X GET "${API_URL}/v2/keys/ocr" -b "${COOKIE_FILE}" | jq -r '.data[0].id // .data[0].attributes.id // empty')
+  evm_addr=$(curl -sS -X GET "${API_URL}/v2/keys/evm" -b "${COOKIE_FILE}" | jq -r '.data[0].attributes.address // .data[0].address // empty')
 
   # If this is a bootstrap node, write its peer id and IP into shared secrets for workers
   if [[ "${is_bootstrap}" == "true" && -n "${p2p_id}" ]]; then
@@ -276,8 +270,6 @@ publish_jobs() {
       sed -i'' -E "s#^\s*isBootstrapPeer\s*=.*#isBootstrapPeer = false#" "$src" || true
     fi
 
-    # JSON {toml:"..."} using jq to guarantee valid JSON string
-    ensure_jq || { echo "[publish] jq not available; skip publishing $f" >&2; continue; }
     local body
     body=$(jq -Rs '. as $toml | {toml:$toml}' < "$src")
     http_code=$(curl -sS -o /tmp/job_resp.json -w '%{http_code}' -X POST "${API_URL}/v2/jobs" \
