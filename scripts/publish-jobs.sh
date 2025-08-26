@@ -243,6 +243,34 @@ publish_rendered_jobs() {
     if ! echo "$http_code" | grep -qE '^(200|201)$'; then
       echo "[publish] Failed to create job from $f, http=$http_code" >&2
       cat /tmp/job_resp.json >&2 || true
+      echo ''
+      # Try to update existing job (match by contractAddress + evmChainID)
+      # Extract from rendered TOML
+      contract_addr=$(sed -n 's/^\s*contractAddress\s*=\s*"\([^"]\+\)".*$/\1/p' "$f" | head -n1)
+      chain_id=$(sed -n 's/^\s*evmChainID\s*=\s*"\([0-9]\+\)".*$/\1/p' "$f" | head -n1)
+      if [[ -n "$contract_addr" && -n "$chain_id" ]]; then
+        addr_lc=$(printf '%s' "$contract_addr" | tr '[:upper:]' '[:lower:]')
+        job_id=$(curl -sS -X GET "${API_URL}/v2/jobs" -b "${COOKIE_FILE}" \
+          | jq -r --arg addr "$addr_lc" --arg chain "$chain_id" '
+              .data[]
+              | select(.attributes.offChainReportingOracleSpec != null)
+              | select(((.attributes.offChainReportingOracleSpec.contractAddress // "") | ascii_downcase) == $addr)
+              | select((.attributes.offChainReportingOracleSpec.evmChainID | tostring) == $chain)
+              | .id' | head -n1)
+        if [[ -n "$job_id" && "$job_id" != "null" ]]; then
+          http_code_put=$(curl -sS -o /tmp/job_resp_put.json -w '%{http_code}' -X PUT "${API_URL}/v2/jobs/${job_id}" \
+            -H 'Content-Type: application/json' ${token:+-H "X-CSRF-Token: ${token}"} \
+            -b "${COOKIE_FILE}" --data "${body}")
+          if echo "$http_code_put" | grep -qE '^(200|201)$'; then
+            echo "[publish] Updated existing job ${job_id} from $f"
+          else
+            echo "[publish] Failed to update job ${job_id} from $f, http=$http_code_put" >&2
+            cat /tmp/job_resp_put.json >&2 || true
+          fi
+        else
+          echo "[publish] No existing job matched contract ${contract_addr} chain ${chain_id}; skip update" >&2
+        fi
+      fi
     else
       echo "[publish] Created job from $f"
     fi
