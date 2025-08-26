@@ -18,14 +18,6 @@ wait_for_node_payload() {
   return 1
 }
 
-copy_payload_into_chainlink() {
-  local n="$1"; local d="$CL_SHARED_DIR/$n"
-  install -m 600 -D "$d/evm_key.json" /chainlink/evm_key.json || true
-  install -m 600 -D "$d/p2p_key.json" /chainlink/p2p_key.json || true
-  install -m 600 -D "$d/ocr_key.json" /chainlink/ocr_key.json || true
-  install -m 644 -D "$d/config.toml" /chainlink/config.toml || true
-}
-
 # Node 1 generates shared payload for all nodes; others wait and copy
 n=$(node_number)
 if [ "$n" = "1" ]; then
@@ -33,12 +25,6 @@ if [ "$n" = "1" ]; then
   TOTAL_NODES="${TOTAL_NODES:-5}" bash /scripts/generate-secrets.sh || log "generate-secrets failed (continuing)"
 else
   log "skip generate-secrets: node=$n or script missing"
-fi
-
-if ! copy_payload_into_chainlink "$n" 2>/dev/null; then
-  if wait_for_node_payload "$n"; then
-    copy_payload_into_chainlink "$n"
-  fi
 fi
 
 # Ensure Chainlink node stays PID 1. If present, run publisher in background.

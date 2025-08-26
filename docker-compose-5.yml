@@ -51,7 +51,7 @@ services:
       - ./chainlink-node-1-data:/chainlink
       - &cl_scripts ./scripts/:/scripts:ro
       - &cl_templates ./data-feed-generator/templates:/templates:ro
-      - &cl_sp_secrets spsecrets:/sp/secrets:rw
+      - &cl_sp_secrets ./sp-secrets:/sp/secrets:rw
 
   chainlink-node-2:
     image: *cl_image
@@ -176,7 +176,6 @@ services:
 
 volumes:
   postgres-data:
-  spsecrets:
   chainlink-node-1-data:
   chainlink-node-2-data:
   chainlink-node-3-data:
