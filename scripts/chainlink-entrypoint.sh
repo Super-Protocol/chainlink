@@ -39,15 +39,9 @@ if [ -f "/chainlink/apicredentials" ]; then
 fi
 
 nohup bash -c "
-  if [ -x "/scripts/wait-node.sh" ]; then
-    /scripts/wait-node.sh
-  fi
-  if [ -x \"/scripts/import-keys.sh\" ]; then
-    /scripts/import-keys.sh
-  fi
-  if [ -x \"/scripts/publish-jobs.sh\" ]; then
-    /scripts/publish-jobs.sh
-  fi
+  /scripts/wait-node.sh
+  /scripts/import-keys.sh
+  /scripts/publish-jobs.sh
 " >/proc/1/fd/1 2>/proc/1/fd/2 &
 
 cd /chainlink || exit 1

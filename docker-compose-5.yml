@@ -1,29 +1,29 @@
 services:
-  db:
-    image: postgres:17
-    shm_size: 128mb
-    environment:
-      POSTGRES_USER: ${PGUSER}
-      POSTGRES_PASSWORD: ${PGPASSWORD}
-      POSTGRES_DB: ${PGDATABASE}
-    ports:
-      - '${PGPORT}:5432'
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - /etc/timezone:/etc/timezone:ro
-      - ./scripts/init-database.sql:/docker-entrypoint-initdb.d/init-database.sql
-    env_file:
-      - .env
-    restart: unless-stopped
-    networks:
-      chainlink-network:
-        ipv4_address: 10.5.0.8
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${PGUSER} -d ${PGDATABASE}']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
+  # db:
+  #   image: postgres:17
+  #   shm_size: 128mb
+  #   environment:
+  #     POSTGRES_USER: ${PGUSER}
+  #     POSTGRES_PASSWORD: ${PGPASSWORD}
+  #     POSTGRES_DB: ${PGDATABASE}
+  #   ports:
+  #     - '${PGPORT}:5432'
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #     - /etc/timezone:/etc/timezone:ro
+  #     - ./scripts/init-database.sql:/docker-entrypoint-initdb.d/init-database.sql
+  #   env_file:
+  #     - .env
+  #   restart: unless-stopped
+  #   networks:
+  #     chainlink-network:
+  #       ipv4_address: 10.5.0.8
+  #   healthcheck:
+  #     test: ['CMD-SHELL', 'pg_isready -U ${PGUSER} -d ${PGDATABASE}']
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 5s
 
   chainlink-node-1:
     image: &cl_image sp-chainlink:latest
@@ -31,13 +31,13 @@ services:
       context: .
       dockerfile: dockerfile
     container_name: chainlink-node-1
-    platform: linux/arm64
+    platform: linux/amd64
     user: '0:0' # Run as root
     ports:
       - '6688:6688'
-    depends_on:
-      db:
-        condition: service_healthy
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
     networks:
       chainlink-network:
         ipv4_address: 10.5.0.9
@@ -59,7 +59,7 @@ services:
       context: .
       dockerfile: dockerfile
     container_name: chainlink-node-2
-    platform: linux/arm64
+    platform: linux/amd64
     user: '0:0'
     ports:
       - '6689:6688'
@@ -69,8 +69,8 @@ services:
     depends_on:
       chainlink-node-1:
         condition: service_started
-      db:
-        condition: service_healthy
+      # db:
+      #   condition: service_healthy
     entrypoint: *cl_entrypoint
     volumes:
       - ./chainlink-node-2-data:/chainlink
@@ -90,7 +90,7 @@ services:
       context: .
       dockerfile: dockerfile
     container_name: chainlink-node-3
-    platform: linux/arm64
+    platform: linux/amd64
     user: '0:0'
     ports:
       - '6690:6688'
@@ -106,8 +106,8 @@ services:
     depends_on:
       chainlink-node-1:
         condition: service_started
-      db:
-        condition: service_healthy
+      # db:
+      #   condition: service_healthy
     restart: unless-stopped
     environment:
       - NODE_NUMBER=3
@@ -120,7 +120,7 @@ services:
       context: .
       dockerfile: dockerfile
     container_name: chainlink-node-4
-    platform: linux/arm64
+    platform: linux/amd64
     user: '0:0'
     ports:
       - '6691:6688'
@@ -130,8 +130,8 @@ services:
     depends_on:
       chainlink-node-1:
         condition: service_started
-      db:
-        condition: service_healthy
+      # db:
+      #   condition: service_healthy
     entrypoint: *cl_entrypoint
     volumes:
       - ./chainlink-node-4-data:/chainlink
@@ -150,7 +150,7 @@ services:
       context: .
       dockerfile: dockerfile
     container_name: chainlink-node-5
-    platform: linux/arm64
+    platform: linux/amd64
     user: '0:0'
     ports:
       - '6692:6688'
@@ -160,8 +160,8 @@ services:
     depends_on:
       chainlink-node-1:
         condition: service_started
-      db:
-        condition: service_healthy
+      # db:
+      #   condition: service_healthy
     entrypoint: *cl_entrypoint
     volumes:
       - ./chainlink-node-5-data:/chainlink
@@ -175,7 +175,7 @@ services:
       - .env
 
 volumes:
-  postgres-data:
+  # postgres-data:
   chainlink-node-1-data:
   chainlink-node-2-data:
   chainlink-node-3-data:
