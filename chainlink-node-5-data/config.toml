@@ -22,8 +22,8 @@ LinkContractAddress = '0xDA333D5948610a7634202A9420c0c17034B6484A'
 
 [[EVM.Nodes]]
 Name = 'opbnb-testnet-5-primary'
-WSURL = 'wss://opbnb-testnet.nodereal.io/ws/v1/e9a36765eb8a40b9bd12e680a1fd2bc5'
-HTTPURL = 'https://opbnb-testnet-rpc.bnbchain.org'
+WSURL = 'wss://opbnb.testnet.superprotocol.com/'
+HTTPURL = 'https://opbnb.testnet.superprotocol.com/'
 SendOnly = false
 
 [EVM.GasEstimator]
@@ -76,7 +76,7 @@ TraceLogging = true # Default
 [P2P.V2]
 Enabled = true # Default
 AnnounceAddresses = ['10.5.0.13:9999']
-DefaultBootstrappers = ['12D3KooWQCqrvShyy9GeypXXCoK9im5hxLEiyqGuUHeLDbZbYktv@10.5.0.9:9999']
+DefaultBootstrappers = ['12D3KooWQCqrvShyy9GeypXXCoK9im5hxLEiyqGuUHeLDbZbYktv@chainlink-node-1:9999']
 DeltaDial = '15s' # Default
 DeltaReconcile = '1m' # Default
 ListenAddresses = ['0.0.0.0:9999'] # Example

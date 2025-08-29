@@ -33,75 +33,6 @@ ip_for_node() {
   echo "10.5.0.$((8 + node_num))"
 }
 
-# Parse bootstrap peer id and IP from node config files (DefaultBootstrappers)
-read_bootstrap_from_configs() {
-  local nodes_list_str="$1"
-  local peer_id="" ip=""
-  local IFS=' \t\n'
-  for node_num in ${nodes_list_str}; do
-    local cfg="${REPO_ROOT}/chainlink-node-${node_num}-data/config.toml"
-    [[ -f "${cfg}" ]] || continue
-    # Extract first quoted bootstrap entry '<peer>@<ip>:<port>' under [P2P.V2]
-    # Pure awk solution (handles both single and double quotes)
-    local entry
-    entry=$(awk '
-      /^\s*\[P2P\.V2\]/{inblock=1; next}
-      inblock && /^\s*\[/{inblock=0}
-      inblock && /DefaultBootstrappers/ {
-        line=$0
-        # Try single-quoted first element
-        if (match(line, /'"'"'([^'"'"']+)'"'"'/)) {
-          print substr(line, RSTART+1, RLENGTH-2)
-          exit
-        }
-        # Try double-quoted first element
-        if (match(line, /"([^"]+)"/)) {
-          print substr(line, RSTART+1, RLENGTH-2)
-          exit
-        }
-        exit
-      }
-    ' "${cfg}")
-    # Fallback: sed-based extraction for single quotes
-    if [[ -z "${entry}" ]]; then
-      entry=$(awk '/^\s*\[P2P\.V2\]/{inblock=1;next} inblock && /^\s*\[/{inblock=0} inblock && /DefaultBootstrappers/ {print; exit}' "${cfg}" | sed -n "s/.*'\([^']*\)'.*/\1/p")
-    fi
-    # Fallback: sed-based extraction for double quotes
-    if [[ -z "${entry}" ]]; then
-      entry=$(awk '/^\s*\[P2P\.V2\]/{inblock=1;next} inblock && /^\s*\[/{inblock=0} inblock && /DefaultBootstrappers/ {print; exit}' "${cfg}" | sed -n 's/.*"\([^"]*\)".*/\1/p')
-    fi
-    [[ -n "${DEBUG:-}" ]] && echo "[debug] parsed bootstrap entry from node ${node_num}: '${entry}' from ${cfg}" >&2
-    if [[ -n "${entry}" ]]; then
-      peer_id="${entry%@*}"
-      local hostport="${entry#*@}"
-      ip="${hostport%%:*}"
-      break
-    fi
-  done
-  if [[ -n "${peer_id}" && -n "${ip}" ]]; then
-    echo "${peer_id}|${ip}"
-  else
-    echo "|"
-  fi
-}
-
-build_p2p_bootstrap_peers_array() {
-  # Build TOML array literal from one or more bootstrap entries
-  local entries_csv="$1" # "peer@ip:9999,peer2@ip2:9999"
-  local arr=()
-  local IFS=','; read -r -a parts <<< "${entries_csv}"
-  for e in "${parts[@]}"; do
-    [[ -z "$e" ]] && continue
-    # arr+=("\"/ip4/${e#*@}/tcp/9999/tls/ws/p2p/${e%@*@}\"")
-    arr+=("\"/ip4/${e#*@}/tcp/9999/p2p/${e%@*@}\"")
-  done
-  if [[ ${#arr[@]} -eq 0 ]]; then
-    echo "[]"
-  else
-    local IFS=','; echo "[${arr[*]}]"
-  fi
-}
-
 require_bin() {
   local bin="$1"
   if ! command -v "$bin" >/dev/null 2>&1; then
@@ -194,29 +125,6 @@ fetch_csrf_token() {
   local body_token
   body_token=$(curl -sS -X GET "http://127.0.0.1:${port}/v2/csrf" -b "${cookie_file}" | jq -r '.data | .csrfToken // .token // empty')
   echo "${body_token}"
-}
-
-# Discover keys on the node via API
-discover_node_info() {
-  local port="$1"  # expects cookie set in curl via -b
-  local cookie_file="$2"
-  local csrf_token="$3"
-
-  # P2P Peer ID
-  local peer_id
-  peer_id=$(curl -sS -X GET "http://127.0.0.1:${port}/v2/keys/p2p" -b "${cookie_file}" -H "X-CSRF-Token: ${csrf_token}" \
-    | jq -r '.data[0] | (.attributes.peerId // .peerId // (.id | sub("^p2p_";"")) // empty)')
-
-  # OCR key bundle ID (OCR1)
-  local ocr_key_id
-  ocr_key_id=$(curl -sS -X GET "http://127.0.0.1:${port}/v2/keys/ocr" -b "${cookie_file}" -H "X-CSRF-Token: ${csrf_token}" \
-    | jq -r '.data[0] | (.id // .attributes.id // empty)')
-
-  # Transmitter (EVM) address
-  local transmitter
-  transmitter=$(curl -sS -X GET "http://127.0.0.1:${port}/v2/keys/evm" -b "${cookie_file}" -H "X-CSRF-Token: ${csrf_token}" | jq -r '.data[0].attributes.address // .data[0].address')
-
-  echo "${peer_id}|${ocr_key_id}|${transmitter}"
 }
 
 # Ensure required keys exist; if missing, create them and return ids
@@ -391,4 +299,3 @@ main() {
 }
 
 main "$@"
-

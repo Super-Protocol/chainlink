@@ -112,13 +112,38 @@ main() {
     local is_primary=false; local pn
     for pn in "${pr_nodes[@]:-}"; do if [[ "$pn" == "${node_num}" ]]; then is_primary=true; fi; done
     if [[ "$is_bootstrap" == false ]]; then
-      for bn in "${bs_nodes[@]}"; do
-        local fpeer="${SHARED_SECRETS_DIR}/bootstrap-${bn}.peerid"; local fip="${SHARED_SECRETS_DIR}/bootstrap-${bn}.ip"
-        local peer=""; local ip="10.5.0.$((8 + bn))"
-        [[ -s "$fpeer" ]] && peer=$(sed -n '1p' "$fpeer" | sed 's/^p2p_//')
-        [[ -s "$fip" ]] && ip=$(sed -n '1p' "$fip")
-        if [[ -n "$peer" ]]; then entries+=("'${peer}@${ip}:9999'"); fi
-      done
+      if [[ -n "${BOOTSTRAP_NODE_ADDRESSES:-}" ]]; then
+        # Build from BOOTSTRAP_NODE_ADDRESSES (host:port[,host:port]) zipped with peer IDs
+        local peer_ids=()
+        for bn in "${bs_nodes[@]}"; do
+          local fpeer="${SHARED_SECRETS_DIR}/bootstrap-${bn}.peerid"
+          if [[ -s "$fpeer" ]]; then
+            local pid; pid=$(sed -n '1p' "$fpeer" | sed 's/^p2p_//')
+            [[ -n "$pid" ]] && peer_ids+=("$pid")
+          fi
+        done
+        IFS=',' read -r -a addrs <<< "${BOOTSTRAP_NODE_ADDRESSES}"
+        local n=${#addrs[@]}; local m=${#peer_ids[@]}; local limit=$(( n < m ? n : m ))
+        for ((i=0; i<limit; i++)); do
+          local a="${addrs[$i]}"; a=$(echo "$a" | xargs)
+          [[ -z "$a" ]] && continue
+          local host="${a%%:*}"; local port="${a##*:}"
+          [[ -z "$port" || "$port" == "$host" ]] && port="9999"
+          local pid="${peer_ids[$i]}"
+          if [[ -n "$host" && -n "$pid" ]]; then
+            entries+=("'${pid}@${host}:${port}'")
+          fi
+        done
+      else
+        for bn in "${bs_nodes[@]}"; do
+          local fpeer="${SHARED_SECRETS_DIR}/bootstrap-${bn}.peerid"; local fip="${SHARED_SECRETS_DIR}/bootstrap-${bn}.ip"
+          local peer=""; local ip="10.5.0.$((8 + bn))"
+          # local peer=""; local ip="chainlink-node-${bn}"
+          [[ -s "$fpeer" ]] && peer=$(sed -n '1p' "$fpeer" | sed 's/^p2p_//')
+          [[ -s "$fip" ]] && ip=$(sed -n '1p' "$fip")
+          if [[ -n "$peer" ]]; then entries+=("'${peer}@${ip}:9999'"); fi
+        done
+      fi
     fi
     local DEFAULT_BOOTSTRAPERS OCR_KEY_BUNDLE_ID TRANSMITTER_ADDRESS
     if [[ ${#entries[@]} -eq 0 ]]; then DEFAULT_BOOTSTRAPERS="[]"; else DEFAULT_BOOTSTRAPERS="[${entries[*]}]"; fi
@@ -183,6 +208,7 @@ main() {
 
   # Set AnnounceAddresses based on docker-compose static IP scheme
   local ip="10.5.0.$((8 + node_num))"
+  # local ip="chainlink-node-$node_num"
   local cfg="${CHAINLINK_DIR}/config.toml"
   if [[ -f "$cfg" ]]; then
     if grep -qE '^\s*AnnounceAddresses\s*=' "$cfg"; then

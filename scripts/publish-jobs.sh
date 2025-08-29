@@ -104,6 +104,42 @@ is_node_bootstrap() {
 # Parse first bootstrap entry from config.toml DefaultBootstrappers and convert to multiaddr
 bootstrap_peers_multiaddr_from_config() {
   local cfg="/chainlink/config.toml"
+  # Prefer explicit env BOOTSTRAP_NODE_ADDRESSES
+  if [[ -n "${BOOTSTRAP_NODE_ADDRESSES:-}" ]]; then
+    local bs_env="${BOOTSTRAP_NODES:-1}"; local IFS=' \t,'; read -r -a bs_nodes <<< "$bs_env"
+    local peer_ids=()
+    for bn in "${bs_nodes[@]}"; do
+      local fpeer="${SHARED_SECRETS_DIR}/bootstrap-${bn}.peerid"
+      if [[ -s "$fpeer" ]]; then
+        local pid; pid=$(sed -n '1p' "$fpeer" | sed 's/^p2p_//')
+        [[ -n "$pid" ]] && peer_ids+=("$pid")
+      fi
+    done
+    IFS=',' read -r -a addrs <<< "${BOOTSTRAP_NODE_ADDRESSES}"
+    local out="["; local first=true
+    local n=${#addrs[@]}; local m=${#peer_ids[@]}; local limit=$(( n < m ? n : m ))
+    for ((i=0; i<limit; i++)); do
+      local a="${addrs[$i]}"; a=$(echo "$a" | xargs)
+      [[ -z "$a" ]] && continue
+      local host="${a%%:*}"; local port="${a##*:}"
+      [[ -z "$port" || "$port" == "$host" ]] && port="9999"
+      local pid="${peer_ids[$i]}"
+      if [[ -n "$host" && -n "$pid" ]]; then
+        if [[ "$first" == true ]]; then
+          first=false
+        else
+          out+=", "
+        fi
+        if [[ "$host" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          out+="\"/ip4/${host}/tcp/${port}/tls/ws/p2p/${pid}\""
+        else
+          out+="\"/dns4/${host}/tcp/${port}/tls/ws/p2p/${pid}\""
+        fi
+      fi
+    done
+    out+="]"; echo "$out"; return
+  fi
+  # Fallback to config DefaultBootstrappers (first entry)
   [[ -f "$cfg" ]] || { echo "[]"; return; }
   local entry
   entry=$(awk '
@@ -111,12 +147,16 @@ bootstrap_peers_multiaddr_from_config() {
     inblock && /^\s*\[/ {inblock=0}
     inblock && /DefaultBootstrappers/ {print; exit}
   ' "$cfg")
-  local peer ip
+  local peer host
   peer=$(printf '%s\n' "$entry" | sed -n "s/.*'\([^'@]*\)@.*/\1/p")
   if [[ -z "$peer" ]]; then peer=$(printf '%s\n' "$entry" | sed -n 's/.*"\([^"@]*\)@.*/\1/p'); fi
-  ip=$(printf '%s\n' "$entry" | sed -n "s/.*@\([^:'\"]*\):.*/\1/p")
-  if [[ -n "$peer" && -n "$ip" ]]; then
-    echo "[\"/ip4/${ip}/tcp/9999/p2p/${peer}\"]"
+  host=$(printf '%s\n' "$entry" | sed -n "s/.*@\([^:'\"]*\):.*/\1/p")
+  if [[ -n "$peer" && -n "$host" ]]; then
+    if [[ "$host" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "[\"/ip4/${host}/tcp/9999/tls/ws/p2p/${peer}\"]"
+    else
+      echo "[\"/dns4/${host}/tcp/9999/tls/ws/p2p/${peer}\"]"
+    fi
   else
     echo "[]"
   fi
