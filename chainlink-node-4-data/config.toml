@@ -8,23 +8,28 @@ SecureCookies = false
 [WebServer.TLS]
 HTTPSPort = 0
 
+[Feature]
+FeedsManager = true
+LogPoller = false
+UICSAKeys = false
+CCIP = false
+MultiFeedsManagers = false
+
 [[EVM]]
 ChainID = '5611'
 LogBackfillBatchSize = 500
+LinkContractAddress = '0xDA333D5948610a7634202A9420c0c17034B6484A'
 
 [[EVM.Nodes]]
-Name = 'opBNB Testnet'
-WSURL = 'wss://opbnb-testnet-rpc.publicnode.com'
-HTTPURL = 'https://opbnb-testnet-rpc.publicnode.com'
-
-#[EVM.GasEstimator]
-#Mode = 'FixedPrice'
-#PriceDefault = '1000000000'
+Name = 'opbnb-testnet-4-primary'
+WSURL = 'wss://opbnb-testnet.nodereal.io/ws/v1/e9a36765eb8a40b9bd12e680a1fd2bc5'
+HTTPURL = 'https://opbnb-testnet-rpc.bnbchain.org'
+SendOnly = false
 
 [EVM.GasEstimator]
 Mode = 'FixedPrice'
 PriceDefault = '20'
-PriceMax = '115792089237316195423570985008687907853269984665.640564039457584007913129639935 tether'
+PriceMax = '1000 gwei'
 PriceMin = '1 wei'
 LimitDefault = 500000
 LimitMax = 500000
@@ -51,11 +56,21 @@ CacheTimeout = '10s'
 
 [OCR]
 Enabled = true
+ObservationTimeout = '5s'
+BlockchainTimeout = '20s'
+ContractPollInterval = '1m0s'
+ContractSubscribeInterval = '2m0s'
+DefaultTransactionQueueDepth = 1
+KeyBundleID = 'c28a2aed56cc66c75d374d4189699efb51f505c81b7db87383a5fe402baf8319'
+SimulateTransactions = false
+TransmitterAddress = '0xfB83aEBeFD0CA46fBe92e335B7DE3454b4Ae0342'
+CaptureEATelemetry = false
+TraceLogging = false
+ConfigLogValidation = false
 
 [P2P]
 IncomingMessageBufferSize = 10 # Default
 OutgoingMessageBufferSize = 10 # Default
-# PeerID = '12D3KooWMoejJznyDuEk5aX6GvbjaG12UzeornPCBNzMRqdwrFJw' # Example
 TraceLogging = true # Default
 
 [P2P.V2]

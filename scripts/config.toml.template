@@ -8,19 +8,28 @@ SecureCookies = false
 [WebServer.TLS]
 HTTPSPort = 0
 
+[Feature]
+FeedsManager = true
+LogPoller = false
+UICSAKeys = false
+CCIP = false
+MultiFeedsManagers = false
+
 [[EVM]]
 ChainID = '$CHAINLINK_CHAIN_ID'
 LogBackfillBatchSize = 500
+LinkContractAddress = '0xDA333D5948610a7634202A9420c0c17034B6484A'
 
 [[EVM.Nodes]]
-Name = '$CHAINLINK_RPC_NAME'
+Name = '$CHAINLINK_NODE_NAME'
 WSURL = '$CHAINLINK_RPC_WS_URL'
 HTTPURL = '$CHAINLINK_RPC_HTTP_URL'
+SendOnly = false
 
 [EVM.GasEstimator]
 Mode = 'FixedPrice'
 PriceDefault = '20'
-PriceMax = '115792089237316195423570985008687907853269984665.640564039457584007913129639935 tether'
+PriceMax = '1000 gwei'
 PriceMin = '1 wei'
 LimitDefault = 500000
 LimitMax = 500000
@@ -47,6 +56,17 @@ CacheTimeout = '10s'
 
 [OCR]
 Enabled = true
+ObservationTimeout = '5s'
+BlockchainTimeout = '20s'
+ContractPollInterval = '1m0s'
+ContractSubscribeInterval = '2m0s'
+DefaultTransactionQueueDepth = 1
+KeyBundleID = '$OCR_KEY_BUNDLE_ID'
+SimulateTransactions = false
+TransmitterAddress = '$TRANSMITTER_ADDRESS'
+CaptureEATelemetry = false
+TraceLogging = false
+ConfigLogValidation = false
 
 [P2P]
 IncomingMessageBufferSize = 10 # Default

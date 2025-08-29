@@ -4,15 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const nacl = require('tweetnacl'); // X25519 via scalarMult
-const createKeccakHash = require('keccak');
 const { ethers } = require('ethers');
+const { hexToBuf, keccak256, aes128EcbEncryptBlock, decryptEvmKeystore } = require('./crypto-utils');
+const aggregatorAbi = require('./abis/AccessControlledOffchainAggregator.json').abi;
 
-function hexToBuf(h) {
-  return Buffer.from(h.replace(/^0x/, ''), 'hex');
-}
-function keccak256(buf) {
-  return createKeccakHash('keccak256').update(buf).digest();
-}
+function hexToBufLocal(h) { return hexToBuf(h); }
 
 function readJSON(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -42,12 +38,6 @@ function loadNodeSecrets(rootDir, nodeNum) {
   return { signer, transmitter, offchainCfg, peerId };
 }
 
-function aes128EcbEncryptBlock(key16, plaintext16) {
-  const cipher = crypto.createCipheriv('aes-128-ecb', key16, null);
-  cipher.setAutoPadding(false);
-  return Buffer.concat([cipher.update(plaintext16), cipher.final()]);
-}
-
 function encryptSharedSecret(x25519PubKeys, sharedSecret16) {
   // ephemeral secret scalar (32 bytes)
   const sk = crypto.randomBytes(32);
@@ -56,7 +46,7 @@ function encryptSharedSecret(x25519PubKeys, sharedSecret16) {
   const pk = nacl.scalarMult(sk, base); // Uint8Array(32)
   const encs = [];
   for (const pubHex of x25519PubKeys) {
-    const pub = hexToBuf(pubHex); // 32 bytes
+    const pub = hexToBufLocal(pubHex); // 32 bytes
     if (pub.length !== 32) throw new Error('x25519 pub must be 32 bytes');
     const dh = nacl.scalarMult(sk, new Uint8Array(pub)); // 32 bytes
     const key16 = keccak256(Buffer.from(dh)).subarray(0, 16);
@@ -104,11 +94,8 @@ async function main() {
   const sse = encryptSharedSecret(x25519PubKeys, sharedSecret16);
 
   const provider = new ethers.JsonRpcProvider(rpcUrl);
-  const { chainId } = await provider.getNetwork();
 
-  const iface = new ethers.Interface([
-    'function setConfig(bytes[] certsChain,uint256 rootCertId,bytes signature,(address[] signers,address[] transmitters,uint8 threshold,uint8[] s,bytes32[] offchainPublicKeys,string peerIDs,(bytes32 diffieHellmanPoint,bytes32 sharedSecretHash,bytes16[] encryptions) sharedSecretEncryptions) donConfig)'
-  ]);
+  // Using aggregator ABI below; no need for a local iface here
 
   const donConfig = {
     signers,
@@ -120,38 +107,31 @@ async function main() {
     sharedSecretEncryptions: sse,
   };
 
-  // Build hash: sha256(abi.encode(donConfig, signatureNonce, chainid, address(this)))
-  const signatureNonce = BigInt(process.env.SIGNATURE_NONCE || '0');
-  const coder = ethers.AbiCoder.defaultAbiCoder();
-  const hashPacked = coder.encode([
-    'tuple(address[],address[],uint8,uint8[],bytes32[],string,tuple(bytes32,bytes32,bytes16[]))',
-    'uint256', 'uint256', 'address'
-  ], [
-    donConfig,
-    signatureNonce,
-    BigInt(chainId),
-    contractAddr,
-  ]);
-  const dataHash = crypto.createHash('sha256').update(Buffer.from(hashPacked.slice(2), 'hex')).digest();
+  // Encode tx data using AccessControlledOffchainAggregator.setConfig(donConfig)
+  const iface = new ethers.Interface(aggregatorAbi);
+  const data = iface.encodeFunctionData('setConfig', [donConfig]);
 
-  let signature = '0x';
-  if (process.env.SIGNATURE_HEX) {
-    signature = process.env.SIGNATURE_HEX;
-  } else if (process.env.SIGNATURE_SIGNER_PK) {
-    const wallet = new ethers.Wallet(process.env.SIGNATURE_SIGNER_PK);
-    const sig = wallet.signingKey.sign(dataHash);
-    signature = sig.serialized;
+  // Derive and print sender and signer addresses (from this node's evm_key.json only)
+  let signerAddress = null;
+  let derivedPkHex = null;
+  try {
+    const nodeNum = String(process.env.NODE_NUMBER || '1');
+    const evmPath = path.join(secretsRoot, nodeNum, 'evm_key.json');
+    const ksPassword = process.env.CHAINLINK_KEYSTORE_PASSWORD;
+    if (ksPassword) {
+      const evmJson = readJSON(evmPath);
+      derivedPkHex = decryptEvmKeystore(evmJson, ksPassword);
+      signerAddress = new ethers.Wallet(derivedPkHex).address;
+    }
+  } catch {}
+  if (!derivedPkHex) {
+    throw new Error('Unable to decrypt sender key from evm_key.json. Ensure CHAINLINK_KEYSTORE_PASSWORD and file are correct.');
   }
+  const sender = new ethers.Wallet(derivedPkHex, provider);
+  console.log('Sender:', sender.address);
+  if (signerAddress) console.log('Signer:', signerAddress);
 
-  // Encode tx data
-  const data = iface.encodeFunctionData('setConfig', [[], 0, signature, donConfig]);
-
-  if (!process.env.SENDER_PRIVATE_KEY) {
-    console.log(JSON.stringify({ to: ethers.getAddress(contractAddr), data }, null, 2));
-    return;
-  }
-
-  const sender = new ethers.Wallet(process.env.SENDER_PRIVATE_KEY, provider);
+  // Send transaction using the node's decrypted key
   const tx = await sender.sendTransaction({ to: ethers.getAddress(contractAddr), data, value: 0 });
   console.log('Submitted tx', tx.hash);
   const rcpt = await tx.wait();
@@ -159,5 +139,3 @@ async function main() {
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
-
-

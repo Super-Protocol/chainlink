@@ -1,24 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 const fs = require('fs');
-const crypto = require('crypto');
-const createKeccakHash = require('keccak');
-
-function fromHex(hex) {
-  if (typeof hex !== 'string') throw new Error('Expected hex string');
-  const clean = hex.startsWith('0x') ? hex.slice(2) : hex;
-  return Buffer.from(clean, 'hex');
-}
-
-function keccak256(buf) {
-  return createKeccakHash('keccak256').update(buf).digest();
-}
-
-function deriveKeyScrypt(passwordBuf, saltBuf, params) {
-  const { n, r, p, dklen } = params;
-  // Node.js crypto.scryptSync supports N/r/p options
-  return crypto.scryptSync(passwordBuf, saltBuf, dklen, { N: n, r, p, maxmem: 1024 * 1024 * 1024 });
-}
+const { fromHex, keccak256, deriveKeyScrypt } = require('./crypto-utils');
 
 function decryptOCR(exportJson, plainPassword) {
   if (!exportJson || !exportJson.crypto) {

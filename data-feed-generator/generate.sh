@@ -92,7 +92,8 @@ build_p2p_bootstrap_peers_array() {
   local IFS=','; read -r -a parts <<< "${entries_csv}"
   for e in "${parts[@]}"; do
     [[ -z "$e" ]] && continue
-    arr+=("\"/ip4/${e#*@}/tcp/9999/tls/ws/p2p/${e%@*@}\"")
+    # arr+=("\"/ip4/${e#*@}/tcp/9999/tls/ws/p2p/${e%@*@}\"")
+    arr+=("\"/ip4/${e#*@}/tcp/9999/p2p/${e%@*@}\"")
   done
   if [[ ${#arr[@]} -eq 0 ]]; then
     echo "[]"

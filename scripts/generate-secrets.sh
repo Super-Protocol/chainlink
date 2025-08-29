@@ -6,7 +6,6 @@ set -euo pipefail
 SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
 OUT_ROOT="$SP_SECRETS_DIR/cl-secrets"
 SCRIPTS_DIR="/scripts/secrets"
-CFG_TEMPLATE="/scripts/config.toml.template"
 
 log() { echo "[gen] $*"; }
 
@@ -77,23 +76,6 @@ default_bootstrappers_for_node() {
   if [[ ${#entries[@]} -eq 0 ]]; then echo "[]"; else printf "[%s]\n" "$(IFS=,; echo "${entries[*]}")"; fi
 }
 
-render_config_for_node() {
-  local node_num="$1"; local out_dir="$OUT_ROOT/$node_num"; mkdir -p "$out_dir"
-  local cfg="$out_dir/config.toml"
-  if [[ -s "$cfg" ]]; then
-    log "config.toml already present for node ${node_num}; skipping"
-    return
-  fi
-  local DEFAULT_BOOTSTRAPERS
-  DEFAULT_BOOTSTRAPERS=$(default_bootstrappers_for_node "$node_num")
-  local CHAINLINK_CHAIN_ID="${CHAINLINK_CHAIN_ID:-5611}"
-  local CHAINLINK_RPC_NAME="${CHAINLINK_RPC_NAME:-primary}"
-  local CHAINLINK_RPC_WS_URL="${CHAINLINK_RPC_WS_URL:-}"
-  local CHAINLINK_RPC_HTTP_URL="${CHAINLINK_RPC_HTTP_URL:-}"
-  export DEFAULT_BOOTSTRAPERS CHAINLINK_CHAIN_ID CHAINLINK_RPC_NAME CHAINLINK_RPC_WS_URL CHAINLINK_RPC_HTTP_URL
-  envsubst < "$CFG_TEMPLATE" > "$cfg"
-  log "rendered config for node ${node_num}"
-}
 
 main() {
   ensure_node
@@ -101,8 +83,6 @@ main() {
   local total_nodes="${TOTAL_NODES:-5}"; local i
   # 1) Generate keys for all nodes
   for i in $(seq 1 "$total_nodes"); do gen_keys_for_node "$i"; done
-  # 2) Render config for each node using computed bootstrap peers
-  for i in $(seq 1 "$total_nodes"); do render_config_for_node "$i"; done
 }
 
 main "$@"
