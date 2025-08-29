@@ -242,7 +242,7 @@ publish_rendered_jobs() {
       -b "${COOKIE_FILE}" --data "${body}")
     if ! echo "$http_code" | grep -qE '^(200|201)$'; then
       echo "[publish] Failed to create job from $f, http=$http_code" >&2
-      cat /tmp/job_resp.json >&2 || true
+      if [[ -f /tmp/job_resp.json ]]; then cat /tmp/job_resp.json >&2 || true; fi
       echo ''
       # Try to update existing job (match by contractAddress + evmChainID)
       # Extract from rendered TOML
@@ -265,7 +265,7 @@ publish_rendered_jobs() {
             echo "[publish] Updated existing job ${job_id} from $f"
           else
             echo "[publish] Failed to update job ${job_id} from $f, http=$http_code_put" >&2
-            cat /tmp/job_resp_put.json >&2 || true
+            if [[ -f /tmp/job_resp_put.json ]]; then cat /tmp/job_resp_put.json >&2 || true; fi
           fi
         else
           echo "[publish] No existing job matched contract ${contract_addr} chain ${chain_id}; skip update" >&2

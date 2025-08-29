@@ -106,6 +106,16 @@ start_chainlink
 
 # Monitor both processes; if any exits, stop the other and exit non-zero
 while true; do
+  # Handle requested chainlink restarts
+  if [ -f /tmp/restart-chainlink ]; then
+    log "restart requested for chainlink"
+    rm -f /tmp/restart-chainlink || true
+    if kill -0 ${CL_PID} 2>/dev/null; then
+      kill ${CL_PID} || true
+      wait ${CL_PID} 2>/dev/null || true
+    fi
+    start_chainlink
+  fi
   if ! kill -0 ${PG_PID} 2>/dev/null; then
     log "postgres exited"
     if kill -0 ${CL_PID} 2>/dev/null; then kill ${CL_PID} || true; fi

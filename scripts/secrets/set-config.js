@@ -32,10 +32,11 @@ function loadNodeSecrets(rootDir, nodeNum) {
   const signer = ethers.getAddress((ocr.onChainSigningAddress || '').replace(/^ocrsad_/, ''));
   const transmitter = ethers.getAddress(evm.address);
   const offchainCfgHex = (ocr.configPublicKey || '').replace(/^ocrcfg_/, '');
+  const offchainPublicHex = (ocr.offChainPublicKey || '').replace(/^ocroff_/, '');
   if (offchainCfgHex.length !== 64) throw new Error(`bad ocrcfg for node ${nodeNum}`);
   const offchainCfg = '0x' + offchainCfgHex;
   const peerId = (p2p.peerID || p2p.peerId || '').replace(/^p2p_/, '');
-  return { signer, transmitter, offchainCfg, peerId };
+  return { signer, transmitter, offchainCfg, peerId, offchainPublicHex };
 }
 
 function encryptSharedSecret(x25519PubKeys, sharedSecret16) {
@@ -76,10 +77,10 @@ async function main() {
   const signers = []; const transmitters = []; const offchainPublicKeys = []; const peerIDsArr = [];
   const x25519PubKeys = [];
   for (const n of workers) {
-    const { signer, transmitter, offchainCfg, peerId } = loadNodeSecrets(secretsRoot, n);
+    const { signer, transmitter, offchainCfg, peerId, offchainPublicHex} = loadNodeSecrets(secretsRoot, n);
     signers.push(signer);
     transmitters.push(transmitter);
-    offchainPublicKeys.push(offchainCfg);
+    offchainPublicKeys.push(`0x${offchainPublicHex}`);
     peerIDsArr.push(peerId);
     x25519PubKeys.push(offchainCfg);
   }
@@ -106,6 +107,8 @@ async function main() {
     peerIDs,
     sharedSecretEncryptions: sse,
   };
+
+  console.log('donConfig', donConfig);
 
   // Encode tx data using AccessControlledOffchainAggregator.setConfig(donConfig)
   const iface = new ethers.Interface(aggregatorAbi);

@@ -29,8 +29,13 @@ fi
 
 # Ensure Chainlink node stays PID 1. If present, run publisher in background.
 # Bootstrap nodes write their P2P details to shared secrets for workers
+FIRST_START="false"
 if [ -x "/scripts/init-chainlink.sh" ]; then
-  /scripts/init-chainlink.sh || true
+  if [ ! -f "/tmp/first_start_done" ]; then
+    /scripts/init-chainlink.sh || true
+    touch /tmp/first_start_done || true
+    FIRST_START="true"
+  fi
 fi
 
 if [ -f "/chainlink/apicredentials" ]; then
@@ -40,7 +45,13 @@ fi
 
 nohup bash -c "
   /scripts/wait-node.sh
-  /scripts/import-keys.sh
+  if [ \"${FIRST_START}\" = \"true\" ]; then
+    /scripts/import-keys.sh
+    # Signal supervisor to restart chainlink after first import
+    touch /tmp/restart-chainlink || true
+    sleep 1
+    /scripts/wait-node.sh
+  fi
   /scripts/publish-jobs.sh
 " >/proc/1/fd/1 2>/proc/1/fd/2 &
 
