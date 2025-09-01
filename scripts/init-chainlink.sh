@@ -149,7 +149,31 @@ main() {
         fi
       fi
     fi
-    export DEFAULT_BOOTSTRAPERS OCR_KEY_BUNDLE_ID TRANSMITTER_ADDRESS
+
+    # Build AnnounceAddresses TOML array
+    local ANNOUNCE_ADDRESSES_STR=""
+    if [[ -n "${ANNOUNCE_ADDRESSES:-}" ]]; then
+      ANNOUNCE_ADDRESSES_STR="${ANNOUNCE_ADDRESSES}"
+    elif [[ -n "${ANNOUNCE_NODE_ADDRESSES:-}" ]]; then
+      IFS=',' read -r -a ann_addrs <<< "${ANNOUNCE_NODE_ADDRESSES}"
+      local items=()
+      for a in "${ann_addrs[@]}"; do
+        a=$(echo "$a" | xargs)
+        [[ -z "$a" ]] && continue
+        items+=("'${a}'")
+      done
+      if [[ ${#items[@]} -eq 0 ]]; then
+        local ip="10.5.0.$((8 + NODE_NUMBER)):9999"
+        ANNOUNCE_ADDRESSES_STR="['${ip}']"
+      else
+        ANNOUNCE_ADDRESSES_STR="[${items[*]}]"
+      fi
+    else
+      local ip="10.5.0.$((8 + NODE_NUMBER)):9999"
+      ANNOUNCE_ADDRESSES_STR="['${ip}']"
+    fi
+
+    export DEFAULT_BOOTSTRAPERS OCR_KEY_BUNDLE_ID TRANSMITTER_ADDRESS ANNOUNCE_ADDRESSES="${ANNOUNCE_ADDRESSES_STR}"
     envsubst < "$tpl" > "$cfg"
     chmod 600 "$cfg" || true
     # Post-process Name for primary vs sendonly nodes
