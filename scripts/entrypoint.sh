@@ -12,6 +12,33 @@ APP_DB="${PGDATABASE:-chainlink_node}"
 APP_USER="${PGUSER:-chainlink}"
 APP_PASS="${PGPASSWORD:-chainlinkchainlink}"
 
+if [ -z "${BOOTSTRAP_NODE_ADDRESSES}" ]; then
+  log "BOOTSTRAP_NODE_ADDRESSES env var is required" >&2
+  exit 1
+fi
+
+if [ -z "${CHAINLINK_NODE_NAME}" ]; then
+  log "CHAINLINK_NODE_NAME env var is required" >&2
+  exit 1
+fi
+
+if [ -z "${CHAINLINK_RPC_WS_URL}" ]; then
+  log "CHAINLINK_RPC_WS_URL env var is required" >&2
+  exit 1
+fi
+
+if [ -z "${CHAINLINK_RPC_HTTP_URL}" ]; then
+  log "CHAINLINK_RPC_HTTP_URL env var is required" >&2
+  exit 1
+fi
+
+if [ -z "${CHAINLINK_CHAIN_ID}" ]; then
+  log "CHAINLINK_CHAIN_ID env var is required" >&2
+  exit 1
+fi
+
+mkdir -p /chainlink
+
 # Ensure ownership/dirs
 mkdir -p "$PGDATA_DIR"
 chown -R postgres:postgres "${PGDATA_DIR}" /var/lib/postgresql || true
@@ -44,11 +71,10 @@ wait_postgres() {
 
 ensure_app_db() {
   log "ensuring database/user exist"
-  local app_db_suffixed="${APP_DB}"
   # Create user if missing
   su -s /bin/bash -c "psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -v ON_ERROR_STOP=1 -tc \"SELECT 1 FROM pg_roles WHERE rolname='${APP_USER}'\" | grep -q 1 || psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -c \"CREATE USER \"\"${APP_USER}\"\" WITH PASSWORD '\"\"${APP_PASS}\"\"';\"" postgres
   # Create DB if missing and grant
-  su -s /bin/bash -c "psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -v ON_ERROR_STOP=1 -tc \"SELECT 1 FROM pg_database WHERE datname='${app_db_suffixed}'\" | grep -q 1 || psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -c \"CREATE DATABASE \"\"${app_db_suffixed}\"\" OWNER \"\"${APP_USER}\"\";\"" postgres
+  su -s /bin/bash -c "psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -v ON_ERROR_STOP=1 -tc \"SELECT 1 FROM pg_database WHERE datname='${APP_DB}'\" | grep -q 1 || psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -c \"CREATE DATABASE \"\"${APP_DB}\"\" OWNER \"\"${APP_USER}\"\";\"" postgres
 }
 
 generate_secrets() {
@@ -130,5 +156,3 @@ while true; do
   fi
   sleep 1
 done
-
-

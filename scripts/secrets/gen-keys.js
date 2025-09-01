@@ -22,7 +22,7 @@ function genP2P() {
   // 1) protobuf PublicKey = 0x08 0x01 0x12 0x20 || pub(32)
   // 2) multihash identity: 0x00 || 0x24 || protobufPub
   const pub = Buffer.from(kp.publicKey);
-  const protoPub = Buffer.concat([Buffer.from([0x08, 0x01, 0x12, 0x20]), pub]);
+  const protoPub = Buffer.concat([Buffer.from([0x08, 0x01, 0x12, 0x20]), pub]); // for prefix '12D3KooW'
   const mh = Buffer.alloc(2 + protoPub.length);
   mh[0] = 0x00; // identity code
   mh[1] = 0x24; // length 36

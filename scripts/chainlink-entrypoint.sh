@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
-CL_SHARED_DIR="$SP_SECRETS_DIR/cl-secrets"
+# Logger should be defined before any usage
 log() { echo "[entrypoint] $*"; }
 
-node_number() { echo "${NODE_NUMBER:-${HOSTNAME##*-}}"; }
+# Required environment
+if [ -z "${TOTAL_NODES:-}" ]; then
+  log "TOTAL_NODES env var is required" >&2
+  exit 1
+fi
+if [ -z "${NODE_NUMBER:-}" ]; then
+  log "NODE_NUMBER env var is required" >&2
+  exit 1
+fi
+
+SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
+CL_SHARED_DIR="$SP_SECRETS_DIR/cl-secrets"
 
 wait_for_node_payload() {
   local n="$1"; local d="$CL_SHARED_DIR/$n"; local tries=0; local max_tries="${WAIT_SHARED_TRIES:-600}"
@@ -18,13 +28,15 @@ wait_for_node_payload() {
   return 1
 }
 
-# Node 1 generates shared payload for all nodes; others wait and copy
-n=$(node_number)
-if [ "$n" = "1" ]; then
-  log "running /scripts/generate-secrets.sh for all nodes (TOTAL_NODES=${TOTAL_NODES:-5})"
+# First bootstrap node in BOOTSTRAP_NODES generates shared payload for all nodes
+bs_nodes_str="${BOOTSTRAP_NODES:-1}"
+IFS=' \t,' read -r -a bs_nodes <<< "$bs_nodes_str"
+leader="${bs_nodes[0]:-1}"
+if [ "$NODE_NUMBER" = "$leader" ]; then
+  log "running /scripts/generate-secrets.sh for all nodes (leader=${leader}, TOTAL_NODES=${TOTAL_NODES:-5})"
   TOTAL_NODES="${TOTAL_NODES:-5}" bash /scripts/generate-secrets.sh || log "generate-secrets failed (continuing)"
 else
-  log "skip generate-secrets: node=$n or script missing"
+  log "skip generate-secrets: node=$NODE_NUMBER, leader=$leader"
 fi
 
 # Ensure Chainlink node stays PID 1. If present, run publisher in background.

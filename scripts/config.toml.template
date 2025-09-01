@@ -18,7 +18,7 @@ MultiFeedsManagers = false
 [[EVM]]
 ChainID = '$CHAINLINK_CHAIN_ID'
 LogBackfillBatchSize = 500
-LinkContractAddress = '0xDA333D5948610a7634202A9420c0c17034B6484A'
+LinkContractAddress = '$LINK_CA'
 
 [[EVM.Nodes]]
 Name = '$CHAINLINK_NODE_NAME'
@@ -75,8 +75,8 @@ TraceLogging = true # Default
 
 [P2P.V2]
 Enabled = true # Default
-AnnounceAddresses = ['10.5.0.10:9999']
+AnnounceAddresses = ['10.5.0.10:9999'] # TODO
 DefaultBootstrappers = $DEFAULT_BOOTSTRAPERS
 DeltaDial = '15s' # Default
 DeltaReconcile = '1m' # Default
-ListenAddresses = ['0.0.0.0:9999'] # Example
+ListenAddresses = ['0.0.0.0:9999']

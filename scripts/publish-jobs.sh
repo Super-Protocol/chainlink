@@ -14,7 +14,7 @@ API_URL="http://127.0.0.1:6688"
 JOB_TEMPLATES_DIR="${JOB_TEMPLATES_DIR:-/job-templates}"
 JOB_RENDERS_DIR="${JOB_RENDERS_DIR:-/tmp/job-renders}"
 COOKIE_FILE="/tmp/cl_cookie"
-SHARED_SECRETS_DIR="/sp/secrets"
+SP_SECRETS_DIR="/sp/secrets"
 EVM_EXPORT_PASSWORD="${EVM_EXPORT_PASSWORD:-${CHAINLINK_KEYSTORE_PASSWORD:-export}}"
 OCR_EXPORT_PASSWORD="${OCR_EXPORT_PASSWORD:-${EVM_EXPORT_PASSWORD}}"
 P2P_EXPORT_PASSWORD="${P2P_EXPORT_PASSWORD:-${EVM_EXPORT_PASSWORD}}"
@@ -39,8 +39,8 @@ bootstrap_info_from_shared_secrets() {
   local IFS=' \t,'; read -r -a bs_nodes <<< "$bs_env"
   [[ ${#bs_nodes[@]} -gt 0 ]] || { echo "|"; return; }
   local first_bs="${bs_nodes[0]}"
-  local fpeer="$SHARED_SECRETS_DIR/bootstrap-${first_bs}.peerid"
-  local fip="$SHARED_SECRETS_DIR/bootstrap-${first_bs}.ip"
+  local fpeer="$SP_SECRETS_DIR/bootstrap-${first_bs}.peerid"
+  local fip="$SP_SECRETS_DIR/bootstrap-${first_bs}.ip"
   if [[ -s "$fpeer" && -s "$fip" ]]; then
     local peer ip
     peer=$(sed -n '1p' "$fpeer" | sed 's/^p2p_//')
@@ -80,15 +80,6 @@ fetch_bootstrap_peer_from_env() {
   echo "${peer_id}|${host}"
 }
 
-# Determine node number and role
-determine_node_number() {
-  if [[ -n "${NODE_NUMBER:-}" ]]; then
-    echo "${NODE_NUMBER}"
-    return
-  fi
-  echo "${HOSTNAME}" | grep -oE '[0-9]+$' || echo "1"
-}
-
 is_node_bootstrap() {
   local node_num="$1"
   local bstr="${BOOTSTRAP_NODES:-1}"
@@ -109,7 +100,7 @@ bootstrap_peers_multiaddr_from_config() {
     local bs_env="${BOOTSTRAP_NODES:-1}"; local IFS=' \t,'; read -r -a bs_nodes <<< "$bs_env"
     local peer_ids=()
     for bn in "${bs_nodes[@]}"; do
-      local fpeer="${SHARED_SECRETS_DIR}/bootstrap-${bn}.peerid"
+      local fpeer="${SP_SECRETS_DIR}/bootstrap-${bn}.peerid"
       if [[ -s "$fpeer" ]]; then
         local pid; pid=$(sed -n '1p' "$fpeer" | sed 's/^p2p_//')
         [[ -n "$pid" ]] && peer_ids+=("$pid")
@@ -200,9 +191,8 @@ csrf() {
 
 render_jobs() {
   mkdir -p "${JOB_RENDERS_DIR}"
-  local node_num is_bootstrap bootstrap_peers evm_chain_id
-  node_num=$(determine_node_number)
-  is_bootstrap=$(is_node_bootstrap "$node_num")
+  local is_bootstrap bootstrap_peers evm_chain_id
+  is_bootstrap=$(is_node_bootstrap "$NODE_NUMBER")
 
   # Resolve bootstrap peers from config
   bootstrap_peers=$(bootstrap_peers_multiaddr_from_config)
@@ -210,7 +200,7 @@ render_jobs() {
   evm_chain_id=${CHAINLINK_CHAIN_ID:-$(chain_id_from_config)}
 
   # Try to resolve IDs; prefer API for EVM address to keep EIP55 checksum
-  local secrets_dir="${SHARED_SECRETS_DIR}/cl-secrets/${node_num}"
+  local secrets_dir="${SP_SECRETS_DIR}/cl-secrets/${NODE_NUMBER}"
   local p2p_id ocr_id evm_addr
   # P2P
   p2p_id=$(curl -sS -X GET "${API_URL}/v2/keys/p2p" -b "${COOKIE_FILE}" | jq -r '.data[0].attributes.peerId // .data[0].id // empty' | sed 's/^p2p_//')
@@ -242,7 +232,7 @@ render_jobs() {
   for tpl in "${JOB_TEMPLATES_DIR}"/*.toml; do
     local base out
     base=$(basename "$tpl" .toml)
-    out="${JOB_RENDERS_DIR}/${base}.node-${node_num}.toml"
+    out="${JOB_RENDERS_DIR}/${base}.node-${NODE_NUMBER}.toml"
     envsubst < "$tpl" > "$out"
     # For bootstrap node, mirror generate.sh behavior: drop fields not allowed
     if [[ "$IS_BOOTSTRAP" == "true" ]]; then

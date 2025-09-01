@@ -12,11 +12,8 @@ RUN apt-get update
 RUN apt-get install -y gettext jq
 
 # postgres
-RUN apt-get install -y postgresql postgresql-contrib
+RUN apt-get install -y postgresql
 RUN ln -s /usr/lib/postgresql/17/bin/* /usr/local/bin/
-
-# for node-gyp (@super-protocol/tunnels-lib)
-RUN apt-get install -y build-essential pkg-config git-core python3 python3-dev python3-setuptools
 
 # RUN rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /var/lib/postgresql/data && chown -R postgres:postgres /var/lib/postgresql
