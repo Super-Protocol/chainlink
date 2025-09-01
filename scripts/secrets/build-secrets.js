@@ -25,7 +25,7 @@ function aes128ctrEncrypt(key16, iv16, plaintext) {
   return Buffer.concat([c.update(plaintext), c.final()]);
 }
 
-// Общие параметры (совместимы с Chainlink/go-ethereum)
+// Common parameters (compatible with Chainlink/go-ethereum)
 const SCRYPT = { dklen: 32, n: 262144, r: 8, p: 1 };
 function makeCrypto(passwordBuf, plaintext, adulteratePrefix = '') {
   const salt = crypto.randomBytes(32);
@@ -50,7 +50,7 @@ function makeCrypto(passwordBuf, plaintext, adulteratePrefix = '') {
 // EVM (geth v3 keystore)
 function buildEvmKeystore(evmPrivHex, passwordBuf) {
   const priv = fromHex(evmPrivHex);
-  const pub = crypto.createECDH('secp256k1'); // только для валидации длины
+  const pub = crypto.createECDH('secp256k1'); // only to validate key length
   pub.setPrivateKey(priv);
   // derive address from private key via ethers Wallet, then store lowercased hex without 0x (geth v3 format)
   const eip55 = new Wallet('0x' + evmPrivHex).address;
@@ -70,7 +70,7 @@ function buildP2PExport(ed25519PrivHex, ed25519PubHex, peerIdString, passwordBuf
   const libp2pPrefix = Buffer.from([0x08, 0x01, 0x12, 0x40]);
   const raw = Buffer.concat([libp2pPrefix, fromHex(ed25519PrivHex)]);
   const { crypto: c } = makeCrypto(passwordBuf, raw, 'p2pkey');
-  // Вычислим корректный PeerID из публичного ключа:
+  // Compute proper PeerID from the public key:
   // protobuf PublicKey = 0x08 0x01 0x12 0x20 || pub(32)
   // multihash identity: 0x00 || 0x24 || protobufPub
   const pub = fromHex(ed25519PubHex);
@@ -83,7 +83,7 @@ function buildP2PExport(ed25519PrivHex, ed25519PubHex, peerIdString, passwordBuf
   return {
     keyType: 'P2P',
     publicKey: ed25519PubHex.toLowerCase(),
-    peerID: peerIdString || computedPeerId, // для удобства отображения
+    peerID: peerIdString || computedPeerId, // for display convenience
     crypto: c,
   };
 }
@@ -91,27 +91,27 @@ function buildP2PExport(ed25519PrivHex, ed25519PubHex, peerIdString, passwordBuf
 // OCR (EncryptedOCRKeyExport)
 function buildOCRExport(ecdsaDHex, ed25519PrivHex, offchainEncHex, onChainAddress, offchainPubHex, passwordBuf) {
   // plain JSON = keyBundleRawData
-  // EcdsaD — десятичная строка
+  // EcdsaD — decimal string
   const ecdsaDDec = BigInt('0x' + ecdsaDHex).toString(10);
   const edPriv = fromHex(ed25519PrivHex);
   if (edPriv.length !== 64) {
     throw new Error('Ed25519PrivKey must be 64 bytes');
   }
   const edPrivB64 = edPriv.toString('base64');
-  // X25519 скаляр: для совместимости с различными реализациями склэмпим байты
+  // X25519 scalar: clamp bytes for compatibility across implementations
   const enc = Buffer.from(fromHex(offchainEncHex));
   if (enc.length !== 32) {
     throw new Error('OffChainEncryption must be 32 bytes');
   }
   enc[0] &= 248; enc[31] &= 127; enc[31] |= 64;
-  const encArr = Array.from(enc); // ровно 32 числа
-  // Собираем JSON вручную, чтобы EcdsaD был числом (а не строкой), иначе Go жалуется:
+  const encArr = Array.from(enc); // exactly 32 numbers
+  // Build JSON manually to keep EcdsaD as a number (not a string), otherwise Go complains:
   // "cannot unmarshal \"...\" into a *big.Int"
   const plainStr = `{"EcdsaD":${ecdsaDDec},"Ed25519PrivKey":"${edPrivB64}","OffChainEncryption":[${encArr.join(',')}]}`;
   const plain = Buffer.from(plainStr);
   const id = hex(crypto.createHash('sha256').update(plain).digest());
 
-  // derive config public key (X25519) из скаляра
+  // derive config public key (X25519) from the scalar
   const pubCfg = Buffer.from(nacl.scalarMult.base(enc));
   const onAddrStr = 'ocrsad_' + onChainAddress;
   const offPubStr = 'ocroff_' + offchainPubHex.toLowerCase();

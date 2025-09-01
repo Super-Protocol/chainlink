@@ -83,7 +83,6 @@ services:
     env_file:
       - .env
 
-  # Легко добавить третью ноду
   chainlink-node-3:
     image: *cl_image
     build:

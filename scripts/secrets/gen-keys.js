@@ -18,18 +18,18 @@ function genEvm() {
 
 function genP2P() {
   const kp = nacl.sign.keyPair(); // ed25519
-  // Формируем корректный libp2p PeerID:
+  // Construct a proper libp2p PeerID:
   // 1) protobuf PublicKey = 0x08 0x01 0x12 0x20 || pub(32)
   // 2) multihash identity: 0x00 || 0x24 || protobufPub
   const pub = Buffer.from(kp.publicKey);
   const protoPub = Buffer.concat([Buffer.from([0x08, 0x01, 0x12, 0x20]), pub]);
   const mh = Buffer.alloc(2 + protoPub.length);
   mh[0] = 0x00; // identity code
-  mh[1] = 0x24; // длина 36
+  mh[1] = 0x24; // length 36
   mh.set(protoPub, 2);
   const peerId = 'p2p_' + bs58.encode(mh);
   return {
-    ed25519PrivKeyHex: hex(kp.secretKey), // 64 байта
+    ed25519PrivKeyHex: hex(kp.secretKey), // 64 bytes
     ed25519PubKeyHex: hex(kp.publicKey),
     peerId
   };
@@ -42,8 +42,8 @@ function genOCR() {
   const encScalar = rand32();      // off-chain encryption (X25519 scalar)
   return {
     ecdsaDHex,
-    ed25519PrivKeyHex: hex(ed.secretKey),   // 64 байта
-    offchainEncryptionHex: hex(encScalar),  // 32 байта
+    ed25519PrivKeyHex: hex(ed.secretKey),   // 64 bytes
+    offchainEncryptionHex: hex(encScalar),  // 32 bytes
     onChainAddress: getAddress(w.address),
     offchainPublicKeyHex: hex(ed.publicKey)
   };

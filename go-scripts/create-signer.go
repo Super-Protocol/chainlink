@@ -97,20 +97,20 @@ func EncryptSharedSecret(
 }
 
 func main() {
-	// Создаем или генерируем общий секрет (16 байт)
+	// Create or provide the shared secret (16 bytes)
 	sharedSecret := [SharedSecretSize]byte{
 		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
 		0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
 	}
 
-	// Либо генерируем случайный секрет:
+	// Alternatively, generate a random secret:
 	// var sharedSecret [SharedSecretSize]byte
 	// _, err := io.ReadFull(rand.Reader, sharedSecret[:])
 	// if err != nil {
 	//     panic(err)
 	// }
 
-	// Массив публичных ключей не_бутстрап нод
+	// Public keys of non-bootstrap nodes
 	publicKeyHexes := []string{
 		"8c73c450b5bde91f441fba73a08115ac40cec7409fdcd5e5c2aa341ada7f140c",
 		"1a58be107c3757910721dd6d0f010f921fd9a9c698aedebc945d016f8a2d6837",
@@ -118,7 +118,7 @@ func main() {
 		"c1d1ea0a367342013cb1d1abeb64a9366054d90d5637b7fadc39287a9a7dba67",
 	}
 
-	// Создаем список публичных ключей
+	// Build the list of public keys
 	publicKeys := make([]SharedSecretEncryptionPublicKey, len(publicKeyHexes))
 
 	for i, publicKeyHex := range publicKeyHexes {
@@ -134,10 +134,10 @@ func main() {
 		copy(publicKeys[i][:], publicKeyBytes)
 	}
 
-	// Шифруем общий секрет
+	// Encrypt the shared secret
 	encryptedSecret := EncryptSharedSecret(publicKeys, &sharedSecret, rand.Reader)
 
-	// Выводим результаты
+	// Print results
 	fmt.Printf("Shared Secret: %x\n", sharedSecret)
 	fmt.Printf("Shared Secret Hash: %x\n", encryptedSecret.SharedSecretHash)
 	fmt.Printf("Diffie-Hellman Point: %x\n", encryptedSecret.DiffieHellmanPoint)
@@ -147,7 +147,7 @@ func main() {
 		fmt.Printf("Encryption[%d]: %x\n", i, encryption)
 	}
 
-	// Структура для ABI кодирования
+	// Structure for ABI encoding
 	fmt.Println("\nFor ABI encoding:")
 	fmt.Printf("{\n")
 	fmt.Printf("  \"diffieHellmanPoint\": \"0x%x\",\n", encryptedSecret.DiffieHellmanPoint)

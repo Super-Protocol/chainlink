@@ -62,7 +62,6 @@ services:
     env_file:
       - .env
 
-  # Легко добавить третью ноду
   chainlink-node-3:
     image: smartcontract/chainlink:2.26.0
     container_name: chainlink-node-3
