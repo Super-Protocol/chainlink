@@ -65,7 +65,6 @@ fi
 # Ensure /chainlink/config.toml is present before starting Chainlink
 if ! wait_for_config_file; then
   log "config.toml not found after initial wait; rerunning init and waiting"
-  /scripts/init-chainlink.sh || true
   if ! wait_for_config_file; then
     log "config.toml still not present; blocking until it appears"
     while [ ! -s "/chainlink/config.toml" ]; do sleep 1; done
