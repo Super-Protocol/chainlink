@@ -1,0 +1,140 @@
+services:
+  chainlink-node-1:
+    image: &cl_image sp-chainlink:latest
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: chainlink-node-1
+    platform: linux/amd64
+    user: '0:0'
+    ports:
+      - '6688:6688'
+    networks:
+      chainlink-network:
+        ipv4_address: 10.5.0.9
+    restart: unless-stopped
+    environment:
+      - NODE_NUMBER=1
+    env_file:
+      - .env
+    entrypoint: &cl_entrypoint ["/scripts/entrypoint.sh"]
+    volumes:
+      - &cl_scripts ./scripts/:/scripts:ro
+      - &cl_templates ./data-feed-generator/templates:/templates:ro
+      - &cl_sp_secrets ./sp-secrets:/sp/secrets:rw
+
+  chainlink-node-2:
+    image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: chainlink-node-2
+    platform: linux/amd64
+    user: '0:0'
+    ports:
+      - '6689:6688'
+    networks:
+      chainlink-network:
+        ipv4_address: 10.5.0.10
+    depends_on:
+      chainlink-node-1:
+        condition: service_started
+    entrypoint: *cl_entrypoint
+    volumes:
+      - *cl_scripts
+      - *cl_templates
+      - *cl_sp_secrets
+    restart: unless-stopped
+    environment:
+      - NODE_NUMBER=2
+    env_file:
+      - .env
+
+  chainlink-node-3:
+    image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: chainlink-node-3
+    platform: linux/amd64
+    user: '0:0'
+    ports:
+      - '6690:6688'
+    entrypoint: *cl_entrypoint
+    volumes:
+      - *cl_scripts
+      - *cl_templates
+      - *cl_sp_secrets
+    networks:
+      chainlink-network:
+        ipv4_address: 10.5.0.11
+    depends_on:
+      chainlink-node-1:
+        condition: service_started
+    restart: unless-stopped
+    environment:
+      - NODE_NUMBER=3
+    env_file:
+      - .env
+
+  chainlink-node-4:
+    image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: chainlink-node-4
+    platform: linux/amd64
+    user: '0:0'
+    ports:
+      - '6691:6688'
+    networks:
+      chainlink-network:
+        ipv4_address: 10.5.0.12
+    depends_on:
+      chainlink-node-1:
+        condition: service_started
+    entrypoint: *cl_entrypoint
+    volumes:
+      - *cl_scripts
+      - *cl_templates
+      - *cl_sp_secrets
+    restart: unless-stopped
+    environment:
+      - NODE_NUMBER=4
+    env_file:
+      - .env
+
+  chainlink-node-5:
+    image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: chainlink-node-5
+    platform: linux/amd64
+    user: '0:0'
+    ports:
+      - '6692:6688'
+    networks:
+      chainlink-network:
+        ipv4_address: 10.5.0.13
+    depends_on:
+      chainlink-node-1:
+        condition: service_started
+    entrypoint: *cl_entrypoint
+    volumes:
+      - *cl_scripts
+      - *cl_templates
+      - *cl_sp_secrets
+    restart: unless-stopped
+    environment:
+      - NODE_NUMBER=5
+    env_file:
+      - .env
+
+networks:
+  chainlink-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1

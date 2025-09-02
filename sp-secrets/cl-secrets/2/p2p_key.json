@@ -1,0 +1,21 @@
+{
+  "keyType": "P2P",
+  "publicKey": "58e0b26ce950548a0bbff0ae1356340c6b73b58f06ab6862d8b478798f545d64",
+  "peerID": "p2p_12D3KooWFoJmaNMCqjrqFLh6dr5tQti3MaZ6zAZAq9gxsuFFbBvB",
+  "crypto": {
+    "cipher": "aes-128-ctr",
+    "ciphertext": "15559aea3e7a9cefc445e03da83a084438a247d2e5be4998c872b9ddfa6fc8e23cb8944319d841841a990e2a7f58bfe750b84b08cbe4b56728f0ec47dd3020fb70929868",
+    "cipherparams": {
+      "iv": "5c27056e2dd5ddf53bcc0e1fdb3a979d"
+    },
+    "kdf": "scrypt",
+    "kdfparams": {
+      "dklen": 32,
+      "n": 262144,
+      "p": 1,
+      "r": 8,
+      "salt": "ab2b24acc3a25157e3118d355e7c6a249d7387f24c903255bad1577448008d65"
+    },
+    "mac": "4c41429e68a6a6fbcb99d3d1f43733538d8dccf72519016c4ffc371a06705092"
+  }
+}

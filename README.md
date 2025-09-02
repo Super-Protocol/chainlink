@@ -14,7 +14,7 @@ This guide walks through setting up multiple Chainlink Oracle Nodes with Docker 
 ├── .env.example                       # Environment variables example
 ├── scripts/
 │   ├── init-database.sql      # Database initialization script
-│   └── chainlink-universal.entrypoint.sh # Universal node startup script
+│   └── entrypoint.sh # Universal node startup script
 └── README.md
 ```
 
@@ -49,8 +49,8 @@ nano .env   # or vim .env, or any editor of your choice
 | **Chainlink Configuration** ||||
 | `CHAINLINK_KEYSTORE_PASSWORD` | Password to encrypt Chainlink keys (min 16 chars) | `yourkeystorepassword` | Yes |
 | `CHAINLINK_CHAIN_ID` | Blockchain network chain ID | `5611` (opBNB Testnet) | Yes |
-| `CHAINLINK_WS_URL` | WebSocket RPC endpoint | `wss://opbnb-testnet.g.alchemy.com/v2/YOUR_API_KEY` | Yes |
-| `CHAINLINK_HTTP_URL` | HTTP RPC endpoint | `https://opbnb-testnet.g.alchemy.com/v2/YOUR_API_KEY` | Yes |
+| `CHAINLINK_RPC_WS_URL` | WebSocket RPC endpoint | `wss://opbnb-testnet.g.alchemy.com/v2/YOUR_API_KEY` | Yes |
+| `CHAINLINK_RPC_HTTP_URL` | HTTP RPC endpoint | `https://opbnb-testnet.g.alchemy.com/v2/YOUR_API_KEY` | Yes |
 | `CHAINLINK_GAS_PRICE` | Default gas price in wei | `10000000000` (10 Gwei) | Yes |
 
 **Important Notes:**
