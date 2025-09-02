@@ -13,12 +13,12 @@ json_escape() {
 API_URL="http://127.0.0.1:6688"
 JOB_TEMPLATES_DIR="${JOB_TEMPLATES_DIR:-/job-templates}"
 JOB_RENDERS_DIR="${JOB_RENDERS_DIR:-/tmp/job-renders}"
-COOKIE_FILE="/tmp/cl_cookie"
+COOKIE_FILE="$(cd /tmp && mktemp -t cl_cookie_import.XXXXXX)"
 SP_SECRETS_DIR="/sp/secrets"
 EVM_EXPORT_PASSWORD="${EVM_EXPORT_PASSWORD:-${CHAINLINK_KEYSTORE_PASSWORD:-export}}"
 OCR_EXPORT_PASSWORD="${OCR_EXPORT_PASSWORD:-${EVM_EXPORT_PASSWORD}}"
 P2P_EXPORT_PASSWORD="${P2P_EXPORT_PASSWORD:-${EVM_EXPORT_PASSWORD}}"
-mkdir -p $JOB_RENDERS_DIR
+mkdir -p "${JOB_RENDERS_DIR}"
 
 # Compose IP helper
 ip_for_node() {

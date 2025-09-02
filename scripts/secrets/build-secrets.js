@@ -4,11 +4,11 @@ const crypto = require('crypto');
 const nacl = require('tweetnacl');
 const bs58 = require('bs58').default;
 const createKeccakHash = require('keccak');
-const { Wallet, getAddress } = require('ethers');
+const { Wallet } = require('ethers');
 
 function fromHex(h) { return Buffer.from(h.replace(/^0x/, ''), 'hex'); }
 function hex(b) { return Buffer.from(b).toString('hex'); }
-function b64(b) { return Buffer.from(b).toString('base64'); }
+// function b64(b) { return Buffer.from(b).toString('base64'); }
 function keccak256(buf) { return createKeccakHash('keccak256').update(buf).digest(); }
 function scrypt(password, salt, dklen, N, r, p) {
   return crypto.scryptSync(password, salt, dklen, { N, r, p, maxmem: 1024 * 1024 * 1024 });
@@ -28,6 +28,10 @@ function aes128ctrEncrypt(key16, iv16, plaintext) {
 // Common parameters (compatible with Chainlink/go-ethereum)
 const SCRYPT = { dklen: 32, n: 262144, r: 8, p: 1 };
 function makeCrypto(passwordBuf, plaintext, adulteratePrefix = '') {
+  if (!Buffer.isBuffer(passwordBuf) || passwordBuf.length === 0) {
+    throw new Error('empty password buffer is not allowed');
+  }
+
   const salt = crypto.randomBytes(32);
   const iv = crypto.randomBytes(16);
   const effective = Buffer.concat([Buffer.from(adulteratePrefix, 'utf8'), passwordBuf]);
@@ -50,6 +54,9 @@ function makeCrypto(passwordBuf, plaintext, adulteratePrefix = '') {
 // EVM (geth v3 keystore)
 function buildEvmKeystore(evmPrivHex, passwordBuf) {
   const priv = fromHex(evmPrivHex);
+  if (priv.length !== 32) {
+    throw new Error(`EVM private key must be 32 bytes, got ${priv.length}`);
+  }
   const pub = crypto.createECDH('secp256k1'); // only to validate key length
   pub.setPrivateKey(priv);
   // derive address from private key via ethers Wallet, then store lowercased hex without 0x (geth v3 format)
@@ -71,19 +78,22 @@ function buildP2PExport(ed25519PrivHex, ed25519PubHex, peerIdString, passwordBuf
   const raw = Buffer.concat([libp2pPrefix, fromHex(ed25519PrivHex)]);
   const { crypto: c } = makeCrypto(passwordBuf, raw, 'p2pkey');
   // Compute proper PeerID from the public key:
-  // protobuf PublicKey = 0x08 0x01 0x12 0x20 || pub(32)
   // multihash identity: 0x00 || 0x24 || protobufPub
   const pub = fromHex(ed25519PubHex);
+  if (pub.length !== 32) {
+    throw new Error('Ed25519PubKey must be 32 bytes');
+  }
+  // protobuf PublicKey = 0x08 0x01 0x12 0x20 || pub(32)
   const protoPub = Buffer.concat([Buffer.from([0x08, 0x01, 0x12, 0x20]), pub]);
   const mh = Buffer.alloc(2 + protoPub.length);
   mh[0] = 0x00; // identity
-  mh[1] = 0x24; // length=36
+  mh[1] = protoPub.length; // length=36
   mh.set(protoPub, 2);
   const computedPeerId = 'p2p_' + bs58.encode(mh);
   return {
     keyType: 'P2P',
     publicKey: ed25519PubHex.toLowerCase(),
-    peerID: peerIdString || computedPeerId, // for display convenience
+    peerID: peerIdString || computedPeerId,
     crypto: c,
   };
 }
@@ -133,9 +143,18 @@ function main() {
   const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
 
   const pwAll = process.env.KEY_PASSWORD || '';
-  const OCR_PW = Buffer.from(process.env.OCR_PASSWORD || pwAll, 'utf8');
-  const P2P_PW = Buffer.from(process.env.P2P_PASSWORD || pwAll, 'utf8');
-  const EVM_PW = Buffer.from(process.env.EVM_PASSWORD || pwAll, 'utf8');
+  const ocrPass = process.env.OCR_PASSWORD || pwAll;
+  const p2pPass = process.env.P2P_PASSWORD || pwAll;
+  const evmPass = process.env.EVM_PASSWORD || pwAll;
+
+  if (!ocrPass || !p2pPass || !evmPass) {
+    console.error('Empty password detected (OCR_PASSWORD/P2P_PASSWORD/EVM_PASSWORD or KEY_PASSWORD). Refusing to proceed.');
+    process.exit(1);
+  }
+
+  const OCR_PW = Buffer.from(ocrPass, 'utf8');
+  const P2P_PW = Buffer.from(p2pPass, 'utf8');
+  const EVM_PW = Buffer.from(evmPass, 'utf8');
 
   const evmOut = buildEvmKeystore(raw.evm.privateKeyHex, EVM_PW);
   const p2pOut = buildP2PExport(raw.p2p.ed25519PrivKeyHex, raw.p2p.ed25519PubKeyHex, raw.p2p.peerId, P2P_PW);
