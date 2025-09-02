@@ -20,7 +20,19 @@ CL_SHARED_DIR="$SP_SECRETS_DIR/cl-secrets"
 wait_for_node_payload() {
   local n="$1"; local d="$CL_SHARED_DIR/$n"; local tries=0; local max_tries="${WAIT_SHARED_TRIES:-600}"
   while [ "$tries" -lt "$max_tries" ]; do
-    if [ -s "$d/evm_key.json" ] && [ -s "$d/p2p_key.json" ] && [ -s "$d/ocr_key.json" ] && [ -s "$d/config.toml" ]; then
+    if [ -s "$d/evm_key.json" ] && [ -s "$d/p2p_key.json" ] && [ -s "$d/ocr_key.json" ]; then
+      return 0
+    fi
+    tries=$((tries+1)); sleep 1
+  done
+  return 1
+}
+
+# Wait until /chainlink/config.toml exists and is non-empty
+wait_for_config_file() {
+  local tries=0; local max_tries="${WAIT_CONFIG_TRIES:-600}"
+  while [ "$tries" -lt "$max_tries" ]; do
+    if [ -s "/chainlink/config.toml" ]; then
       return 0
     fi
     tries=$((tries+1)); sleep 1
@@ -50,10 +62,22 @@ if [ -x "/scripts/init-chainlink.sh" ]; then
   fi
 fi
 
+# Ensure /chainlink/config.toml is present before starting Chainlink
+if ! wait_for_config_file; then
+  log "config.toml not found after initial wait; rerunning init and waiting"
+  /scripts/init-chainlink.sh || true
+  if ! wait_for_config_file; then
+    log "config.toml still not present; blocking until it appears"
+    while [ ! -s "/chainlink/config.toml" ]; do sleep 1; done
+  fi
+fi
+
 if [ -f "/chainlink/apicredentials" ]; then
   chmod 600 /chainlink/apicredentials || true
   export CL_ADMIN_CREDENTIALS_FILE="/chainlink/apicredentials"
 fi
+
+wait_for_node_payload $NODE_NUMBER
 
 nohup bash -c "
   /scripts/wait-node.sh
