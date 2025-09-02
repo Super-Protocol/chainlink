@@ -27,7 +27,7 @@ gen_keys_for_node() {
   local out_dir="$OUT_ROOT/$node_num"
   mkdir -p "$out_dir"
   local evm_file="$out_dir/evm_key.json" p2p_file="$out_dir/p2p_key.json" ocr_file="$out_dir/ocr_key.json"
-  local need_evm need_p2p need_ocr=false
+  local need_evm=false need_p2p=false need_ocr=false
   [[ -s "$evm_file" ]] || need_evm=true
   [[ -s "$p2p_file" ]] || need_p2p=true
   [[ -s "$ocr_file" ]] || need_ocr=true
