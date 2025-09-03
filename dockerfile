@@ -9,10 +9,10 @@ ENV SP_SECRETS_DIR=/sp/secrets
 ENV PATH=$PATH:/root/.nvm/versions/node/v$NODE_VERSION/bin/
 
 RUN apt-get update
-RUN apt-get install -y gettext jq
+RUN apt-get install -y --no-install-recommends gettext jq
 
 # postgres
-RUN apt-get install -y postgresql
+RUN apt-get install -y --no-install-recommends postgresql
 RUN ln -s /usr/lib/postgresql/17/bin/* /usr/local/bin/
 
 # RUN rm -rf /var/lib/apt/lists/*
