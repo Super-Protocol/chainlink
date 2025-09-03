@@ -9,7 +9,7 @@
 - Each node directory has `apicredentials` with exactly two lines:
   1) Email, 2) Password.
 - `chainlink-node-1-data/config.toml` exists (used to auto-detect `evmChainID` if not provided).
-- Docker Compose file mounts the node directories and the scripts (already wired in `docker-compose-5.yml`).
+- Docker Compose file mounts the node directories and the scripts (already wired in `docker-compose.yml`).
 
 ### Render jobs (offline)
 Run from repo root:
@@ -34,7 +34,7 @@ Output:
 
 ### Start containers (auto-publish)
 ```bash
-docker compose -f docker-compose-5.yml up -d --force-recreate
+docker compose -f docker-compose.yml up -d --force-recreate
 ```
 
 What happens on startup:

@@ -27,7 +27,7 @@ port_for_node() {
   echo $((HTTP_PORT_BASE + node_num - 1))
 }
 
-# Helper: compute container P2P IP per node number (per docker-compose-5.yml)
+# Helper: compute container P2P IP per node number (per docker-compose.yml)
 ip_for_node() {
   local node_num="$1"
   echo "10.5.0.$((8 + node_num))"
