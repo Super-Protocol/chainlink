@@ -4,6 +4,8 @@ cd $(dirname $0)
 
 set -euo pipefail
 
+log() { echo "[init] $*"; }
+
 if [ -z "${NODE_NUMBER:-}" ]; then
   log "NODE_NUMBER env var is required" >&2
   exit 1
@@ -20,8 +22,6 @@ if [ -z "${SP_SECRETS_DIR:-}" ]; then
 fi
 
 CHAINLINK_DIR="/chainlink"
-
-log() { echo "[init] $*"; }
 
 # In-container sed -i helper (GNU sed)
 sed_inplace() {
