@@ -75,7 +75,11 @@ function buildEvmKeystore(evmPrivHex, passwordBuf) {
 // P2P (EncryptedP2PKeyExport)
 function buildP2PExport(ed25519PrivHex, ed25519PubHex, peerIdString, passwordBuf) {
   const libp2pPrefix = Buffer.from([0x08, 0x01, 0x12, 0x40]);
-  const raw = Buffer.concat([libp2pPrefix, fromHex(ed25519PrivHex)]);
+  const priv = fromHex(ed25519PrivHex);
+  if (priv.length !== 64) {
+    throw new Error('Ed25519PrivKey must be 64 bytes');
+  }
+  const raw = Buffer.concat([libp2pPrefix, priv]);
   const { crypto: c } = makeCrypto(passwordBuf, raw, 'p2pkey');
   // Compute proper PeerID from the public key:
   // multihash identity: 0x00 || 0x24 || protobufPub
