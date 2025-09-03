@@ -178,25 +178,25 @@ main() {
     chmod 600 "$cfg" || true
     # Post-process Name for primary vs sendonly nodes
     if [[ "$is_primary" == true ]]; then
-      sed -i'' -E "s#^([[:space:]]*Name\s*=\s*)'.*'#\1'${CHAINLINK_NODE_NAME}-${NODE_NUMBER}-primary'#" "$cfg" || true
+      sed -i'' -E "s#^([[:space:]]*Name[[:space:]]*=[[:space:]]*)'.*'#\1'${CHAINLINK_NODE_NAME}-${NODE_NUMBER}-primary'#" "$cfg" || true
     else
-      sed -i'' -E "s#^([[:space:]]*Name\s*=\s*)'.*'#\1'${CHAINLINK_NODE_NAME}-${NODE_NUMBER}-sendonly'#" "$cfg" || true
+      sed -i'' -E "s#^([[:space:]]*Name[[:space:]]*=[[:space:]]*)'.*'#\1'${CHAINLINK_NODE_NAME}-${NODE_NUMBER}-sendonly'#" "$cfg" || true
     fi
     # Post-process EVM.Nodes according to PRIMARY_NODES policy
     if [[ "$is_primary" == true ]]; then
       # Ensure SendOnly = false
-      sed -i'' -E "s#^\s*SendOnly\s*=.*#SendOnly = false#" "$cfg" || true
+      sed -i'' -E "s#^[[:space:]]*SendOnly[[:space:]]*=.*#SendOnly = false#" "$cfg" || true
       # WSURL line remains from template
     else
       # Remove WSURL and set SendOnly = true
-      sed -i'' -E "/^\s*WSURL\s*=/d" "$cfg" || true
-      if grep -qE '^\s*SendOnly\s*=' "$cfg"; then
-        sed -i'' -E "s#^\s*SendOnly\s*=.*#SendOnly = true#" "$cfg" || true
+      sed -i'' -E "/^[[:space:]]*WSURL[[:space:]]*=/d" "$cfg" || true
+      if grep -qE '^[[:space:]]*SendOnly[[:space:]]*=' "$cfg"; then
+        sed -i'' -E "s#^[[:space:]]*SendOnly[[:space:]]*=.*#SendOnly = true#" "$cfg" || true
       else
         # Insert SendOnly under [[EVM.Nodes]] if missing
         awk '
           BEGIN{in=0}
-          /^\s*\[\[EVM\.Nodes\]\]\s*$/ {print; print "SendOnly = true"; in=1; next}
+          /^[[:space:]]*\[\[EVM\.Nodes\]\][[:space:]]*$/ {print; print "SendOnly = true"; in=1; next}
           {print}
         ' "$cfg" > "${cfg}.tmp" && mv "${cfg}.tmp" "$cfg"
       fi
@@ -211,12 +211,12 @@ main() {
   # local ip="chainlink-node-$NODE_NUMBER"
   local cfg="${CHAINLINK_DIR}/config.toml"
   if [[ -f "$cfg" ]]; then
-    if grep -qE '^\s*AnnounceAddresses\s*=' "$cfg"; then
-      sed_inplace "s#^\\s*AnnounceAddresses\\s*=.*#AnnounceAddresses = ['${ip}:9999']#" "$cfg"
+    if grep -qE '^[[:space:]]*AnnounceAddresses[[:space:]]*=' "$cfg"; then
+      sed_inplace "s#^[[:space:]]*AnnounceAddresses[[:space:]]*=.*#AnnounceAddresses = ['${ip}:9999']#" "$cfg"
     else
       awk -v ipval="${ip}:9999" '
         BEGIN{inblock=0}
-        /^\s*\[P2P\.V2\]\s*$/ {print; print "AnnounceAddresses = ['"ipval"']"; inblock=1; next}
+        /^[[:space:]]*\[P2P\.V2\][[:space:]]*$/ {print; print "AnnounceAddresses = ['"ipval"']"; inblock=1; next}
         {print}
       ' "$cfg" > "${cfg}.tmp" && mv "${cfg}.tmp" "$cfg"
     fi
