@@ -97,7 +97,7 @@ main() {
     for bn in "${bs_nodes[@]}"; do if [[ "$bn" == "${NODE_NUMBER}" ]]; then is_bootstrap=true; break; fi; done
 
     # Determine if this node is primary
-    local primary_nodes_str="${PRIMARY_NODES:-NODES_LIST}"
+    local primary_nodes_str="${PRIMARY_NODES:-${NODES_LIST:-}}"
     local IFS=' ,'; read -r -a pr_nodes <<< "$primary_nodes_str"
     local is_primary=false; local pn
     for pn in "${pr_nodes[@]:-}"; do if [[ "$pn" == "${NODE_NUMBER}" ]]; then is_primary=true; break; fi; done
