@@ -31,7 +31,7 @@ sed_inplace() {
 # Wait until bootstrap nodes expose a P2P peerId via /v2/keys/p2p
 wait_for_bootstrap_peer_ids() {
   local node_num="$1"
-  local IFS=' \t,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
+  local IFS=' ,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
   local max_tries="${WAIT_BOOTSTRAP_PEER_TRIES:-300}"
   mkdir -p "$SP_SECRETS_DIR"
   for bn in "${bs_nodes[@]}"; do
@@ -92,13 +92,13 @@ main() {
   local tpl="/scripts/config.toml.template"
   if [[ -s "$tpl" ]]; then
     # Compute DefaultBootstrappers from shared bootstrap secrets if available
-    local IFS=' \t,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
+    local IFS=' ,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
     local is_bootstrap=false; local bn; local entries=()
     for bn in "${bs_nodes[@]}"; do if [[ "$bn" == "${NODE_NUMBER}" ]]; then is_bootstrap=true; break; fi; done
 
     # Determine if this node is primary
     local primary_nodes_str="${PRIMARY_NODES:-NODES_LIST}"
-    local IFS=' \t,'; read -r -a pr_nodes <<< "$primary_nodes_str"
+    local IFS=' ,'; read -r -a pr_nodes <<< "$primary_nodes_str"
     local is_primary=false; local pn
     for pn in "${pr_nodes[@]:-}"; do if [[ "$pn" == "${NODE_NUMBER}" ]]; then is_primary=true; break; fi; done
     if [[ "$is_bootstrap" == false ]]; then
@@ -224,7 +224,7 @@ main() {
   fi
 
   # Produce or consume shared secrets
-  local IFS=' \t,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
+  local IFS=' ,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
   local is_bootstrap=false
   for bn in "${bs_nodes[@]}"; do if [[ "$bn" == "${NODE_NUMBER}" ]]; then is_bootstrap=true; fi; done
 
