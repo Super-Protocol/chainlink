@@ -126,8 +126,8 @@ main() {
         done
       fi
     fi
-    local DEFAULT_BOOTSTRAPERS OCR_KEY_BUNDLE_ID TRANSMITTER_ADDRESS
-    if [[ ${#entries[@]} -eq 0 ]]; then DEFAULT_BOOTSTRAPERS="[]"; else DEFAULT_BOOTSTRAPERS="[${entries[*]}]"; fi
+    local DEFAULT_BOOTSTRAPPERS OCR_KEY_BUNDLE_ID TRANSMITTER_ADDRESS
+    if [[ ${#entries[@]} -eq 0 ]]; then DEFAULT_BOOTSTRAPPERS="[]"; else DEFAULT_BOOTSTRAPPERS="[${entries[*]}]"; fi
     # Try to read OCR key id to populate OCR.KeyBundleID
     local ocr_file="${SP_SECRETS_DIR}/cl-secrets/${NODE_NUMBER}/ocr_key.json"
     if [[ -s "$ocr_file" ]]; then
@@ -173,7 +173,7 @@ main() {
       ANNOUNCE_ADDRESSES_STR="['${ip}']"
     fi
 
-    export DEFAULT_BOOTSTRAPERS OCR_KEY_BUNDLE_ID TRANSMITTER_ADDRESS ANNOUNCE_ADDRESSES="${ANNOUNCE_ADDRESSES_STR}"
+    export DEFAULT_BOOTSTRAPPERS OCR_KEY_BUNDLE_ID TRANSMITTER_ADDRESS ANNOUNCE_ADDRESSES="${ANNOUNCE_ADDRESSES_STR}"
     envsubst < "$tpl" > "$cfg"
     chmod 600 "$cfg" || true
     # Post-process Name for primary vs sendonly nodes
