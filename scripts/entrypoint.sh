@@ -12,27 +12,27 @@ APP_DB="${PGDATABASE:-chainlink_node}"
 APP_DB_USER="${PGUSER:-chainlink}"
 APP_DB_PASS="${PGPASSWORD:-chainlinkchainlink}"
 
-if [ -z "${BOOTSTRAP_NODE_ADDRESSES}" ]; then
+if [ -z "${BOOTSTRAP_NODE_ADDRESSES:-}" ]; then
   log "BOOTSTRAP_NODE_ADDRESSES env var is required" >&2
   exit 1
 fi
 
-if [ -z "${CHAINLINK_NODE_NAME}" ]; then
+if [ -z "${CHAINLINK_NODE_NAME:-}" ]; then
   log "CHAINLINK_NODE_NAME env var is required" >&2
   exit 1
 fi
 
-if [ -z "${CHAINLINK_RPC_WS_URL}" ]; then
+if [ -z "${CHAINLINK_RPC_WS_URL:-}" ]; then
   log "CHAINLINK_RPC_WS_URL env var is required" >&2
   exit 1
 fi
 
-if [ -z "${CHAINLINK_RPC_HTTP_URL}" ]; then
+if [ -z "${CHAINLINK_RPC_HTTP_URL:-}" ]; then
   log "CHAINLINK_RPC_HTTP_URL env var is required" >&2
   exit 1
 fi
 
-if [ -z "${CHAINLINK_CHAIN_ID}" ]; then
+if [ -z "${CHAINLINK_CHAIN_ID:-}" ]; then
   log "CHAINLINK_CHAIN_ID env var is required" >&2
   exit 1
 fi
