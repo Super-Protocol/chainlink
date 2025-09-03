@@ -37,12 +37,12 @@ if [ -z "${CHAINLINK_CHAIN_ID:-}" ]; then
   exit 1
 fi
 
-if [ -z "$APP_DB_PASS" ] || [ ${#APP_DB_PASS} -lt 16 ]; then
+if [ -z "${APP_DB_PASS:-}" ] || [ ${#APP_DB_PASS} -lt 16 ]; then
   log "APP_DB_PASS is less than 16 characters"
   exit 1
 fi
 
-if [ -z "$CHAINLINK_KEYSTORE_PASSWORD" ] || [ ${#CHAINLINK_KEYSTORE_PASSWORD} -lt 16 ]; then
+if [ -z "${CHAINLINK_KEYSTORE_PASSWORD:-}" ] || [ ${#CHAINLINK_KEYSTORE_PASSWORD} -lt 16 ]; then
   log "CHAINLINK_KEYSTORE_PASSWORD is less than 16 characters"
   exit 1
 fi
