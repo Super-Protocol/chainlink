@@ -34390,6 +34390,11 @@
     "name": "GLO"
   },
   {
+    "id": "glo-2",
+    "symbol": "glo",
+    "name": "GLO"
+  },
+  {
     "id": "gloat",
     "symbol": "gloat",
     "name": "Gloat"

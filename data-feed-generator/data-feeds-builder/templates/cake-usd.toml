@@ -1,0 +1,47 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: CAKE / USD Price Feed"
+externalJobID = "b2dabf70-f02a-507e-9d97-75df72ee62d1"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0x38ad8734c076c"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=CAKEUSDT"];
+    ds1_parse [type=jsonparse path="price"];
+    ds1_multiply [type=multiply times=100000000];
+    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=CAKE&tsyms=USD"];
+    ds2_parse [type=jsonparse path="USD"];
+    ds2_multiply [type=multiply times=100000000];
+    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=pancakeswap-token&vs_currencies=usd"];
+    ds3_parse [type=jsonparse path="pancakeswap-token,usd"];
+    ds3_multiply [type=multiply times=100000000];
+    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/CAKE-USD/spot"];
+    ds4_parse [type=jsonparse path="USD"];
+    ds4_multiply [type=multiply times=100000000];
+    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=CAKEUSD"];
+    ds5_parse [type=jsonparse path="USD"];
+    ds5_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
+    ds3 -> ds3_parse -> ds3_multiply;
+    ds4 -> ds4_parse -> ds4_multiply;
+    ds5 -> ds5_parse -> ds5_multiply;
+    ds1_multiply -> median;
+    ds2_multiply -> median;
+    ds3_multiply -> median;
+    ds4_multiply -> median;
+    ds5_multiply -> median;
+"""

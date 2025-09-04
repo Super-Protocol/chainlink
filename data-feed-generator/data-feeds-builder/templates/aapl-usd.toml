@@ -1,0 +1,27 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: AAPL / USD Price Feed"
+externalJobID = "83c4ea76-93fd-5f1e-89e0-8edac27cd4f0"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0x2ad4a68abc861"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=twin-asset-token-aapl&vs_currencies=usd"];
+    ds1_parse [type=jsonparse path="twin-asset-token-aapl,usd"];
+    ds1_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds1_multiply -> median;
+"""

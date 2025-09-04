@@ -287,6 +287,135 @@ async function checkCoinGecko(symbol, coinsList, timeoutMs, verbose) {
 }
 
 // -------------------------------
+// Additional providers
+// -------------------------------
+async function checkCoinbase(base, quote, timeoutMs) {
+  const pair = `${base.toUpperCase()}-${quote.toUpperCase()}`;
+  const url = `https://api.coinbase.com/v2/prices/${pair}/spot`;
+  try {
+    const data = await getJsonWithRetry(url, timeoutMs, 2);
+    const ok = data && data.data && typeof data.data.amount === "string" && data.data.amount.length > 0;
+    console.log(`Coinbase ${pair}: ${ok ? "OK" : "N/A"}`);
+    return ok ? url : null;
+  } catch (_e) {
+    console.log(`Coinbase ${pair}: N/A`);
+    return null;
+  }
+}
+
+function krakenMapSymbol(sym) {
+  const s = sym.toUpperCase();
+  if (s === "BTC") return "XBT";
+  return s;
+}
+
+async function checkKraken(base, quote, timeoutMs) {
+  const b = krakenMapSymbol(base);
+  const q = krakenMapSymbol(quote);
+  const pair = `${b}${q}`;
+  const url = `https://api.kraken.com/0/public/Ticker?pair=${encodeURIComponent(pair)}`;
+  try {
+    const data = await getJsonWithRetry(url, timeoutMs, 2);
+    const hasError = data && Array.isArray(data.error) && data.error.length > 0;
+    if (hasError) {
+      console.log(`Kraken ${pair}: N/A`);
+      return null;
+    }
+    const result = data && data.result ? data.result : null;
+    const firstKey = result ? Object.keys(result)[0] : null;
+    const ticker = firstKey ? result[firstKey] : null;
+    const price = ticker && ticker.c && Array.isArray(ticker.c) ? ticker.c[0] : null;
+    const ok = typeof price === "string" && price.length > 0;
+    console.log(`Kraken ${pair}: ${ok ? "OK" : "N/A"}`);
+    return ok ? url : null;
+  } catch (_e) {
+    console.log(`Kraken ${pair}: N/A`);
+    return null;
+  }
+}
+
+async function checkOKX(base, quote, timeoutMs) {
+  const instId = `${base.toUpperCase()}-${quote.toUpperCase()}`;
+  const url = `https://www.okx.com/api/v5/market/ticker?instId=${encodeURIComponent(instId)}`;
+  try {
+    const data = await getJsonWithRetry(url, timeoutMs, 2);
+    const ok = data && data.code === "0" && Array.isArray(data.data) && data.data[0] && typeof data.data[0].last === "string" && data.data[0].last.length > 0;
+    console.log(`OKX ${instId}: ${ok ? "OK" : "N/A"}`);
+    return ok ? url : null;
+  } catch (_e) {
+    console.log(`OKX ${instId}: N/A`);
+    return null;
+  }
+}
+
+async function checkFrankfurter(base, quote, timeoutMs) {
+  const url = `https://api.frankfurter.app/latest?from=${encodeURIComponent(base.toUpperCase())}&to=${encodeURIComponent(quote.toUpperCase())}`;
+  try {
+    const data = await getJsonWithRetry(url, timeoutMs, 2);
+    const ok = data && data.rates && typeof data.rates[quote.toUpperCase()] === "number" && isFinite(data.rates[quote.toUpperCase()]);
+    console.log(`Frankfurter ${base.toUpperCase()}/${quote.toUpperCase()}: ${ok ? "OK" : "N/A"}`);
+    return ok ? url : null;
+  } catch (_e) {
+    console.log(`Frankfurter ${base.toUpperCase()}/${quote.toUpperCase()}: N/A`);
+    return null;
+  }
+}
+
+async function checkExchangerateHost(base, quote, timeoutMs) {
+  const key = process.env.EXCHANGERATE_HOST_KEY;
+  const baseUrl = `https://api.exchangerate.host/latest?base=${encodeURIComponent(base.toUpperCase())}&symbols=${encodeURIComponent(quote.toUpperCase())}`;
+  const url = key ? `${baseUrl}&access_key=${encodeURIComponent(key)}` : baseUrl;
+  try {
+    const data = await getJsonWithRetry(url, timeoutMs, 2);
+    const ok = data && data.rates && typeof data.rates[quote.toUpperCase()] === "number" && isFinite(data.rates[quote.toUpperCase()]);
+    console.log(`exchangerate.host ${base.toUpperCase()}/${quote.toUpperCase()}: ${ok ? "OK" : "N/A"}${key ? "" : " (no key)"}`);
+    return ok ? url : null;
+  } catch (_e) {
+    console.log(`exchangerate.host ${base.toUpperCase()}/${quote.toUpperCase()}: N/A${key ? "" : " (no key)"}`);
+    return null;
+  }
+}
+
+async function checkAlphaVantage(base, quote, timeoutMs) {
+  const key = process.env.ALPHAVANTAGE_API_KEY;
+  if (!key) {
+    console.log("AlphaVantage: Skipping (no API key)");
+    return null;
+  }
+  const url = `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${encodeURIComponent(base.toUpperCase())}&to_currency=${encodeURIComponent(quote.toUpperCase())}&apikey=${encodeURIComponent(key)}`;
+  try {
+    const data = await getJsonWithRetry(url, timeoutMs, 2);
+    const obj = data && data["Realtime Currency Exchange Rate"];
+    const rate = obj && obj["5. Exchange Rate"] ? Number(obj["5. Exchange Rate"]) : NaN;
+    const ok = isFinite(rate);
+    console.log(`AlphaVantage ${base.toUpperCase()}/${quote.toUpperCase()}: ${ok ? "OK" : "N/A"}`);
+    return ok ? url : null;
+  } catch (_e) {
+    console.log(`AlphaVantage ${base.toUpperCase()}/${quote.toUpperCase()}: N/A`);
+    return null;
+  }
+}
+
+async function checkFinnhub(base, timeoutMs) {
+  const token = process.env.FINNHUB_TOKEN;
+  if (!token) {
+    console.log("Finnhub: Skipping (no token)");
+    return null;
+  }
+  const symbol = base.toUpperCase();
+  const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${encodeURIComponent(token)}`;
+  try {
+    const data = await getJsonWithRetry(url, timeoutMs, 2);
+    const ok = data && typeof data.c === "number" && isFinite(data.c);
+    console.log(`Finnhub ${symbol}: ${ok ? "OK" : "N/A"}`);
+    return ok ? url : null;
+  } catch (_e) {
+    console.log(`Finnhub ${symbol}: N/A`);
+    return null;
+  }
+}
+
+// -------------------------------
 // Main
 // -------------------------------
 async function main() {
@@ -296,7 +425,7 @@ async function main() {
   ensureDirSync(args.cacheDir);
 
   // Load input feeds
-  const inputPath = path.resolve(__dirname, "data-feeds.json");
+  const inputPath = path.resolve(__dirname, "../data-feeds.json");
   if (!fs.existsSync(inputPath)) {
     console.error(`Input file not found: ${inputPath}`);
     process.exit(1);
@@ -356,14 +485,22 @@ async function main() {
 
     const shouldCheckApis = Boolean(baseSymbol) && isUsdQuote === true && cfg.smartDataFeed === false;
     if (shouldCheckApis) {
+      const quote = "USD";
       const checks = await Promise.all([
         checkBinance(baseSymbol, args.timeoutMs, args.verbose),
         checkCryptoCompare(baseSymbol, args.timeoutMs, args.verbose),
         checkCoinGecko(baseSymbol, coinsList, args.timeoutMs, args.verbose),
+        checkCoinbase(baseSymbol, quote, args.timeoutMs),
+        checkKraken(baseSymbol, quote, args.timeoutMs),
+        checkOKX(baseSymbol, quote, args.timeoutMs),
+        checkFrankfurter(baseSymbol, quote, args.timeoutMs),
+        checkExchangerateHost(baseSymbol, quote, args.timeoutMs),
+        checkAlphaVantage(baseSymbol, quote, args.timeoutMs),
+        checkFinnhub(baseSymbol, args.timeoutMs),
       ]);
-      if (checks[0]) dataSources.push(checks[0]);
-      if (checks[1]) dataSources.push(checks[1]);
-      if (checks[2]) dataSources.push(checks[2]);
+      for (const url of checks) {
+        if (url) dataSources.push(url);
+      }
     } else {
       if (args.verbose) console.log(`  Skipping API checks (name format or smartDataFeed): ${name}`);
     }

@@ -1,0 +1,47 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: BCH / USD Price Feed"
+externalJobID = "94154bbe-8b9b-50af-9f2c-14ac13328a42"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0x3dbef3da40d4"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=BCHUSDT"];
+    ds1_parse [type=jsonparse path="price"];
+    ds1_multiply [type=multiply times=100000000];
+    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=BCH&tsyms=USD"];
+    ds2_parse [type=jsonparse path="USD"];
+    ds2_multiply [type=multiply times=100000000];
+    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-bitcoin-cash&vs_currencies=usd"];
+    ds3_parse [type=jsonparse path="binance-peg-bitcoin-cash,usd"];
+    ds3_multiply [type=multiply times=100000000];
+    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/BCH-USD/spot"];
+    ds4_parse [type=jsonparse path="USD"];
+    ds4_multiply [type=multiply times=100000000];
+    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=BCHUSD"];
+    ds5_parse [type=jsonparse path="USD"];
+    ds5_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
+    ds3 -> ds3_parse -> ds3_multiply;
+    ds4 -> ds4_parse -> ds4_multiply;
+    ds5 -> ds5_parse -> ds5_multiply;
+    ds1_multiply -> median;
+    ds2_multiply -> median;
+    ds3_multiply -> median;
+    ds4_multiply -> median;
+    ds5_multiply -> median;
+"""

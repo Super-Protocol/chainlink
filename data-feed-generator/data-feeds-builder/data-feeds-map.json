@@ -16,7 +16,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=1INCHUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=1INCH&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=1inch&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=1inch&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/1INCH-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=1INCHUSD"
     ]
   },
   {
@@ -46,7 +48,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=AAVEUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=AAVE&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=aave&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=aave&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/AAVE-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=AAVEUSD"
     ]
   },
   {
@@ -66,7 +70,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ADAUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ADA&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-cardano&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-cardano&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ADA-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ADAUSD"
     ]
   },
   {
@@ -78,7 +84,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ALGOUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ALGO&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=algorand&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=algorand&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ALGO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ALGOUSD"
     ]
   },
   {
@@ -119,7 +127,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=APEUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=APE&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=ape-3&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=ape-3&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/APE-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=APEUSD"
     ]
   },
   {
@@ -131,7 +141,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ARBUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ARB&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=arbitrage-loop&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=arbitrage-loop&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ARB-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ARBUSD"
     ]
   },
   {
@@ -143,7 +155,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ATOMUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ATOM&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=cosmos&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=cosmos&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ATOM-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ATOMUSD"
     ]
   },
   {
@@ -155,7 +169,10 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=AUDUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=AUD&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=audit&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=audit&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/AUD-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=AUDUSD",
+      "https://api.frankfurter.app/latest?from=AUD&to=USD"
     ]
   },
   {
@@ -178,7 +195,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=AVAXUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=AVAX&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=avalanche-2&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=avalanche-2&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/AVAX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=AVAXUSD"
     ]
   },
   {
@@ -190,7 +209,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=AXSUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=AXS&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=axie-infinity&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=axie-infinity&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/AXS-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=AXSUSD"
     ]
   },
   {
@@ -210,7 +231,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=BADGERUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=BADGER&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=badger-badger-badger&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=badger-badger-badger&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BADGER-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BADGERUSD"
     ]
   },
   {
@@ -230,7 +253,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=BALUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=BAL&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=balancer&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=balancer&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BAL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BALUSD"
     ]
   },
   {
@@ -250,7 +275,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=BANDUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=BAND&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=band-protocol&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=band-protocol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BAND-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BANDUSD"
     ]
   },
   {
@@ -270,7 +297,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=BATUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=BAT&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=basic-attention-token&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=basic-attention-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BAT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BATUSD"
     ]
   },
   {
@@ -290,7 +319,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=BCHUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=BCH&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-bitcoin-cash&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-bitcoin-cash&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BCH-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BCHUSD"
     ]
   },
   {
@@ -302,7 +333,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=BNB&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=bifrost-bridged-bnb-bifrost&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=bifrost-bridged-bnb-bifrost&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BNB-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BNBUSD"
     ]
   },
   {
@@ -332,7 +365,9 @@
     "alphaPPB": "1000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=BRL&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=borealis&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=borealis&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BRL-USD/spot",
+      "https://api.frankfurter.app/latest?from=BRL&to=USD"
     ]
   },
   {
@@ -372,7 +407,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=batcat&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=batcat&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=XBTUSD"
     ]
   },
   {
@@ -392,7 +429,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=C98USDT",
       "https://min-api.cryptocompare.com/data/price?fsym=C98&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=coin98&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=coin98&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/C98-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=C98USD"
     ]
   },
   {
@@ -402,7 +441,9 @@
     "deltaC": "86400000000000",
     "alphaPPB": "3000000",
     "dataSources": [
-      "https://min-api.cryptocompare.com/data/price?fsym=CAD&tsyms=USD"
+      "https://min-api.cryptocompare.com/data/price?fsym=CAD&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/CAD-USD/spot",
+      "https://api.frankfurter.app/latest?from=CAD&to=USD"
     ]
   },
   {
@@ -422,7 +463,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=CAKEUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=CAKE&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=pancakeswap-token&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=pancakeswap-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/CAKE-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=CAKEUSD"
     ]
   },
   {
@@ -492,7 +535,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=CFXUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=CFX&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=conflux-token&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=conflux-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/CFX-USD/spot"
     ]
   },
   {
@@ -502,7 +546,9 @@
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
     "dataSources": [
-      "https://min-api.cryptocompare.com/data/price?fsym=CHF&tsyms=USD"
+      "https://min-api.cryptocompare.com/data/price?fsym=CHF&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/CHF-USD/spot",
+      "https://api.frankfurter.app/latest?from=CHF&to=USD"
     ]
   },
   {
@@ -514,7 +560,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=CHRUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=CHR&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=chromaway&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=chromaway&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/CHR-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=CHRUSD"
     ]
   },
   {
@@ -526,7 +574,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=CHZUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=CHZ&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=chiliz&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=chiliz&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/CHZ-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=CHZUSD"
     ]
   },
   {
@@ -536,7 +586,9 @@
     "deltaC": "86400000000000",
     "alphaPPB": "3000000",
     "dataSources": [
-      "https://min-api.cryptocompare.com/data/price?fsym=CNY&tsyms=USD"
+      "https://min-api.cryptocompare.com/data/price?fsym=CNY&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/CNY-USD/spot",
+      "https://api.frankfurter.app/latest?from=CNY&to=USD"
     ]
   },
   {
@@ -566,7 +618,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=COMPUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=COMP&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=compound-governance-token&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=compound-governance-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/COMP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=COMPUSD"
     ]
   },
   {
@@ -577,7 +631,8 @@
     "alphaPPB": null,
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=COP&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=copiosa&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=copiosa&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/COP-USD/spot"
     ]
   },
   {
@@ -596,7 +651,9 @@
     "alphaPPB": "5000000",
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=CRVUSDT",
-      "https://min-api.cryptocompare.com/data/price?fsym=CRV&tsyms=USD"
+      "https://min-api.cryptocompare.com/data/price?fsym=CRV&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/CRV-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=CRVUSD"
     ]
   },
   {
@@ -635,7 +692,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=CVXUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=CVX&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=convex-finance&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=convex-finance&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/CVX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=CVXUSD"
     ]
   },
   {
@@ -663,7 +722,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=DAIUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=DAI&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=avalanche-bridged-dai-avalanche&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=avalanche-bridged-dai-avalanche&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DAI-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=DAIUSD"
     ]
   },
   {
@@ -675,7 +736,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=DASHUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=DASH&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=dash&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=dash&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DASH-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=DASHUSD"
     ]
   },
   {
@@ -710,7 +773,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=DODOUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=DODO&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=dodo&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=dodo&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DODO-USD/spot"
     ]
   },
   {
@@ -722,7 +786,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=DOGEUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=DOGE&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-dogecoin&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-dogecoin&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DOGE-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=DOGEUSD"
     ]
   },
   {
@@ -734,7 +800,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=DOLOUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=DOLO&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=dolomite&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=dolomite&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DOLO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=DOLOUSD"
     ]
   },
   {
@@ -754,7 +822,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=DOTUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=DOT&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-polkadot&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-polkadot&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DOT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=DOTUSD"
     ]
   },
   {
@@ -773,7 +843,8 @@
     "alphaPPB": "10000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=DPI&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=defipulse-index&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=defipulse-index&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DPI-USD/spot"
     ]
   },
   {
@@ -785,7 +856,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=EIGENUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=EIGEN&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=eigenlayer&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=eigenlayer&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/EIGEN-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=EIGENUSD"
     ]
   },
   {
@@ -805,7 +878,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ENSUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ENS&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum-name-service&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum-name-service&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ENS-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ENSUSD"
     ]
   },
   {
@@ -817,7 +892,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ETCUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ETC&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum-classic&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum-classic&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ETC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ETCUSD"
     ]
   },
   {
@@ -845,7 +922,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=bifrost-bridged-eth-bifrost&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=bifrost-bridged-eth-bifrost&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ETH-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ETHUSD"
     ]
   },
   {
@@ -857,7 +936,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ETHFIUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ETHFI&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=ether-fi&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=ether-fi&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ETHFI-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ETHFIUSD"
     ]
   },
   {
@@ -869,7 +950,10 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=EURUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=EUR&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=ageur&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=ageur&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/EUR-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=EURUSD",
+      "https://api.frankfurter.app/latest?from=EUR&to=USD"
     ]
   },
   {
@@ -880,7 +964,8 @@
     "alphaPPB": "3000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=EURC&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=euro-coin&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=euro-coin&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/EURC-USD/spot"
     ]
   },
   {
@@ -939,7 +1024,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=FETUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=FET&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=fetch-ai&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=fetch-ai&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/FET-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=FETUSD"
     ]
   },
   {
@@ -959,7 +1046,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=FILUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=FIL&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-filecoin&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-filecoin&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/FIL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=FILUSD"
     ]
   },
   {
@@ -1007,7 +1096,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=FTTUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=FTT&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=ftx-token&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=ftx-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/FTT-USD/spot"
     ]
   },
   {
@@ -1019,7 +1109,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=FXSUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=FXS&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=fx-usd-saving&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=fx-usd-saving&vs_currencies=usd",
+      "https://api.kraken.com/0/public/Ticker?pair=FXSUSD"
     ]
   },
   {
@@ -1031,7 +1122,10 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=GBPUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=GBP&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=monerium-gbp-emoney&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=monerium-gbp-emoney&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/GBP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=GBPUSD",
+      "https://api.frankfurter.app/latest?from=GBP&to=USD"
     ]
   },
   {
@@ -1062,7 +1156,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=GHSTUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=GHST&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=aavegotchi&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=aavegotchi&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/GHST-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=GHSTUSD"
     ]
   },
   {
@@ -1085,7 +1181,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=GMTUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=GMT&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=gamem-token&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=gamem-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/GMT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=GMTUSD"
     ]
   },
   {
@@ -1127,7 +1225,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=GRTUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=GRT&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=the-graph&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=the-graph&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/GRT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=GRTUSD"
     ]
   },
   {
@@ -1139,7 +1239,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=HBARUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=HBAR&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=hedera-hashgraph&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=hedera-hashgraph&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/HBAR-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=HBARUSD"
     ]
   },
   {
@@ -1151,7 +1253,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=HIGHUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=HIGH&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=high&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=high&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/HIGH-USD/spot"
     ]
   },
   {
@@ -1179,7 +1282,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ICPUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ICP&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=internet-computer&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=internet-computer&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ICP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ICPUSD"
     ]
   },
   {
@@ -1189,7 +1294,9 @@
     "deltaC": null,
     "alphaPPB": null,
     "dataSources": [
-      "https://min-api.cryptocompare.com/data/price?fsym=ILS&tsyms=USD"
+      "https://min-api.cryptocompare.com/data/price?fsym=ILS&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/ILS-USD/spot",
+      "https://api.frankfurter.app/latest?from=ILS&to=USD"
     ]
   },
   {
@@ -1209,7 +1316,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=IMXUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=IMX&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=immutable-x&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=immutable-x&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/IMX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=IMXUSD"
     ]
   },
   {
@@ -1221,7 +1330,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=INJUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=INJ&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=injective-protocol&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=injective-protocol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/INJ-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=INJUSD"
     ]
   },
   {
@@ -1231,7 +1342,9 @@
     "deltaC": "1200000000000",
     "alphaPPB": "2000000",
     "dataSources": [
-      "https://min-api.cryptocompare.com/data/price?fsym=INR&tsyms=USD"
+      "https://min-api.cryptocompare.com/data/price?fsym=INR&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/INR-USD/spot",
+      "https://api.frankfurter.app/latest?from=INR&to=USD"
     ]
   },
   {
@@ -1250,7 +1363,9 @@
     "alphaPPB": "3000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=JPY&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=dephaser-jpy&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=dephaser-jpy&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/JPY-USD/spot",
+      "https://api.frankfurter.app/latest?from=JPY&to=USD"
     ]
   },
   {
@@ -1262,7 +1377,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=KAVAUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=KAVA&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=kava&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=kava&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/KAVA-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=KAVAUSD"
     ]
   },
   {
@@ -1282,7 +1399,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=KNCUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=KNC&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=kyber-network-crystal&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=kyber-network-crystal&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/KNC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=KNCUSD"
     ]
   },
   {
@@ -1293,7 +1412,9 @@
     "alphaPPB": "3000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=KRW&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=krown&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=krown&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/KRW-USD/spot",
+      "https://api.frankfurter.app/latest?from=KRW&to=USD"
     ]
   },
   {
@@ -1345,7 +1466,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=LINKUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=LINK&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=chainlink&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=chainlink&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/LINK-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=LINKUSD"
     ]
   },
   {
@@ -1357,7 +1480,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=LISTAUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=LISTA&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=lista&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=lista&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/LISTA-USD/spot"
     ]
   },
   {
@@ -1393,7 +1517,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=LTCUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-litecoin&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-litecoin&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/LTC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=LTCUSD"
     ]
   },
   {
@@ -1424,7 +1550,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=MANAUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=MANA&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=decentraland&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=decentraland&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/MANA-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=MANAUSD"
     ]
   },
   {
@@ -1436,7 +1564,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=MASKUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=MASK&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=catwifmask&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=catwifmask&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/MASK-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=MASKUSD"
     ]
   },
   {
@@ -1486,7 +1616,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=MKRUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=MKR&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=maker&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=maker&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/MKR-USD/spot"
     ]
   },
   {
@@ -1533,7 +1664,9 @@
     "alphaPPB": null,
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=MSOL&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=msol&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=msol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/MSOL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=MSOLUSD"
     ]
   },
   {
@@ -1544,7 +1677,9 @@
     "alphaPPB": "1000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=MXN&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=machina&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=machina&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/MXN-USD/spot",
+      "https://api.frankfurter.app/latest?from=MXN&to=USD"
     ]
   },
   {
@@ -1556,7 +1691,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=NEARUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=NEAR&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-near-protocol&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-near-protocol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/NEAR-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=NEARUSD"
     ]
   },
   {
@@ -1568,7 +1705,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=NEIROUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=NEIRO&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=neiro&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=neiro&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/NEIRO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=NEIROUSD"
     ]
   },
   {
@@ -1598,7 +1737,9 @@
     "deltaC": "86400000000000",
     "alphaPPB": "3000000",
     "dataSources": [
-      "https://min-api.cryptocompare.com/data/price?fsym=NZD&tsyms=USD"
+      "https://min-api.cryptocompare.com/data/price?fsym=NZD&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/NZD-USD/spot",
+      "https://api.frankfurter.app/latest?from=NZD&to=USD"
     ]
   },
   {
@@ -1618,7 +1759,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=OGNUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=OGN&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=origin-protocol&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=origin-protocol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/OGN-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=OGNUSD"
     ]
   },
   {
@@ -1630,7 +1773,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=OMUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=OM&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=mantra-dao&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=mantra-dao&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/OM-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=OMUSD"
     ]
   },
   {
@@ -1641,7 +1786,8 @@
     "alphaPPB": null,
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ONGUSDT",
-      "https://api.coingecko.com/api/v3/simple/price?ids=ong&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=ong&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ONG-USD/spot"
     ]
   },
   {
@@ -1653,7 +1799,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ONTUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ONT&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-ontology&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-ontology&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ONT-USD/spot"
     ]
   },
   {
@@ -1665,7 +1812,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=OPUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=OP&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=one-play&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=one-play&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/OP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=OPUSD"
     ]
   },
   {
@@ -1687,7 +1836,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=PAXG&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/PAXG-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=PAXGUSD"
     ]
   },
   {
@@ -1713,7 +1864,9 @@
     "deltaC": "86400000000000",
     "alphaPPB": "3000000",
     "dataSources": [
-      "https://min-api.cryptocompare.com/data/price?fsym=PHP&tsyms=USD"
+      "https://min-api.cryptocompare.com/data/price?fsym=PHP&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/PHP-USD/spot",
+      "https://api.frankfurter.app/latest?from=PHP&to=USD"
     ]
   },
   {
@@ -1724,7 +1877,8 @@
     "alphaPPB": null,
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=PLN&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=plearn&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=plearn&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/PLN-USD/spot"
     ]
   },
   {
@@ -1735,7 +1889,10 @@
     "alphaPPB": "5000000",
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=POLUSDT",
-      "https://min-api.cryptocompare.com/data/price?fsym=POL&tsyms=USD"
+      "https://min-api.cryptocompare.com/data/price?fsym=POL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=katana-bridged-pol-katana&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/POL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=POLUSD"
     ]
   },
   {
@@ -1763,7 +1920,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=QNTUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=QNT&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=quant-network&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=quant-network&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/QNT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=QNTUSD"
     ]
   },
   {
@@ -1785,7 +1944,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=QUICKUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=QUICK&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=quick&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=quick&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/QUICK-USD/spot"
     ]
   },
   {
@@ -1797,7 +1957,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=RDNTUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=RDNT&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=radiant-capital&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=radiant-capital&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/RDNT-USD/spot"
     ]
   },
   {
@@ -1824,7 +1985,8 @@
     "alphaPPB": null,
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=RLUSD&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=ripple-usd&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=ripple-usd&vs_currencies=usd",
+      "https://api.kraken.com/0/public/Ticker?pair=RLUSDUSD"
     ]
   },
   {
@@ -1836,7 +1998,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=RPLUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=RPL&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=rocket-pool&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=rocket-pool&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/RPL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=RPLUSD"
     ]
   },
   {
@@ -1856,7 +2020,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=RSRUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=RSR&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=reserve-rights-token&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=reserve-rights-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/RSR-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=RSRUSD"
     ]
   },
   {
@@ -1868,7 +2034,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=SANDUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=SAND&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=the-sandbox&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=the-sandbox&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SAND-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SANDUSD"
     ]
   },
   {
@@ -1879,7 +2047,9 @@
     "alphaPPB": "3000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=SEK&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=seka&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=seka&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SEK-USD/spot",
+      "https://api.frankfurter.app/latest?from=SEK&to=USD"
     ]
   },
   {
@@ -1889,7 +2059,9 @@
     "deltaC": "86400000000000",
     "alphaPPB": "3000000",
     "dataSources": [
-      "https://min-api.cryptocompare.com/data/price?fsym=SGD&tsyms=USD"
+      "https://min-api.cryptocompare.com/data/price?fsym=SGD&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/SGD-USD/spot",
+      "https://api.frankfurter.app/latest?from=SGD&to=USD"
     ]
   },
   {
@@ -1909,7 +2081,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=SHIBUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=SHIB&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-shib&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-shib&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SHIB-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SHIBUSD"
     ]
   },
   {
@@ -1928,7 +2102,9 @@
     "alphaPPB": null,
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=SKY&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=darkcrypto-share&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=darkcrypto-share&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SKY-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SKYUSD"
     ]
   },
   {
@@ -1960,7 +2136,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=SNXUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=SNX&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=havven&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=havven&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SNX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SNXUSD"
     ]
   },
   {
@@ -1972,7 +2150,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=SOL&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=allbridge-bridged-sol-near-protocol&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=allbridge-bridged-sol-near-protocol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SOL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SOLUSD"
     ]
   },
   {
@@ -2000,7 +2180,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=SPELLUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=SPELL&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=spell-token&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=spell-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SPELL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SPELLUSD"
     ]
   },
   {
@@ -2050,7 +2232,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=STGUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=STG&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=stargate-finance&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=stargate-finance&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/STG-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=STGUSD"
     ]
   },
   {
@@ -2062,7 +2246,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=STORJUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=STORJ&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=storj&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=storj&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/STORJ-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=STORJUSD"
     ]
   },
   {
@@ -2072,7 +2258,8 @@
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
     "dataSources": [
-      "https://api.coingecko.com/api/v3/simple/price?ids=ethena-staked-usde&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethena-staked-usde&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SUSDE-USD/spot"
     ]
   },
   {
@@ -2116,7 +2303,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=SUSHIUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=SUSHI&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=sushi&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=sushi&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SUSHI-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SUSHIUSD"
     ]
   },
   {
@@ -2148,7 +2337,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=SXTUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=SXT&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=space-and-time&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=space-and-time&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SXT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SXTUSD"
     ]
   },
   {
@@ -2160,7 +2351,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=TAOUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=TAO&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=bittensor&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=bittensor&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/TAO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=TAOUSD"
     ]
   },
   {
@@ -2171,7 +2364,9 @@
     "alphaPPB": "5000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=TBTC&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=tbtc&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=tbtc&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/TBTC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=TBTCUSD"
     ]
   },
   {
@@ -2190,7 +2385,9 @@
     "alphaPPB": null,
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=THB&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=theo-short-duration-us-treasury-fund&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=theo-short-duration-us-treasury-fund&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/THB-USD/spot",
+      "https://api.frankfurter.app/latest?from=THB&to=USD"
     ]
   },
   {
@@ -2202,7 +2399,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=THETAUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=THETA&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=theta-token&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=theta-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/THETA-USD/spot"
     ]
   },
   {
@@ -2230,7 +2428,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=TRUMPUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=TRUMP&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=bridged-maga-wormhole&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=bridged-maga-wormhole&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/TRUMP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=TRUMPUSD"
     ]
   },
   {
@@ -2242,7 +2442,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=TRXUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=TRX&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=tron&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=tron&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/TRX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=TRXUSD"
     ]
   },
   {
@@ -2253,7 +2455,9 @@
     "alphaPPB": "5000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=TRY&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=bilira&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=bilira&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/TRY-USD/spot",
+      "https://api.frankfurter.app/latest?from=TRY&to=USD"
     ]
   },
   {
@@ -2283,7 +2487,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=TUSDUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=TUSD&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=bridged-trueusd&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=bridged-trueusd&vs_currencies=usd",
+      "https://api.kraken.com/0/public/Ticker?pair=TUSDUSD"
     ]
   },
   {
@@ -2303,7 +2508,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=UMAUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=UMA&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=uma&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=uma&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/UMA-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=UMAUSD"
     ]
   },
   {
@@ -2331,7 +2538,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=UNIUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=UNI&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=linea-bridged-uni-linea&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=linea-bridged-uni-linea&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/UNI-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=UNIUSD"
     ]
   },
   {
@@ -2371,7 +2580,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=USD1USDT",
       "https://min-api.cryptocompare.com/data/price?fsym=USD1&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=usd1&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=usd1&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USD1-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=USD1USD"
     ]
   },
   {
@@ -2399,7 +2610,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=USDCUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=USDC&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=airdao-bridged-usdc-airdao&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=airdao-bridged-usdc-airdao&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USDC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=USDCUSD"
     ]
   },
   {
@@ -2410,7 +2623,8 @@
     "alphaPPB": "5000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=USDE&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=blast-bridged-usde-blast&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=blast-bridged-usde-blast&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USDE-USD/spot"
     ]
   },
   {
@@ -2421,7 +2635,8 @@
     "alphaPPB": null,
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=USDE&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=blast-bridged-usde-blast&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=blast-bridged-usde-blast&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USDE-USD/spot"
     ]
   },
   {
@@ -2466,7 +2681,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=USDSUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=USDS&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=sperax-usd&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=sperax-usd&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USDS-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=USDSUSD"
     ]
   },
   {
@@ -2493,7 +2710,9 @@
     "alphaPPB": "1000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=abstract-bridged-usdt-abstract&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=abstract-bridged-usdt-abstract&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USDT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=USDTUSD"
     ]
   },
   {
@@ -2527,7 +2746,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=VETUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=VET&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=vechain&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=vechain&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/VET-USD/spot"
     ]
   },
   {
@@ -2538,7 +2758,8 @@
     "alphaPPB": null,
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=WAMPL&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=wrapped-ampleforth&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=wrapped-ampleforth&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/WAMPL-USD/spot"
     ]
   },
   {
@@ -2566,7 +2787,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=WBTCUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=WBTC&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=aptos-bridged-wbtc-aptos&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=aptos-bridged-wbtc-aptos&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/WBTC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=WBTCUSD"
     ]
   },
   {
@@ -2594,7 +2817,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=WINUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=WIN&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=win-2&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=win-2&vs_currencies=usd",
+      "https://api.kraken.com/0/public/Ticker?pair=WINUSD"
     ]
   },
   {
@@ -2606,7 +2830,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=WOOUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=WOO&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=woo-network&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=woo-network&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/WOO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=WOOUSD"
     ]
   },
   {
@@ -2640,7 +2866,8 @@
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
     "dataSources": [
-      "https://api.coingecko.com/api/v3/simple/price?ids=arbitrum-bridged-wsteth-arbitrum&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=arbitrum-bridged-wsteth-arbitrum&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/WSTETH-USD/spot"
     ]
   },
   {
@@ -2660,7 +2887,8 @@
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
     "dataSources": [
-      "https://api.coingecko.com/api/v3/simple/price?ids=silver-token-xagx&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=silver-token-xagx&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XAG-USD/spot"
     ]
   },
   {
@@ -2670,7 +2898,8 @@
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
     "dataSources": [
-      "https://api.coingecko.com/api/v3/simple/price?ids=xau9999&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=xau9999&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XAU-USD/spot"
     ]
   },
   {
@@ -2681,7 +2910,9 @@
     "alphaPPB": null,
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=XCN&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=chain-2&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=chain-2&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XCN-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=XCNUSD"
     ]
   },
   {
@@ -2693,7 +2924,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=XLMUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=XLM&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XLM-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=XLMUSD"
     ]
   },
   {
@@ -2705,7 +2938,8 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=XMRUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=XMR&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=monero&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=monero&vs_currencies=usd",
+      "https://api.kraken.com/0/public/Ticker?pair=XMRUSD"
     ]
   },
   {
@@ -2715,7 +2949,8 @@
     "deltaC": null,
     "alphaPPB": null,
     "dataSources": [
-      "https://min-api.cryptocompare.com/data/price?fsym=XPT&tsyms=USD"
+      "https://min-api.cryptocompare.com/data/price?fsym=XPT&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/XPT-USD/spot"
     ]
   },
   {
@@ -2735,7 +2970,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=XRPUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=XRP&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-xrp&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-xrp&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XRP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=XRPUSD"
     ]
   },
   {
@@ -2755,7 +2992,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=XTZUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=XTZ&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-tezos-token&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-tezos-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XTZ-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=XTZUSD"
     ]
   },
   {
@@ -2803,7 +3042,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=YFIUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=YFI&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=yearn-finance&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=yearn-finance&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/YFI-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=YFIUSD"
     ]
   },
   {
@@ -2814,7 +3055,9 @@
     "alphaPPB": "3000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=ZAR&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=zara-ai&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=zara-ai&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ZAR-USD/spot",
+      "https://api.frankfurter.app/latest?from=ZAR&to=USD"
     ]
   },
   {
@@ -2825,7 +3068,8 @@
     "alphaPPB": "10000000",
     "dataSources": [
       "https://min-api.cryptocompare.com/data/price?fsym=ZBU&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=zeebu&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=zeebu&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ZBU-USD/spot"
     ]
   },
   {
@@ -2837,7 +3081,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ZECUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ZEC&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=zcash&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=zcash&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ZEC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ZECUSD"
     ]
   },
   {
@@ -2849,7 +3095,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ZROUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ZRO&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=layerzero&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=layerzero&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ZRO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ZROUSD"
     ]
   },
   {
@@ -2869,7 +3117,9 @@
     "dataSources": [
       "https://api.binance.com/api/v3/ticker/price?symbol=ZRXUSDT",
       "https://min-api.cryptocompare.com/data/price?fsym=ZRX&tsyms=USD",
-      "https://api.coingecko.com/api/v3/simple/price?ids=0x&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=0x&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ZRX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ZRXUSD"
     ]
   }
 ]
