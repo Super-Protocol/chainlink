@@ -101,7 +101,7 @@ EOF
 
 start_chainlink() {
   log "starting Chainlink entrypoint"
-  /scripts/chainlink-entrypoint.sh &
+  /scripts/bash/chainlink-entrypoint.sh &
   CL_PID=$!
 }
 

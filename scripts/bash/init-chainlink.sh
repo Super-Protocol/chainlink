@@ -89,7 +89,7 @@ main() {
   # Always (re)generate /chainlink/config.toml from template using current shared secrets
   local cfg="${CHAINLINK_DIR}/config.toml"
   rm -f "$cfg" || true
-  local tpl="/scripts/config.toml.template"
+  local tpl="/scripts/bash/config.toml.template"
   if [[ -s "$tpl" ]]; then
     # Compute DefaultBootstrappers from shared bootstrap secrets if available
     local IFS=' \t,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"

@@ -5,10 +5,19 @@ const path = require('path');
 const crypto = require('crypto');
 const nacl = require('tweetnacl'); // X25519 via scalarMult
 const { ethers } = require('ethers');
-const { hexToBuf, keccak256, aes128EcbEncryptBlock, decryptEvmKeystore } = require('./crypto-utils');
+const {
+  hexToBuf,
+  keccak256,
+  aes128EcbEncryptBlock,
+  decryptEvmKeystore,
+} = require('./crypto-utils');
 const aggregatorAbi = require('./abis/AccessControlledOffchainAggregator.json').abi;
 
-function hexToBufLocal(h) { return hexToBuf(h); }
+const { registerAdmin } = require('./register-admin');
+
+function hexToBufLocal(h) {
+  return hexToBuf(h);
+}
 
 function readJSON(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -43,7 +52,8 @@ function encryptSharedSecret(x25519PubKeys, sharedSecret16) {
   // ephemeral secret scalar (32 bytes)
   const sk = crypto.randomBytes(32);
   // ephemeral public: X25519(sk, basepoint)
-  const base = new Uint8Array(32); base[0] = 9;
+  const base = new Uint8Array(32);
+  base[0] = 9;
   const pk = nacl.scalarMult(sk, base); // Uint8Array(32)
   const encs = [];
   for (const pubHex of x25519PubKeys) {
@@ -64,20 +74,32 @@ function encryptSharedSecret(x25519PubKeys, sharedSecret16) {
 async function main() {
   const rpcUrl = process.env.CHAINLINK_RPC_HTTP_URL;
   const contractAddr = process.env.CHAINLINK_NODE_SC_ADDRESS;
-  if (!rpcUrl || !contractAddr) throw new Error('CHAINLINK_RPC_HTTP_URL and CHAINLINK_NODE_SC_ADDRESS are required');
+  if (!rpcUrl || !contractAddr)
+    throw new Error('CHAINLINK_RPC_HTTP_URL and CHAINLINK_NODE_SC_ADDRESS are required');
 
   const nodesList = process.env.NODES_LIST || '1 2 3 4 5';
   const bootstrapStr = process.env.BOOTSTRAP_NODES || '1';
-  const bootstrapSet = new Set(bootstrapStr.split(/[\s,]+/).filter(Boolean).map((s) => parseInt(s, 10)));
+  const bootstrapSet = new Set(
+    bootstrapStr
+      .split(/[\s,]+/)
+      .filter(Boolean)
+      .map((s) => parseInt(s, 10)),
+  );
   const secretsRoot = process.env.SECRETS_ROOT || '/sp/secrets/cl-secrets';
 
   const workers = listWorkers(nodesList, bootstrapSet);
   if (workers.length === 0) throw new Error('No worker nodes to configure');
 
-  const signers = []; const transmitters = []; const offchainPublicKeys = []; const peerIDsArr = [];
+  const signers = [];
+  const transmitters = [];
+  const offchainPublicKeys = [];
+  const peerIDsArr = [];
   const x25519PubKeys = [];
   for (const n of workers) {
-    const { signer, transmitter, offchainCfg, peerId, offchainPublicHex} = loadNodeSecrets(secretsRoot, n);
+    const { signer, transmitter, offchainCfg, peerId, offchainPublicHex } = loadNodeSecrets(
+      secretsRoot,
+      n,
+    );
     signers.push(signer);
     transmitters.push(transmitter);
     offchainPublicKeys.push(`0x${offchainPublicHex}`);
@@ -128,8 +150,13 @@ async function main() {
     }
   } catch {}
   if (!derivedPkHex) {
-    throw new Error('Unable to decrypt sender key from evm_key.json. Ensure CHAINLINK_KEYSTORE_PASSWORD and file are correct.');
+    throw new Error(
+      'Unable to decrypt sender key from evm_key.json. Ensure CHAINLINK_KEYSTORE_PASSWORD and file are correct.',
+    );
   }
+
+  await registerAdmin(derivedPkHex);
+
   const sender = new ethers.Wallet(derivedPkHex, provider);
   console.log('Sender:', sender.address);
   if (signerAddress) console.log('Signer:', signerAddress);
@@ -141,4 +168,7 @@ async function main() {
   console.log('Mined', rcpt?.transactionHash);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

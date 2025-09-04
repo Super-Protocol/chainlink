@@ -16,7 +16,7 @@ fi
 
 SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
 OUT_ROOT="$SP_SECRETS_DIR/cl-secrets"
-SCRIPTS_DIR="/scripts/secrets"
+SCRIPTS_DIR="/scripts/secrets-generation"
 
 log() { echo "[gen] $*"; }
 

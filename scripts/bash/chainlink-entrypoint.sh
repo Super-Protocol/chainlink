@@ -45,8 +45,8 @@ bs_nodes_str="${BOOTSTRAP_NODES:-1}"
 IFS=' \t,' read -r -a bs_nodes <<< "$bs_nodes_str"
 leader="${bs_nodes[0]:-1}"
 if [ "$NODE_NUMBER" = "$leader" ]; then
-  log "running /scripts/generate-secrets.sh for all nodes (leader=${leader}, TOTAL_NODES=${TOTAL_NODES:-5})"
-  TOTAL_NODES="${TOTAL_NODES:-5}" bash /scripts/generate-secrets.sh || log "generate-secrets failed (continuing)"
+  log "running /scripts/bash/generate-secrets.sh for all nodes (leader=${leader}, TOTAL_NODES=${TOTAL_NODES:-5})"
+  TOTAL_NODES="${TOTAL_NODES:-5}" bash /scripts/bash/generate-secrets.sh || log "generate-secrets failed (continuing)"
 else
   log "skip generate-secrets: node=$NODE_NUMBER, leader=$leader"
 fi
@@ -54,9 +54,9 @@ fi
 # Ensure Chainlink node stays PID 1. If present, run publisher in background.
 # Bootstrap nodes write their P2P details to shared secrets for workers
 FIRST_START="false"
-if [ -x "/scripts/init-chainlink.sh" ]; then
+if [ -x "/scripts/bash/init-chainlink.sh" ]; then
   if [ ! -f "/tmp/first_start_done" ]; then
-    /scripts/init-chainlink.sh || true
+    /scripts/bash/init-chainlink.sh || true
     touch /tmp/first_start_done || true
     FIRST_START="true"
   fi
@@ -79,15 +79,15 @@ fi
 wait_for_node_payload $NODE_NUMBER
 
 nohup bash -c "
-  /scripts/wait-node.sh
+  /scripts/bash/wait-node.sh
   if [ \"${FIRST_START}\" = \"true\" ]; then
-    /scripts/import-keys.sh
+    /scripts/bash/import-keys.sh
     # Signal supervisor to restart chainlink after first import
     touch /tmp/restart-chainlink || true
     sleep 1
-    /scripts/wait-node.sh
+    /scripts/bash/wait-node.sh
   fi
-  /scripts/publish-jobs.sh
+  /scripts/bash/publish-jobs.sh
 " >/proc/1/fd/1 2>/proc/1/fd/2 &
 
 cd /chainlink || exit 1
