@@ -1,3 +1,4 @@
+const path = require('path');
 const { BlockchainConnector, AdminService } = require('@super-protocol/sdk-js');
 const { readFileContentAsString } = require('../utils/read-file');
 
