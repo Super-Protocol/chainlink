@@ -1,5 +1,4 @@
 .idea
 .env
-/chainlink-node-*-data/jobs
 node_modules
 temp
