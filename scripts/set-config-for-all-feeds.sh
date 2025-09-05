@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cd $(dirname $0)
+
 # This script iterates over all .toml files in CL_FEED_TEMPLATES_DIR,
 # extracts contractAddress, and runs scripts/secrets/set-config.js for each.
 

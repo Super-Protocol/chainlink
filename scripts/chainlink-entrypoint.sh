@@ -87,6 +87,7 @@ nohup bash -c "
     sleep 1
     /scripts/wait-node.sh
   fi
+  /scripts/set-config-for-all-feeds.sh
   /scripts/publish-jobs.sh
 " >/proc/1/fd/1 2>/proc/1/fd/2 &
 
