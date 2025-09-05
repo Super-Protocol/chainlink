@@ -17,8 +17,10 @@ services:
       - NODE_NUMBER=1
     env_file:
       - .env
-    entrypoint: &cl_entrypoint ["/scripts/bash/entrypoint.sh"]
+    entrypoint: &cl_entrypoint ["bash", "-c", "cd /scripts && npm run start"]
     volumes:
+      - ./temp/certs:/sp/certs:ro
+      - ./temp/configurations:/sp/configurations:ro
       - &cl_scripts ./scripts/:/scripts:ro
       - &cl_templates ./data-feed-generator/templates:/templates:ro
       - &cl_sp_secrets ./sp-secrets:/sp/secrets:rw
@@ -41,6 +43,8 @@ services:
         condition: service_started
     entrypoint: *cl_entrypoint
     volumes:
+      - ./temp/certs:/sp/certs:ro
+      - ./temp/configurations:/sp/configurations:ro
       - *cl_scripts
       - *cl_templates
       - *cl_sp_secrets
@@ -62,6 +66,8 @@ services:
       - '6690:6688'
     entrypoint: *cl_entrypoint
     volumes:
+      - ./temp/certs:/sp/certs:ro
+      - ./temp/configurations:/sp/configurations:ro
       - *cl_scripts
       - *cl_templates
       - *cl_sp_secrets
@@ -95,6 +101,8 @@ services:
         condition: service_started
     entrypoint: *cl_entrypoint
     volumes:
+      - ./temp/certs:/sp/certs:ro
+      - ./temp/configurations:/sp/configurations:ro
       - *cl_scripts
       - *cl_templates
       - *cl_sp_secrets
@@ -122,6 +130,8 @@ services:
         condition: service_started
     entrypoint: *cl_entrypoint
     volumes:
+      - ./temp/certs:/sp/certs:ro
+      - ./temp/configurations:/sp/configurations:ro
       - *cl_scripts
       - *cl_templates
       - *cl_sp_secrets
