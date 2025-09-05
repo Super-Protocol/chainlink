@@ -30,6 +30,10 @@ const mapConfigToEnv = (cfg) => {
 
     ADMIN_CONTRACT_ADDRESS: toStr(cfg.adminContractAddress),
     DIAMOND_CONTRACT_ADDRESS: toStr(cfg.diamondContractAddress),
+
+    HTTP_PROXY: toStr(cfg.httpProxy),
+    HTTPS_PROXY: toStr(cfg.httpsProxy),
+    NO_PROXY: toStr(cfg.noProxy),
   };
 };
 
