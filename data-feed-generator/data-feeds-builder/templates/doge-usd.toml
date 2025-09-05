@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: DOGE / USD Price Feed"
-externalJobID = "1893e5bf-7d1d-5e7c-8392-c01ba91b8f47"
+externalJobID = "08be6872-72d3-538d-916a-c0de13a41b1a"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2be99ff0d75f6"
+contractAddress = "0x11e3B68c25276E7a5B3068033505a732C4486Ee0"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

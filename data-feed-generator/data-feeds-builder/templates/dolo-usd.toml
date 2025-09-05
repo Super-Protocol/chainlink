@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: DOLO / USD Price Feed"
-externalJobID = "4dd9b868-0a24-54d7-a253-0329d1dc7fc5"
+externalJobID = "d62ab257-ee56-5a62-ab07-416a68c194d0"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x356580262f163"
+contractAddress = "0xd477EAA4ec8c92CD7B4a1F20fe85Bc2ac3046b15"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

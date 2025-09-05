@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: THB / USD Price Feed"
-externalJobID = "170bd6c4-aa6b-52ad-9a5a-72c92ed550e1"
+externalJobID = "88978f18-a437-5e61-8445-ea5973ad650a"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x20ce7ae4f13d6"
+contractAddress = "0x10Ab8A36839841703Ae3b3C1fc66653e53A61c3b"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

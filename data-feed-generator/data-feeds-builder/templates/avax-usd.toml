@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: AVAX / USD Price Feed"
-externalJobID = "562311c3-1840-5941-8b74-0946272af12d"
+externalJobID = "17e7f933-1811-51f1-b835-7bd72ab589cb"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x13a07d8086f6f"
+contractAddress = "0xFedb71e35a126D74F1b0B5C95611168D8f7a4587"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

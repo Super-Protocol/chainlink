@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: THETA / USD Price Feed"
-externalJobID = "5c22781e-2ea2-5998-bb13-3cc8d65de7bd"
+externalJobID = "628066a1-c6bb-57db-af16-57dd5123ca2b"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2de4dcaa78870"
+contractAddress = "0x3fec6AA73E4D2383D4646D90d8438Ddc5c185826"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

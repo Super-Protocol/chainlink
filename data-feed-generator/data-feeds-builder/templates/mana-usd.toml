@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: MANA / USD Price Feed"
-externalJobID = "32dc95f9-8f9b-5c08-9515-cc0dbd7a8d33"
+externalJobID = "8dbdbba1-8307-57c7-b1f4-1183457f6b62"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xc0345778e594"
+contractAddress = "0x0cBBD28290350f201A2437D8cE99a7b01e1bF93a"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

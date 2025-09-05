@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: TRX / USD Price Feed"
-externalJobID = "483309ed-c721-55aa-931b-c167e5530a10"
+externalJobID = "e6e23590-6ed9-5246-a15b-31d0a3e83f3d"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2e3b9a6a495c8"
+contractAddress = "0xAf00e0fCAf81ed8487f6e937E97fBa3b14463bf8"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

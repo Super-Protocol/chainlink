@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: BR / USD Price Feed"
-externalJobID = "8266554d-272b-5586-b51a-d6f59eed7e32"
+externalJobID = "4616500a-2399-5e49-8a9b-d3e670bc7035"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2b2c4c1938fc5"
+contractAddress = "0x8E748b03B8A9e52a8652e34c1d8Ded3A6fAbb1eD"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

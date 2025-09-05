@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: BNB / USD Price Feed"
-externalJobID = "9d687ce5-8beb-577a-a234-54d64335fb86"
+externalJobID = "d0a7c84f-856d-58e9-a23b-4c98f73d69ec"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xf4a2a202fa4f"
+contractAddress = "0x875237903a211DbbecbBF5421F0A65fd506841E0"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

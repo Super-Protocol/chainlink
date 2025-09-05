@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: QNT / USD Price Feed"
-externalJobID = "81ec1091-f236-5f95-98ef-638f527fa9aa"
+externalJobID = "2ab87129-b192-556c-ad55-2467fb0abfb8"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x33c2394dd69d2"
+contractAddress = "0xaF8A02CEFB52de367a189cC0e6043889f9C8fD53"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

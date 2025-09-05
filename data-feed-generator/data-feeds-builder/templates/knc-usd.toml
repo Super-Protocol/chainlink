@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: KNC / USD Price Feed"
-externalJobID = "26f3498f-f901-52a2-9088-3f8333198466"
+externalJobID = "37145e04-7023-595e-b4ef-6dd45569b1d0"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2de62147d537f"
+contractAddress = "0xca3b49F0d60eFA10daFb7329B5Bbc9aB4Ce463dA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

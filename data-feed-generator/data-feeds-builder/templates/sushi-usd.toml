@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: SUSHI / USD Price Feed"
-externalJobID = "c0605af9-700a-5ddd-bca6-66da9c65404e"
+externalJobID = "3c24b5c3-0149-530a-ad6b-32df8e90d737"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x22def788ce155"
+contractAddress = "0xDEbFe8406a01A9181AF130B0B9C1315103a5ef6b"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

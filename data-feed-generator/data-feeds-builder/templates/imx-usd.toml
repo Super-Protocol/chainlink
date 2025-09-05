@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: IMX / USD Price Feed"
-externalJobID = "5e35d04e-d240-5ad0-8bd5-919d0c650f5e"
+externalJobID = "87ffc8e7-adbb-5e6f-be1d-39aa5f03e93b"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x8b530d1755b5"
+contractAddress = "0xE353e7c04012606Aee8A66f5EBa5643Fb0cFaFE9"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

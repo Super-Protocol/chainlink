@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: STETH / USD Price Feed"
-externalJobID = "07b12ed9-85df-5b6b-8fa3-e83fe69f6f1f"
+externalJobID = "48eadfe3-f071-5cf1-8a56-9fce16fd99d9"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x227985710e509"
+contractAddress = "0x440AD62ecF8745267387Ec84b9fa55bAE58e3B88"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

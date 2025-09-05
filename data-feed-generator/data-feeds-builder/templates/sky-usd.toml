@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: SKY / USD Price Feed"
-externalJobID = "649cb1dd-5831-5e8d-8b61-c133359df63a"
+externalJobID = "36d44cfa-634d-53a5-81b7-a2c81c13bef6"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xd82d849099d9"
+contractAddress = "0x58f3022E9661fB2F3e61Ad7b8e240Ce1D74436f7"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

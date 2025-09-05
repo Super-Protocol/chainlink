@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: NEIRO / USD Price Feed"
-externalJobID = "5f0b02ab-67c8-56e2-951f-f36a38359db3"
+externalJobID = "88ab6153-6cae-52ca-9523-0927fd835494"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2c75167ee66b9"
+contractAddress = "0x4E1C6D7d8f091d842E6a4CE24A52E3a4c60a80A9"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

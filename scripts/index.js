@@ -19,7 +19,6 @@ const mapConfigToEnv = (cfg) => {
     CHAINLINK_RPC_HTTP_URL: toStr(cfg.chainlinkRpcHttpUrl),
 
     LINK_CA: toStr(cfg.linkCa),
-    CHAINLINK_NODE_SC_ADDRESS: toStr(cfg.chainlinkNodeScAddress),
 
     SP_SECRETS_DIR: toStr(cfg.spSecretsDir),
     TOTAL_NODES: toStr(cfg.totalNodes),

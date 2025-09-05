@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: ZEC / USD Price Feed"
-externalJobID = "ed655b68-b21f-5bac-938f-adec87c2f9b8"
+externalJobID = "52d9a38f-c381-5076-9c4b-6741acf64581"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2f6bcecb226e2"
+contractAddress = "0xA120F2cCc1f8dBDebD7fc2bcdb5347Add6220761"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

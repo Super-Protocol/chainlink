@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: SPELL / USD Price Feed"
-externalJobID = "0e17ed20-51ec-5ce5-8389-0dd50dfbc718"
+externalJobID = "e3a3c303-ed55-5c57-9470-981f51546896"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xf05aaaa4ef7e"
+contractAddress = "0xA41A86ec4A7b8ab0bF0318482e19c8E79EAd71cD"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

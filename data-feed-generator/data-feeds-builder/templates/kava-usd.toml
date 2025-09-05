@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: KAVA / USD Price Feed"
-externalJobID = "9df032c7-53d6-5e31-9b37-88c356b99079"
+externalJobID = "abdbffd6-fa44-54bd-a922-7f1b3591a16f"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1121187d6011f"
+contractAddress = "0xeBa54d194D99D58f179B879705EAF4276556b142"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: TAO / USD Price Feed"
-externalJobID = "662e75ff-4102-524a-904b-499251250f76"
+externalJobID = "5894bbcc-90c4-5b66-b38a-4ce7854b45dc"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1b609921a5d4f"
+contractAddress = "0x24Dc87650ddCc42d0208f9F791409EcD3bAC0112"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

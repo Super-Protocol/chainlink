@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: PAXG / USD Price Feed"
-externalJobID = "826d8935-fcf2-5d78-98fa-bb0742b177d4"
+externalJobID = "d53c9ba7-1886-5309-8362-7e8cae6851a7"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x313d71389991b"
+contractAddress = "0x1b12EFd8E55d8D4e151553bD73e607DfAE633c8f"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

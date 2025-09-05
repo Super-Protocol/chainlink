@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: YFI / USD Price Feed"
-externalJobID = "94bd05cd-4486-5eca-8ba5-ee98c4e64836"
+externalJobID = "887bb458-662c-5651-8385-310d153f42db"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x3397802fa63b9"
+contractAddress = "0xf974BB3D9C2474064C30DB7345d7A0A8E234BC06"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

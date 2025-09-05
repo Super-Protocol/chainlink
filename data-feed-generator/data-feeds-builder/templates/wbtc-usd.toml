@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: WBTC / USD Price Feed"
-externalJobID = "e7b66365-0b5e-5c24-a416-6d61b2072da6"
+externalJobID = "a7d3c13e-3fc7-509e-ab84-ad820cdce609"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x25015bd065cfd"
+contractAddress = "0x4b665E833E66cb9a56F94f8CeDc52D36A0129C42"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

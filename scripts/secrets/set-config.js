@@ -63,8 +63,9 @@ function encryptSharedSecret(x25519PubKeys, sharedSecret16) {
 
 async function main() {
   const rpcUrl = process.env.CHAINLINK_RPC_HTTP_URL;
-  const contractAddr = process.env.CHAINLINK_NODE_SC_ADDRESS;
-  if (!rpcUrl || !contractAddr) throw new Error('CHAINLINK_RPC_HTTP_URL and CHAINLINK_NODE_SC_ADDRESS are required');
+  const contractAddr = process.argv[2];
+  if (!rpcUrl) throw new Error('CHAINLINK_RPC_HTTP_URL is required');
+  if (!contractAddr) throw new Error('Missing contract address. Usage: node set-config.js <contractAddress>');
 
   const nodesList = process.env.NODES_LIST || '1 2 3 4 5';
   const bootstrapStr = process.env.BOOTSTRAP_NODES || '1';
