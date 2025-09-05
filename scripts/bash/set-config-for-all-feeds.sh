@@ -17,7 +17,7 @@ if [[ ! -d "${CL_FEED_TEMPLATES_DIR}" ]]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SET_CONFIG_JS="${SCRIPT_DIR}/secrets/set-config.js"
+SET_CONFIG_JS="${SCRIPT_DIR}/../secrets/set-config.js"
 
 if [[ ! -f "${SET_CONFIG_JS}" ]]; then
   echo "set-config.js not found at ${SET_CONFIG_JS}" >&2
