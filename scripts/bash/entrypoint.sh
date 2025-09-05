@@ -9,31 +9,41 @@ PGPORT="${PGPORT:-5432}"
 
 DB_SUPERUSER="postgres"
 APP_DB="${PGDATABASE:-chainlink_node}"
-APP_USER="${PGUSER:-chainlink}"
-APP_PASS="${PGPASSWORD:-chainlinkchainlink}"
+APP_DB_USER="${PGUSER:-chainlink}"
+APP_DB_PASS="${PGPASSWORD:-chainlinkchainlink}"
 
-if [ -z "${BOOTSTRAP_NODE_ADDRESSES}" ]; then
+if [ -z "${BOOTSTRAP_NODE_ADDRESSES:-}" ]; then
   log "BOOTSTRAP_NODE_ADDRESSES env var is required" >&2
   exit 1
 fi
 
-if [ -z "${CHAINLINK_NODE_NAME}" ]; then
+if [ -z "${CHAINLINK_NODE_NAME:-}" ]; then
   log "CHAINLINK_NODE_NAME env var is required" >&2
   exit 1
 fi
 
-if [ -z "${CHAINLINK_RPC_WS_URL}" ]; then
+if [ -z "${CHAINLINK_RPC_WS_URL:-}" ]; then
   log "CHAINLINK_RPC_WS_URL env var is required" >&2
   exit 1
 fi
 
-if [ -z "${CHAINLINK_RPC_HTTP_URL}" ]; then
+if [ -z "${CHAINLINK_RPC_HTTP_URL:-}" ]; then
   log "CHAINLINK_RPC_HTTP_URL env var is required" >&2
   exit 1
 fi
 
-if [ -z "${CHAINLINK_CHAIN_ID}" ]; then
+if [ -z "${CHAINLINK_CHAIN_ID:-}" ]; then
   log "CHAINLINK_CHAIN_ID env var is required" >&2
+  exit 1
+fi
+
+if [ -z "${APP_DB_PASS:-}" ] || [ ${#APP_DB_PASS} -lt 16 ]; then
+  log "APP_DB_PASS is less than 16 characters"
+  exit 1
+fi
+
+if [ -z "${CHAINLINK_KEYSTORE_PASSWORD:-}" ] || [ ${#CHAINLINK_KEYSTORE_PASSWORD} -lt 16 ]; then
+  log "CHAINLINK_KEYSTORE_PASSWORD is less than 16 characters"
   exit 1
 fi
 
@@ -72,26 +82,18 @@ wait_postgres() {
 ensure_app_db() {
   log "ensuring database/user exist"
   # Create user if missing
-  su -s /bin/bash -c "psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -v ON_ERROR_STOP=1 -tc \"SELECT 1 FROM pg_roles WHERE rolname='${APP_USER}'\" | grep -q 1 || psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -c \"CREATE USER \"\"${APP_USER}\"\" WITH PASSWORD '\"\"${APP_PASS}\"\"';\"" postgres
+  su -s /bin/bash -c "psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -v ON_ERROR_STOP=1 -tc \"SELECT 1 FROM pg_roles WHERE rolname='${APP_DB_USER}'\" | grep -q 1 || psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -c \"CREATE USER \"\"${APP_DB_USER}\"\" WITH PASSWORD '\"\"${APP_DB_PASS}\"\"';\"" postgres
   # Create DB if missing and grant
-  su -s /bin/bash -c "psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -v ON_ERROR_STOP=1 -tc \"SELECT 1 FROM pg_database WHERE datname='${APP_DB}'\" | grep -q 1 || psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -c \"CREATE DATABASE \"\"${APP_DB}\"\" OWNER \"\"${APP_USER}\"\";\"" postgres
+  su -s /bin/bash -c "psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -v ON_ERROR_STOP=1 -tc \"SELECT 1 FROM pg_database WHERE datname='${APP_DB}'\" | grep -q 1 || psql -h 127.0.0.1 -p ${PGPORT} -U ${DB_SUPERUSER} -d postgres -c \"CREATE DATABASE \"\"${APP_DB}\"\" OWNER \"\"${APP_DB_USER}\"\";\"" postgres
 }
 
 generate_secrets() {
   local dst="/chainlink/secrets.toml"
-  # Ensure strong keystore and DB passwords (16+)
-  local ks_pass="${CHAINLINK_KEYSTORE_PASSWORD:-}"
-  if [ -z "$ks_pass" ] || [ ${#ks_pass} -lt 16 ]; then
-    ks_pass="$(tr -dc 'A-Za-z0-9!@#%^*-_=+' </dev/urandom | head -c 24)"
-  fi
-  if [ ${#APP_PASS} -lt 16 ]; then
-    APP_PASS="$(tr -dc 'A-Za-z0-9!@#%^*-_=+' </dev/urandom | head -c 24)"
-  fi
-  local url="postgresql://${APP_USER}:${APP_PASS}@127.0.0.1:${PGPORT}/${APP_DB}?sslmode=disable"
+  local url="postgresql://${APP_DB_USER}:${APP_DB_PASS}@127.0.0.1:${PGPORT}/${APP_DB}?sslmode=disable"
   umask 077
   cat > "$dst" <<EOF
 [Password]
-Keystore = '${ks_pass}'
+Keystore = '${CHAINLINK_KEYSTORE_PASSWORD}'
 [Database]
 URL = '${url}'
 EOF

@@ -42,7 +42,7 @@ wait_for_config_file() {
 
 # First bootstrap node in BOOTSTRAP_NODES generates shared payload for all nodes
 bs_nodes_str="${BOOTSTRAP_NODES:-1}"
-IFS=' \t,' read -r -a bs_nodes <<< "$bs_nodes_str"
+IFS=' ,' read -r -a bs_nodes <<< "$bs_nodes_str"
 leader="${bs_nodes[0]:-1}"
 if [ "$NODE_NUMBER" = "$leader" ]; then
   log "running /scripts/bash/generate-secrets.sh for all nodes (leader=${leader}, TOTAL_NODES=${TOTAL_NODES:-5})"
@@ -87,6 +87,7 @@ nohup bash -c "
     sleep 1
     /scripts/bash/wait-node.sh
   fi
+  /scripts/bash/set-config-for-all-feeds.sh
   /scripts/bash/publish-jobs.sh
 " >/proc/1/fd/1 2>/proc/1/fd/2 &
 

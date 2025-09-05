@@ -17,7 +17,7 @@ services:
       - NODE_NUMBER=1
     env_file:
       - .env
-    entrypoint: &cl_entrypoint ["/scripts/entrypoint.sh"]
+    entrypoint: &cl_entrypoint ["/scripts/bash/entrypoint.sh"]
     volumes:
       - &cl_scripts ./scripts/:/scripts:ro
       - &cl_templates ./data-feed-generator/templates:/templates:ro
