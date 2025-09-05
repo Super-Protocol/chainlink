@@ -1,0 +1,20 @@
+{
+  "name": "secrets",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Super Protocol",
+  "license": "ISC",
+  "description": "",
+  "type": "commonjs",
+  "dependencies": {
+    "@sinclair/typebox": "^0.33.22",
+    "@super-protocol/sdk-js": "^3.16.0-beta.2",
+    "bs58": "^6.0.0",
+    "ethers": "^6.15.0",
+    "keccak": "^3.0.4",
+    "tweetnacl": "^1.0.3"
+  }
+}
