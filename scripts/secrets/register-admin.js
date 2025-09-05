@@ -29,6 +29,12 @@ const registerAdmin = async (adminAccountPrivateKey) => {
     );
 
     const adminService = new AdminService(adminContractAddress);
+
+    if (await adminService.isAdmin(adminAddress)) {
+      console.log(`Admin ${adminAddress} is already registered`);
+      return;
+    }
+
     await adminService.registerAdmin({
       certsPem,
       certPrivateKeyPem,
@@ -72,3 +78,16 @@ const getOrderCerts = () => {
 };
 
 module.exports = { registerAdmin };
+
+if (require.main === module) {
+  const adminAccountPrivateKey = process.argv[2];
+  if (!adminAccountPrivateKey) {
+    console.error('Usage: node register-admin.js <admin-private-key-hex>');
+    process.exit(1);
+  }
+
+  registerAdmin(adminAccountPrivateKey).catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}
