@@ -47,6 +47,8 @@ leader="${bs_nodes[0]:-1}"
 if [ "$NODE_NUMBER" = "$leader" ]; then
   log "running /scripts/bash/generate-secrets.sh for all nodes (leader=${leader}, TOTAL_NODES=${TOTAL_NODES:-5})"
   TOTAL_NODES="${TOTAL_NODES:-5}" bash /scripts/bash/generate-secrets.sh || log "generate-secrets failed (continuing)"
+  # TODO: register admin
+  /scripts/bash/set-config-for-all-feeds.sh
 else
   log "skip generate-secrets: node=$NODE_NUMBER, leader=$leader"
 fi
@@ -87,7 +89,6 @@ nohup bash -c "
     sleep 1
     /scripts/bash/wait-node.sh
   fi
-  /scripts/bash/set-config-for-all-feeds.sh
   /scripts/bash/publish-jobs.sh
 " >/proc/1/fd/1 2>/proc/1/fd/2 &
 
