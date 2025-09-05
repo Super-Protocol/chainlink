@@ -1,0 +1,42 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: SKY / USD Price Feed"
+externalJobID = "649cb1dd-5831-5e8d-8b61-c133359df63a"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0xd82d849099d9"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=SKY&tsyms=USD"];
+    ds1_parse [type=jsonparse path="USD"];
+    ds1_multiply [type=multiply times=100000000];
+    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=darkcrypto-share&vs_currencies=usd"];
+    ds2_parse [type=jsonparse path="darkcrypto-share,usd"];
+    ds2_multiply [type=multiply times=100000000];
+    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/SKY-USD/spot"];
+    ds3_parse [type=jsonparse path="USD"];
+    ds3_multiply [type=multiply times=100000000];
+    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=SKYUSD"];
+    ds4_parse [type=jsonparse path="USD"];
+    ds4_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
+    ds3 -> ds3_parse -> ds3_multiply;
+    ds4 -> ds4_parse -> ds4_multiply;
+    ds1_multiply -> median;
+    ds2_multiply -> median;
+    ds3_multiply -> median;
+    ds4_multiply -> median;
+"""

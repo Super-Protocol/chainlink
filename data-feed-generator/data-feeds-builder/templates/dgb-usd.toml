@@ -1,0 +1,37 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: DGB / USD Price Feed"
+externalJobID = "57b2b6df-14fb-58e5-aa84-fec397048957"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0x72e9835df914"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=DGBUSDT"];
+    ds1_parse [type=jsonparse path="price"];
+    ds1_multiply [type=multiply times=100000000];
+    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=DGB&tsyms=USD"];
+    ds2_parse [type=jsonparse path="USD"];
+    ds2_multiply [type=multiply times=100000000];
+    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=digibyte&vs_currencies=usd"];
+    ds3_parse [type=jsonparse path="digibyte,usd"];
+    ds3_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
+    ds3 -> ds3_parse -> ds3_multiply;
+    ds1_multiply -> median;
+    ds2_multiply -> median;
+    ds3_multiply -> median;
+"""

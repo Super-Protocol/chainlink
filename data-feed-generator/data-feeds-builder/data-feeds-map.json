@@ -1,0 +1,3125 @@
+[
+  {
+    "name": "1INCH / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "1INCH / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=1INCHUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=1INCH&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=1inch&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/1INCH-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=1INCHUSD"
+    ]
+  },
+  {
+    "name": "AAPL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=twin-asset-token-aapl&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "AAVE / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "AAVE / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=AAVEUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=AAVE&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=aave&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/AAVE-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=AAVEUSD"
+    ]
+  },
+  {
+    "name": "ADA / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "ADA / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ADAUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ADA&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-cardano&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ADA-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ADAUSD"
+    ]
+  },
+  {
+    "name": "ALGO / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ALGOUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ALGO&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=algorand&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ALGO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ALGOUSD"
+    ]
+  },
+  {
+    "name": "AMPL / USD",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=AMPL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=ampleforth&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "AMZN / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=amazon-ondo-tokenized-stock&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "APE / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "APE / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=APEUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=APE&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=ape-3&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/APE-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=APEUSD"
+    ]
+  },
+  {
+    "name": "ARB / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "500000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ARBUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ARB&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=arbitrage-loop&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ARB-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ARBUSD"
+    ]
+  },
+  {
+    "name": "ATOM / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ATOMUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ATOM&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=cosmos&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ATOM-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ATOMUSD"
+    ]
+  },
+  {
+    "name": "AUD / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=AUDUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=AUD&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=audit&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/AUD-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=AUDUSD",
+      "https://api.frankfurter.app/latest?from=AUD&to=USD"
+    ]
+  },
+  {
+    "name": "AVAIL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "20000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=AVAIL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=avail&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "AVAX / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=AVAXUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=AVAX&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=avalanche-2&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/AVAX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=AVAXUSD"
+    ]
+  },
+  {
+    "name": "AXS / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=AXSUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=AXS&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=axie-infinity&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/AXS-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=AXSUSD"
+    ]
+  },
+  {
+    "name": "BADGER / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "BADGER / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=BADGERUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=BADGER&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=badger-badger-badger&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BADGER-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BADGERUSD"
+    ]
+  },
+  {
+    "name": "BAL / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "BAL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "3600000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=BALUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=BAL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=balancer&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BAL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BALUSD"
+    ]
+  },
+  {
+    "name": "BAND / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "BAND / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=BANDUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=BAND&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=band-protocol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BAND-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BANDUSD"
+    ]
+  },
+  {
+    "name": "BAT / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "BAT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=BATUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=BAT&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=basic-attention-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BAT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BATUSD"
+    ]
+  },
+  {
+    "name": "BCH / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "BCH / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=BCHUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=BCH&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-bitcoin-cash&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BCH-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BCHUSD"
+    ]
+  },
+  {
+    "name": "BNB / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=BNB&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=bifrost-bridged-bnb-bifrost&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BNB-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=BNBUSD"
+    ]
+  },
+  {
+    "name": "bNVDA Reserves / Proof of Reserves",
+    "decimals": "8",
+    "smartDataFeed": true,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "BR / USD",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=BR&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=bedrock-token&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "BRL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=BRL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=borealis&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BRL-USD/spot",
+      "https://api.frankfurter.app/latest?from=BRL&to=USD"
+    ]
+  },
+  {
+    "name": "BSW / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=BSWUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=BSW&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=basedswap&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "BTC / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "BTC / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "BTC / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "500000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=batcat&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=XBTUSD"
+    ]
+  },
+  {
+    "name": "C3M / EUR",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "C98 / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=C98USDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=C98&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=coin98&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/C98-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=C98USD"
+    ]
+  },
+  {
+    "name": "CAD / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=CAD&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/CAD-USD/spot",
+      "https://api.frankfurter.app/latest?from=CAD&to=USD"
+    ]
+  },
+  {
+    "name": "CAKE / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "CAKE / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=CAKEUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=CAKE&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=pancakeswap-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/CAKE-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=CAKEUSD"
+    ]
+  },
+  {
+    "name": "Calculated BNBx / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "Calculated MaticX / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "Calculated SAVAX / USD",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "Calculated stMATIC / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "Calculated XSUSHI / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "cbBTC / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "1200000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=coinbase-wrapped-btc&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "CBETH / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": []
+  },
+  {
+    "name": "CFX / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=CFXUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=CFX&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=conflux-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/CFX-USD/spot"
+    ]
+  },
+  {
+    "name": "CHF / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=CHF&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/CHF-USD/spot",
+      "https://api.frankfurter.app/latest?from=CHF&to=USD"
+    ]
+  },
+  {
+    "name": "CHR / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=CHRUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=CHR&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=chromaway&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/CHR-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=CHRUSD"
+    ]
+  },
+  {
+    "name": "CHZ / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=CHZUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=CHZ&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=chiliz&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/CHZ-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=CHZUSD"
+    ]
+  },
+  {
+    "name": "CNY / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=CNY&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/CNY-USD/spot",
+      "https://api.frankfurter.app/latest?from=CNY&to=USD"
+    ]
+  },
+  {
+    "name": "COIN / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=8-bit-coin&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "COMP / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "COMP / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "3600000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=COMPUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=COMP&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=compound-governance-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/COMP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=COMPUSD"
+    ]
+  },
+  {
+    "name": "COP / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=COP&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=copiosa&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/COP-USD/spot"
+    ]
+  },
+  {
+    "name": "CRV / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "CRV / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "3600000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=CRVUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=CRV&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/CRV-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=CRVUSD"
+    ]
+  },
+  {
+    "name": "CRVUSD / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=CRVUSD&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=crvusd&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "CSPX / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "CVX / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "CVX / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=CVXUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=CVX&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=convex-finance&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/CVX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=CVXUSD"
+    ]
+  },
+  {
+    "name": "DAI / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "DAI / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "DAI / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=DAIUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=DAI&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=avalanche-bridged-dai-avalanche&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DAI-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=DAIUSD"
+    ]
+  },
+  {
+    "name": "DASH / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=DASHUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=DASH&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=dash&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DASH-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=DASHUSD"
+    ]
+  },
+  {
+    "name": "deUSD / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=DEUSD&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=elixir-deusd&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "DGB / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=DGBUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=DGB&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=digibyte&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "DODO / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=DODOUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=DODO&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=dodo&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DODO-USD/spot"
+    ]
+  },
+  {
+    "name": "DOGE / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=DOGEUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=DOGE&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-dogecoin&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DOGE-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=DOGEUSD"
+    ]
+  },
+  {
+    "name": "DOLO / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "43200000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=DOLOUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=DOLO&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=dolomite&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DOLO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=DOLOUSD"
+    ]
+  },
+  {
+    "name": "DOT / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "DOT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=DOTUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=DOT&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-polkadot&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DOT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=DOTUSD"
+    ]
+  },
+  {
+    "name": "DPI / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "DPI / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "10000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=DPI&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=defipulse-index&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/DPI-USD/spot"
+    ]
+  },
+  {
+    "name": "EIGEN / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=EIGENUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=EIGEN&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=eigenlayer&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/EIGEN-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=EIGENUSD"
+    ]
+  },
+  {
+    "name": "ENJ / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "ENS / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ENSUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ENS&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum-name-service&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ENS-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ENSUSD"
+    ]
+  },
+  {
+    "name": "ETC / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ETCUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ETC&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum-classic&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ETC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ETCUSD"
+    ]
+  },
+  {
+    "name": "ETH / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "ETH / BTC",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "3600000000000",
+    "alphaPPB": "2500000",
+    "dataSources": []
+  },
+  {
+    "name": "ETH / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "500000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=bifrost-bridged-eth-bifrost&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ETH-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ETHUSD"
+    ]
+  },
+  {
+    "name": "ETHFI / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ETHFIUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ETHFI&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=ether-fi&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ETHFI-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ETHFIUSD"
+    ]
+  },
+  {
+    "name": "EUR / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "3600000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=EURUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=EUR&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=ageur&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/EUR-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=EURUSD",
+      "https://api.frankfurter.app/latest?from=EUR&to=USD"
+    ]
+  },
+  {
+    "name": "EURC / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=EURC&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=euro-coin&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/EURC-USD/spot"
+    ]
+  },
+  {
+    "name": "ezETH / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "ezETH / ETH Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "21600000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "FB / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=FB&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=fenerbahce-token&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "FBTC / BTC Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "100000",
+    "dataSources": []
+  },
+  {
+    "name": "FDUSD / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=FDUSDUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=FDUSD&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=first-digital-usd&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "FET / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=FETUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=FET&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=fetch-ai&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/FET-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=FETUSD"
+    ]
+  },
+  {
+    "name": "FIL / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "FIL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=FILUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=FIL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-filecoin&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/FIL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=FILUSD"
+    ]
+  },
+  {
+    "name": "FRAX / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "FRAX / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=frax&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "frxUSD / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=frax-usd&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "FTT / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "FTT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=FTTUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=FTT&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=ftx-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/FTT-USD/spot"
+    ]
+  },
+  {
+    "name": "FXS / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "3600000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=FXSUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=FXS&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=fx-usd-saving&vs_currencies=usd",
+      "https://api.kraken.com/0/public/Ticker?pair=FXSUSD"
+    ]
+  },
+  {
+    "name": "GBP / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=GBPUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=GBP&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=monerium-gbp-emoney&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/GBP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=GBPUSD",
+      "https://api.frankfurter.app/latest?from=GBP&to=USD"
+    ]
+  },
+  {
+    "name": "GHO / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "2000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=GHO&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=avalanche-bridged-gho-avalanche&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "GHST / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "GHST / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=GHSTUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=GHST&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=aavegotchi&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/GHST-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=GHSTUSD"
+    ]
+  },
+  {
+    "name": "GME / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=GME&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=dumbmoney&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "GMT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=GMTUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=GMT&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=gamem-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/GMT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=GMTUSD"
+    ]
+  },
+  {
+    "name": "GNS / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=GNSUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=GNS&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=gains-network&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "GOOGL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=alphabet-class-a-ondo-tokenized-stock&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "GRT / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "GRT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=GRTUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=GRT&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=the-graph&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/GRT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=GRTUSD"
+    ]
+  },
+  {
+    "name": "HBAR / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=HBARUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=HBAR&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=hedera-hashgraph&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/HBAR-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=HBARUSD"
+    ]
+  },
+  {
+    "name": "HIGH / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=HIGHUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=HIGH&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=high&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/HIGH-USD/spot"
+    ]
+  },
+  {
+    "name": "IB01 / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "IBTA / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "ICP / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ICPUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ICP&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=internet-computer&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ICP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ICPUSD"
+    ]
+  },
+  {
+    "name": "ILS / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=ILS&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/ILS-USD/spot",
+      "https://api.frankfurter.app/latest?from=ILS&to=USD"
+    ]
+  },
+  {
+    "name": "ILV / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "IMX / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=IMXUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=IMX&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=immutable-x&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/IMX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=IMXUSD"
+    ]
+  },
+  {
+    "name": "INJ / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=INJUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=INJ&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=injective-protocol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/INJ-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=INJUSD"
+    ]
+  },
+  {
+    "name": "INR / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "1200000000000",
+    "alphaPPB": "2000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=INR&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/INR-USD/spot",
+      "https://api.frankfurter.app/latest?from=INR&to=USD"
+    ]
+  },
+  {
+    "name": "JPM / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "JPY / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=JPY&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=dephaser-jpy&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/JPY-USD/spot",
+      "https://api.frankfurter.app/latest?from=JPY&to=USD"
+    ]
+  },
+  {
+    "name": "KAVA / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=KAVAUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=KAVA&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=kava&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/KAVA-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=KAVAUSD"
+    ]
+  },
+  {
+    "name": "KNC / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "KNC / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=KNCUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=KNC&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=kyber-network-crystal&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/KNC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=KNCUSD"
+    ]
+  },
+  {
+    "name": "KRW / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=KRW&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=krown&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/KRW-USD/spot",
+      "https://api.frankfurter.app/latest?from=KRW&to=USD"
+    ]
+  },
+  {
+    "name": "LBTC / BTC",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "LDO / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "LINK / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "LINK / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "50000000",
+    "dataSources": []
+  },
+  {
+    "name": "LINK / MATIC",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "LINK / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "3600000000000",
+    "alphaPPB": "2000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=LINKUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=LINK&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=chainlink&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/LINK-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=LINKUSD"
+    ]
+  },
+  {
+    "name": "LISTA / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=LISTAUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=LISTA&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=lista&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/LISTA-USD/spot"
+    ]
+  },
+  {
+    "name": "LRC / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "LsETH / ETH Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "LTC / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "LTC / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=LTCUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-litecoin&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/LTC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=LTCUSD"
+    ]
+  },
+  {
+    "name": "LUSD / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=LUSD&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=liquity-usd&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "MANA / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "MANA / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=MANAUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=MANA&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=decentraland&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/MANA-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=MANAUSD"
+    ]
+  },
+  {
+    "name": "MASK / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=MASKUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=MASK&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=catwifmask&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/MASK-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=MASKUSD"
+    ]
+  },
+  {
+    "name": "MAVIA / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=MAVIA&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=heroes-of-mavia&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "META / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=META&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=meta-2&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "mETH / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "MKR / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "MKR / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=MKRUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=MKR&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=maker&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/MKR-USD/spot"
+    ]
+  },
+  {
+    "name": "MLN / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "MRNA / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "MS / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=mirrorstage&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "MSFT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=dinari-msft-dshares&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "mSOL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=MSOL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=msol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/MSOL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=MSOLUSD"
+    ]
+  },
+  {
+    "name": "MXN / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "3600000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=MXN&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=machina&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/MXN-USD/spot",
+      "https://api.frankfurter.app/latest?from=MXN&to=USD"
+    ]
+  },
+  {
+    "name": "NEAR / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=NEARUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=NEAR&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-near-protocol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/NEAR-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=NEARUSD"
+    ]
+  },
+  {
+    "name": "NEIRO / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=NEIROUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=NEIRO&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=neiro&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/NEIRO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=NEIROUSD"
+    ]
+  },
+  {
+    "name": "NFLX / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=dinari-nflx-dshares&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "NVDA / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=twin-asset-token-nvda-long&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "NZD / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=NZD&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/NZD-USD/spot",
+      "https://api.frankfurter.app/latest?from=NZD&to=USD"
+    ]
+  },
+  {
+    "name": "OETH / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "OGN / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=OGNUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=OGN&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=origin-protocol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/OGN-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=OGNUSD"
+    ]
+  },
+  {
+    "name": "OM / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=OMUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=OM&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=mantra-dao&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/OM-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=OMUSD"
+    ]
+  },
+  {
+    "name": "ONG / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ONGUSDT",
+      "https://api.coingecko.com/api/v3/simple/price?ids=ong&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ONG-USD/spot"
+    ]
+  },
+  {
+    "name": "ONT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ONTUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ONT&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-ontology&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ONT-USD/spot"
+    ]
+  },
+  {
+    "name": "OP / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=OPUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=OP&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=one-play&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/OP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=OPUSD"
+    ]
+  },
+  {
+    "name": "OUSDT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=openusdt&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "PAXG / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=PAXG&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/PAXG-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=PAXGUSD"
+    ]
+  },
+  {
+    "name": "PERP / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "PFE / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "PHP / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=PHP&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/PHP-USD/spot",
+      "https://api.frankfurter.app/latest?from=PHP&to=USD"
+    ]
+  },
+  {
+    "name": "PLN / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=PLN&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=plearn&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/PLN-USD/spot"
+    ]
+  },
+  {
+    "name": "POL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=POLUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=POL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=katana-bridged-pol-katana&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/POL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=POLUSD"
+    ]
+  },
+  {
+    "name": "pufETH / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "PumpBTC / BTC Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "QNT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=QNTUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=QNT&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=quant-network&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/QNT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=QNTUSD"
+    ]
+  },
+  {
+    "name": "QQQ / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=nascraq&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "QUICK / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=QUICKUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=QUICK&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=quick&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/QUICK-USD/spot"
+    ]
+  },
+  {
+    "name": "RDNT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=RDNTUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=RDNT&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=radiant-capital&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/RDNT-USD/spot"
+    ]
+  },
+  {
+    "name": "RETH / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "rETH / ETH Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1",
+    "dataSources": []
+  },
+  {
+    "name": "RLUSD / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=RLUSD&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=ripple-usd&vs_currencies=usd",
+      "https://api.kraken.com/0/public/Ticker?pair=RLUSDUSD"
+    ]
+  },
+  {
+    "name": "RPL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=RPLUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=RPL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=rocket-pool&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/RPL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=RPLUSD"
+    ]
+  },
+  {
+    "name": "rsETH / ETH Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "500000",
+    "dataSources": []
+  },
+  {
+    "name": "RSR / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=RSRUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=RSR&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=reserve-rights-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/RSR-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=RSRUSD"
+    ]
+  },
+  {
+    "name": "SAND / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=SANDUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=SAND&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=the-sandbox&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SAND-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SANDUSD"
+    ]
+  },
+  {
+    "name": "SEK / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=SEK&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=seka&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SEK-USD/spot",
+      "https://api.frankfurter.app/latest?from=SEK&to=USD"
+    ]
+  },
+  {
+    "name": "SGD / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=SGD&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/SGD-USD/spot",
+      "https://api.frankfurter.app/latest?from=SGD&to=USD"
+    ]
+  },
+  {
+    "name": "SHIB / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "SHIB / USD",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=SHIBUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=SHIB&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-shib&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SHIB-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SHIBUSD"
+    ]
+  },
+  {
+    "name": "SHV / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "SKY / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=SKY&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=darkcrypto-share&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SKY-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SKYUSD"
+    ]
+  },
+  {
+    "name": "SLP / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=SLPUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=SLP&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=slp&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "SNX / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "SNX / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=SNXUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=SNX&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=havven&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SNX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SNXUSD"
+    ]
+  },
+  {
+    "name": "SOL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=SOL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=allbridge-bridged-sol-near-protocol&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SOL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SOLUSD"
+    ]
+  },
+  {
+    "name": "solvBTC / BTC",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "10000000",
+    "dataSources": []
+  },
+  {
+    "name": "SolvBTC.BBN / SolvBTC Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "100000",
+    "dataSources": []
+  },
+  {
+    "name": "SPELL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=SPELLUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=SPELL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=spell-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SPELL-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SPELLUSD"
+    ]
+  },
+  {
+    "name": "SPY / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=SPY&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=smarty-pay&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "stBTC / BTC Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "100000",
+    "dataSources": []
+  },
+  {
+    "name": "STETH / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "10000000",
+    "dataSources": []
+  },
+  {
+    "name": "STETH / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=STETH&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=staked-ether&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "STG / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=STGUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=STG&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=stargate-finance&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/STG-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=STGUSD"
+    ]
+  },
+  {
+    "name": "STORJ / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=STORJUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=STORJ&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=storj&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/STORJ-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=STORJUSD"
+    ]
+  },
+  {
+    "name": "sUSDe / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethena-staked-usde&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SUSDE-USD/spot"
+    ]
+  },
+  {
+    "name": "sUSDe / USDe Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "SUSDE / USDE Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "sUSDf / USDf Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "SUSHI / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "SUSHI / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=SUSHIUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=SUSHI&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=sushi&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SUSHI-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SUSHIUSD"
+    ]
+  },
+  {
+    "name": "SWELL / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "SXP / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=SXPUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=SXP&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=swipe&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "SXT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=SXTUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=SXT&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=space-and-time&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/SXT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=SXTUSD"
+    ]
+  },
+  {
+    "name": "TAO / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "20000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=TAOUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=TAO&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=bittensor&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/TAO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=TAOUSD"
+    ]
+  },
+  {
+    "name": "TBTC / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=TBTC&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=tbtc&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/TBTC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=TBTCUSD"
+    ]
+  },
+  {
+    "name": "tETH / wstETH Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "2000",
+    "dataSources": []
+  },
+  {
+    "name": "THB / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=THB&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=theo-short-duration-us-treasury-fund&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/THB-USD/spot",
+      "https://api.frankfurter.app/latest?from=THB&to=USD"
+    ]
+  },
+  {
+    "name": "THETA / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=THETAUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=THETA&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=theta-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/THETA-USD/spot"
+    ]
+  },
+  {
+    "name": "Total Marketcap / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "TRUMATIC / MATIC Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "TRUMP / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=TRUMPUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=TRUMP&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=bridged-maga-wormhole&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/TRUMP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=TRUMPUSD"
+    ]
+  },
+  {
+    "name": "TRX / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=TRXUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=TRX&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=tron&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/TRX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=TRXUSD"
+    ]
+  },
+  {
+    "name": "TRY / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=TRY&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=bilira&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/TRY-USD/spot",
+      "https://api.frankfurter.app/latest?from=TRY&to=USD"
+    ]
+  },
+  {
+    "name": "TSLA / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=tsla6900&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "TUSD / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "TUSD / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=TUSDUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=TUSD&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=bridged-trueusd&vs_currencies=usd",
+      "https://api.kraken.com/0/public/Ticker?pair=TUSDUSD"
+    ]
+  },
+  {
+    "name": "TWT / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "UMA / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=UMAUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=UMA&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=uma&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/UMA-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=UMAUSD"
+    ]
+  },
+  {
+    "name": "UNI / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "UNI / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "UNI / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1500000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=UNIUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=UNI&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=linea-bridged-uni-linea&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/UNI-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=UNIUSD"
+    ]
+  },
+  {
+    "name": "uniBTC / BTC Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "100000",
+    "dataSources": []
+  },
+  {
+    "name": "USD0 / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=usual-usd&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "USD0++ / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=usd0-liquid-bond&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "USD1 / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=USD1USDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=USD1&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=usd1&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USD1-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=USD1USD"
+    ]
+  },
+  {
+    "name": "USDC / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "USDC / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "USDC / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=USDCUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=USDC&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=airdao-bridged-usdc-airdao&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USDC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=USDCUSD"
+    ]
+  },
+  {
+    "name": "USDe / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=USDE&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=blast-bridged-usde-blast&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USDE-USD/spot"
+    ]
+  },
+  {
+    "name": "USDE / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=USDE&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=blast-bridged-usde-blast&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USDE-USD/spot"
+    ]
+  },
+  {
+    "name": "USDf / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=USDF&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=astherus-usdf&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "USDL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "10000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=lift-dollar&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "USDP / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=USDPUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=USDP&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=paxos-standard&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "USDS / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=USDSUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=USDS&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=sperax-usd&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USDS-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=USDSUSD"
+    ]
+  },
+  {
+    "name": "USDT / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "USDT / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "USDT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "1000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=abstract-bridged-usdt-abstract&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/USDT-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=USDTUSD"
+    ]
+  },
+  {
+    "name": "USDtb / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=USDTB&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=usdtb&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "USR / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=USR&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=hyperevm-bridged-usr-hyperevm&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "VET / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=VETUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=VET&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=vechain&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/VET-USD/spot"
+    ]
+  },
+  {
+    "name": "WAMPL / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=WAMPL&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=wrapped-ampleforth&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/WAMPL-USD/spot"
+    ]
+  },
+  {
+    "name": "WBTC / BTC",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "WBTC / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "WBTC / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "500000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=WBTCUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=WBTC&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=aptos-bridged-wbtc-aptos&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/WBTC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=WBTCUSD"
+    ]
+  },
+  {
+    "name": "weETH / eETH Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "weETH / ETH",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "WIN / USD",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=WINUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=WIN&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=win-2&vs_currencies=usd",
+      "https://api.kraken.com/0/public/Ticker?pair=WINUSD"
+    ]
+  },
+  {
+    "name": "WOO / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=WOOUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=WOO&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=woo-network&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/WOO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=WOOUSD"
+    ]
+  },
+  {
+    "name": "wrsETH / rsETH Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "WSTETH / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": []
+  },
+  {
+    "name": "wstETH / stETH Exchange Rate",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "WSTETH / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=arbitrum-bridged-wsteth-arbitrum&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/WSTETH-USD/spot"
+    ]
+  },
+  {
+    "name": "WTI / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=wrapped-club-tigres-uanl-kayen&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "XAG / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=silver-token-xagx&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XAG-USD/spot"
+    ]
+  },
+  {
+    "name": "XAU / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.coingecko.com/api/v3/simple/price?ids=xau9999&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XAU-USD/spot"
+    ]
+  },
+  {
+    "name": "XCN / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=XCN&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=chain-2&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XCN-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=XCNUSD"
+    ]
+  },
+  {
+    "name": "XLM / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=XLMUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=XLM&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XLM-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=XLMUSD"
+    ]
+  },
+  {
+    "name": "XMR / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "1200000000000",
+    "alphaPPB": "2000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=XMRUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=XMR&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=monero&vs_currencies=usd",
+      "https://api.kraken.com/0/public/Ticker?pair=XMRUSD"
+    ]
+  },
+  {
+    "name": "XPT / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=XPT&tsyms=USD",
+      "https://api.coinbase.com/v2/prices/XPT-USD/spot"
+    ]
+  },
+  {
+    "name": "XRP / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "XRP / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=XRPUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=XRP&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-xrp&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XRP-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=XRPUSD"
+    ]
+  },
+  {
+    "name": "XTZ / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "XTZ / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=XTZUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=XTZ&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=binance-peg-tezos-token&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/XTZ-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=XTZUSD"
+    ]
+  },
+  {
+    "name": "XVS / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "XVS / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=XVSUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=XVS&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=venus&vs_currencies=usd"
+    ]
+  },
+  {
+    "name": "YFI / BNB",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "YFI / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "YFI / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=YFIUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=YFI&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=yearn-finance&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/YFI-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=YFIUSD"
+    ]
+  },
+  {
+    "name": "ZAR / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "3000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=ZAR&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=zara-ai&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ZAR-USD/spot",
+      "https://api.frankfurter.app/latest?from=ZAR&to=USD"
+    ]
+  },
+  {
+    "name": "ZBU / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "10000000",
+    "dataSources": [
+      "https://min-api.cryptocompare.com/data/price?fsym=ZBU&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=zeebu&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ZBU-USD/spot"
+    ]
+  },
+  {
+    "name": "ZEC / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ZECUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ZEC&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=zcash&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ZEC-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ZECUSD"
+    ]
+  },
+  {
+    "name": "ZRO / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ZROUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ZRO&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=layerzero&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ZRO-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ZROUSD"
+    ]
+  },
+  {
+    "name": "ZRX / ETH",
+    "decimals": "18",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": []
+  },
+  {
+    "name": "ZRX / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": null,
+    "alphaPPB": null,
+    "dataSources": [
+      "https://api.binance.com/api/v3/ticker/price?symbol=ZRXUSDT",
+      "https://min-api.cryptocompare.com/data/price?fsym=ZRX&tsyms=USD",
+      "https://api.coingecko.com/api/v3/simple/price?ids=0x&vs_currencies=usd",
+      "https://api.coinbase.com/v2/prices/ZRX-USD/spot",
+      "https://api.kraken.com/0/public/Ticker?pair=ZRXUSD"
+    ]
+  }
+]

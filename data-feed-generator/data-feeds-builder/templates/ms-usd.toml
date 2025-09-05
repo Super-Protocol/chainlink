@@ -1,0 +1,27 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: MS / USD Price Feed"
+externalJobID = "6637d088-6100-5edd-9644-8e8d2dc47cf5"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0xcf25929ea7ac"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=mirrorstage&vs_currencies=usd"];
+    ds1_parse [type=jsonparse path="mirrorstage,usd"];
+    ds1_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds1_multiply -> median;
+"""
