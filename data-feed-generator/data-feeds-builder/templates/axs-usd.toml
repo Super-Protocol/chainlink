@@ -23,14 +23,14 @@ observationSource = """
     ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=AXS&tsyms=USD"];
     ds2_parse [type=jsonparse path="USD"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=axie-infinity&vs_currencies=usd"];
-    ds3_parse [type=jsonparse path="axie-infinity,usd"];
+    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/AXS-USD/spot"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/AXS-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=AXSUSD"];
+    ds4_parse [type=jsonparse path="result,AXSUSD,c,0"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=AXSUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=AXS-USD"];
+    ds5_parse [type=jsonparse path="data,0,last"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

@@ -21,7 +21,7 @@ observationSource = """
     ds1_parse [type=jsonparse path="xau9999,usd"];
     ds1_multiply [type=multiply times=100000000];
     ds2 [type=http method=GET url="https://api.coinbase.com/v2/prices/XAU-USD/spot"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2_parse [type=jsonparse path="data,amount"];
     ds2_multiply [type=multiply times=100000000];
     median [type=median];
     

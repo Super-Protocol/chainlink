@@ -63,28 +63,86 @@ function buildObservationSource(dataSources, decimalsRaw) {
   const edges = [];
   const medianInputs = [];
 
-  dataSources.forEach((url, idx) => {
+  dataSources.forEach((entry, idx) => {
     const i = idx + 1;
     const ds = `ds${i}`;
     const parse = `${ds}_parse`;
     const mult = `${ds}_multiply`;
 
+    // Support legacy string URL entries and new object entries with { url, path }
+    let url = "";
+    let pathExpr = "";
+    if (typeof entry === "string") {
+      url = entry;
+    } else if (entry && typeof entry === "object") {
+      url = entry.url || "";
+      // New structure provides explicit path to the value inside returned JSON
+      if (entry.path) {
+        const raw = String(entry.path);
+        // Normalize path: convert dot notation and bracket indices to Chainlink jsonparse syntax
+        // Examples:
+        //  - "result.XXBTZUSD.c[0]" -> "result,XXBTZUSD,c,0"
+        //  - "data[0].last" -> "data,0,last"
+        //  - "[0].value" -> "0,value"
+        const segments = [];
+        raw.split('.').forEach(seg => {
+          if (!seg) return;
+          // Extract name and any bracket indices
+          let m;
+          const re = /([^\[]+)?(\[[0-9]+\])+/g;
+          let lastIndex = 0;
+          while ((m = re.exec(seg)) !== null) {
+            const name = m[1];
+            if (name) segments.push(name);
+            // Push each index inside brackets as separate segment
+            const idxPart = m[0].slice((name||'').length);
+            const idxMatches = idxPart.match(/\[([0-9]+)\]/g) || [];
+            idxMatches.forEach(ix => {
+              const num = ix.replace(/\[|\]/g, "");
+              segments.push(num);
+            });
+            lastIndex = re.lastIndex;
+          }
+          if (lastIndex === 0) {
+            // No bracket pattern matched; could be like "c" or "c[0]" not matched by global? handle generic
+            // Fallback: split simple name[idx][idx] pattern manually
+            const simple = seg;
+            const nameMatch = simple.match(/^[^\[]+/);
+            if (nameMatch) segments.push(nameMatch[0]);
+            const rest = simple.slice(nameMatch ? nameMatch[0].length : 0);
+            const idxMatches2 = rest.match(/\[([0-9]+)\]/g) || [];
+            idxMatches2.forEach(ix => segments.push(ix.replace(/\[|\]/g, "")));
+          }
+        });
+        pathExpr = segments.join(',');
+      }
+    }
+
+    if (!url) return; // skip invalid
+
     lines.push(`${ds} [type=http method=GET url="${url}"];`);
 
-    let pathExpr = "";
-    if (url.includes("api.binance.com")) {
-      pathExpr = "price";
-    } else if (url.includes("min-api.cryptocompare.com")) {
-      pathExpr = "USD";
-    } else if (url.includes("api.coingecko.com") && url.includes("/simple/price")) {
-      const id = parseQueryParam(url, "ids");
-      if (id) pathExpr = `${id},usd`;
+    // If path not provided (legacy), try best-effort inference
+    if (!pathExpr) {
+      if (url.includes("api.binance.com")) {
+        pathExpr = "price";
+      } else if (url.includes("min-api.cryptocompare.com")) {
+        pathExpr = "USD";
+      } else if (url.includes("api.coingecko.com") && url.includes("/simple/price")) {
+        const id = parseQueryParam(url, "ids");
+        if (id) pathExpr = `${id},usd`;
+      } else if (url.includes("api.coinbase.com")) {
+        pathExpr = "data,amount";
+      }
+      if (!pathExpr) {
+        // Fallback: try common fields
+        pathExpr = url.includes("coingecko") ? "usd" : "USD";
+      }
     }
 
-    if (!pathExpr) {
-      // Fallback: try best-effort common fields
-      pathExpr = url.includes("coingecko") ? "usd" : "USD";
-    }
+    // Chainlink TOML uses "," as separator for nested keys while arrays use [index]
+    // Keep array indexers as-is: convert dots to commas but preserve [n]
+    // We already converted dots to commas; ensure brackets remain.
 
     lines.push(`${parse} [type=jsonparse path="${pathExpr}"];`);
     lines.push(`${mult} [type=multiply times=${timesStr}];`);

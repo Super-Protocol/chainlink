@@ -17,17 +17,17 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=WINUSDT"];
-    ds1_parse [type=jsonparse path="price"];
+    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=WIN&tsyms=USD"];
+    ds1_parse [type=jsonparse path="USD"];
     ds1_multiply [type=multiply times=1000000000000000000];
-    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=WIN&tsyms=USD"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=win-2&vs_currencies=usd"];
+    ds2_parse [type=jsonparse path="win-2,usd"];
     ds2_multiply [type=multiply times=1000000000000000000];
-    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=win-2&vs_currencies=usd"];
-    ds3_parse [type=jsonparse path="win-2,usd"];
+    ds3 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=WINUSD"];
+    ds3_parse [type=jsonparse path="result,WINUSD,c,0"];
     ds3_multiply [type=multiply times=1000000000000000000];
-    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=WINUSD"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=WIN-USD"];
+    ds4_parse [type=jsonparse path="data,0,last"];
     ds4_multiply [type=multiply times=1000000000000000000];
     median [type=median];
     

@@ -24,7 +24,7 @@ observationSource = """
     ds2_parse [type=jsonparse path="ripple-usd,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=RLUSDUSD"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="result,RLUSDUSD,c,0"];
     ds3_multiply [type=multiply times=100000000];
     median [type=median];
     

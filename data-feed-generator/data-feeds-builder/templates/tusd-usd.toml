@@ -27,7 +27,7 @@ observationSource = """
     ds3_parse [type=jsonparse path="bridged-trueusd,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=TUSDUSD"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="result,TUSDUSD,c,0"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

@@ -23,10 +23,15 @@ observationSource = """
     ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=staked-ether&vs_currencies=usd"];
     ds2_parse [type=jsonparse path="staked-ether,usd"];
     ds2_multiply [type=multiply times=100000000];
+    ds3 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=STETH-USD"];
+    ds3_parse [type=jsonparse path="data,0,last"];
+    ds3_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
+    ds3 -> ds3_parse -> ds3_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
+    ds3_multiply -> median;
 """

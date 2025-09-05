@@ -27,10 +27,10 @@ observationSource = """
     ds3_parse [type=jsonparse path="spell-token,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/SPELL-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=SPELLUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,SPELLUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     
