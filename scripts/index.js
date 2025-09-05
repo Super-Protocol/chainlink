@@ -17,6 +17,7 @@ const mapConfigToEnv = (cfg) => {
     CHAINLINK_NODE_NAME: toStr(cfg.chainlinkNodeName),
     CHAINLINK_RPC_WS_URL: toStr(cfg.chainlinkRpcWsUrl),
     CHAINLINK_RPC_HTTP_URL: toStr(cfg.chainlinkRpcHttpUrl),
+    CL_FEED_TEMPLATES_DIR: toStr(cfg.chainlinkFeedTemplatesDir),
 
     LINK_CA: toStr(cfg.linkCa),
 
@@ -26,6 +27,9 @@ const mapConfigToEnv = (cfg) => {
     NODES_LIST: toStr(cfg.nodesList),
     PRIMARY_NODES: toStr(cfg.primaryNodes),
     BOOTSTRAP_NODE_ADDRESSES: toStr(cfg.bootstrapNodeAddresses),
+
+    ADMIN_CONTRACT_ADDRESS: toStr(cfg.adminContractAddress),
+    DIAMOND_CONTRACT_ADDRESS: toStr(cfg.diamondContractAddress),
   };
 };
 

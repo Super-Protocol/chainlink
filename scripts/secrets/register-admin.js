@@ -29,9 +29,9 @@ const registerAdmin = async () => {
     throw new Error('DIAMOND_CONTRACT_ADDRESS env var is required');
   }
 
-  const blockchainUrl = process.env.BLOCKCHAIN_URL;
+  const blockchainUrl = process.env.CHAINLINK_RPC_HTTP_URL;
   if (!blockchainUrl) {
-    throw new Error('BLOCKCHAIN_URL env var is required');
+    throw new Error('CHAINLINK_RPC_HTTP_URL env var is required');
   }
   const { certsPem, certPrivateKeyPem } = getOrderCerts();
 

@@ -61,6 +61,15 @@ const solutionConfigurationSchema = Type.Object({
     description: 'LINK token contract address',
   }),
   signature: Type.String({ minLength: 1 }),
+  adminContractAddress: Type.String({
+    pattern: '^0x[0-9a-fA-F]{40}$',
+    description: 'Amin contract address',
+  }),
+  diamondContractAddress: Type.String({
+    pattern: '^0x[0-9a-fA-F]{40}$',
+    description: 'Diamond contract address',
+  }),
+  chainlinkFeedTemplatesDir: Type.String({ minLength: 1 }),
 });
 
 module.exports = { solutionConfigurationSchema };
