@@ -1,0 +1,15 @@
+{
+  "name": "data-feeds-builder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Data feeds map builder with proxy support",
+  "type": "commonjs",
+  "main": "data-feeds-map-builder.js",
+  "scripts": {
+    "make-map": "node data-feeds-map-builder.js"
+  },
+  "dependencies": {
+    "https-proxy-agent": "^7.0.4",
+    "socks-proxy-agent": "^8.0.3"
+  }
+}
