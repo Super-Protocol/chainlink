@@ -39,9 +39,9 @@ EstimateLimit = false
 BumpMin = '100 wei'
 BumpPercent = 20
 BumpThreshold = 3
-EIP1559DynamicFees = true
-FeeCapDefault = '100 gwei'
-TipCapDefault = '1 gwei'
+EIP1559DynamicFees = false
+FeeCapDefault = '5 gwei'
+TipCapDefault = '1000 wei'
 TipCapMin = '1 wei'
 
 [EVM.GasEstimator.BlockHistory]
