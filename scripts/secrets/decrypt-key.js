@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 const fs = require('fs');
+const crypto = require('crypto');
 const { fromHex, keccak256, deriveKeyScrypt } = require('./crypto-utils');
 
 function decryptOCR(exportJson, plainPassword) {
