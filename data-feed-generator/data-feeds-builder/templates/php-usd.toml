@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: PHP / USD Price Feed"
-externalJobID = "3fed702d-aa8f-5a7d-bfef-ebf0306f11b6"
+externalJobID = "b5ad4ea4-e737-59a6-8b83-36fd1c09a79c"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2a30ddbc0b71a"
+contractAddress = "0xFd716211eF79AF88453c938a24D2c86162191543"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -21,10 +21,10 @@ observationSource = """
     ds1_parse [type=jsonparse path="USD"];
     ds1_multiply [type=multiply times=100000000];
     ds2 [type=http method=GET url="https://api.coinbase.com/v2/prices/PHP-USD/spot"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2_parse [type=jsonparse path="data,amount"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.frankfurter.app/latest?from=PHP&to=USD"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="rates,USD"];
     ds3_multiply [type=multiply times=100000000];
     median [type=median];
     

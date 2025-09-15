@@ -4,6 +4,8 @@ cd $(dirname $0)
 
 set -euo pipefail
 
+log() { echo "[init] $*"; }
+
 if [ -z "${NODE_NUMBER:-}" ]; then
   log "NODE_NUMBER env var is required" >&2
   exit 1
@@ -21,8 +23,6 @@ fi
 
 CHAINLINK_DIR="/chainlink"
 
-log() { echo "[init] $*"; }
-
 # In-container sed -i helper (GNU sed)
 sed_inplace() {
   sed -i -e "$1" "$2"
@@ -31,7 +31,7 @@ sed_inplace() {
 # Wait until bootstrap nodes expose a P2P peerId via /v2/keys/p2p
 wait_for_bootstrap_peer_ids() {
   local node_num="$1"
-  local IFS=' \t,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
+  local IFS=' ,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
   local max_tries="${WAIT_BOOTSTRAP_PEER_TRIES:-300}"
   mkdir -p "$SP_SECRETS_DIR"
   for bn in "${bs_nodes[@]}"; do
@@ -92,13 +92,13 @@ main() {
   local tpl="/scripts/bash/config.toml.template"
   if [[ -s "$tpl" ]]; then
     # Compute DefaultBootstrappers from shared bootstrap secrets if available
-    local IFS=' \t,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
+    local IFS=' ,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
     local is_bootstrap=false; local bn; local entries=()
     for bn in "${bs_nodes[@]}"; do if [[ "$bn" == "${NODE_NUMBER}" ]]; then is_bootstrap=true; break; fi; done
 
     # Determine if this node is primary
-    local primary_nodes_str="${PRIMARY_NODES:-NODES_LIST}"
-    local IFS=' \t,'; read -r -a pr_nodes <<< "$primary_nodes_str"
+    local primary_nodes_str="${PRIMARY_NODES:-${NODES_LIST:-}}"
+    local IFS=' ,'; read -r -a pr_nodes <<< "$primary_nodes_str"
     local is_primary=false; local pn
     for pn in "${pr_nodes[@]:-}"; do if [[ "$pn" == "${NODE_NUMBER}" ]]; then is_primary=true; break; fi; done
     if [[ "$is_bootstrap" == false ]]; then
@@ -126,8 +126,8 @@ main() {
         done
       fi
     fi
-    local DEFAULT_BOOTSTRAPERS OCR_KEY_BUNDLE_ID TRANSMITTER_ADDRESS
-    if [[ ${#entries[@]} -eq 0 ]]; then DEFAULT_BOOTSTRAPERS="[]"; else DEFAULT_BOOTSTRAPERS="[${entries[*]}]"; fi
+    local DEFAULT_BOOTSTRAPPERS OCR_KEY_BUNDLE_ID TRANSMITTER_ADDRESS
+    if [[ ${#entries[@]} -eq 0 ]]; then DEFAULT_BOOTSTRAPPERS="[]"; else DEFAULT_BOOTSTRAPPERS="[${entries[*]}]"; fi
     # Try to read OCR key id to populate OCR.KeyBundleID
     local ocr_file="${SP_SECRETS_DIR}/cl-secrets/${NODE_NUMBER}/ocr_key.json"
     if [[ -s "$ocr_file" ]]; then
@@ -173,30 +173,30 @@ main() {
       ANNOUNCE_ADDRESSES_STR="['${ip}']"
     fi
 
-    export DEFAULT_BOOTSTRAPERS OCR_KEY_BUNDLE_ID TRANSMITTER_ADDRESS ANNOUNCE_ADDRESSES="${ANNOUNCE_ADDRESSES_STR}"
+    export DEFAULT_BOOTSTRAPPERS OCR_KEY_BUNDLE_ID TRANSMITTER_ADDRESS ANNOUNCE_ADDRESSES="${ANNOUNCE_ADDRESSES_STR}"
     envsubst < "$tpl" > "$cfg"
     chmod 600 "$cfg" || true
     # Post-process Name for primary vs sendonly nodes
     if [[ "$is_primary" == true ]]; then
-      sed -i'' -E "s#^([[:space:]]*Name\s*=\s*)'.*'#\1'${CHAINLINK_NODE_NAME}-${NODE_NUMBER}-primary'#" "$cfg" || true
+      sed -i'' -E "s#^([[:space:]]*Name[[:space:]]*=[[:space:]]*)'.*'#\1'${CHAINLINK_NODE_NAME}-${NODE_NUMBER}-primary'#" "$cfg" || true
     else
-      sed -i'' -E "s#^([[:space:]]*Name\s*=\s*)'.*'#\1'${CHAINLINK_NODE_NAME}-${NODE_NUMBER}-sendonly'#" "$cfg" || true
+      sed -i'' -E "s#^([[:space:]]*Name[[:space:]]*=[[:space:]]*)'.*'#\1'${CHAINLINK_NODE_NAME}-${NODE_NUMBER}-sendonly'#" "$cfg" || true
     fi
     # Post-process EVM.Nodes according to PRIMARY_NODES policy
     if [[ "$is_primary" == true ]]; then
       # Ensure SendOnly = false
-      sed -i'' -E "s#^\s*SendOnly\s*=.*#SendOnly = false#" "$cfg" || true
+      sed -i'' -E "s#^[[:space:]]*SendOnly[[:space:]]*=.*#SendOnly = false#" "$cfg" || true
       # WSURL line remains from template
     else
       # Remove WSURL and set SendOnly = true
-      sed -i'' -E "/^\s*WSURL\s*=/d" "$cfg" || true
-      if grep -qE '^\s*SendOnly\s*=' "$cfg"; then
-        sed -i'' -E "s#^\s*SendOnly\s*=.*#SendOnly = true#" "$cfg" || true
+      sed -i'' -E "/^[[:space:]]*WSURL[[:space:]]*=/d" "$cfg" || true
+      if grep -qE '^[[:space:]]*SendOnly[[:space:]]*=' "$cfg"; then
+        sed -i'' -E "s#^[[:space:]]*SendOnly[[:space:]]*=.*#SendOnly = true#" "$cfg" || true
       else
         # Insert SendOnly under [[EVM.Nodes]] if missing
         awk '
           BEGIN{in=0}
-          /^\s*\[\[EVM\.Nodes\]\]\s*$/ {print; print "SendOnly = true"; in=1; next}
+          /^[[:space:]]*\[\[EVM\.Nodes\]\][[:space:]]*$/ {print; print "SendOnly = true"; in=1; next}
           {print}
         ' "$cfg" > "${cfg}.tmp" && mv "${cfg}.tmp" "$cfg"
       fi
@@ -211,12 +211,12 @@ main() {
   # local ip="chainlink-node-$NODE_NUMBER"
   local cfg="${CHAINLINK_DIR}/config.toml"
   if [[ -f "$cfg" ]]; then
-    if grep -qE '^\s*AnnounceAddresses\s*=' "$cfg"; then
-      sed_inplace "s#^\\s*AnnounceAddresses\\s*=.*#AnnounceAddresses = ['${ip}:9999']#" "$cfg"
+    if grep -qE '^[[:space:]]*AnnounceAddresses[[:space:]]*=' "$cfg"; then
+      sed_inplace "s#^[[:space:]]*AnnounceAddresses[[:space:]]*=.*#AnnounceAddresses = ['${ip}:9999']#" "$cfg"
     else
       awk -v ipval="${ip}:9999" '
         BEGIN{inblock=0}
-        /^\s*\[P2P\.V2\]\s*$/ {print; print "AnnounceAddresses = ['"ipval"']"; inblock=1; next}
+        /^[[:space:]]*\[P2P\.V2\][[:space:]]*$/ {print; print "AnnounceAddresses = ['"ipval"']"; inblock=1; next}
         {print}
       ' "$cfg" > "${cfg}.tmp" && mv "${cfg}.tmp" "$cfg"
     fi
@@ -224,7 +224,7 @@ main() {
   fi
 
   # Produce or consume shared secrets
-  local IFS=' \t,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
+  local IFS=' ,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
   local is_bootstrap=false
   for bn in "${bs_nodes[@]}"; do if [[ "$bn" == "${NODE_NUMBER}" ]]; then is_bootstrap=true; fi; done
 

@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: DOLO / USD Price Feed"
-externalJobID = "4dd9b868-0a24-54d7-a253-0329d1dc7fc5"
+externalJobID = "d62ab257-ee56-5a62-ab07-416a68c194d0"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x356580262f163"
+contractAddress = "0xd477EAA4ec8c92CD7B4a1F20fe85Bc2ac3046b15"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,10 +27,10 @@ observationSource = """
     ds3_parse [type=jsonparse path="dolomite,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/DOLO-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=DOLOUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,DOLOUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

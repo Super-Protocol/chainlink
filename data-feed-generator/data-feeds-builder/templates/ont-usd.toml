@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: ONT / USD Price Feed"
-externalJobID = "dfde41f3-f161-50b4-a042-07bc5fbe2d23"
+externalJobID = "df690544-1869-541b-ab8e-4ea61a3c417c"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x438b59060874"
+contractAddress = "0xa1BbB9328C31F3A2d6963e92a494100890d96155"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,16 +27,21 @@ observationSource = """
     ds3_parse [type=jsonparse path="binance-peg-ontology,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/ONT-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
+    ds5 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=ONT-USD"];
+    ds5_parse [type=jsonparse path="data,0,last"];
+    ds5_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
     ds3 -> ds3_parse -> ds3_multiply;
     ds4 -> ds4_parse -> ds4_multiply;
+    ds5 -> ds5_parse -> ds5_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
     ds4_multiply -> median;
+    ds5_multiply -> median;
 """

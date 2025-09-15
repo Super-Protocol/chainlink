@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: NFLX / USD Price Feed"
-externalJobID = "f6598b9f-f6ac-55bf-ba84-e5f35bbe2100"
+externalJobID = "3bd65a68-fbcd-56ab-89ca-515f8df6ba5e"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x36c7a1c3a7797"
+contractAddress = "0x1E68EAf02f7cD91797327E20745735671ED93969"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

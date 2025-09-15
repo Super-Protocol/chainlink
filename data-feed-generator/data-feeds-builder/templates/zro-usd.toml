@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: ZRO / USD Price Feed"
-externalJobID = "80aa16e3-9699-55c0-aef8-cc61e803c586"
+externalJobID = "b3c9187a-d59e-531f-a699-27fb881d1a8a"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x855394bc1625"
+contractAddress = "0x7d15A6c66B8f3069614f5041616Cf997Ed87Bb28"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -23,14 +23,14 @@ observationSource = """
     ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=ZRO&tsyms=USD"];
     ds2_parse [type=jsonparse path="USD"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=layerzero&vs_currencies=usd"];
-    ds3_parse [type=jsonparse path="layerzero,usd"];
+    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/ZRO-USD/spot"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/ZRO-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=ZROUSD"];
+    ds4_parse [type=jsonparse path="result,ZROUSD,c,0"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=ZROUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=ZRO-USD"];
+    ds5_parse [type=jsonparse path="data,0,last"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

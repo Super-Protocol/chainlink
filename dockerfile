@@ -25,4 +25,4 @@ RUN bash -c "source $NVM_DIR/nvm.sh && nvm install $NODE_VERSION"
 COPY scripts /scripts
 COPY data-feed-generator/templates /job-templates
 
-RUN cd /scripts/secrets && npm ci --no-audit --no-fund --omit=optional
+RUN cd /scripts && npm ci --no-audit --no-fund --omit=optional

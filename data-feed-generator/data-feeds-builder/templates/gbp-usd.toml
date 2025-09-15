@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: GBP / USD Price Feed"
-externalJobID = "1d645e40-5b1f-58e7-a100-3ffebf9a777a"
+externalJobID = "01c89916-4a87-5392-8581-c6ef39206f36"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x38c3425bb3257"
+contractAddress = "0x8046292aC587B4f24C0EeC181Df2fe21AF65358C"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,13 +27,13 @@ observationSource = """
     ds3_parse [type=jsonparse path="monerium-gbp-emoney,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/GBP-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=GBPUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,ZGBPZUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
     ds6 [type=http method=GET url="https://api.frankfurter.app/latest?from=GBP&to=USD"];
-    ds6_parse [type=jsonparse path="USD"];
+    ds6_parse [type=jsonparse path="rates,USD"];
     ds6_multiply [type=multiply times=100000000];
     median [type=median];
     

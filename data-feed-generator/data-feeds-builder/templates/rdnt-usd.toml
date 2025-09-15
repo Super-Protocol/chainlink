@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: RDNT / USD Price Feed"
-externalJobID = "ae47c13d-6376-56d1-ab28-b62986271cd9"
+externalJobID = "e20b6e28-9ea9-5c24-a8cb-9785c8fd0f74"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x272f88bff06c5"
+contractAddress = "0x9689E76287dfF77B1eb05047FfD81Eb6E6877D79"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,16 +27,21 @@ observationSource = """
     ds3_parse [type=jsonparse path="radiant-capital,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/RDNT-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
+    ds5 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=RDNT-USD"];
+    ds5_parse [type=jsonparse path="data,0,last"];
+    ds5_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
     ds3 -> ds3_parse -> ds3_multiply;
     ds4 -> ds4_parse -> ds4_multiply;
+    ds5 -> ds5_parse -> ds5_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
     ds4_multiply -> median;
+    ds5_multiply -> median;
 """

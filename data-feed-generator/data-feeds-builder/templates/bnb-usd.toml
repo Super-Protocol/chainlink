@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: BNB / USD Price Feed"
-externalJobID = "9d687ce5-8beb-577a-a234-54d64335fb86"
+externalJobID = "d0a7c84f-856d-58e9-a23b-4c98f73d69ec"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xf4a2a202fa4f"
+contractAddress = "0x875237903a211DbbecbBF5421F0A65fd506841E0"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,20 +17,20 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT"];
-    ds1_parse [type=jsonparse path="price"];
+    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=BNB&tsyms=USD"];
+    ds1_parse [type=jsonparse path="USD"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=BNB&tsyms=USD"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=bifrost-bridged-bnb-bifrost&vs_currencies=usd"];
+    ds2_parse [type=jsonparse path="bifrost-bridged-bnb-bifrost,usd"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=bifrost-bridged-bnb-bifrost&vs_currencies=usd"];
-    ds3_parse [type=jsonparse path="bifrost-bridged-bnb-bifrost,usd"];
+    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/BNB-USD/spot"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/BNB-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=BNBUSD"];
+    ds4_parse [type=jsonparse path="result,BNBUSD,c,0"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=BNBUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=BNB-USD"];
+    ds5_parse [type=jsonparse path="data,0,last"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: QUICK / USD Price Feed"
-externalJobID = "dc5a0a40-01da-53bb-bc4b-c652072a6cbf"
+externalJobID = "849a840f-91f0-50d8-911e-530b823c91bd"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xe735857a3d63"
+contractAddress = "0x84f8e02F51002838780ed41Cb4eC6caF5766F6a5"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,7 +27,7 @@ observationSource = """
     ds3_parse [type=jsonparse path="quick,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/QUICK-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

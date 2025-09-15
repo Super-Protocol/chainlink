@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: ZEC / USD Price Feed"
-externalJobID = "ed655b68-b21f-5bac-938f-adec87c2f9b8"
+externalJobID = "52d9a38f-c381-5076-9c4b-6741acf64581"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2f6bcecb226e2"
+contractAddress = "0xA120F2cCc1f8dBDebD7fc2bcdb5347Add6220761"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,10 +27,10 @@ observationSource = """
     ds3_parse [type=jsonparse path="zcash,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/ZEC-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=ZECUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,XZECZUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

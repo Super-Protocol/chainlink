@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: COP / USD Price Feed"
-externalJobID = "27e211eb-fd4d-52e8-b175-8c5cb6d437f7"
+externalJobID = "f93714c4-186b-52f2-bc4e-d9938e6d3dd3"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x8aa78c1f0efb"
+contractAddress = "0xd713dC5b49291C8CB2c93dAa81BD4f224A3eb504"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,7 +24,7 @@ observationSource = """
     ds2_parse [type=jsonparse path="copiosa,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/COP-USD/spot"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
     median [type=median];
     

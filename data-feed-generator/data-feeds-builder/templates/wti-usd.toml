@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: WTI / USD Price Feed"
-externalJobID = "b992e854-8ca5-5432-9c33-5c9467255960"
+externalJobID = "b0f0c42d-f222-5946-b36a-d705aed62ece"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2c025b3f1e4c9"
+contractAddress = "0x3be462B69Dd35Ce3d591fa162374606E9d9BA711"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

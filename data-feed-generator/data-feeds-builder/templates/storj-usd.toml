@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: STORJ / USD Price Feed"
-externalJobID = "e71a169a-1d2e-5986-87c7-a45a1483c425"
+externalJobID = "701962c3-a3c0-52dd-92fa-ef26182b5f73"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1f6042032d8c9"
+contractAddress = "0xA5519f52eC241b18d0Db264C416733c8b7230dE8"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -23,14 +23,14 @@ observationSource = """
     ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=STORJ&tsyms=USD"];
     ds2_parse [type=jsonparse path="USD"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=storj&vs_currencies=usd"];
-    ds3_parse [type=jsonparse path="storj,usd"];
+    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/STORJ-USD/spot"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/STORJ-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=STORJUSD"];
+    ds4_parse [type=jsonparse path="result,STORJUSD,c,0"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=STORJUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=STORJ-USD"];
+    ds5_parse [type=jsonparse path="data,0,last"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

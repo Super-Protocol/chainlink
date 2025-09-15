@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: FRAX / USD Price Feed"
-externalJobID = "26a8c1a9-53e8-5670-bdcb-7eb9478f1646"
+externalJobID = "d486a2ba-7cc9-5571-8c85-12aae755724c"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x71481a290f41"
+contractAddress = "0x58907Ece508068dF263cf5D6aA2B9Ae82B22bd3d"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

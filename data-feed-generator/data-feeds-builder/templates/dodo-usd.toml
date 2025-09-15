@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: DODO / USD Price Feed"
-externalJobID = "bab0266b-9900-540d-a876-4ef9130858b8"
+externalJobID = "f67564fa-9502-5623-9e60-7fa56e8b731d"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1c10aa2356f5d"
+contractAddress = "0x7e64f93DBA70F9A540D2A06d1f3A50Bb65B613F4"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,7 +27,7 @@ observationSource = """
     ds3_parse [type=jsonparse path="dodo,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/DODO-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

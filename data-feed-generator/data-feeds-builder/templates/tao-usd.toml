@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: TAO / USD Price Feed"
-externalJobID = "662e75ff-4102-524a-904b-499251250f76"
+externalJobID = "5894bbcc-90c4-5b66-b38a-4ce7854b45dc"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1b609921a5d4f"
+contractAddress = "0x24Dc87650ddCc42d0208f9F791409EcD3bAC0112"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,31 +17,26 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=TAOUSDT"];
-    ds1_parse [type=jsonparse path="price"];
+    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=TAO&tsyms=USD"];
+    ds1_parse [type=jsonparse path="USD"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=TAO&tsyms=USD"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=bittensor&vs_currencies=usd"];
+    ds2_parse [type=jsonparse path="bittensor,usd"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=bittensor&vs_currencies=usd"];
-    ds3_parse [type=jsonparse path="bittensor,usd"];
+    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/TAO-USD/spot"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/TAO-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=TAOUSD"];
+    ds4_parse [type=jsonparse path="result,TAOUSD,c,0"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=TAOUSD"];
-    ds5_parse [type=jsonparse path="USD"];
-    ds5_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
     ds3 -> ds3_parse -> ds3_multiply;
     ds4 -> ds4_parse -> ds4_multiply;
-    ds5 -> ds5_parse -> ds5_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
     ds4_multiply -> median;
-    ds5_multiply -> median;
 """

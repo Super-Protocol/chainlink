@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: MAVIA / USD Price Feed"
-externalJobID = "c111f794-b888-553d-839a-1386de9ec3ba"
+externalJobID = "815f6e6c-e29a-58c8-bc55-c478e7018290"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x38902131cdb40"
+contractAddress = "0x9d7df2B29EC9aa85011Dc9c67AD0A3a4b2E33F06"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

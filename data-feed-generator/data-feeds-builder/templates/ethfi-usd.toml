@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: ETHFI / USD Price Feed"
-externalJobID = "b77c833a-56f9-5a8f-8da9-61d58d1e0f43"
+externalJobID = "5316b492-6608-588b-b514-7f0db71895e6"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x15abc5b8f1fb6"
+contractAddress = "0xaaB59ba8c59760A70cdcaD496Cb62dE0e4465071"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,11 +27,14 @@ observationSource = """
     ds3_parse [type=jsonparse path="ether-fi,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/ETHFI-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=ETHFIUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,ETHFIUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
+    ds6 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=ETHFI-USD"];
+    ds6_parse [type=jsonparse path="data,0,last"];
+    ds6_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
@@ -39,9 +42,11 @@ observationSource = """
     ds3 -> ds3_parse -> ds3_multiply;
     ds4 -> ds4_parse -> ds4_multiply;
     ds5 -> ds5_parse -> ds5_multiply;
+    ds6 -> ds6_parse -> ds6_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
     ds4_multiply -> median;
     ds5_multiply -> median;
+    ds6_multiply -> median;
 """

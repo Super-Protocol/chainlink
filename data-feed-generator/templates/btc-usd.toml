@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: BTC/USD Price Feed"
-externalJobID = "274b0bf5-3eb7-4b88-85b3-44f5969410f1"
+name = "OCR Oracle: BTC / USD Price Feed"
+externalJobID = "b5eb5954-9c06-5da6-a0ed-50ce3b0eef6a"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x5E86cDd8eF8E2644fD47DD8c4337F733b21F2267"
+contractAddress = "0x2a7e395BC8f1A495a0d4C00B119E3d154BB9f615"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,29 +17,36 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    // Data source 1: CoinGecko
-    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"];
-    ds1_parse [type=jsonparse path="bitcoin,usd"];
+    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    
-    // Data source 2: CryptoCompare
     ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD"];
     ds2_parse [type=jsonparse path="USD"];
     ds2_multiply [type=multiply times=100000000];
-    
-    // Data source 3: Binance
-    ds3 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"];
-    ds3_parse [type=jsonparse path="price"];
+    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=batcat&vs_currencies=usd"];
+    ds3_parse [type=jsonparse path="batcat,usd"];
     ds3_multiply [type=multiply times=100000000];
-    
-    // Pipeline connections
+    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/BTC-USD/spot"];
+    ds4_parse [type=jsonparse path="data,amount"];
+    ds4_multiply [type=multiply times=100000000];
+    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=XBTUSD"];
+    ds5_parse [type=jsonparse path="result,XXBTZUSD,c,0"];
+    ds5_multiply [type=multiply times=100000000];
+    ds6 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=BTC-USD"];
+    ds6_parse [type=jsonparse path="data,0,last"];
+    ds6_multiply [type=multiply times=100000000];
+    median [type=median];
+
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
     ds3 -> ds3_parse -> ds3_multiply;
-    
-    // Median calculation from all sources
+    ds4 -> ds4_parse -> ds4_multiply;
+    ds5 -> ds5_parse -> ds5_multiply;
+    ds6 -> ds6_parse -> ds6_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
-    median [type=median];
+    ds4_multiply -> median;
+    ds5_multiply -> median;
+    ds6_multiply -> median;
 """

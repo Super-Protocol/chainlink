@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: VET / USD Price Feed"
-externalJobID = "b7f7b08d-e528-5963-9458-62cdfc6939d1"
+externalJobID = "e693ca84-301e-58fa-bf8f-dac853d4d33d"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x27f4d2a59f716"
+contractAddress = "0x0C769DAadA0a2E913A87E295190bf9d6DD1398Ce"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,7 +27,7 @@ observationSource = """
     ds3_parse [type=jsonparse path="vechain,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/VET-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

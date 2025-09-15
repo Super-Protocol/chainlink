@@ -10,6 +10,45 @@ const aggregatorAbi = require('./abis/AccessControlledOffchainAggregator.json').
 
 function hexToBufLocal(h) { return hexToBuf(h); }
 
+function normalizeForCompare(value) {
+  if (Array.isArray(value)) return value.map(normalizeForCompare);
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const k of Object.keys(value).sort()) out[k] = normalizeForCompare(value[k]);
+    return out;
+  }
+  return value;
+}
+
+function computeComparableDonConfig(donConfig) {
+  const { sharedSecretEncryptions, ...rest } = donConfig;
+  const comparable = {
+    ...rest,
+    sharedSecretEncryptions: sharedSecretEncryptions && sharedSecretEncryptions.sharedSecretHash
+      ? { sharedSecretHash: sharedSecretEncryptions.sharedSecretHash }
+      : null,
+  };
+  return normalizeForCompare(comparable);
+}
+
+function readDonConfigCache(cacheFilePath) {
+  try {
+    if (fs.existsSync(cacheFilePath)) {
+      const raw = fs.readFileSync(cacheFilePath, 'utf8');
+      if (raw.trim().length === 0) return {};
+      return JSON.parse(raw);
+    }
+  } catch {}
+  return {};
+}
+
+function writeDonConfigCache(cacheFilePath, data) {
+  try {
+    fs.mkdirSync(path.dirname(cacheFilePath), { recursive: true });
+  } catch {}
+  fs.writeFileSync(cacheFilePath, JSON.stringify(data, null, 2));
+}
+
 function readJSON(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
 }
@@ -63,13 +102,16 @@ function encryptSharedSecret(x25519PubKeys, sharedSecret16) {
 
 async function main() {
   const rpcUrl = process.env.CHAINLINK_RPC_HTTP_URL;
-  const contractAddr = process.env.CHAINLINK_NODE_SC_ADDRESS;
-  if (!rpcUrl || !contractAddr) throw new Error('CHAINLINK_RPC_HTTP_URL and CHAINLINK_NODE_SC_ADDRESS are required');
+  const contractAddr = process.argv[2];
+  if (!rpcUrl) throw new Error('CHAINLINK_RPC_HTTP_URL is required');
+  if (!contractAddr) throw new Error('Missing contract address. Usage: node set-config.js <contractAddress>');
 
   const nodesList = process.env.NODES_LIST || '1 2 3 4 5';
   const bootstrapStr = process.env.BOOTSTRAP_NODES || '1';
   const bootstrapSet = new Set(bootstrapStr.split(/[\s,]+/).filter(Boolean).map((s) => parseInt(s, 10)));
-  const secretsRoot = process.env.SECRETS_ROOT || '/sp/secrets/cl-secrets';
+  const secretsRoot = process.env.SP_SECRETS_DIR ? `${process.env.SP_SECRETS_DIR}` : '/sp/secrets';
+  const secretsChainlinkRoot = `${secretsRoot}/cl-secrets`;
+  const cacheFile = path.join(secretsRoot, 'don-configs.json');
 
   const workers = listWorkers(nodesList, bootstrapSet);
   if (workers.length === 0) throw new Error('No worker nodes to configure');
@@ -77,7 +119,7 @@ async function main() {
   const signers = []; const transmitters = []; const offchainPublicKeys = []; const peerIDsArr = [];
   const x25519PubKeys = [];
   for (const n of workers) {
-    const { signer, transmitter, offchainCfg, peerId, offchainPublicHex} = loadNodeSecrets(secretsRoot, n);
+    const { signer, transmitter, offchainCfg, peerId, offchainPublicHex} = loadNodeSecrets(secretsChainlinkRoot, n);
     signers.push(signer);
     transmitters.push(transmitter);
     offchainPublicKeys.push(`0x${offchainPublicHex}`);
@@ -108,7 +150,17 @@ async function main() {
     sharedSecretEncryptions: sse,
   };
 
-  console.log('donConfig', donConfig);
+  const normalizedAddr = ethers.getAddress(contractAddr);
+  const comparableDonConfig = computeComparableDonConfig(donConfig);
+
+  const cache = readDonConfigCache(cacheFile);
+  const existing = cache[normalizedAddr] ? normalizeForCompare(cache[normalizedAddr]) : null;
+  if (existing && JSON.stringify(existing) === JSON.stringify(comparableDonConfig)) {
+    console.log(`Config for ${normalizedAddr} is up-to-date; skipping on-chain update.`);
+    return;
+  }
+
+  console.log('donConfig (to publish)', donConfig);
 
   // Encode tx data using AccessControlledOffchainAggregator.setConfig(donConfig)
   const iface = new ethers.Interface(aggregatorAbi);
@@ -119,7 +171,7 @@ async function main() {
   let derivedPkHex = null;
   try {
     const nodeNum = String(process.env.NODE_NUMBER || '1');
-    const evmPath = path.join(secretsRoot, nodeNum, 'evm_key.json');
+    const evmPath = path.join(secretsChainlinkRoot, nodeNum, 'evm_key.json');
     const ksPassword = process.env.CHAINLINK_KEYSTORE_PASSWORD;
     if (ksPassword) {
       const evmJson = readJSON(evmPath);
@@ -135,10 +187,15 @@ async function main() {
   if (signerAddress) console.log('Signer:', signerAddress);
 
   // Send transaction using the node's decrypted key
-  const tx = await sender.sendTransaction({ to: ethers.getAddress(contractAddr), data, value: 0 });
+  const tx = await sender.sendTransaction({ to: normalizedAddr, data, value: 0 });
   console.log('Submitted tx', tx.hash);
   const rcpt = await tx.wait();
   console.log('Mined', rcpt?.transactionHash);
+
+  // Persist comparable DON config after successful transaction
+  const updated = readDonConfigCache(cacheFile);
+  updated[normalizedAddr] = comparableDonConfig;
+  writeDonConfigCache(cacheFile, updated);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: CHZ / USD Price Feed"
-externalJobID = "ffff4d22-b110-53a0-bad2-175f81d20693"
+externalJobID = "3a1e1829-3939-51b9-8a36-5ce02ae33f11"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1756ebedce6dd"
+contractAddress = "0x2a49bc5467d0724B338d314D7D0F2f1D649e304F"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,20 +17,20 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=CHZUSDT"];
-    ds1_parse [type=jsonparse path="price"];
+    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=CHZ&tsyms=USD"];
+    ds1_parse [type=jsonparse path="USD"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=CHZ&tsyms=USD"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=chiliz&vs_currencies=usd"];
+    ds2_parse [type=jsonparse path="chiliz,usd"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=chiliz&vs_currencies=usd"];
-    ds3_parse [type=jsonparse path="chiliz,usd"];
+    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/CHZ-USD/spot"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/CHZ-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=CHZUSD"];
+    ds4_parse [type=jsonparse path="result,CHZUSD,c,0"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=CHZUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=CHZ-USD"];
+    ds5_parse [type=jsonparse path="data,0,last"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

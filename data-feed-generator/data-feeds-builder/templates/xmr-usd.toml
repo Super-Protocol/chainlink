@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: XMR / USD Price Feed"
-externalJobID = "d4b92fc7-50bb-5942-b1ac-eb1542ceca9e"
+externalJobID = "23537b7e-a9f8-5314-a7c4-04eb776f3ead"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1bf425b4dda13"
+contractAddress = "0x867e6C103d2F55c696409D50b2B71e492Ba2eB62"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,26 +17,21 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=XMRUSDT"];
-    ds1_parse [type=jsonparse path="price"];
+    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=XMR&tsyms=USD"];
+    ds1_parse [type=jsonparse path="USD"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=XMR&tsyms=USD"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=monero&vs_currencies=usd"];
+    ds2_parse [type=jsonparse path="monero,usd"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=monero&vs_currencies=usd"];
-    ds3_parse [type=jsonparse path="monero,usd"];
+    ds3 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=XMRUSD"];
+    ds3_parse [type=jsonparse path="result,XXMRZUSD,c,0"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=XMRUSD"];
-    ds4_parse [type=jsonparse path="USD"];
-    ds4_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
     ds3 -> ds3_parse -> ds3_multiply;
-    ds4 -> ds4_parse -> ds4_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
-    ds4_multiply -> median;
 """

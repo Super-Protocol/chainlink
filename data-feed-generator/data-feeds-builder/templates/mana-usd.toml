@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: MANA / USD Price Feed"
-externalJobID = "32dc95f9-8f9b-5c08-9515-cc0dbd7a8d33"
+externalJobID = "8dbdbba1-8307-57c7-b1f4-1183457f6b62"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xc0345778e594"
+contractAddress = "0x0cBBD28290350f201A2437D8cE99a7b01e1bF93a"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,11 +27,14 @@ observationSource = """
     ds3_parse [type=jsonparse path="decentraland,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/MANA-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=MANAUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,MANAUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
+    ds6 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=MANA-USD"];
+    ds6_parse [type=jsonparse path="data,0,last"];
+    ds6_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
@@ -39,9 +42,11 @@ observationSource = """
     ds3 -> ds3_parse -> ds3_multiply;
     ds4 -> ds4_parse -> ds4_multiply;
     ds5 -> ds5_parse -> ds5_multiply;
+    ds6 -> ds6_parse -> ds6_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
     ds4_multiply -> median;
     ds5_multiply -> median;
+    ds6_multiply -> median;
 """

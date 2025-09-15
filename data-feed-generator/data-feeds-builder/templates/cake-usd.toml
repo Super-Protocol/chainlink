@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: CAKE / USD Price Feed"
-externalJobID = "b2dabf70-f02a-507e-9d97-75df72ee62d1"
+externalJobID = "eeccd6e1-d5a1-5b29-bf20-87b7d8296b35"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x38ad8734c076c"
+contractAddress = "0x52761C3CE6a5FF8fA9dB8645ab1D1ab6815356E3"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,10 +27,10 @@ observationSource = """
     ds3_parse [type=jsonparse path="pancakeswap-token,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/CAKE-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=CAKEUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,CAKEUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: KRW / USD Price Feed"
-externalJobID = "5065c613-b61b-51c1-840a-b4834b78bf0f"
+externalJobID = "4265469c-cb4e-5cf7-8b00-a209d2ec4eed"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1f6dc571946e4"
+contractAddress = "0xcad8CB93C4Fa81258D600AB2BeeC4454c9d24f02"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,10 +24,10 @@ observationSource = """
     ds2_parse [type=jsonparse path="krown,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/KRW-USD/spot"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.frankfurter.app/latest?from=KRW&to=USD"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="rates,USD"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

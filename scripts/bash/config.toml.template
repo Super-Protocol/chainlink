@@ -28,7 +28,7 @@ SendOnly = false
 
 [EVM.GasEstimator]
 Mode = 'FixedPrice'
-PriceDefault = '20'
+PriceDefault = '1 wei'
 PriceMax = '1000 gwei'
 PriceMin = '1 wei'
 LimitDefault = 500000
@@ -39,9 +39,9 @@ EstimateLimit = false
 BumpMin = '100 wei'
 BumpPercent = 20
 BumpThreshold = 3
-EIP1559DynamicFees = true
-FeeCapDefault = '1000000'
-TipCapDefault = '1 wei'
+EIP1559DynamicFees = false
+FeeCapDefault = '5 gwei'
+TipCapDefault = '1000 wei'
 TipCapMin = '1 wei'
 
 [EVM.GasEstimator.BlockHistory]
@@ -76,7 +76,7 @@ TraceLogging = true # Default
 [P2P.V2]
 Enabled = true # Default
 AnnounceAddresses = $ANNOUNCE_ADDRESSES
-DefaultBootstrappers = $DEFAULT_BOOTSTRAPERS
+DefaultBootstrappers = $DEFAULT_BOOTSTRAPPERS
 DeltaDial = '15s' # Default
 DeltaReconcile = '1m' # Default
 ListenAddresses = ['0.0.0.0:9999']

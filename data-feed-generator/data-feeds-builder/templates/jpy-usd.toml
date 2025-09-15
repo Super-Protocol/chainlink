@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: JPY / USD Price Feed"
-externalJobID = "44941a26-6377-5b5f-9e0d-eb662a2cc5b3"
+externalJobID = "57f65fb3-9ca9-55df-aea6-532d00504c9b"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x37f0d43eb0ab4"
+contractAddress = "0x322DC292e2d18C34E4866809cAfE10C4b8Bb43F1"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,10 +24,10 @@ observationSource = """
     ds2_parse [type=jsonparse path="dephaser-jpy,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/JPY-USD/spot"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.frankfurter.app/latest?from=JPY&to=USD"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="rates,USD"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

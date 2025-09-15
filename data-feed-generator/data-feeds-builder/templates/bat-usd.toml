@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: BAT / USD Price Feed"
-externalJobID = "1fcb34c9-82b0-5c15-bab4-93695f54bc20"
+externalJobID = "7c6d4723-998d-5d1b-8de4-c131380e2bce"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xefbd1792c615"
+contractAddress = "0x13d3519C49c76c7190F4324b9Ca52eb5853cb6a9"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,20 +17,20 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=BATUSDT"];
-    ds1_parse [type=jsonparse path="price"];
+    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=BAT&tsyms=USD"];
+    ds1_parse [type=jsonparse path="USD"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=BAT&tsyms=USD"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=basic-attention-token&vs_currencies=usd"];
+    ds2_parse [type=jsonparse path="basic-attention-token,usd"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=basic-attention-token&vs_currencies=usd"];
-    ds3_parse [type=jsonparse path="basic-attention-token,usd"];
+    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/BAT-USD/spot"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/BAT-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=BATUSD"];
+    ds4_parse [type=jsonparse path="result,BATUSD,c,0"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=BATUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=BAT-USD"];
+    ds5_parse [type=jsonparse path="data,0,last"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

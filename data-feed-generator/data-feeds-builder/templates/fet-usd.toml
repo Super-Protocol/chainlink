@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: FET / USD Price Feed"
-externalJobID = "1f553b7b-0f6d-5323-b78e-90dc9b4dd03b"
+externalJobID = "064360e2-27a3-5487-bcd4-b528d51d3336"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x285ae19aba64"
+contractAddress = "0xf31c411d47109aD1370B35170C2589d5DdD224C3"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,10 +27,10 @@ observationSource = """
     ds3_parse [type=jsonparse path="fetch-ai,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/FET-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=FETUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,FETUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: ONG / USD Price Feed"
-externalJobID = "5fc65abb-66ec-5340-bd12-6f48419feab1"
+externalJobID = "c5701377-fa3a-5646-962c-7b876bf4d556"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1a040aa37ade0"
+contractAddress = "0xF667b07b56C14B9094870b2e3B7c21e436BadfCC"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,7 +24,7 @@ observationSource = """
     ds2_parse [type=jsonparse path="ong,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/ONG-USD/spot"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
     median [type=median];
     

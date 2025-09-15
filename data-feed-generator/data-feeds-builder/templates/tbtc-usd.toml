@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: TBTC / USD Price Feed"
-externalJobID = "f0e32cc8-363e-578d-96bb-4370ae9efb17"
+externalJobID = "e6c03cbc-7b9a-573f-aafc-65bb367c4c2d"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x172f11c6847fc"
+contractAddress = "0x609a1b9B0FBe2D340cfe4eb7033707eEa6644A14"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,10 +24,10 @@ observationSource = """
     ds2_parse [type=jsonparse path="tbtc,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/TBTC-USD/spot"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=TBTCUSD"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="result,TBTCUSD,c,0"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

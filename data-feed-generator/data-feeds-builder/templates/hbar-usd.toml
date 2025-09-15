@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: HBAR / USD Price Feed"
-externalJobID = "f176390b-fa48-5720-915c-19738ede425f"
+externalJobID = "ce303277-2ce5-5f50-a39e-22b2fcfc68ab"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x36d6a5d209084"
+contractAddress = "0xD531fBf4FB6c141Fb2aFE1770a080A930C259e07"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,11 +27,14 @@ observationSource = """
     ds3_parse [type=jsonparse path="hedera-hashgraph,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/HBAR-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=HBARUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,HBARUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
+    ds6 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=HBAR-USD"];
+    ds6_parse [type=jsonparse path="data,0,last"];
+    ds6_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
@@ -39,9 +42,11 @@ observationSource = """
     ds3 -> ds3_parse -> ds3_multiply;
     ds4 -> ds4_parse -> ds4_multiply;
     ds5 -> ds5_parse -> ds5_multiply;
+    ds6 -> ds6_parse -> ds6_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
     ds4_multiply -> median;
     ds5_multiply -> median;
+    ds6_multiply -> median;
 """

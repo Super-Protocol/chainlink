@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: SGD / USD Price Feed"
-externalJobID = "7112ec02-91e6-5f7f-a762-1926738555a2"
+externalJobID = "82903620-ee79-5470-98e0-e8b08388b251"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x34b5457cba2d0"
+contractAddress = "0xC90E3143a524F006f8D99615693813F96F8b8d5E"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -21,10 +21,10 @@ observationSource = """
     ds1_parse [type=jsonparse path="USD"];
     ds1_multiply [type=multiply times=100000000];
     ds2 [type=http method=GET url="https://api.coinbase.com/v2/prices/SGD-USD/spot"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2_parse [type=jsonparse path="data,amount"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.frankfurter.app/latest?from=SGD&to=USD"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="rates,USD"];
     ds3_multiply [type=multiply times=100000000];
     median [type=median];
     

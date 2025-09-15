@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: RLUSD / USD Price Feed"
-externalJobID = "f8a32f0b-4cc6-55c8-a823-8b3f7b39acb1"
+externalJobID = "b050ee46-c79e-563b-ac53-817e48675d34"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2aa274770654e"
+contractAddress = "0x4167D92Ea5F696624988e645c1288f03FE7d3F2a"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,7 +24,7 @@ observationSource = """
     ds2_parse [type=jsonparse path="ripple-usd,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=RLUSDUSD"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="result,RLUSDUSD,c,0"];
     ds3_multiply [type=multiply times=100000000];
     median [type=median];
     

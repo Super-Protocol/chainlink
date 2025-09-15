@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: NEIRO / USD Price Feed"
-externalJobID = "5f0b02ab-67c8-56e2-951f-f36a38359db3"
+externalJobID = "88ab6153-6cae-52ca-9523-0927fd835494"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2c75167ee66b9"
+contractAddress = "0x4E1C6D7d8f091d842E6a4CE24A52E3a4c60a80A9"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,11 +27,14 @@ observationSource = """
     ds3_parse [type=jsonparse path="neiro,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/NEIRO-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=NEIROUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,NEIROUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
+    ds6 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=NEIRO-USD"];
+    ds6_parse [type=jsonparse path="data,0,last"];
+    ds6_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
@@ -39,9 +42,11 @@ observationSource = """
     ds3 -> ds3_parse -> ds3_multiply;
     ds4 -> ds4_parse -> ds4_multiply;
     ds5 -> ds5_parse -> ds5_multiply;
+    ds6 -> ds6_parse -> ds6_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
     ds4_multiply -> median;
     ds5_multiply -> median;
+    ds6_multiply -> median;
 """

@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: WOO / USD Price Feed"
-externalJobID = "36a0157f-05cb-55d1-8374-00fd4ce23a16"
+externalJobID = "c2183cb0-f2cc-544c-ab85-8364a938fd18"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1deb87d8a15c7"
+contractAddress = "0x582a6D892cEAa7A84a3CEbd7A3fB1d2b95Ec87ed"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,10 +27,10 @@ observationSource = """
     ds3_parse [type=jsonparse path="woo-network,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/WOO-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=WOOUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,WOOUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

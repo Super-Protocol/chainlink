@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: EURC / USD Price Feed"
-externalJobID = "976f52bd-6555-53fc-8f16-6a5ffc759c78"
+externalJobID = "a1415b38-fb04-5589-8d59-41762599fb18"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1195b976af5e8"
+contractAddress = "0x9bB910Cece83B92523a07D160D0f7731Ca01ff48"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,14 +24,19 @@ observationSource = """
     ds2_parse [type=jsonparse path="euro-coin,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/EURC-USD/spot"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
+    ds4 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=EURC-USD"];
+    ds4_parse [type=jsonparse path="data,0,last"];
+    ds4_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
     ds3 -> ds3_parse -> ds3_multiply;
+    ds4 -> ds4_parse -> ds4_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
+    ds4_multiply -> median;
 """

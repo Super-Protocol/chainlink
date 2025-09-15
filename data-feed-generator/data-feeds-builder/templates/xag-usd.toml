@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: XAG / USD Price Feed"
-externalJobID = "9fc6542b-5032-5124-9d35-d4fe3bdf9040"
+externalJobID = "b9e318c8-ae2d-5884-86f9-71f11cded77f"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xb62696613b1c"
+contractAddress = "0x28Fb370A2289eDBF554e7927e05d8075bAac7380"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -21,7 +21,7 @@ observationSource = """
     ds1_parse [type=jsonparse path="silver-token-xagx,usd"];
     ds1_multiply [type=multiply times=100000000];
     ds2 [type=http method=GET url="https://api.coinbase.com/v2/prices/XAG-USD/spot"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2_parse [type=jsonparse path="data,amount"];
     ds2_multiply [type=multiply times=100000000];
     median [type=median];
     

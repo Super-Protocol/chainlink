@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: ZBU / USD Price Feed"
-externalJobID = "2988d415-94fc-5814-a380-bcbda8c35050"
+externalJobID = "2afb17b9-e5bf-5d2f-bd2a-e4eca9dd20e6"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x206cd8129772c"
+contractAddress = "0x3D7274BA92cF6AA7B9052d83d401f7ed147C23aC"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,7 +24,7 @@ observationSource = """
     ds2_parse [type=jsonparse path="zeebu,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/ZBU-USD/spot"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
     median [type=median];
     

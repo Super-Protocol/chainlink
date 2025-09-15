@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: WAMPL / USD Price Feed"
-externalJobID = "6d723942-91fb-5021-8c82-8aa054ac42d5"
+externalJobID = "fa0a09b5-2b53-5ece-8f65-73aa6b2bb358"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1669e2795fe4"
+contractAddress = "0xE495Cd005Dad4e02Fe0C769DBB81f73783E780A9"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,7 +24,7 @@ observationSource = """
     ds2_parse [type=jsonparse path="wrapped-ampleforth,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/WAMPL-USD/spot"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
     median [type=median];
     

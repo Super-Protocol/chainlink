@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: BRL / USD Price Feed"
-externalJobID = "6f797faf-e8dc-5a81-9565-86f4039d4c77"
+externalJobID = "21b4410b-f761-54ca-8e94-5c2c8a594587"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x1763764fa6ae9"
+contractAddress = "0x31Ec4442200183C2d9169A41D3FD5cafE45C916c"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,10 +24,10 @@ observationSource = """
     ds2_parse [type=jsonparse path="borealis,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/BRL-USD/spot"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.frankfurter.app/latest?from=BRL&to=USD"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="rates,USD"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

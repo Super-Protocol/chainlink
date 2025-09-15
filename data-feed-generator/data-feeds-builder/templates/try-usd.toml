@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: TRY / USD Price Feed"
-externalJobID = "2d9a11ca-30b0-5b02-8020-5013b9e881ca"
+externalJobID = "30d37c61-abb8-596a-85d1-7ebde5087034"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x178116a0358d"
+contractAddress = "0xcec353A054dAa08bF64821253c905CfB69BA85E6"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,10 +24,10 @@ observationSource = """
     ds2_parse [type=jsonparse path="bilira,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/TRY-USD/spot"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.frankfurter.app/latest?from=TRY&to=USD"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="rates,USD"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: MXN / USD Price Feed"
-externalJobID = "54ad76a0-4c52-5d72-9e0a-014ea7319f44"
+externalJobID = "83247719-ca19-519e-9bcc-d40933bd3c07"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2adb72c919c49"
+contractAddress = "0x750cC7936B921b2165905AC0112B1c28B3D3d392"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -24,10 +24,10 @@ observationSource = """
     ds2_parse [type=jsonparse path="machina,usd"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/MXN-USD/spot"];
-    ds3_parse [type=jsonparse path="USD"];
+    ds3_parse [type=jsonparse path="data,amount"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.frankfurter.app/latest?from=MXN&to=USD"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="rates,USD"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

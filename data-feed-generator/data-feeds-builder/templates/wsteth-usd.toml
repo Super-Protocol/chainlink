@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: WSTETH / USD Price Feed"
-externalJobID = "0df0c68a-854f-50a0-89cc-7a7c4f0ea51a"
+externalJobID = "5a268278-8117-5bdf-ae38-be1003da1c1e"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x2f8f8cfeee0a"
+contractAddress = "0x09DAfc6d1cEE5E48d65e0b9e6061fa436bf0c5C1"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -21,7 +21,7 @@ observationSource = """
     ds1_parse [type=jsonparse path="arbitrum-bridged-wsteth-arbitrum,usd"];
     ds1_multiply [type=multiply times=100000000];
     ds2 [type=http method=GET url="https://api.coinbase.com/v2/prices/WSTETH-USD/spot"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2_parse [type=jsonparse path="data,amount"];
     ds2_multiply [type=multiply times=100000000];
     median [type=median];
     

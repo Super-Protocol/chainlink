@@ -29,7 +29,8 @@ async function run() {
   const configurationJson = await fs.promises.readFile(configurationPath, 'utf8');
   let configuration;
   try {
-    configuration = JSON.parse(configurationJson);
+    const { signature, ...rest } = JSON.parse(configurationJson);
+    configuration = rest;
   } catch (error) {
     console.error(`Failed to JSON parse configuration file: ${error.message}`);
     process.exit(1);
@@ -39,12 +40,11 @@ async function run() {
   const privateKeyObj = CryptoKeysTransformer.privateDerToKeyObj(
     Buffer.from(privateKeyBase64, Encoding.base64),
   );
-  const configurationHashSignature = await Crypto.sign({
+
+  configuration.signature = await Crypto.sign({
     data: configurationHash,
     privateKey: privateKeyObj,
   });
-
-  configuration.signature = configurationHashSignature;
 
   await fs.promises.writeFile(configurationPath, JSON.stringify(configuration));
 

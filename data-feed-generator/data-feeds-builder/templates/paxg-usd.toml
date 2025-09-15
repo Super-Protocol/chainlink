@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: PAXG / USD Price Feed"
-externalJobID = "826d8935-fcf2-5d78-98fa-bb0742b177d4"
+externalJobID = "d53c9ba7-1886-5309-8362-7e8cae6851a7"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x313d71389991b"
+contractAddress = "0x1b12EFd8E55d8D4e151553bD73e607DfAE633c8f"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,10 +27,10 @@ observationSource = """
     ds3_parse [type=jsonparse path="pax-gold,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/PAXG-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=PAXGUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,PAXGUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     

@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "OCR Oracle: CHR / USD Price Feed"
-externalJobID = "d6bb0192-c99c-50aa-ba5e-95bcabf06c28"
+externalJobID = "31ddc0a8-fd07-514c-a73a-d98782a67591"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x11d62a822294d"
+contractAddress = "0xDf5063CAd145B62663B52C0Fd6D13D0EDfC2456D"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -27,10 +27,10 @@ observationSource = """
     ds3_parse [type=jsonparse path="chromaway,usd"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/CHR-USD/spot"];
-    ds4_parse [type=jsonparse path="USD"];
+    ds4_parse [type=jsonparse path="data,amount"];
     ds4_multiply [type=multiply times=100000000];
     ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=CHRUSD"];
-    ds5_parse [type=jsonparse path="USD"];
+    ds5_parse [type=jsonparse path="result,CHRUSD,c,0"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];
     
