@@ -1,7 +1,7 @@
 # Generate
 ```bash
 node gen-keys.js ./keys-raw.json
-KEY_PASSWORD='yourkeystorepassword' node build-secrets.js ./keys-raw.json
+KEY_PASSWORD='yourkeystorepassword' node secrets/build-secrets.js ./keys-raw.json
 ```
 
 # Import
