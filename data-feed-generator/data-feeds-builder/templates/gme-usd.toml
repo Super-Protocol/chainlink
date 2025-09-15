@@ -1,0 +1,27 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: GME / USD Price Feed"
+externalJobID = "026430b8-0933-5b10-b0ff-f57393dc7409"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0x56cf7005C4218F485F9516ac89026380617071f0"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=GME&tsyms=USD"];
+    ds1_parse [type=jsonparse path="USD"];
+    ds1_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds1_multiply -> median;
+"""

@@ -1,0 +1,47 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: TRX / USD Price Feed"
+externalJobID = "e6e23590-6ed9-5246-a15b-31d0a3e83f3d"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0xAf00e0fCAf81ed8487f6e937E97fBa3b14463bf8"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=TRX&tsyms=USD"];
+    ds1_parse [type=jsonparse path="USD"];
+    ds1_multiply [type=multiply times=100000000];
+    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=tron&vs_currencies=usd"];
+    ds2_parse [type=jsonparse path="tron,usd"];
+    ds2_multiply [type=multiply times=100000000];
+    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/TRX-USD/spot"];
+    ds3_parse [type=jsonparse path="data,amount"];
+    ds3_multiply [type=multiply times=100000000];
+    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=TRXUSD"];
+    ds4_parse [type=jsonparse path="result,TRXUSD,c,0"];
+    ds4_multiply [type=multiply times=100000000];
+    ds5 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=TRX-USD"];
+    ds5_parse [type=jsonparse path="data,0,last"];
+    ds5_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
+    ds3 -> ds3_parse -> ds3_multiply;
+    ds4 -> ds4_parse -> ds4_multiply;
+    ds5 -> ds5_parse -> ds5_multiply;
+    ds1_multiply -> median;
+    ds2_multiply -> median;
+    ds3_multiply -> median;
+    ds4_multiply -> median;
+    ds5_multiply -> median;
+"""

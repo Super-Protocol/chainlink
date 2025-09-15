@@ -1,0 +1,52 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: ICP / USD Price Feed"
+externalJobID = "7d23b119-38d8-5826-b7e2-ffec635562ef"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0x92B3BDC0721C7dEbc1813Ee6fABAf8a605DA88e6"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=ICPUSDT"];
+    ds1_parse [type=jsonparse path="price"];
+    ds1_multiply [type=multiply times=100000000];
+    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=ICP&tsyms=USD"];
+    ds2_parse [type=jsonparse path="USD"];
+    ds2_multiply [type=multiply times=100000000];
+    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=internet-computer&vs_currencies=usd"];
+    ds3_parse [type=jsonparse path="internet-computer,usd"];
+    ds3_multiply [type=multiply times=100000000];
+    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/ICP-USD/spot"];
+    ds4_parse [type=jsonparse path="data,amount"];
+    ds4_multiply [type=multiply times=100000000];
+    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=ICPUSD"];
+    ds5_parse [type=jsonparse path="result,ICPUSD,c,0"];
+    ds5_multiply [type=multiply times=100000000];
+    ds6 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=ICP-USD"];
+    ds6_parse [type=jsonparse path="data,0,last"];
+    ds6_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
+    ds3 -> ds3_parse -> ds3_multiply;
+    ds4 -> ds4_parse -> ds4_multiply;
+    ds5 -> ds5_parse -> ds5_multiply;
+    ds6 -> ds6_parse -> ds6_multiply;
+    ds1_multiply -> median;
+    ds2_multiply -> median;
+    ds3_multiply -> median;
+    ds4_multiply -> median;
+    ds5_multiply -> median;
+    ds6_multiply -> median;
+"""

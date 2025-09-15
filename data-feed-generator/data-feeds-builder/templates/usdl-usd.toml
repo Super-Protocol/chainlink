@@ -1,0 +1,27 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: USDL / USD Price Feed"
+externalJobID = "4a4e3432-c6aa-5ed0-ad28-f7c0cf5856c4"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0x78eB4a748B2fBDD2E86681A6C095C7e09918eB3B"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=lift-dollar&vs_currencies=usd"];
+    ds1_parse [type=jsonparse path="lift-dollar,usd"];
+    ds1_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds1_multiply -> median;
+"""

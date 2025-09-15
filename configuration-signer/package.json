@@ -1,0 +1,15 @@
+{
+  "name": "@super-protocol/configuration-signer",
+  "version": "0.0.1",
+  "main": "src/sign.js",
+  "scripts": {
+    "generate-keys": "node src/generate-keys.js",
+    "sign": "node src/sign.js"
+  },
+  "author": "Super Protocol",
+  "license": "BSL-1.1",
+  "description": "",
+  "dependencies": {
+    "@super-protocol/sdk-js": "^3.16.0-beta.2"
+  }
+}

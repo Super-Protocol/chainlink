@@ -1,0 +1,8 @@
+reviews:
+  # Include everything by default, then exclude the specified directory
+  path_filters:
+    - "**/*"
+    - ".github/**"
+    - "!**/.*"
+    - "!*.template"
+    - "!**/templates/**"

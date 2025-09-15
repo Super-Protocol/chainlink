@@ -1,0 +1,18 @@
+{
+  "evm": {
+    "privateKeyHex": "28215fb7d889934312e5c9c9e961c9a6d9f7e14854205b913d25e233aee2b4e2",
+    "address": "0xfEAd444FA26479855Ce93f6fd959D5368347C849"
+  },
+  "p2p": {
+    "ed25519PrivKeyHex": "ac19cce19a18182d3cfca976f1643fd8f3722757c3c9862cc0f992fc9d727cdad5c5b4ffc4ecf2c3364b17e736056c1ea8681504c575aa1babd40d33e652fb47",
+    "ed25519PubKeyHex": "d5c5b4ffc4ecf2c3364b17e736056c1ea8681504c575aa1babd40d33e652fb47",
+    "peerId": "p2p_12D3KooWQCqrvShyy9GeypXXCoK9im5hxLEiyqGuUHeLDbZbYktv"
+  },
+  "ocr": {
+    "ecdsaDHex": "791e21f3d8a0a7bb63108581c6a8cf3c1568faae7b1c09dd852e63e9e7cd9b57",
+    "ed25519PrivKeyHex": "fff7afeffc226e8e271d1b0129f8de778b5b67a3481415aa58463b421f87d7f6e93740fe0ed61c5fc388f35d664ed316334862485de9c842aa5150ed5b61342d",
+    "offchainEncryptionHex": "918c52f8899b703f8b5ba6bdd76445bc1b950cb43f1581117bf2aed77e6466f0",
+    "onChainAddress": "0xEE22d44fdbABCda67720D9288CC5273B3a7Ab2F1",
+    "offchainPublicKeyHex": "e93740fe0ed61c5fc388f35d664ed316334862485de9c842aa5150ed5b61342d"
+  }
+}

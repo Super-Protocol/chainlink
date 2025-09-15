@@ -1,0 +1,42 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: BRL / USD Price Feed"
+externalJobID = "21b4410b-f761-54ca-8e94-5c2c8a594587"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0x31Ec4442200183C2d9169A41D3FD5cafE45C916c"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=BRL&tsyms=USD"];
+    ds1_parse [type=jsonparse path="USD"];
+    ds1_multiply [type=multiply times=100000000];
+    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=borealis&vs_currencies=usd"];
+    ds2_parse [type=jsonparse path="borealis,usd"];
+    ds2_multiply [type=multiply times=100000000];
+    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/BRL-USD/spot"];
+    ds3_parse [type=jsonparse path="data,amount"];
+    ds3_multiply [type=multiply times=100000000];
+    ds4 [type=http method=GET url="https://api.frankfurter.app/latest?from=BRL&to=USD"];
+    ds4_parse [type=jsonparse path="rates,USD"];
+    ds4_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
+    ds3 -> ds3_parse -> ds3_multiply;
+    ds4 -> ds4_parse -> ds4_multiply;
+    ds1_multiply -> median;
+    ds2_multiply -> median;
+    ds3_multiply -> median;
+    ds4_multiply -> median;
+"""

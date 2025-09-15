@@ -1,0 +1,32 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: SPY / USD Price Feed"
+externalJobID = "3240eb85-342b-512a-af82-67de8048d1d0"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0x4b756f5f526818Bd6c734D93fFc041db858A4C36"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=SPY&tsyms=USD"];
+    ds1_parse [type=jsonparse path="USD"];
+    ds1_multiply [type=multiply times=100000000];
+    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=smarty-pay&vs_currencies=usd"];
+    ds2_parse [type=jsonparse path="smarty-pay,usd"];
+    ds2_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
+    ds1_multiply -> median;
+    ds2_multiply -> median;
+"""

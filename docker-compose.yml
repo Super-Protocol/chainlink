@@ -1,92 +1,150 @@
 services:
-  db:
-    image: postgres:17
-    shm_size: 128mb
-    environment:
-      POSTGRES_USER: ${PGUSER}
-      POSTGRES_PASSWORD: ${PGPASSWORD}
-      POSTGRES_DB: ${PGDATABASE}
-    ports:
-      - "${PGPORT}:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - /etc/timezone:/etc/timezone:ro
-      - ./scripts/init-database.sql:/docker-entrypoint-initdb.d/init-database.sql
-    env_file:
-      - .env
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${PGUSER} -d ${PGDATABASE}" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
-
   chainlink-node-1:
-    image: smartcontract/chainlink:2.26.0
+    image: &cl_image sp-chainlink:latest
+    build:
+      context: .
+      dockerfile: dockerfile
     container_name: chainlink-node-1
-    platform: linux/arm64
-    user: "0:0"  # Run as root
+    platform: linux/amd64
+    user: '0:0'
     ports:
-      - "6688:6688"
-    volumes:
-      - ./scripts/chainlink-universal.entrypoint.sh:/entrypoint.sh:ro
-      - chainlink-node-1-data:/chainlink
-    depends_on:
-      db:
-        condition: service_healthy
-    entrypoint: ["bash", "/entrypoint.sh"]
+      - '6688:6688'
+    networks:
+      chainlink-network:
+        ipv4_address: 10.5.0.9
     restart: unless-stopped
     environment:
       - NODE_NUMBER=1
     env_file:
       - .env
+    entrypoint: &cl_entrypoint ["bash", "-c", "cd /scripts && npm run start"]
+    volumes:
+      - ./temp/certs:/sp/certs:ro
+      - ./temp/configurations:/sp/configurations:ro
+      - &cl_scripts ./scripts/:/scripts:ro
+      - &cl_templates ./data-feed-generator/templates:/templates:ro
+      - &cl_sp_secrets ./sp-secrets:/sp/secrets:rw
 
   chainlink-node-2:
-    image: smartcontract/chainlink:2.26.0
+    image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
     container_name: chainlink-node-2
-    platform: linux/arm64
-    user: "0:0"
+    platform: linux/amd64
+    user: '0:0'
     ports:
-      - "6689:6688"
-    volumes:
-      - ./scripts/chainlink-universal.entrypoint.sh:/entrypoint.sh:ro
-      - chainlink-node-2-data:/chainlink
+      - '6689:6688'
+    networks:
+      chainlink-network:
+        ipv4_address: 10.5.0.10
     depends_on:
-      db:
-        condition: service_healthy
-    entrypoint: ["bash", "/entrypoint.sh"]
+      chainlink-node-1:
+        condition: service_started
+    entrypoint: *cl_entrypoint
+    volumes:
+      - ./temp/certs:/sp/certs:ro
+      - ./temp/configurations:/sp/configurations:ro
+      - *cl_scripts
+      - *cl_templates
+      - *cl_sp_secrets
     restart: unless-stopped
     environment:
       - NODE_NUMBER=2
     env_file:
       - .env
 
-  # Легко добавить третью ноду
   chainlink-node-3:
-    image: smartcontract/chainlink:2.26.0
+    image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
     container_name: chainlink-node-3
-    platform: linux/arm64
-    user: "0:0"
+    platform: linux/amd64
+    user: '0:0'
     ports:
-      - "6690:6688"
+      - '6690:6688'
+    entrypoint: *cl_entrypoint
     volumes:
-      - ./scripts/chainlink-universal.entrypoint.sh:/entrypoint.sh:ro
-      - chainlink-node-3-data:/chainlink
+      - ./temp/certs:/sp/certs:ro
+      - ./temp/configurations:/sp/configurations:ro
+      - *cl_scripts
+      - *cl_templates
+      - *cl_sp_secrets
+    networks:
+      chainlink-network:
+        ipv4_address: 10.5.0.11
     depends_on:
-      db:
-        condition: service_healthy
-    entrypoint: ["bash", "/entrypoint.sh"]
+      chainlink-node-1:
+        condition: service_started
     restart: unless-stopped
     environment:
       - NODE_NUMBER=3
     env_file:
       - .env
-    profiles:
-      - extra-nodes  # Runs only with profile: docker-compose --profile extra-nodes up
 
-volumes:
-  postgres-data:
-  chainlink-node-1-data:
-  chainlink-node-2-data:
-  chainlink-node-3-data:
+  chainlink-node-4:
+    image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: chainlink-node-4
+    platform: linux/amd64
+    user: '0:0'
+    ports:
+      - '6691:6688'
+    networks:
+      chainlink-network:
+        ipv4_address: 10.5.0.12
+    depends_on:
+      chainlink-node-1:
+        condition: service_started
+    entrypoint: *cl_entrypoint
+    volumes:
+      - ./temp/certs:/sp/certs:ro
+      - ./temp/configurations:/sp/configurations:ro
+      - *cl_scripts
+      - *cl_templates
+      - *cl_sp_secrets
+    restart: unless-stopped
+    environment:
+      - NODE_NUMBER=4
+    env_file:
+      - .env
+
+  chainlink-node-5:
+    image: *cl_image
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: chainlink-node-5
+    platform: linux/amd64
+    user: '0:0'
+    ports:
+      - '6692:6688'
+    networks:
+      chainlink-network:
+        ipv4_address: 10.5.0.13
+    depends_on:
+      chainlink-node-1:
+        condition: service_started
+    entrypoint: *cl_entrypoint
+    volumes:
+      - ./temp/certs:/sp/certs:ro
+      - ./temp/configurations:/sp/configurations:ro
+      - *cl_scripts
+      - *cl_templates
+      - *cl_sp_secrets
+    restart: unless-stopped
+    environment:
+      - NODE_NUMBER=5
+    env_file:
+      - .env
+
+networks:
+  chainlink-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1

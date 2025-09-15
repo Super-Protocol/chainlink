@@ -1,0 +1,32 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "OCR Oracle: XAG / USD Price Feed"
+externalJobID = "b9e318c8-ae2d-5884-86f9-71f11cded77f"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "0x28Fb370A2289eDBF554e7927e05d8075bAac7380"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=silver-token-xagx&vs_currencies=usd"];
+    ds1_parse [type=jsonparse path="silver-token-xagx,usd"];
+    ds1_multiply [type=multiply times=100000000];
+    ds2 [type=http method=GET url="https://api.coinbase.com/v2/prices/XAG-USD/spot"];
+    ds2_parse [type=jsonparse path="data,amount"];
+    ds2_multiply [type=multiply times=100000000];
+    median [type=median];
+    
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
+    ds1_multiply -> median;
+    ds2_multiply -> median;
+"""
