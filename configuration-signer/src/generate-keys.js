@@ -12,7 +12,7 @@ async function run() {
     Encoding.base64,
   );
   console.log('Public Key:', publicKeyBase64);
-  console.log('Private Key:', privateKeyBase64);
+  // console.log('Private Key:', privateKeyBase64);
 }
 
 run().catch((error) => {
