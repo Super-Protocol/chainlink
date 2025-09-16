@@ -9,9 +9,8 @@ json_escape() {
       -e 's/\r/\\r/g' \
       -e 's/\n/\\n/g'
 }
-
 API_URL="http://127.0.0.1:6688"
-JOB_TEMPLATES_DIR="${JOB_TEMPLATES_DIR:-/job-templates}"
+CL_FEED_TEMPLATES_DIR="${CL_FEED_TEMPLATES_DIR:-/templates}"
 JOB_RENDERS_DIR="${JOB_RENDERS_DIR:-/tmp/job-renders}"
 COOKIE_FILE="$(cd /tmp && mktemp -t cl_cookie_import.XXXXXX)"
 SP_SECRETS_DIR="/sp/secrets"
@@ -229,7 +228,7 @@ render_jobs() {
 
   # Render all templates
   shopt -s nullglob
-  for tpl in "${JOB_TEMPLATES_DIR}"/*.toml; do
+  for tpl in "${CL_FEED_TEMPLATES_DIR}"/*.toml; do
     local base out
     base=$(basename "$tpl" .toml)
     out="${JOB_RENDERS_DIR}/${base}.node-${NODE_NUMBER}.toml"

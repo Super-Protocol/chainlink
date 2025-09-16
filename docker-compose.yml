@@ -22,7 +22,7 @@ services:
       - ./temp/certs:/sp/certs:ro
       - ./temp/configurations:/sp/configurations:ro
       - &cl_scripts ./scripts/:/scripts:ro
-      - &cl_templates ./data-feed-generator/templates:/templates:ro
+      - &cl_templates ./data-feed-generator/data-feeds-builder/templates:/templates:ro
       - &cl_sp_secrets ./sp-secrets:/sp/secrets:rw
 
   chainlink-node-2:
