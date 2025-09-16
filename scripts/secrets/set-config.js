@@ -32,6 +32,14 @@ function computeComparableDonConfig(donConfig) {
   return normalizeForCompare(comparable);
 }
 
+const compareDonConfig = (existing, comparable) => {
+  const left = { ...existing };
+  const right = { ...comparable };
+  delete left.sharedSecretEncryptions;
+  delete right.sharedSecretEncryptions;
+  return JSON.stringify(left) === JSON.stringify(normalizeForCompare(right));
+};
+
 function readDonConfigCache(cacheFilePath) {
   try {
     if (fs.existsSync(cacheFilePath)) {
@@ -183,7 +191,7 @@ async function setConfigForContract(contractAddr) {
 
   const cache = readDonConfigCache(cacheFile);
   const existing = cache[normalizedAddr] ? normalizeForCompare(cache[normalizedAddr]) : null;
-  if (existing && JSON.stringify(existing) === JSON.stringify(comparableDonConfig)) {
+  if (existing && compareDonConfig(existing, comparableDonConfig)) {
     console.log(`Config for ${normalizedAddr} is up-to-date; skipping on-chain update.`);
     return;
   }
