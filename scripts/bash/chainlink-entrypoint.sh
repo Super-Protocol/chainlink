@@ -4,6 +4,8 @@ set -euo pipefail
 # Logger should be defined before any usage
 log() { echo "[entrypoint] $*"; }
 
+ROOT_DIR="${CHAINLINK_ROOT:-/chainlink}"
+
 # Required environment
 if [ -z "${TOTAL_NODES:-}" ]; then
   log "TOTAL_NODES env var is required" >&2
@@ -32,7 +34,7 @@ wait_for_node_payload() {
 wait_for_config_file() {
   local tries=0; local max_tries="${WAIT_CONFIG_TRIES:-600}"
   while [ "$tries" -lt "$max_tries" ]; do
-    if [ -s "/chainlink/config.toml" ]; then
+    if [ -s "${ROOT_DIR}/config.toml" ]; then
       return 0
     fi
     tries=$((tries+1)); sleep 1
@@ -57,9 +59,9 @@ fi
 # Bootstrap nodes write their P2P details to shared secrets for workers
 FIRST_START="false"
 if [ -x "/scripts/bash/init-chainlink.sh" ]; then
-  if [ ! -f "/tmp/first_start_done" ]; then
+  if [ ! -f "${ROOT_DIR}/first_start_done" ]; then
     /scripts/bash/init-chainlink.sh || true
-    touch /tmp/first_start_done || true
+    touch "${ROOT_DIR}/first_start_done" || true
     FIRST_START="true"
   fi
 fi
@@ -69,13 +71,13 @@ if ! wait_for_config_file; then
   log "config.toml not found after initial wait; rerunning init and waiting"
   if ! wait_for_config_file; then
     log "config.toml still not present; blocking until it appears"
-    while [ ! -s "/chainlink/config.toml" ]; do sleep 1; done
+    while [ ! -s "${ROOT_DIR}/config.toml" ]; do sleep 1; done
   fi
 fi
 
-if [ -f "/chainlink/apicredentials" ]; then
-  chmod 600 /chainlink/apicredentials || true
-  export CL_ADMIN_CREDENTIALS_FILE="/chainlink/apicredentials"
+if [ -f "${ROOT_DIR}/apicredentials" ]; then
+  chmod 600 "${ROOT_DIR}/apicredentials" || true
+  export CL_ADMIN_CREDENTIALS_FILE="${ROOT_DIR}/apicredentials"
 fi
 
 wait_for_node_payload $NODE_NUMBER
@@ -92,5 +94,9 @@ nohup bash -c "
   /scripts/bash/publish-jobs.sh
 " >/proc/1/fd/1 2>/proc/1/fd/2 &
 
-cd /chainlink || exit 1
-exec chainlink node -config /chainlink/config.toml -secrets /chainlink/secrets.toml start -a /chainlink/apicredentials
+log "Changing working directory to ${ROOT_DIR} for node ${NODE_NUMBER}"
+cd "$ROOT_DIR" || exit 1
+
+log "Executing chainlink node for node ${NODE_NUMBER} from within ${ROOT_DIR}"
+cat "${ROOT_DIR}/config.toml"
+exec chainlink node -config "${ROOT_DIR}/config.toml" -secrets "${ROOT_DIR}/secrets.toml" start -a "${ROOT_DIR}/apicredentials"

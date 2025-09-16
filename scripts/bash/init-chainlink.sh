@@ -6,6 +6,8 @@ set -euo pipefail
 
 log() { echo "[init] $*"; }
 
+ROOT_DIR="${CHAINLINK_ROOT:-/chainlink}"
+
 if [ -z "${NODE_NUMBER:-}" ]; then
   log "NODE_NUMBER env var is required" >&2
   exit 1
@@ -20,8 +22,6 @@ if [ -z "${SP_SECRETS_DIR:-}" ]; then
   log "SP_SECRETS_DIR env var is required" >&2
   exit 1
 fi
-
-CHAINLINK_DIR="/chainlink"
 
 # In-container sed -i helper (GNU sed)
 sed_inplace() {
@@ -58,7 +58,7 @@ wait_for_bootstrap_peer_ids() {
 }
 
 ensure_credentials() {
-  if [[ -f "${CHAINLINK_DIR}/apicredentials" ]]; then
+  if [[ -f "${ROOT_DIR}/apicredentials" ]]; then
     log "apicredentials exists; leaving as is"
   else
     if [[ -z "${CHAINLINK_EMAIL:-}" || -z "${CHAINLINK_PASSWORD:-}" ]]; then
@@ -67,8 +67,8 @@ ensure_credentials() {
       {
         echo "${CHAINLINK_EMAIL}"
         echo "${CHAINLINK_PASSWORD}"
-      } > "${CHAINLINK_DIR}/apicredentials"
-      chmod 600 "${CHAINLINK_DIR}/apicredentials"
+      } > "${ROOT_DIR}/apicredentials"
+      chmod 600 "${ROOT_DIR}/apicredentials"
       log "generated apicredentials"
     fi
   fi
@@ -87,7 +87,7 @@ main() {
   fi
 
   # Always (re)generate /chainlink/config.toml from template using current shared secrets
-  local cfg="${CHAINLINK_DIR}/config.toml"
+  local cfg="${ROOT_DIR}/config.toml"
   rm -f "$cfg" || true
   local tpl="/scripts/bash/config.toml.template"
   if [[ -s "$tpl" ]]; then
@@ -209,7 +209,7 @@ main() {
   # Set AnnounceAddresses based on docker-compose static IP scheme
   local ip="10.5.0.$((8 + NODE_NUMBER))"
   # local ip="chainlink-node-$NODE_NUMBER"
-  local cfg="${CHAINLINK_DIR}/config.toml"
+  local cfg="${ROOT_DIR}/config.toml"
   if [[ -f "$cfg" ]]; then
     if grep -qE '^[[:space:]]*AnnounceAddresses[[:space:]]*=' "$cfg"; then
       sed_inplace "s#^[[:space:]]*AnnounceAddresses[[:space:]]*=.*#AnnounceAddresses = ['${ip}:9999']#" "$cfg"

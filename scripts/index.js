@@ -45,7 +45,7 @@ const mapConfigToEnv = (cfg) => {
 async function run() {
   const cfg = await readConfiguration();
 
-  const env = { ...process.env, ...mapConfigToEnv(cfg) };
+  const env = { ...mapConfigToEnv(cfg), ...process.env };
 
   // Make mapped env available to this process as well (for pre-start helpers)
   for (const [k, v] of Object.entries(env)) {
