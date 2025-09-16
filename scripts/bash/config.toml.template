@@ -80,4 +80,4 @@ AnnounceAddresses = $ANNOUNCE_ADDRESSES
 DefaultBootstrappers = $DEFAULT_BOOTSTRAPPERS
 DeltaDial = '15s' # Default
 DeltaReconcile = '1m' # Default
-ListenAddresses = ['0.0.0.0:9999']
+ListenAddresses = ['0.0.0.0:${P2P_PORT:-9999}']

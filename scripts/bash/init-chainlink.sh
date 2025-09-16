@@ -151,6 +151,7 @@ main() {
     fi
 
     # Build AnnounceAddresses TOML array
+    local p2p_port="${P2P_PORT:-9999}"
     local ANNOUNCE_ADDRESSES_STR=""
     if [[ -n "${ANNOUNCE_ADDRESSES:-}" ]]; then
       ANNOUNCE_ADDRESSES_STR="${ANNOUNCE_ADDRESSES}"
@@ -163,13 +164,13 @@ main() {
         items+=("'${a}'")
       done
       if [[ ${#items[@]} -eq 0 ]]; then
-        local ip="10.5.0.$((8 + NODE_NUMBER)):9999"
+        local ip="10.5.0.$((8 + NODE_NUMBER)):${p2p_port}"
         ANNOUNCE_ADDRESSES_STR="['${ip}']"
       else
         ANNOUNCE_ADDRESSES_STR="[${items[*]}]"
       fi
     else
-      local ip="10.5.0.$((8 + NODE_NUMBER)):9999"
+      local ip="10.5.0.$((8 + NODE_NUMBER)):${p2p_port}"
       ANNOUNCE_ADDRESSES_STR="['${ip}']"
     fi
 
@@ -208,19 +209,20 @@ main() {
 
   # Set AnnounceAddresses based on docker-compose static IP scheme
   local ip="10.5.0.$((8 + NODE_NUMBER))"
+  local p2p_port="${P2P_PORT:-9999}"
   # local ip="chainlink-node-$NODE_NUMBER"
   local cfg="${ROOT_DIR}/config.toml"
   if [[ -f "$cfg" ]]; then
     if grep -qE '^[[:space:]]*AnnounceAddresses[[:space:]]*=' "$cfg"; then
-      sed_inplace "s#^[[:space:]]*AnnounceAddresses[[:space:]]*=.*#AnnounceAddresses = ['${ip}:9999']#" "$cfg"
+      sed_inplace "s#^[[:space:]]*AnnounceAddresses[[:space:]]*=.*#AnnounceAddresses = ['${ip}:${p2p_port}']#" "$cfg"
     else
-      awk -v ipval="${ip}:9999" '
+      awk -v ipval="${ip}:${p2p_port}" '
         BEGIN{inblock=0}
         /^[[:space:]]*\[P2P\.V2\][[:space:]]*$/ {print; print "AnnounceAddresses = ['"ipval"']"; inblock=1; next}
         {print}
       ' "$cfg" > "${cfg}.tmp" && mv "${cfg}.tmp" "$cfg"
     fi
-    log "set AnnounceAddresses = ['${ip}:9999']"
+    log "set AnnounceAddresses = ['${ip}:${p2p_port}']"
   fi
 
   # Produce or consume shared secrets
