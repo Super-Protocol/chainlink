@@ -1,0 +1,40 @@
+FROM smartcontract/chainlink:2.27.0
+
+USER root
+
+ARG NODE_VERSION=22.18.0
+ENV NVM_DIR=/root/.nvm
+ENV SP_SECRETS_DIR=/sp/secrets
+ENV PATH=$PATH:/root/.nvm/versions/node/v$NODE_VERSION/bin/
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+ENV POSTGRES_DB=postgres
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gettext \
+    jq \
+    postgresql \
+    && rm -rf /var/lib/apt/lists/*
+
+# --- Setup Postgres ---
+RUN ln -s /usr/lib/postgresql/17/bin/* /usr/local/bin/
+
+# --- Setup Node.js ---
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+RUN bash -c "source $NVM_DIR/nvm.sh && nvm install $NODE_VERSION"
+
+# --- Copy Application Code ---
+COPY scripts /scripts
+COPY data-feed-generator/templates /job-templates
+
+# --- Install Node.js Dependencies ---
+RUN cd /scripts && npm ci --no-audit --no-fund --omit=optional
+
+# --- Set Permissions ---
+RUN find /scripts/bash -type f -name "*.sh" -exec chmod +x {} +
+
+# --- Expose Ports ---
+EXPOSE 6688 6689 6690 6691 6692
+EXPOSE 5432
+
+ENTRYPOINT ["/scripts/bash/all-in-one/entrypoint.sh"]

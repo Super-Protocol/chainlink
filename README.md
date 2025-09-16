@@ -254,6 +254,92 @@ docker volume ls | grep chainlink
 - Check database connection: `docker-compose exec chainlink-node-1 cat /chainlink/secrets.toml`
 - View node logs: `docker-compose logs -f chainlink-node-1 | grep -i error`
 
+## All-in-One Run
+
+This method provides a way to run the complete application stack—all Chainlink nodes and a shared PostgreSQL database—within a single Docker container.
+
+### Prerequisites
+
+*   Docker is installed and running on your system.
+*   You have a fully configured `.env` file in the root directory of the project.
+
+### 1. Build the Docker Image
+
+First, build the Docker image from the `dockerfile.allinone`. This command packages the application, its dependencies, and all the necessary startup scripts into a single image tagged `sp-chainlink-all-in-one`.
+
+```bash
+docker build --platform linux/amd64 -f dockerfile.allinone -t sp-chainlink-all-in-one .
+```
+
+### 2. Run the Container
+
+Once the image is built, run it using the command below. This will start one container in the background that internally orchestrates the database and all 5 Chainlink nodes.
+
+```bash
+docker run -d \
+  --name chainlink-all-in-one \
+  --restart unless-stopped \
+  -p 6688:6688 \
+  -p 6689:6689 \
+  -p 6690:6690 \
+  -p 6691:6691 \
+  -p 6692:6692 \
+  --env-file ./.env \
+  -v "$(pwd)/temp/certs:/sp/certs:ro" \
+  -v "$(pwd)/temp/configurations:/sp/configurations:ro" \
+  -v "$(pwd)/scripts:/scripts:ro" \
+  -v "$(pwd)/data-feed-generator/templates:/templates:ro" \
+  -v "$(pwd)/sp-secrets:/sp/secrets:rw" \
+  sp-chainlink-all-in-one
+```
+
+### 3. Verifying the Setup
+
+You can monitor the startup process and check for errors by viewing the container's logs:
+```bash
+docker logs -f chainlink-all-in-one
+```
+
+Once the nodes are running, you can access their web UIs at the following local addresses:
+*   **Node 1:** `http://localhost:6688`
+*   **Node 2:** `http://localhost:6689`
+*   **Node 3:** `http://localhost:6690`
+*   **Node 4:** `http://localhost:6691`
+*   **Node 5:** `http://localhost:6692`
+
+### Customizing the Node Count
+
+By default, the container starts 5 nodes. You can easily override this by setting the `NODE_COUNT` environment variable during the run command. For example, to start only **3 nodes**:
+
+```bash
+docker run -d \
+  --name chainlink-all-in-one-3-nodes \
+  -p 6688:6688 \
+  -p 6689:6689 \
+  -p 6690:6690 \
+  -e NODE_COUNT=3 \
+  --env-file ./.env \
+  -v "$(pwd)/temp/certs:/sp/certs:ro" \
+  -v "$(pwd)/temp/configurations:/sp/configurations:ro" \
+  -v "$(pwd)/scripts:/scripts:ro" \
+  -v "$(pwd)/data-feed-generator/templates:/templates:ro" \
+  -v "$(pwd)/sp-secrets:/sp/secrets:rw" \
+  sp-chainlink-all-in-one
+```
+**Note:** Remember to adjust the port mappings (`-p`) to match the number of nodes you are running.
+
+### Stopping and Cleaning Up
+
+To stop the container, use the `docker stop` command:
+```bash
+docker stop chainlink-all-in-one
+```
+
+To stop and remove the container completely, use:
+```bash
+docker stop chainlink-all-in-one && docker rm chainlink-all-in-one
+```
+
 ## Next Steps
 - Deploy Oracle contracts
 - Fund nodes with LINK tokens
