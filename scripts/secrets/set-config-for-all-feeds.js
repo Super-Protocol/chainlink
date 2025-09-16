@@ -1,8 +1,7 @@
-#!/usr/bin/env node
 /* eslint-disable no-console */
 const fs = require('fs');
 const path = require('path');
-const { setConfigForContract } = require('./set-config');
+const { setConfigForContract, flushDonConfigCache } = require('./set-config');
 
 function findTomlFiles(dir) {
   const files = fs.readdirSync(dir, { withFileTypes: true })
@@ -38,6 +37,7 @@ async function main() {
   const files = findTomlFiles(templatesDir);
   if (files.length === 0) {
     console.error(`No .toml files found in ${templatesDir}`);
+    await flushDonConfigCache();
     return;
   }
 
@@ -65,6 +65,7 @@ async function main() {
   };
 
   await Promise.all(Array.from({ length: Math.min(concurrency, valid.length) }, () => runNext()));
+  await flushDonConfigCache();
 }
 
 if (require.main === module) {
