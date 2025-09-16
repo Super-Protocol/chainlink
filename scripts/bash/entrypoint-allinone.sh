@@ -6,7 +6,7 @@ log() { echo "[entrypoint] $*"; }
 CONFIG_JSON_PATH="/sp/configurations/configuration.json"
 SUPERVISOR_CONF_PATH="/etc/supervisor/supervisord.conf"
 
-# 1. Считываем количество нод из вашего configuration.json
+# 1. Counting the number of nodes from the configuration.json
 if [ ! -f "$CONFIG_JSON_PATH" ]; then
     log "ERROR: Configuration file not found at $CONFIG_JSON_PATH"
     exit 1
@@ -19,8 +19,8 @@ if ! [[ "$TOTAL_NODES" =~ ^[0-9]+$ ]] || [ "$TOTAL_NODES" -lt 1 ]; then
 fi
 log "Found 'totalNodes': $TOTAL_NODES. Generating supervisor configuration..."
 
-# 2. Генерируем supervisord.conf
-# Статическая часть
+# 2. Generating supervisord.conf
+# Static part
 cat > "$SUPERVISOR_CONF_PATH" <<EOF
 [supervisord]
 nodaemon=true
@@ -65,12 +65,12 @@ done
 
 log "Successfully generated supervisor config for $TOTAL_NODES nodes."
 
-# 3. Запускаем инициализацию БД, передав ей количество нод
+# 3. Starting the database initialization, passing the number of nodes to it
 export PGDATA=/var/lib/postgresql/data
 export POSTGRES_USER=postgres
 /scripts/bash/init-db.sh "$TOTAL_NODES"
 
-# 4. Запускаем Supervisor
+# 4. Starting Supervisor
 log "Starting supervisord..."
 exec /usr/bin/supervisord -n -c "$SUPERVISOR_CONF_PATH"
 
