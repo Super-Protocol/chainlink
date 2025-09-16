@@ -45,12 +45,11 @@ for i in $(seq 1 "$TOTAL_NODES"); do
     BASE_API_PORT="${BASE_API_PORT:-6688}"
     API_PORT=$((BASE_API_PORT + $i - 1))
     P2P_PORT=$((9990 + $i))
-    P2P_V2_PORT=$((8000 + $i))
 
     cat >> "$SUPERVISOR_CONF_PATH" <<EOF
 [program:chainlink-node-${i}]
 command=bash -c "cd /scripts && npm run start"
-environment=NODE_NUMBER="${i}",PGDATABASE="chainlink_node_${i}",CHAINLINK_ROOT="/chainlink/node-${i}",MANAGE_POSTGRES="false",CHAINLINK_WEB_SERVER_HTTP_PORT="${API_PORT}",API_PORT="${API_PORT}"
+environment=NODE_NUMBER="${i}",PGDATABASE="chainlink_node_${i}",CHAINLINK_ROOT="/chainlink/node-${i}",MANAGE_POSTGRES="false",CHAINLINK_WEB_SERVER_HTTP_PORT="${API_PORT}",API_PORT="${API_PORT}",P2P_PORT="${P2P_PORT}"
 autostart=true
 autorestart=true
 priority=100
