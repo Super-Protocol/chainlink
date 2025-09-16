@@ -4,6 +4,7 @@ Level = 'info'
 [WebServer]
 AllowOrigins = '*'
 SecureCookies = false
+HTTPPort = $CHAINLINK_WEB_SERVER_HTTP_PORT
 
 [WebServer.TLS]
 HTTPSPort = 0

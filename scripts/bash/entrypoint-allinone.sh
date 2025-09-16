@@ -49,7 +49,7 @@ for i in $(seq 1 "$TOTAL_NODES"); do
     cat >> "$SUPERVISOR_CONF_PATH" <<EOF
 [program:chainlink-node-${i}]
 command=bash -c "cd /scripts && npm run start"
-environment=NODE_NUMBER="${i}",PGDATABASE="chainlink_node_${i}",CHAINLINK_ROOT="/chainlink/node-${i}",MANAGE_POSTGRES="false"
+environment=NODE_NUMBER="${i}",PGDATABASE="chainlink_node_${i}",CHAINLINK_ROOT="/chainlink/node-${i}",MANAGE_POSTGRES="false",CHAINLINK_WEB_SERVER_HTTP_PORT="${API_PORT}"
 autostart=true
 autorestart=true
 priority=100
