@@ -9,7 +9,8 @@ json_escape() {
       -e 's/\r/\\r/g' \
       -e 's/\n/\\n/g'
 }
-API_URL="http://127.0.0.1:6688"
+API_PORT="${API_PORT:-6688}"
+API_URL="http://127.0.0.1:${API_PORT}"
 CL_FEED_TEMPLATES_DIR="${CL_FEED_TEMPLATES_DIR:-/templates}"
 JOB_RENDERS_DIR="${JOB_RENDERS_DIR:-/tmp/job-renders}"
 COOKIE_FILE="$(cd /tmp && mktemp -t cl_cookie_import.XXXXXX)"
@@ -57,7 +58,7 @@ fetch_bootstrap_peer_from_env() {
   [[ ${#bs_nodes[@]} -gt 0 ]] || { echo "|"; return; }
   local first_bs="${bs_nodes[0]}"
   local host; host=$(ip_for_node "$first_bs")
-  local port=6688
+  local port="${API_PORT:-6688}"
   local cookie_file="/tmp/cl_cookie_bootstrap"
   rm -f "$cookie_file" || true
   IFS='|' read -r email password < <(read_creds)

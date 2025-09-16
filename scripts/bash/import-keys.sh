@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-API_URL="http://127.0.0.1:6688"
+API_PORT="${API_PORT:-6688}"
+API_URL="http://127.0.0.1:${API_PORT}"
 COOKIE_FILE="$(cd /tmp && mktemp -t cl_cookie_import.XXXXXX)"
 SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
 
