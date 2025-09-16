@@ -5,6 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 const nacl = require('tweetnacl'); // X25519 via scalarMult
 const { ethers } = require('ethers');
+// Note: Avoid deep imports from @super-protocol/sdk-js to prevent exports errors
 const { hexToBuf, keccak256, aes128EcbEncryptBlock, decryptEvmKeystore } = require('./crypto-utils');
 const aggregatorAbi = require('./abis/AccessControlledOffchainAggregator.json').abi;
 
@@ -51,6 +52,35 @@ function writeDonConfigCache(cacheFilePath, data) {
 
 function readJSON(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
+}
+
+// Serialize cache writes across concurrent calls within this process
+let _cacheWrite = Promise.resolve();
+async function updateDonConfigCache(cacheFilePath, addr, data) {
+  _cacheWrite = _cacheWrite.then(async () => {
+    const updated = readDonConfigCache(cacheFilePath);
+    updated[addr] = data;
+    writeDonConfigCache(cacheFilePath, updated);
+  });
+  await _cacheWrite;
+}
+
+// Per-address nonce allocator to safely publish concurrent txs
+const _nonceChains = new Map(); // address -> Promise chain
+const _nextNonce = new Map();   // address -> number
+async function allocateNonce(provider, address) {
+  const prev = _nonceChains.get(address) || Promise.resolve();
+  const next = prev.then(async () => {
+    if (!_nextNonce.has(address)) {
+      const start = await provider.getTransactionCount(address, 'pending');
+      _nextNonce.set(address, start);
+    }
+    const n = _nextNonce.get(address);
+    _nextNonce.set(address, n + 1);
+    return n;
+  });
+  _nonceChains.set(address, next.catch(() => {}));
+  return next;
 }
 
 function listWorkers(nodesList, bootstrapSet) {
@@ -100,9 +130,8 @@ function encryptSharedSecret(x25519PubKeys, sharedSecret16) {
   };
 }
 
-async function main() {
+async function setConfigForContract(contractAddr) {
   const rpcUrl = process.env.CHAINLINK_RPC_HTTP_URL;
-  const contractAddr = process.argv[2];
   if (!rpcUrl) throw new Error('CHAINLINK_RPC_HTTP_URL is required');
   if (!contractAddr) throw new Error('Missing contract address. Usage: node set-config.js <contractAddress>');
 
@@ -136,9 +165,8 @@ async function main() {
   if (sharedSecret16.length !== 16) throw new Error('SHARED_SECRET_HEX must be 16 bytes');
   const sse = encryptSharedSecret(x25519PubKeys, sharedSecret16);
 
-  const provider = new ethers.JsonRpcProvider(rpcUrl);
-
-  // Using aggregator ABI below; no need for a local iface here
+  // Optional env, not strictly needed when sending via ethers
+  const diamondContractAddress = process.env.DIAMOND_CONTRACT_ADDRESS;
 
   const donConfig = {
     signers,
@@ -162,10 +190,6 @@ async function main() {
 
   console.log('donConfig (to publish)', donConfig);
 
-  // Encode tx data using AccessControlledOffchainAggregator.setConfig(donConfig)
-  const iface = new ethers.Interface(aggregatorAbi);
-  const data = iface.encodeFunctionData('setConfig', [donConfig]);
-
   // Derive and print sender and signer addresses (from this node's evm_key.json only)
   let signerAddress = null;
   let derivedPkHex = null;
@@ -182,20 +206,63 @@ async function main() {
   if (!derivedPkHex) {
     throw new Error('Unable to decrypt sender key from evm_key.json. Ensure CHAINLINK_KEYSTORE_PASSWORD and file are correct.');
   }
+
+  // Initialize SDK and send transaction via TxManager
+  // Send via ethers using decrypted key
+  const provider = new ethers.JsonRpcProvider(rpcUrl);
+  const iface = new ethers.Interface(aggregatorAbi);
+  const data = iface.encodeFunctionData('setConfig', [donConfig]);
   const sender = new ethers.Wallet(derivedPkHex, provider);
   console.log('Sender:', sender.address);
   if (signerAddress) console.log('Signer:', signerAddress);
-
-  // Send transaction using the node's decrypted key
-  const tx = await sender.sendTransaction({ to: normalizedAddr, data, value: 0 });
+  const feeData = await provider.getFeeData();
+  const maxFeePerGasEnv = process.env.MAX_FEE_PER_GAS_WEI;
+  const gasPriceEnv = process.env.CHAINLINK_GAS_PRICE; // legacy fallback
+  const overrides = {};
+  // Allocate a unique nonce for concurrency safety
+  overrides.nonce = await allocateNonce(provider, sender.address);
+  if (!gasPriceEnv) {
+    const latestBlock = await provider.getBlock('latest');
+    const baseFee = latestBlock?.baseFeePerGas ?? 0n;
+    const suggestedMaxFee = feeData.maxFeePerGas ?? (baseFee + 1n);
+    const desiredMaxFee = maxFeePerGasEnv ? BigInt(maxFeePerGasEnv) : suggestedMaxFee;
+    overrides.maxPriorityFeePerGas = 1n; // enforce 1 wei priority fee
+    overrides.maxFeePerGas = desiredMaxFee >= baseFee + 1n ? desiredMaxFee : (baseFee + 1n);
+  } else {
+    overrides.gasPrice = BigInt(gasPriceEnv);
+  }
+  const tx = await sender.sendTransaction({ to: normalizedAddr, data, value: 0, ...overrides });
   console.log('Submitted tx', tx.hash);
-  const rcpt = await tx.wait();
+  const confirmations = parseInt(process.env.TX_CONFIRMATIONS || '1', 10);
+  const timeoutMs = parseInt(process.env.TX_TIMEOUT_MS || '300000', 10); // default 5 min
+  let rcpt;
+  try {
+    rcpt = await provider.waitForTransaction(tx.hash, confirmations, timeoutMs);
+  } catch (e) {
+    if (e && (e.code === 'TIMEOUT' || String(e.message || '').toLowerCase().includes('timeout'))) {
+      console.warn('waitForTransaction timeout, checking receipt directly...', tx.hash);
+      rcpt = await provider.getTransactionReceipt(tx.hash);
+      if (!rcpt) {
+        console.error('Transaction not mined yet (pending or dropped):', tx.hash);
+        return;
+      }
+    } else {
+      throw e;
+    }
+  }
   console.log('Mined', rcpt?.transactionHash);
 
   // Persist comparable DON config after successful transaction
-  const updated = readDonConfigCache(cacheFile);
-  updated[normalizedAddr] = comparableDonConfig;
-  writeDonConfigCache(cacheFile, updated);
+  await updateDonConfigCache(cacheFile, normalizedAddr, comparableDonConfig);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+async function main() {
+  const contractAddr = process.argv[2];
+  await setConfigForContract(contractAddr);
+}
+
+if (require.main === module) {
+  main().catch((e) => { console.error(e); process.exit(1); });
+}
+
+module.exports = { setConfigForContract };
