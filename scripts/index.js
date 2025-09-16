@@ -101,7 +101,9 @@ async function run() {
     }
   }
 
-  const entrypointPath = path.resolve(__dirname, 'bash', 'entrypoint.sh');
+  const entrypointPath = process.env.BASH_ENTRYPOINT_PATH
+  ? path.resolve(process.env.BASH_ENTRYPOINT_PATH)
+  : path.resolve(__dirname, 'bash', 'entrypoint.sh');
 
   const child = spawn(entrypointPath, {
     env,
