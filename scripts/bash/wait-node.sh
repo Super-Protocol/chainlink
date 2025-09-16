@@ -3,14 +3,16 @@ set -euo pipefail
 
 # Waits for Chainlink node API to be ready, then for health checks to be passing
 # Configurable via env:
-#   WAIT_API_URL        - readiness URL (default: http://127.0.0.1:6688/readyz)
+#   API_PORT            - API port (default: 6688)
+#   WAIT_API_URL        - readiness URL (default: http://127.0.0.1:{API_PORT}/readyz)
 #   WAIT_API_TRIES      - number of seconds/attempts to wait for readiness (default: 300)
-#   WAIT_HEALTH_URL     - health URL returning checks (default: http://127.0.0.1:6688/health)
+#   WAIT_HEALTH_URL     - health URL returning checks (default: http://127.0.0.1:{API_PORT}/health)
 #   WAIT_HEALTH_TRIES   - number of seconds/attempts to wait for health passing (default: 300)
 
-WAIT_API_URL="${WAIT_API_URL:-http://127.0.0.1:6688/readyz}"
+API_PORT="${API_PORT:-6688}"
+WAIT_API_URL="${WAIT_API_URL:-http://127.0.0.1:${API_PORT}/readyz}"
 WAIT_API_TRIES="${WAIT_API_TRIES:-300}"
-WAIT_HEALTH_URL="${WAIT_HEALTH_URL:-http://127.0.0.1:6688/health}"
+WAIT_HEALTH_URL="${WAIT_HEALTH_URL:-http://127.0.0.1:${API_PORT}/health}"
 WAIT_HEALTH_TRIES="${WAIT_HEALTH_TRIES:-300}"
 
 log() { echo "[wait-node] $*"; }
