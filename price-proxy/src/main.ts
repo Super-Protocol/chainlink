@@ -13,11 +13,13 @@ async function bootstrap(): Promise<void> {
   const configService = app.get(AppConfigService);
   const logger = new Logger('Bootstrap');
 
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   app.enableCors();
   app.enableShutdownHooks();
@@ -42,7 +44,7 @@ process.on('unhandledRejection', (reason, promise) => {
   const logger = new Logger('UnhandledRejection');
   logger.error(
     { err: reason, promise },
-    'Unhandled promise rejection detected'
+    'Unhandled promise rejection detected',
   );
 });
 

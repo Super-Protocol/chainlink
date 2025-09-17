@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 
-import { AppConfigModule, AppConfigService } from './config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AppConfigModule, AppConfigService } from './config';
+import { SourcesModule } from './sources';
 
 @Module({
   imports: [
@@ -17,14 +18,18 @@ import { AppService } from './app.service';
           pinoHttp: {
             level,
             customLevels: {
-              verbose: 10
+              verbose: 10,
             },
             useOnlyCustomLevels: false,
-            ...(isPrettyEnabled && { transport: { target: 'pino-pretty' } })
-          }
+            serializers: {
+              req: () => undefined,
+            },
+            ...(isPrettyEnabled && { transport: { target: 'pino-pretty' } }),
+          },
         };
-      }
-    })
+      },
+    }),
+    SourcesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

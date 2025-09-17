@@ -1,15 +1,5 @@
-import { LoggerLevel, NodeEnvironment } from './constants';
+import { Static } from '@sinclair/typebox';
 
-export type Config = {
-  port: number;
-  environment: NodeEnvironment;
-  logger: {
-    level: LoggerLevel;
-    isPrettyEnabled: boolean;
-  };
-  priceProxy: {
-    refreshIntervalMs: number;
-    requestTimeoutMs: number;
-    maxRetries: number;
-  };
-};
+import { yamlValidationSchema } from './schema';
+
+export type Config = Static<typeof yamlValidationSchema>;
