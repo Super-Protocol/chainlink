@@ -1,7 +1,7 @@
 {
-  "name": "price-proxy",
+  "name": "price-aggregator",
   "version": "1.0.0",
-  "description": "NestJS Price Proxy Service",
+  "description": "NestJS Price Aggregator Service",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
