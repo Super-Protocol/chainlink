@@ -8,7 +8,7 @@ type SchemaLike = TSchema & {
 };
 
 function extractDescription(
-  schema: SchemaLike | undefined
+  schema: SchemaLike | undefined,
 ): string | undefined {
   if (!schema) return undefined;
   if (typeof schema.description === 'string') return schema.description;
@@ -45,19 +45,25 @@ function getSchemaHint(path?: string): string {
 
 function handleSchemaValidationError(
   error: AssertError,
-  context: string
+  context: string,
 ): never {
   const errorDetails = error.error;
+  const isYamlContext = context.includes('YAML');
 
   if (!errorDetails) {
-    throw new Error(
-      'Environment variables validation failed.\n' +
+    const genericMessage = isYamlContext
+      ? 'YAML configuration validation failed.\n' +
+        'Please verify your YAML configuration structure.\n' +
+        '\nFor help with configuration, see:\n' +
+        '- config.yaml.example file for reference\n' +
+        '- Schema definitions in src/config/schema/'
+      : 'Environment variables validation failed.\n' +
         'Please verify your environment variables structure.\n' +
         '\nFor help with environment variables, see:\n' +
         '- .env.example file for reference\n' +
-        '- Schema definitions in src/config/schema/',
-      { cause: error }
-    );
+        '- Schema definitions in src/config/schema/';
+
+    throw new Error(genericMessage, { cause: error });
   }
 
   const pathDisplay = errorDetails.path
@@ -69,30 +75,49 @@ function handleSchemaValidationError(
       : '';
 
   const fieldDescription = extractDescription(
-    errorDetails.schema as SchemaLike
+    errorDetails.schema as SchemaLike,
   );
 
-  const envVarName = errorDetails.path
+  const fieldName = errorDetails.path
     ? errorDetails.path.replace('/', '')
     : 'unknown';
   const schemaHint = getSchemaHint(errorDetails.path);
 
-  const envMessage = [
-    `Environment variable validation failed: ${envVarName}`,
-    `Expected: ${errorDetails.message}${valueDisplay}`,
-    fieldDescription ? `Description: ${fieldDescription}` : '',
-    `Please set the correct value for the ${envVarName} environment variable.`,
-    'Check your .env file or system environment variables.',
-    schemaHint,
-    '',
-    'For help with environment variables, see:',
-    '- .env.example file for reference',
-    '- Schema definitions in src/config/schema/env.schema.ts',
-  ]
-    .filter(Boolean)
-    .join('\n');
+  if (isYamlContext) {
+    const yamlMessage = [
+      `YAML configuration validation failed: ${fieldName}`,
+      `Expected: ${errorDetails.message}${valueDisplay}`,
+      fieldDescription ? `Description: ${fieldDescription}` : '',
+      `Please set the correct value for the ${fieldName} field in your YAML config.`,
+      'Check your config.yaml file.',
+      schemaHint,
+      '',
+      'For help with configuration, see:',
+      '- config.yaml.example file for reference',
+      '- Schema definitions in src/config/schema/yaml.schema.ts',
+    ]
+      .filter(Boolean)
+      .join('\n');
 
-  throw new Error(envMessage);
+    throw new Error(yamlMessage);
+  } else {
+    const envMessage = [
+      `Environment variable validation failed: ${fieldName}`,
+      `Expected: ${errorDetails.message}${valueDisplay}`,
+      fieldDescription ? `Description: ${fieldDescription}` : '',
+      `Please set the correct value for the ${fieldName} environment variable.`,
+      'Check your .env file or system environment variables.',
+      schemaHint,
+      '',
+      'For help with environment variables, see:',
+      '- .env.example file for reference',
+      '- Schema definitions in src/config/schema/env.schema.ts',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    throw new Error(envMessage);
+  }
 }
 
 function handleGenericError(error: unknown, context: string): never {
