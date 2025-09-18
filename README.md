@@ -2,6 +2,7 @@
 
 ## ALL IN ONE
 ```bash
+docker build --platform linux/amd64 -f dockerfile.allinone -t sp-chainlink-all-in-one .
 docker run -d --name chainlink-stack \
   --platform linux/amd64 \
   -p 6601:6601 \
