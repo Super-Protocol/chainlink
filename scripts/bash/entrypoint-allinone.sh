@@ -1,76 +1,64 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
-log() { echo "[entrypoint] $*"; }
+log() { echo "[s6-init] $*"; }
 
 CONFIG_JSON_PATH="/sp/configurations/configuration.json"
-SUPERVISOR_CONF_PATH="/etc/supervisor/supervisord.conf"
 
-# 1. Counting the number of nodes from the configuration.json
+export ALL_IN_ONE="true"
+
 if [ ! -f "$CONFIG_JSON_PATH" ]; then
-    log "ERROR: Configuration file not found at $CONFIG_JSON_PATH"
-    exit 1
+  log "ERROR: Configuration file not found at $CONFIG_JSON_PATH"
+  exit 1
 fi
+
 TOTAL_NODES=$(jq -r '.solution.totalNodes' "$CONFIG_JSON_PATH")
-
 if ! [[ "$TOTAL_NODES" =~ ^[0-9]+$ ]] || [ "$TOTAL_NODES" -lt 1 ]; then
-    log "ERROR: Invalid 'totalNodes' value in configuration: '$TOTAL_NODES'. Must be a positive integer."
-    exit 1
+  log "ERROR: Invalid 'totalNodes': '$TOTAL_NODES'"
+  exit 1
 fi
-log "Found 'totalNodes': $TOTAL_NODES. Generating supervisor configuration..."
+log "Found 'totalNodes': $TOTAL_NODES. Generating s6 services..."
 
-# 2. Generating supervisord.conf
-# Static part
-cat > "$SUPERVISOR_CONF_PATH" <<EOF
-[supervisord]
-nodaemon=true
-user=root
-logfile=/dev/null
-logfile_maxbytes=0
-
-[program:postgres]
-command=/usr/lib/postgresql/17/bin/postgres -D /var/lib/postgresql/data
-user=postgres
-autostart=true
-autorestart=true
-priority=10
-stdout_logfile=/dev/stdout
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/stderr
-stderr_logfile_maxbytes=0
-
-EOF
-
-for i in $(seq 1 "$TOTAL_NODES"); do
-    BASE_API_PORT="${BASE_API_PORT:-6688}"
-    API_PORT=$((BASE_API_PORT + $i - 1))
-    P2P_PORT=$((9990 + $i))
-
-    cat >> "$SUPERVISOR_CONF_PATH" <<EOF
-[program:chainlink-node-${i}]
-command=bash -c "cd /scripts && npm run start"
-environment=NODE_NUMBER="${i}",PGDATABASE="chainlink_node_${i}",CHAINLINK_ROOT="/chainlink/node-${i}",MANAGE_POSTGRES="false",CHAINLINK_WEB_SERVER_HTTP_PORT="${API_PORT}",API_PORT="${API_PORT}",P2P_PORT="${P2P_PORT}"
-autostart=true
-autorestart=true
-priority=100
-stdout_logfile=/dev/stdout
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/stderr
-stderr_logfile_maxbytes=0
-user=root
-directory=/
-
-EOF
-done
-
-log "Successfully generated supervisor config for $TOTAL_NODES nodes."
-
-# 3. Starting the database initialization, passing the number of nodes to it
+# Export for downstream init scripts/services
+export TOTAL_NODES
 export PGDATA=/var/lib/postgresql/data
 export POSTGRES_USER=postgres
-/scripts/bash/init-db.sh "$TOTAL_NODES"
 
-# 4. Starting Supervisor
-log "Starting supervisord..."
-exec /usr/bin/supervisord -n -c "$SUPERVISOR_CONF_PATH"
+# Initialize data dir (idempotent)
+mkdir -p "$PGDATA"
+chown -R postgres:postgres "$PGDATA" || true
 
+# Generate per-node environment for s6 chainlink-node service instances
+# s6 v3 supports multiple instances via copies; here we export expected env vars
+BASE_API_PORT="${BASE_API_PORT:-6600}"
+for i in $(seq 1 "$TOTAL_NODES"); do
+  API_PORT=$((BASE_API_PORT + i))
+  P2P_PORT=$((9900 + i))
+  svc_dir="/etc/services.d/chainlink-node-${i}"
+  mkdir -p "$svc_dir"
+  cat > "$svc_dir/run" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+mkdir -p /root/node-${i}
+mkdir -p /root/node-${i}/.cache
+export HOME=/root/node-${i}
+export XDG_CACHE_HOME=/root/node-${i}/.cache
+export ALL_IN_ONE="true"
+export NODE_NUMBER=${i}
+export PGDATABASE=chainlink_node_${i}
+export CHAINLINK_ROOT=/chainlink
+export NODE_ROOT_DIR=/chainlink/node-${i}
+export MANAGE_POSTGRES=false
+export CHAINLINK_WEB_SERVER_HTTP_PORT=${API_PORT}
+export API_PORT=${API_PORT}
+export P2P_PORT=${P2P_PORT}
+export CONFIGURATION_PUBLIC_KEY="MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE1mXRd/v32RmPknpTnasAa3b5G31lbOUwMV4cQK/GU8WHySSvJj1MSCsdwhGggGoroMD2Qp/Ql2UOAiGvDRDmGw=="
+export CHAINLINK_EMAIL=admin@example.com
+export CHAINLINK_PASSWORD=yoursuperpassword
+cd /scripts
+exec node index.js
+EOF
+  chmod +x "$svc_dir/run"
+done
+
+log "s6 service generation complete."

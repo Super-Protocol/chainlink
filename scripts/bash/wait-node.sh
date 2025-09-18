@@ -15,6 +15,8 @@ WAIT_API_TRIES="${WAIT_API_TRIES:-300}"
 WAIT_HEALTH_URL="${WAIT_HEALTH_URL:-http://127.0.0.1:${API_PORT}/health}"
 WAIT_HEALTH_TRIES="${WAIT_HEALTH_TRIES:-300}"
 
+echo "WAIT_API_URL: ${WAIT_API_URL}"
+
 log() { echo "[wait-node] $*"; }
 
 # Phase 1: readiness

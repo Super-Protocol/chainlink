@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -euo pipefail
+exec su -s /bin/bash -c "postgres -D /var/lib/postgresql/data" postgres

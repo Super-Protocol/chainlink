@@ -5,11 +5,17 @@ TOTAL_NODES="${1:-5}" # Accepting the number of nodes from the argument, default
 log() { echo "[init-db] $*"; }
 
 # Variables from env, can be overridden
+POSTGRES_USER="${POSTGRES_USER:-postgres}"
+PGDATA="${PGDATA:-/var/lib/postgresql/data}"
 APP_DB_USER="${PGUSER:-chainlink}"
 APP_DB_PASS="${PGPASSWORD:-chainlinkchainlink}"
 
+# Ensure data dir exists and owned by postgres
+mkdir -p "$PGDATA"
+chown -R postgres:postgres "$PGDATA" || true
+
 # Initializing the database cluster, if the data directory is empty
-if [ -z "$(ls -A "$PGDATA")" ]; then
+if [ -z "$(ls -A "$PGDATA" 2>/dev/null || true)" ]; then
     log "Initializing PostgreSQL database as user 'postgres'..."
     su - postgres -c "initdb -D \"$PGDATA\" --username=\"$POSTGRES_USER\""
 fi
