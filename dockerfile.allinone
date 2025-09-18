@@ -56,6 +56,4 @@ RUN chmod +x /etc/cont-init.d/20-generate-services.sh
 ADD aio/services.d/postgres/run /etc/services.d/postgres/run
 RUN chmod +x /etc/services.d/postgres/run
 
-EXPOSE 6601 6602 6603 6604 6605
-
 ENTRYPOINT ["/init"]
