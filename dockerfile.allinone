@@ -16,7 +16,6 @@ RUN apt-get update && \
     jq \
     postgresql \
     xz-utils \
-    ca-certificates \
     curl
 # RUN rm -rf /var/lib/apt/lists/*
 
