@@ -1,0 +1,42 @@
+name: Chainlink (all in one) - prepare solution
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Target"
+        required: true
+        default: "develop"
+        type: choice
+        options:
+          - develop
+          - stage
+          - testnet
+          - mainnet
+      argo_commit_type:
+        description: "Argo commit type"
+        required: true
+        default: "pull-request"
+        type: choice
+        options:
+          - pull-request
+          - direct-commit
+
+jobs:
+  stub:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate inputs
+        env:
+          TARGET: ${{ inputs.target }}
+          ARGO: ${{ inputs.argo_commit_type }}
+        run: |
+          if [[ "$TARGET" == "mainnet" && "$ARGO" == "direct-commit" ]]; then
+            echo "Error: when target=mainnet, argo_commit_type=direct-commit is not allowed."
+            exit 1
+          fi
+
+      - name: Echo stub
+        run: |
+          echo "Stub: workflow started with target=${{ inputs.target }}, argo_commit_type=${{ inputs.argo_commit_type }}"
+
