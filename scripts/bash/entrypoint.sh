@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cd $(dirname $0)
+
 log() { echo "[entrypoint] $*"; }
 
 # Postgres settings
@@ -13,6 +15,10 @@ export APP_DB_USER="${PGUSER:-chainlink}"
 export APP_DB_PASS="${PGPASSWORD:-chainlinkchainlink}"
 
 export CHAINLINK_ROOT="${CHAINLINK_ROOT:-/chainlink}"
+export NODE_ROOT_DIR="${CHAINLINK_ROOT:-/chainlink}/node-${NODE_NUMBER}"
+export TMP_DIR="/tmp/node-${NODE_NUMBER}"
+
+mkdir -p "$TMP_DIR"
 
 if [ -z "${BOOTSTRAP_NODE_ADDRESSES:-}" ]; then
   log "BOOTSTRAP_NODE_ADDRESSES env var is required" >&2
@@ -49,7 +55,7 @@ if [ -z "${CHAINLINK_KEYSTORE_PASSWORD:-}" ] || [ ${#CHAINLINK_KEYSTORE_PASSWORD
   exit 1
 fi
 
-mkdir -p "$CHAINLINK_ROOT"
+mkdir -p "$NODE_ROOT_DIR"
 
 # Ensure ownership/dirs
 mkdir -p "$PGDATA_DIR"
@@ -90,7 +96,7 @@ ensure_app_db() {
 }
 
 generate_secrets() {
-  local dst="${CHAINLINK_ROOT}/secrets.toml"
+  local dst="${NODE_ROOT_DIR}/secrets.toml"
   local url="postgresql://${APP_DB_USER}:${APP_DB_PASS}@127.0.0.1:${PGPORT}/${APP_DB}?sslmode=disable"
   umask 077
   cat > "$dst" <<EOF
@@ -145,9 +151,9 @@ if [ "${MANAGE_POSTGRES:-true}" != "false" ]; then
   # Monitor both processes; if any exits, stop the other and exit non-zero
   while true; do
     # Handle requested chainlink restarts
-    if [ -f /tmp/restart-chainlink ]; then
+    if [ -f "$TMP_DIR/restart-chainlink" ]; then
       log "restart requested for chainlink"
-      rm -f /tmp/restart-chainlink || true
+      rm -f "$TMP_DIR/restart-chainlink" || true
       if kill -0 ${CL_PID} 2>/dev/null; then
         kill ${CL_PID} || true
         wait ${CL_PID} 2>/dev/null || true
@@ -175,9 +181,9 @@ else
   start_chainlink
   log "Monitoring Chainlink process (PID: ${CL_PID}) for node ${NODE_NUMBER}..."
   while true; do
-    if [ -f /tmp/restart-chainlink ]; then
+    if [ -f $TMP_DIR/restart-chainlink ]; then
       log "Restart requested for chainlink node ${NODE_NUMBER}"
-      rm -f /tmp/restart-chainlink || true
+      rm -f $TMP_DIR/restart-chainlink || true
       if kill -0 ${CL_PID} 2>/dev/null; then
         kill ${CL_PID} || true
         wait ${CL_PID} 2>/dev/null || true
@@ -192,4 +198,3 @@ else
     sleep 2
   done
 fi
-В

@@ -23,6 +23,8 @@ if [ -z "${SP_SECRETS_DIR:-}" ]; then
   exit 1
 fi
 
+NODE_ROOT_DIR="${CHAINLINK_ROOT:-/chainlink}/node-${NODE_NUMBER}"
+
 # In-container sed -i helper (GNU sed)
 sed_inplace() {
   sed -i -e "$1" "$2"
@@ -58,7 +60,7 @@ wait_for_bootstrap_peer_ids() {
 }
 
 ensure_credentials() {
-  if [[ -f "${ROOT_DIR}/apicredentials" ]]; then
+  if [[ -f "${NODE_ROOT_DIR}/apicredentials" ]]; then
     log "apicredentials exists; leaving as is"
   else
     if [[ -z "${CHAINLINK_EMAIL:-}" || -z "${CHAINLINK_PASSWORD:-}" ]]; then
@@ -67,8 +69,8 @@ ensure_credentials() {
       {
         echo "${CHAINLINK_EMAIL}"
         echo "${CHAINLINK_PASSWORD}"
-      } > "${ROOT_DIR}/apicredentials"
-      chmod 600 "${ROOT_DIR}/apicredentials"
+      } > "${NODE_ROOT_DIR}/apicredentials"
+      chmod 600 "${NODE_ROOT_DIR}/apicredentials"
       log "generated apicredentials"
     fi
   fi
@@ -80,14 +82,14 @@ main() {
   ensure_credentials
 
   # Remove any stale per-node shared config to avoid confusion
-  local stale_shared_cfg="${SP_SECRETS_DIR}/cl-secrets/${NODE_NUMBER}/config.toml"
+  local stale_shared_cfg="${NODE_ROOT_DIR}/config.toml"
   if [[ -f "$stale_shared_cfg" ]]; then
     rm -f "$stale_shared_cfg" || true
     log "removed stale shared config ${stale_shared_cfg}"
   fi
 
   # Always (re)generate /chainlink/config.toml from template using current shared secrets
-  local cfg="${ROOT_DIR}/config.toml"
+  local cfg="${NODE_ROOT_DIR}/config.toml"
   rm -f "$cfg" || true
   local tpl="/scripts/bash/config.toml.template"
   if [[ -s "$tpl" ]]; then
@@ -117,8 +119,12 @@ main() {
         for ((i=0; i<limit; i++)); do
           local a="${addrs[$i]}"; a=$(echo "$a" | xargs)
           [[ -z "$a" ]] && continue
-          local host="${a%%:*}"; local port="${a##*:}"
-          [[ -z "$port" || "$port" == "$host" ]] && port="9999"
+          if [[ "${ALL_IN_ONE:-}" == "true" ]]; then
+            local host="127.0.0.1"; local port="9901"
+          else
+            local host="${a%%:*}"; local port="${a##*:}"
+            [[ -z "$port" || "$port" == "$host" ]] && port="9999"
+          fi
           local pid="${peer_ids[$i]}"
           if [[ -n "$host" && -n "$pid" ]]; then
             entries+=("'${pid}@${host}:${port}'")
@@ -164,13 +170,21 @@ main() {
         items+=("'${a}'")
       done
       if [[ ${#items[@]} -eq 0 ]]; then
-        local ip="10.5.0.$((8 + NODE_NUMBER)):${p2p_port}"
+        if [[ "${ALL_IN_ONE:-}" == "true" ]]; then
+          local ip="127.0.0.1:${p2p_port}"
+        else
+          local ip="10.5.0.$((8 + NODE_NUMBER)):${p2p_port}"
+        fi
         ANNOUNCE_ADDRESSES_STR="['${ip}']"
       else
         ANNOUNCE_ADDRESSES_STR="[${items[*]}]"
       fi
     else
-      local ip="10.5.0.$((8 + NODE_NUMBER)):${p2p_port}"
+      if [[ "${ALL_IN_ONE:-}" == "true" ]]; then
+        local ip="127.0.0.1:${p2p_port}"
+      else
+        local ip="10.5.0.$((8 + NODE_NUMBER)):${p2p_port}"
+      fi
       ANNOUNCE_ADDRESSES_STR="['${ip}']"
     fi
 
@@ -208,10 +222,14 @@ main() {
   fi
 
   # Set AnnounceAddresses based on docker-compose static IP scheme
-  local ip="10.5.0.$((8 + NODE_NUMBER))"
+  if [[ "${ALL_IN_ONE:-}" == "true" ]]; then
+    local ip="127.0.0.1"
+  else
+    local ip="10.5.0.$((8 + NODE_NUMBER))"
+  fi
   local p2p_port="${P2P_PORT:-9999}"
   # local ip="chainlink-node-$NODE_NUMBER"
-  local cfg="${ROOT_DIR}/config.toml"
+  local cfg="${NODE_ROOT_DIR}/config.toml"
   if [[ -f "$cfg" ]]; then
     if grep -qE '^[[:space:]]*AnnounceAddresses[[:space:]]*=' "$cfg"; then
       sed_inplace "s#^[[:space:]]*AnnounceAddresses[[:space:]]*=.*#AnnounceAddresses = ['${ip}:${p2p_port}']#" "$cfg"

@@ -70,14 +70,14 @@ TraceLogging = false
 ConfigLogValidation = false
 
 [P2P]
-IncomingMessageBufferSize = 10 # Default
-OutgoingMessageBufferSize = 10 # Default
-TraceLogging = true # Default
+IncomingMessageBufferSize = 10
+OutgoingMessageBufferSize = 10
+TraceLogging = true
 
 [P2P.V2]
-Enabled = true # Default
+Enabled = true
 AnnounceAddresses = $ANNOUNCE_ADDRESSES
 DefaultBootstrappers = $DEFAULT_BOOTSTRAPPERS
-DeltaDial = '15s' # Default
-DeltaReconcile = '1m' # Default
-ListenAddresses = ['0.0.0.0:${P2P_PORT:-9999}']
+DeltaDial = '15s'
+DeltaReconcile = '1m'
+ListenAddresses = ['0.0.0.0:$P2P_PORT']

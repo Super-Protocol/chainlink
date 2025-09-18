@@ -7,14 +7,18 @@ ENV NVM_DIR=/root/.nvm
 ENV SP_SECRETS_DIR=/sp/secrets
 ENV PATH=$PATH:/root/.nvm/versions/node/v$NODE_VERSION/bin/
 ENV PGDATA=/var/lib/postgresql/data
+ENV HOME=/root
+ENV XDG_CACHE_HOME=/root/.cache
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     gettext \
     jq \
     postgresql \
-    supervisor && \
-    rm -rf /var/lib/apt/lists/*
+    xz-utils \
+    ca-certificates \
+    curl
+# RUN rm -rf /var/lib/apt/lists/*
 
 RUN ln -s /usr/lib/postgresql/17/bin/* /usr/local/bin/
 
@@ -24,14 +28,35 @@ RUN mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && \
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \
     bash -c "source $NVM_DIR/nvm.sh && nvm install $NODE_VERSION"
 
+# Install s6-overlay (v3)
+ENV S6_OVERLAY_VERSION=3.2.1.0
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz /tmp
+
+RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
+RUN tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz
+
+# Project files
 COPY scripts /scripts
 COPY data-feed-generator/templates /templates
 
 RUN cd /scripts && npm ci --no-audit --no-fund --omit=optional
 
-RUN chmod +x /scripts/bash/init-db.sh && \
-    chmod +x /scripts/bash/entrypoint-allinone.sh
+# s6 service layout
+RUN mkdir -p /etc/cont-init.d /etc/services.d/postgres
 
-EXPOSE 6688 6689 6690 6691 6692
+# Init: database bootstrap (runs before services)
+COPY scripts/bash/init-db.sh /etc/cont-init.d/10-init-db.sh
+RUN chmod +x /etc/cont-init.d/10-init-db.sh
 
-ENTRYPOINT ["/scripts/bash/entrypoint-allinone.sh"]
+# Init: generate per-node services
+COPY scripts/bash/entrypoint-allinone.sh /etc/cont-init.d/20-generate-services.sh
+RUN chmod +x /etc/cont-init.d/20-generate-services.sh
+
+# Postgres service (bash wrapper)
+ADD aio/services.d/postgres/run /etc/services.d/postgres/run
+RUN chmod +x /etc/services.d/postgres/run
+
+EXPOSE 6601 6602 6603 6604 6605
+
+ENTRYPOINT ["/init"]
