@@ -54,3 +54,49 @@ jobs:
           echo "  - SPCTL version: ${{ steps.import-secrets.outputs.SPCTL_VERSION }}"
           echo "  - SPCTL repository: ${{ steps.import-secrets.outputs.SPCTL_REPOSITORY }}"
           echo "  - Solution offer: ${{ steps.import-secrets.outputs.SOLUTION_OFFER }}"
+
+      - name: Download and install SPCTL
+        uses: Super-Protocol/sp-build-tools/actions/download-spctl@v1
+        with:
+          version: ${{ steps.import-secrets.outputs.SPCTL_VERSION }}
+          repository: ${{ steps.import-secrets.outputs.SPCTL_REPOSITORY }}
+          gh_token: ${{ secrets.GHFG_TOKEN_SPCTL_RELEASES_DOWNLOAD }}
+
+      - name: Prepare SPCTL config and configuration
+        shell: bash
+        run: |
+          printf '%s' '${{ toJSON(steps.import-secrets.outputs.OFFERS_SPCTL_CONFIG_JSON) }}' | jq -r . > "${{ env.SPCTL_CONFIG_FILE }}"
+          printf '%s' '${{ toJSON(steps.import-secrets.outputs.CONFIGURATION_JSON) }}' | jq -r . > "${{ env.CONFIGURATION_FILE }}"
+
+      - name: Compute repository variable key
+        id: var-key
+        shell: bash
+        run: |
+          set -euo pipefail
+          raw="CHAINLINK_${{ env.TARGET }}_SOLUTION_ORDER"
+          safe=$(echo "$raw" | tr '[:lower:]' '[:upper:]' | sed -E 's/[^A-Z0-9_]/_/g')
+          if echo "$safe" | grep -qE '^[0-9]'; then
+            safe="_$safe"
+          fi
+          echo "varname=$safe" >> "$GITHUB_OUTPUT"
+
+      - name: Create workflow
+        id: run-solution
+        uses: Super-Protocol/sp-build-tools/actions/create-workflows@v1
+        with:
+          spctl_config_file: ${{ env.SPCTL_CONFIG_FILE }}
+          tee_offers: ${{ steps.import-secrets.outputs.TEE }}
+          solution: ${{ steps.import-secrets.outputs.SOLUTION_OFFER }}
+          previous_orders: ${{ vars[steps.var-key.outputs.varname] }}
+          solution_configuration: ${{ env.CONFIGURATION_FILE }}
+
+      - name: Create or update repository variable
+        uses: Super-Protocol/sp-build-tools/actions/create-or-update-repo-variable@v1
+        # Persist new order ids for this solution only (keyed by TARGET + solution_id)
+        if: ${{ steps.run-solution.outputs.order_ids != '' }}
+        with:
+          gh_token: ${{ secrets.TOKEN_GITHUB_REPO_RW }}
+          variable_name: ${{ steps.var-key.outputs.varname }}
+          data: ${{ steps.run-solution.outputs.order_ids }}
+
+
