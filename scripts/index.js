@@ -34,8 +34,7 @@ const mapConfigToEnv = (cfg) => {
     BOOTSTRAP_NODE_ADDRESSES: toStr(cfg.bootstrapNodeAddresses),
 
     // Under s6-overlay, Postgres runs as a separate service; disable DB management in entrypoint.sh
-    MANAGE_POSTGRES: 'false',
-    P2P_PORT: process.env.P2P_PORT,
+    MANAGE_POSTGRES: process.env.ALL_IN_ONE ? 'false' : 'true',
 
     ADMIN_CONTRACT_ADDRESS: toStr(cfg.adminContractAddress),
     DIAMOND_CONTRACT_ADDRESS: toStr(cfg.diamondContractAddress),
@@ -49,7 +48,7 @@ const mapConfigToEnv = (cfg) => {
 async function run() {
   const cfg = await readConfiguration();
 
-  const env = { ...mapConfigToEnv(cfg), ...process.env };
+  const env = { ...process.env, ...mapConfigToEnv(cfg) };
 
   // Make mapped env available to this process as well (for pre-start helpers)
   for (const [k, v] of Object.entries(env)) {
@@ -110,7 +109,6 @@ async function run() {
   const child = spawn(entrypointPath, {
     env,
     stdio: 'inherit',
-    // detached: false,
   });
 
   child.on('exit', (code, signal) => {
