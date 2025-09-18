@@ -13,6 +13,7 @@ import { SourceName } from '../source-name.enum';
 
 const BASE_URL = 'https://api.coinbase.com';
 const API_PATH = '/v2/prices';
+const CURRENCIES_PATH = '/v2/currencies';
 
 interface CoinbaseResponse {
   data: {
@@ -20,6 +21,14 @@ interface CoinbaseResponse {
     currency: string;
     amount: string;
   };
+}
+
+interface CoinbaseCurrenciesResponse {
+  data: Array<{
+    id: string;
+    name: string;
+    min_size: string;
+  }>;
 }
 
 @Injectable()
@@ -62,9 +71,48 @@ export class CoinbaseAdapter implements SourceAdapter {
         receivedAt: Date.now(),
       };
     } catch (error) {
-      if (isAxiosError(error) && error.response?.status === 404) {
-        throw new UnsupportedPairException(pair, this.name);
+      if (isAxiosError(error) && error.response) {
+        const status = error.response.status;
+
+        if (status === 404) {
+          throw new UnsupportedPairException(pair, this.name);
+        }
       }
+
+      throw new SourceApiException(this.name, error as Error);
+    }
+  }
+
+  async getPairs(): Promise<Pair[]> {
+    try {
+      const { data } =
+        await this.httpClient.get<CoinbaseCurrenciesResponse>(CURRENCIES_PATH);
+
+      if (!data?.data) {
+        throw new SourceApiException(
+          this.name,
+          new Error('Invalid currencies response'),
+        );
+      }
+
+      const currencies = data.data.map((currency) => currency.id);
+      const commonQuoteCurrencies = ['USD', 'EUR', 'BTC', 'ETH'];
+      const pairs: Pair[] = [];
+
+      for (const baseCurrency of currencies) {
+        for (const quoteCurrency of commonQuoteCurrencies) {
+          if (baseCurrency !== quoteCurrency) {
+            pairs.push([baseCurrency, quoteCurrency]);
+          }
+        }
+      }
+
+      return pairs;
+    } catch (error) {
+      if (error instanceof SourceApiException) {
+        throw error;
+      }
+
       throw new SourceApiException(this.name, error as Error);
     }
   }

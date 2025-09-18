@@ -3,17 +3,29 @@ import { isAxiosError } from 'axios';
 
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
-import { PriceNotFoundException, SourceApiException } from '../exceptions';
-import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
+import {
+  BatchSizeExceededException,
+  PriceNotFoundException,
+  SourceApiException,
+} from '../exceptions';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  WithBatch,
+} from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
 const BASE_URL = 'https://min-api.cryptocompare.com';
-const API_PATH = '/data/price';
+const QUOTE_PATH = '/data/price';
+const PRICEMULTI_PATH = '/data/pricemulti';
+const MAX_BATCH_SIZE = 50;
 
 type CryptoCompareResponse = Record<string, number>;
+type CryptoCompareMultiResponse = Record<string, Record<string, number>>;
 
 @Injectable()
-export class CryptoCompareAdapter implements SourceAdapter {
+export class CryptoCompareAdapter implements SourceAdapter, WithBatch {
   readonly name = SourceName.CRYPTOCOMPARE;
   readonly enabled: boolean;
   private readonly httpClient: HttpClient;
@@ -45,7 +57,7 @@ export class CryptoCompareAdapter implements SourceAdapter {
 
     try {
       const { data } = await this.httpClient.get<CryptoCompareResponse>(
-        API_PATH,
+        QUOTE_PATH,
         {
           params: {
             fsym: base.toUpperCase(),
@@ -66,6 +78,67 @@ export class CryptoCompareAdapter implements SourceAdapter {
         receivedAt: Date.now(),
       };
     } catch (error) {
+      if (isAxiosError<{ Message?: string }>(error)) {
+        const errorMessage = error.response?.data?.Message;
+        if (errorMessage) {
+          throw new SourceApiException(this.name, new Error(errorMessage));
+        }
+      }
+      throw new SourceApiException(this.name, error as Error);
+    }
+  }
+
+  async fetchQuotes(pairs: Pair[]): Promise<Quote[]> {
+    if (!pairs || pairs.length === 0) {
+      return [];
+    }
+
+    if (pairs.length > MAX_BATCH_SIZE) {
+      throw new BatchSizeExceededException(
+        pairs.length,
+        MAX_BATCH_SIZE,
+        this.name,
+      );
+    }
+
+    const baseSymbols = [...new Set(pairs.map((pair) => pair[0]))];
+    const quoteSymbols = [...new Set(pairs.map((pair) => pair[1]))];
+
+    try {
+      const { data } = await this.httpClient.get<CryptoCompareMultiResponse>(
+        PRICEMULTI_PATH,
+        {
+          params: {
+            fsyms: baseSymbols.map((s) => s.toUpperCase()).join(','),
+            tsyms: quoteSymbols.map((s) => s.toUpperCase()).join(','),
+          },
+        },
+      );
+
+      const quotes: Quote[] = [];
+      const now = Date.now();
+
+      for (const pair of pairs) {
+        const [base, quote] = pair;
+        const baseUpper = base.toUpperCase();
+        const quoteUpper = quote.toUpperCase();
+        const price = data?.[baseUpper]?.[quoteUpper];
+
+        if (price !== undefined && price !== null) {
+          quotes.push({
+            pair,
+            price: String(price),
+            receivedAt: now,
+          });
+        }
+      }
+
+      return quotes;
+    } catch (error) {
+      if (error instanceof BatchSizeExceededException) {
+        throw error;
+      }
+
       if (isAxiosError<{ Message?: string }>(error)) {
         const errorMessage = error.response?.data?.Message;
         if (errorMessage) {

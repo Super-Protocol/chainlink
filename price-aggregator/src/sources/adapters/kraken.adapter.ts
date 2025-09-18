@@ -3,15 +3,23 @@ import { Injectable } from '@nestjs/common';
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
 import {
+  BatchSizeExceededException,
   PriceNotFoundException,
   SourceApiException,
   UnsupportedPairException,
 } from '../exceptions';
-import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  WithBatch,
+} from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
 const BASE_URL = 'https://api.kraken.com';
 const API_PATH = '/0/public/Ticker';
+const ASSET_PAIRS_PATH = '/0/public/AssetPairs';
+const MAX_BATCH_SIZE = 50;
 
 interface KrakenResponse {
   error: string[];
@@ -31,8 +39,35 @@ interface KrakenResponse {
   >;
 }
 
+interface KrakenAssetPairsResponse {
+  error: string[];
+  result?: Record<
+    string,
+    {
+      altname: string;
+      wsname: string;
+      aclass_base: string;
+      base: string;
+      aclass_quote: string;
+      quote: string;
+      lot: string;
+      pair_decimals: number;
+      lot_decimals: number;
+      lot_multiplier: number;
+      leverage_buy: number[];
+      leverage_sell: number[];
+      fees: number[][];
+      fees_maker: number[][];
+      fee_volume_currency: string;
+      margin_call: number;
+      margin_stop: number;
+      ordermin: string;
+    }
+  >;
+}
+
 @Injectable()
-export class KrakenAdapter implements SourceAdapter {
+export class KrakenAdapter implements SourceAdapter, WithBatch {
   readonly name = SourceName.KRAKEN;
   readonly enabled: boolean;
   private readonly httpClient: HttpClient;
@@ -88,6 +123,96 @@ export class KrakenAdapter implements SourceAdapter {
       if (error instanceof UnsupportedPairException) {
         throw error;
       }
+      throw new SourceApiException(this.name, error as Error);
+    }
+  }
+
+  async getPairs(): Promise<Pair[]> {
+    try {
+      const { data } =
+        await this.httpClient.get<KrakenAssetPairsResponse>(ASSET_PAIRS_PATH);
+
+      if (data?.error?.length > 0) {
+        throw new SourceApiException(
+          this.name,
+          new Error(data.error.join(',')),
+        );
+      }
+
+      if (!data?.result) {
+        throw new SourceApiException(
+          this.name,
+          new Error('Invalid asset pairs response'),
+        );
+      }
+
+      const pairs: Pair[] = [];
+      for (const [, pairInfo] of Object.entries(data.result)) {
+        pairs.push(pairInfo.wsname.split('/') as Pair);
+      }
+
+      return pairs;
+    } catch (error) {
+      throw new SourceApiException(this.name, error as Error);
+    }
+  }
+
+  async fetchQuotes(pairs: Pair[]): Promise<Quote[]> {
+    if (!pairs || pairs.length === 0) {
+      return [];
+    }
+
+    if (pairs.length > MAX_BATCH_SIZE) {
+      throw new BatchSizeExceededException(
+        pairs.length,
+        MAX_BATCH_SIZE,
+        this.name,
+      );
+    }
+
+    try {
+      const krakenPairs = pairs.map((pair) => pair.join('').toUpperCase());
+      const { data } = await this.httpClient.get<KrakenResponse>(API_PATH, {
+        params: {
+          pair: krakenPairs.join(','),
+        },
+      });
+
+      if (data?.error?.length > 0) {
+        if (data.error.some((err) => err.includes('Unknown asset pair'))) {
+          return [];
+        }
+        throw new SourceApiException(
+          this.name,
+          new Error(data.error.join(',')),
+        );
+      }
+
+      const quotes: Quote[] = [];
+      const now = Date.now();
+
+      if (data?.result) {
+        for (const pair of pairs) {
+          const krakenPair = pair.join('').toUpperCase();
+          const tickerData = data.result[krakenPair];
+
+          if (tickerData && tickerData.c && tickerData.c[0]) {
+            const price = tickerData.c[0];
+            quotes.push({
+              pair,
+              price: String(price),
+              receivedAt: now,
+            });
+          }
+        }
+      }
+
+      return quotes;
+    } catch (error) {
+      if (error instanceof BatchSizeExceededException) {
+        throw error;
+      }
+
       throw new SourceApiException(this.name, error as Error);
     }
   }
