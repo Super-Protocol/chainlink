@@ -1,9 +1,43 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { isAxiosError } from 'axios';
 import Bottleneck from 'bottleneck';
 
 export interface RpsLimiterOptions {
   rps?: number | null;
   maxConcurrent?: number;
+}
+
+function shouldRetryError(error: unknown): boolean {
+  if (!error) {
+    return false;
+  }
+
+  if (isAxiosError(error)) {
+    if (!error.response) {
+      return true;
+    }
+
+    return error.response.status >= 500;
+  }
+
+  if (error instanceof Error) {
+    const errorMessage = error.message.toLowerCase();
+    const networkErrorPatterns = [
+      'network error',
+      'connection',
+      'timeout',
+      'econnreset',
+      'enotfound',
+      'econnrefused',
+      'socket hang up',
+    ];
+
+    return networkErrorPatterns.some((pattern) =>
+      errorMessage.includes(pattern),
+    );
+  }
+
+  return false;
 }
 
 @Injectable()
@@ -37,12 +71,30 @@ export class RpsLimiterService {
     });
 
     limiter.on('failed', async (error, jobInfo) => {
+      const shouldRetry = shouldRetryError(error);
+      const statusCode = isAxiosError(error)
+        ? error.response?.status
+        : 'unknown';
+
       this.logger.warn(
-        `Request failed for ${key}, retries: ${jobInfo.retryCount}`,
+        `Request failed for ${key}, retries: ${jobInfo.retryCount}, status: ${statusCode}, shouldRetry: ${shouldRetry}`,
       );
-      if (jobInfo.retryCount < 3) {
-        return 1000 * Math.pow(2, jobInfo.retryCount);
+
+      if (shouldRetry && jobInfo.retryCount < 3) {
+        const delay = 100 * Math.pow(2, jobInfo.retryCount);
+        this.logger.debug(
+          `Retrying request for ${key} in ${delay}ms (attempt ${jobInfo.retryCount + 1}/3)`,
+        );
+        return delay;
       }
+
+      if (!shouldRetry) {
+        this.logger.debug(
+          `Not retrying request for ${key} - error type not retryable (status: ${statusCode})`,
+        );
+      }
+
+      return undefined;
     });
 
     this.limiters.set(key, limiter);

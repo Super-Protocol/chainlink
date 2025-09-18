@@ -4,7 +4,6 @@ import { Injectable } from '@nestjs/common';
 import { ConfiguredHttpClient } from './configured-http-client';
 import { RpsLimiterService } from './rps-limiter.service';
 import {
-  CustomClientParams,
   HttpClient,
   HttpClientConfig,
   ProxyConfig,
@@ -23,25 +22,6 @@ export class HttpClientBuilder {
   build(params: ClientParams): HttpClient {
     const clientConfig: HttpClientConfig = {
       timeoutMs: params.timeoutMs,
-      rps: params.rps,
-      useProxy: params.useProxy || false,
-      proxyConfig: params.proxyConfig,
-      maxRetries: params.maxRetries || 3,
-      maxConcurrent: params.maxConcurrent || 10,
-      baseUrl: params.baseUrl,
-      defaultParams: params.defaultParams,
-    };
-
-    if (clientConfig.useProxy && !clientConfig.proxyConfig) {
-      clientConfig.proxyConfig = this.getProxyConfig();
-    }
-
-    return this.createClient(clientConfig);
-  }
-
-  buildCustom(params: CustomClientParams = {}): HttpClient {
-    const clientConfig: HttpClientConfig = {
-      timeoutMs: params.timeoutMs || 10000,
       rps: params.rps,
       useProxy: params.useProxy || false,
       proxyConfig: params.proxyConfig,

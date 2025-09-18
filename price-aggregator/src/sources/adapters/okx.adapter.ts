@@ -8,11 +8,18 @@ import {
   SourceApiException,
   UnsupportedPairException,
 } from '../exceptions';
-import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  WithBatch,
+} from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
 const BASE_URL = 'https://www.okx.com';
 const API_PATH = '/api/v5/market/ticker';
+const TICKERS_PATH = '/api/v5/market/tickers';
+const INSTRUMENTS_PATH = '/api/v5/public/instruments';
 
 interface OkxResponse {
   code: string;
@@ -39,8 +46,36 @@ interface OkxResponse {
   ];
 }
 
+interface OkxInstrumentsResponse {
+  code: string;
+  msg: string;
+  data: Array<{
+    instType: string;
+    instId: string;
+    uly: string;
+    instFamily: string;
+    baseCcy: string;
+    quoteCcy: string;
+    settleCcy: string;
+    ctVal: string;
+    ctMult: string;
+    ctValCcy: string;
+    optType: string;
+    stk: string;
+    listTime: string;
+    expTime: string;
+    lever: string;
+    tickSz: string;
+    lotSz: string;
+    minSz: string;
+    ctType: string;
+    alias: string;
+    state: string;
+  }>;
+}
+
 @Injectable()
-export class OkxAdapter implements SourceAdapter {
+export class OkxAdapter implements SourceAdapter, WithBatch {
   readonly name = SourceName.OKX;
   readonly enabled: boolean;
   private readonly httpClient: HttpClient;
@@ -93,6 +128,91 @@ export class OkxAdapter implements SourceAdapter {
       ) {
         throw new UnsupportedPairException(pair, this.name);
       }
+      throw new SourceApiException(this.name, error as Error);
+    }
+  }
+
+  async getPairs(): Promise<Pair[]> {
+    try {
+      const { data } = await this.httpClient.get<OkxInstrumentsResponse>(
+        INSTRUMENTS_PATH,
+        {
+          params: {
+            instType: 'SPOT',
+          },
+        },
+      );
+
+      if (data?.code !== '0') {
+        throw new SourceApiException(this.name, new Error(data.msg));
+      }
+
+      if (!data?.data) {
+        throw new SourceApiException(
+          this.name,
+          new Error('Invalid instruments response'),
+        );
+      }
+
+      const pairs: Pair[] = [];
+      for (const instrument of data.data) {
+        if (instrument.state === 'live') {
+          pairs.push([instrument.baseCcy, instrument.quoteCcy]);
+        }
+      }
+
+      return pairs;
+    } catch (error) {
+      throw new SourceApiException(this.name, error as Error);
+    }
+  }
+
+  async fetchQuotes(pairs: Pair[]): Promise<Quote[]> {
+    if (!pairs || pairs.length === 0) {
+      return [];
+    }
+
+    try {
+      // OKX tickers endpoint returns all SPOT tickers at once
+      const { data } = await this.httpClient.get<OkxResponse>(TICKERS_PATH, {
+        params: {
+          instType: 'SPOT',
+        },
+      });
+
+      if (data?.code !== '0') {
+        throw new SourceApiException(this.name, new Error(data.msg));
+      }
+
+      const quotes: Quote[] = [];
+      const now = Date.now();
+
+      if (data?.data) {
+        // Create a map for fast lookup
+        const tickerMap = new Map<string, string>();
+        for (const ticker of data.data) {
+          if (ticker.instId && ticker.last) {
+            tickerMap.set(ticker.instId, ticker.last);
+          }
+        }
+
+        // Find prices for requested pairs
+        for (const pair of pairs) {
+          const okxInstId = `${pair[0].toUpperCase()}-${pair[1].toUpperCase()}`;
+          const price = tickerMap.get(okxInstId);
+
+          if (price) {
+            quotes.push({
+              pair,
+              price: String(price),
+              receivedAt: now,
+            });
+          }
+        }
+      }
+
+      return quotes;
+    } catch (error) {
       throw new SourceApiException(this.name, error as Error);
     }
   }

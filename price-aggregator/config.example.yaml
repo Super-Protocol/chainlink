@@ -59,7 +59,7 @@ sources:
     enabled: true
     ttl: 60000
     timeoutMs: 15000
-    rps: 0.0003 # 25/day limit, null to disable
+    rps: 1 # 25/day limit, null to disable
     maxConcurrent: 10
     apiKey: your-alpha-vantage-api-key
     useProxy: false
@@ -68,7 +68,7 @@ sources:
     enabled: true
     ttl: 30000
     timeoutMs: 10000
-    rps: 0.5 # 30/min limit, null to disable
+    rps: 1 # 30/min limit, null to disable
     maxConcurrent: 10
     useProxy: false
 
@@ -76,7 +76,7 @@ sources:
     enabled: true
     ttl: 60000
     timeoutMs: 10000
-    rps: 0.012 # 1000/day limit, null to disable
+    rps: 1 # 1000/day limit, null to disable
     maxConcurrent: 10
     useProxy: false
 

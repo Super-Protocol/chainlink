@@ -24,7 +24,7 @@ export const yamlValidationSchema = Type.Object(
     ),
     logger: loggerSchema,
     sources: sourcesSchema,
-    proxy: proxySchema,
+    proxy: Type.Optional(proxySchema),
   },
   {
     default: {},

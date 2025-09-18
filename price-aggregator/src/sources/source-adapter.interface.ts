@@ -27,6 +27,7 @@ export interface SourceAdapter {
   readonly enabled: boolean;
 
   fetchQuote(pair: Pair): Promise<Quote>;
+  getPairs?(): Promise<Pair[]>;
   fetchQuotes?(pairs: Pair[]): Promise<Quote[]>;
   streamQuotes?(pairs: Pair[]): AsyncIterable<Quote>;
 }

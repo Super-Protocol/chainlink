@@ -14,7 +14,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 
-import { BatchQuotesDto, PairDto, QuoteResponseDto } from './dto';
+import { BatchQuotesDto, QuoteResponseDto, PairsResponseDto } from './dto';
 import { Pair } from './source-adapter.interface';
 import { SourceName } from './source-name.enum';
 import { SourcesManagerService } from './sources-manager.service';
@@ -29,6 +29,7 @@ export class SourcesController {
     summary: 'Fetch quote for currency pair from specific source',
     description:
       'Get current price quote for a currency pair from the specified data source',
+    deprecated: true,
   })
   @ApiParam({
     name: 'source',
@@ -79,6 +80,7 @@ export class SourcesController {
     summary: 'Fetch quotes for multiple currency pairs',
     description:
       'Get current price quotes for multiple currency pairs from the specified data source',
+    deprecated: true,
   })
   @ApiParam({
     name: 'source',
@@ -111,10 +113,7 @@ export class SourcesController {
       throw new BadRequestException('At least one pair must be provided');
     }
 
-    const pairs: Pair[] = batchQuotesDto.pairs.map((pairDto: PairDto) => [
-      pairDto.base,
-      pairDto.quote,
-    ]);
+    const pairs: Pair[] = batchQuotesDto.pairs;
 
     const quotes = await this.sourcesManager.fetchQuotes(source, pairs);
     return quotes.map((quote) => ({
@@ -122,5 +121,35 @@ export class SourcesController {
       price: quote.price,
       receivedAt: quote.receivedAt,
     }));
+  }
+
+  @Get(':source/pairs')
+  @ApiOperation({
+    summary: 'Get available trading pairs from specific source',
+    description:
+      'Retrieve all available trading pairs from the specified data source',
+  })
+  @ApiParam({
+    name: 'source',
+    enum: SourceName,
+    description: 'Data source name',
+    example: SourceName.BINANCE,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Trading pairs successfully retrieved',
+    type: PairsResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Source does not support getting pairs',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Source not found or disabled',
+  })
+  async getPairs(@Param('source') source: string): Promise<PairsResponseDto> {
+    const pairs = await this.sourcesManager.getPairs(source);
+    return { pairs };
   }
 }

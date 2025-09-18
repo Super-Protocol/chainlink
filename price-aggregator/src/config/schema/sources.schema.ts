@@ -53,7 +53,7 @@ const createSourceSchema = ({
         Type.Union(
           [
             Type.Number({
-              minimum: 0.001,
+              minimum: 0.0001,
               maximum: 1000,
               description:
                 'Requests per second limit to prevent API rate limiting',
@@ -84,7 +84,7 @@ export const binanceSourceSchema = createSourceSchema({
   apiKeyDescription:
     'Optional API key for Binance (not required for public market data)',
   apiKeyExamples: ['your-binance-api-key'],
-  rpsDefault: 100, // 6000 requests per minute = 100 RPS
+  rpsDefault: 100,
 });
 
 export const okxSourceSchema = createSourceSchema({
@@ -92,14 +92,14 @@ export const okxSourceSchema = createSourceSchema({
   apiKeyDescription:
     'Optional API key for OKX (not required for public market data)',
   apiKeyExamples: ['your-okx-api-key'],
-  rpsDefault: 10, // 20 requests per 2 seconds = 10 RPS
+  rpsDefault: 10,
 });
 
 export const finnhubSourceSchema = createSourceSchema({
   apiKeyRequired: true,
   apiKeyDescription: 'Required API key for Finnhub (free: 60 requests/minute)',
   apiKeyExamples: ['your-finnhub-api-key'],
-  rpsDefault: 1, // 60 requests per minute = 1 RPS
+  rpsDefault: 1,
 });
 
 export const cryptocompareSourceSchema = createSourceSchema({
@@ -107,7 +107,7 @@ export const cryptocompareSourceSchema = createSourceSchema({
   apiKeyDescription:
     'Required API key for CryptoCompare (free: 100,000 requests/month)',
   apiKeyExamples: ['your-cryptocompare-api-key'],
-  rpsDefault: 25, // 25 requests per second
+  rpsDefault: 25,
 });
 
 export const alphavantageSourceSchema = createSourceSchema({
@@ -115,7 +115,7 @@ export const alphavantageSourceSchema = createSourceSchema({
   apiKeyDescription:
     'Required API key for Alpha Vantage (free: 25 requests/day)',
   apiKeyExamples: ['DEMO_KEY', 'your-alpha-vantage-api-key'],
-  rpsDefault: 0.0003, // 25 requests per day ≈ 0.0003 RPS
+  rpsDefault: 1,
 });
 
 export const coingeckoSourceSchema = createSourceSchema({
@@ -123,7 +123,7 @@ export const coingeckoSourceSchema = createSourceSchema({
   apiKeyDescription:
     'Optional API key for CoinGecko Pro (increases rate limits)',
   apiKeyExamples: ['your-coingecko-pro-api-key'],
-  rpsDefault: 0.5, // 30 requests per minute = 0.5 RPS
+  rpsDefault: 1,
 });
 
 export const exchangerateSourceSchema = createSourceSchema({
@@ -131,7 +131,7 @@ export const exchangerateSourceSchema = createSourceSchema({
   apiKeyDescription:
     'Optional API key for ExchangeRate Host (paid plans have higher limits)',
   apiKeyExamples: ['your-exchangerate-host-api-key'],
-  rpsDefault: 0.012, // 1000 requests per day ≈ 0.012 RPS
+  rpsDefault: 1,
 });
 
 export const krakenSourceSchema = createSourceSchema({
@@ -139,7 +139,7 @@ export const krakenSourceSchema = createSourceSchema({
   apiKeyDescription:
     'Optional API key for Kraken (not required for public market data)',
   apiKeyExamples: ['your-kraken-api-key'],
-  rpsDefault: 1, // ~1 request per second (starter tier)
+  rpsDefault: 1,
 });
 
 export const coinbaseSourceSchema = createSourceSchema({
@@ -147,14 +147,14 @@ export const coinbaseSourceSchema = createSourceSchema({
   apiKeyDescription:
     'Optional API key for Coinbase (not required for public market data)',
   apiKeyExamples: ['your-coinbase-api-key'],
-  rpsDefault: 2.8, // 10000 requests per hour ≈ 2.8 RPS
+  rpsDefault: 2.8,
 });
 
 export const frankfurterSourceSchema = createSourceSchema({
   apiKeyRequired: false,
   apiKeyDescription: 'No API key required for Frankfurter (no strict limits)',
   apiKeyExamples: [],
-  rpsDefault: 10, // No strict limits, conservative default
+  rpsDefault: 10,
 });
 
 export const sourcesSchema = Type.Object(

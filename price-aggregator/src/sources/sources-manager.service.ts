@@ -7,6 +7,7 @@ import {
   SourceUnsupportedException,
   BatchNotSupportedException,
   StreamingNotSupportedException,
+  FeatureNotImplementedException,
 } from './exceptions';
 import { SourceAdapter, Quote, Pair } from './source-adapter.interface';
 import { SourceName } from './source-name.enum';
@@ -61,6 +62,22 @@ export class SourcesManagerService {
   isStreamQuotesSupported(sourceName: string): boolean {
     const adapter = this.getAdapterByName(sourceName);
     return adapter.streamQuotes !== undefined;
+  }
+
+  async getPairs(sourceName: string): Promise<Pair[]> {
+    this.logger.debug(`Fetching pairs for ${sourceName}`);
+    const adapter = this.getAdapterByName(sourceName);
+
+    if (!adapter.getPairs) {
+      throw new FeatureNotImplementedException('get pairs', sourceName);
+    }
+
+    return adapter.getPairs();
+  }
+
+  isGetPairsSupported(sourceName: string): boolean {
+    const adapter = this.getAdapterByName(sourceName);
+    return adapter.getPairs !== undefined;
   }
 
   private getAdapter(sourceName: SourceName): SourceAdapter {

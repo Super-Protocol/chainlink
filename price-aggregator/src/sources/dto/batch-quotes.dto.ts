@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsArray, IsString, Length, ValidateNested } from 'class-validator';
+import { IsArray, IsString, Length, ArrayMinSize } from 'class-validator';
 
+import { IsArrayOfPairs } from '../../common/decorators';
 import { Currency } from '../../config/pairs';
 
 export class PairDto {
@@ -9,34 +9,34 @@ export class PairDto {
     description: 'Base currency code',
     example: Currency.BTC,
     minLength: 1,
-    maxLength: 10,
+    maxLength: 50,
   })
   @IsString()
-  @Length(1, 10)
+  @Length(1, 50)
   base: string;
 
   @ApiProperty({
     description: 'Quote currency code',
     example: Currency.USD,
     minLength: 1,
-    maxLength: 10,
+    maxLength: 50,
   })
   @IsString()
-  @Length(1, 10)
+  @Length(1, 50)
   quote: string;
 }
 
 export class BatchQuotesDto {
   @ApiProperty({
-    description: 'Array of currency pairs to fetch quotes for',
-    type: [PairDto],
+    description: 'Array of currency pairs as arrays [base, quote]',
+    type: [[String]],
     example: [
-      { base: 'BTC', quote: 'USD' },
-      { base: 'ETH', quote: 'USD' },
+      ['BTC', 'USD'],
+      ['ETH', 'USD'],
     ],
   })
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PairDto)
-  pairs: PairDto[];
+  @ArrayMinSize(1, { message: 'At least one pair must be provided' })
+  @IsArrayOfPairs()
+  pairs: [string, string][];
 }

@@ -6,20 +6,27 @@ import { isAxiosError } from 'axios';
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
 import {
+  BatchSizeExceededException,
   PriceNotFoundException,
   SourceApiException,
   UnsupportedPairException,
 } from '../exceptions';
-import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  WithBatch,
+} from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
 const BASE_URL = 'https://api.coingecko.com';
 const API_PATH = '/api/v3/simple/price';
+const MAX_BATCH_SIZE = 100;
 
 type CoinGeckoResponse = Record<string, Record<string, number>>;
 
 @Injectable()
-export class CoinGeckoAdapter implements SourceAdapter {
+export class CoinGeckoAdapter implements SourceAdapter, WithBatch {
   readonly name = SourceName.COINGECKO;
   readonly enabled: boolean;
   private readonly httpClient: HttpClient;
@@ -66,9 +73,86 @@ export class CoinGeckoAdapter implements SourceAdapter {
         receivedAt: Date.now(),
       };
     } catch (error) {
-      if (isAxiosError(error) && error.response?.status === 400) {
-        throw new UnsupportedPairException(pair, this.name);
+      if (error instanceof PriceNotFoundException) {
+        throw error;
       }
+
+      if (isAxiosError(error) && error.response) {
+        const status = error.response.status;
+
+        if (status === 400 || status === 404) {
+          throw new UnsupportedPairException(pair, this.name);
+        }
+
+        if (status >= 500) {
+          throw new SourceApiException(this.name, error);
+        }
+      }
+
+      throw new SourceApiException(this.name, error as Error);
+    }
+  }
+
+  async fetchQuotes(pairs: Pair[]): Promise<Quote[]> {
+    if (!pairs || pairs.length === 0) {
+      return [];
+    }
+
+    if (pairs.length > MAX_BATCH_SIZE) {
+      throw new BatchSizeExceededException(
+        pairs.length,
+        MAX_BATCH_SIZE,
+        this.name,
+      );
+    }
+
+    const coinIds = [...new Set(pairs.map((pair) => pair[0]))];
+    const currencies = [...new Set(pairs.map((pair) => pair[1]))];
+
+    const params = new URLSearchParams({
+      ids: coinIds.join(','),
+      vs_currencies: currencies.join(','),
+    });
+
+    try {
+      const { data } = await this.httpClient.get<CoinGeckoResponse>(
+        `${API_PATH}?${params.toString()}`,
+      );
+
+      const quotes: Quote[] = [];
+      const now = Date.now();
+
+      for (const pair of pairs) {
+        const [base, quote] = pair;
+        const price = data?.[base]?.[quote];
+
+        if (price !== undefined && price !== null) {
+          quotes.push({
+            pair,
+            price: String(price),
+            receivedAt: now,
+          });
+        }
+      }
+
+      return quotes;
+    } catch (error) {
+      if (error instanceof BatchSizeExceededException) {
+        throw error;
+      }
+
+      if (isAxiosError(error) && error.response) {
+        const status = error.response.status;
+
+        if (status === 400 || status === 404) {
+          return [];
+        }
+
+        if (status >= 500) {
+          throw new SourceApiException(this.name, error);
+        }
+      }
+
       throw new SourceApiException(this.name, error as Error);
     }
   }
