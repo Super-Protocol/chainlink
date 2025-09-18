@@ -175,6 +175,14 @@ function encryptSharedSecret(x25519PubKeys, sharedSecret16) {
   };
 }
 
+const compareDonConfig = (a, b) => {
+  const left = normalizeForCompare(a);
+  const right = normalizeForCompare(b);
+  delete left.sharedSecretEncryptions;
+  delete right.sharedSecretEncryptions;
+  return JSON.stringify(left) === JSON.stringify(right);
+};
+
 async function setConfigForContract(contractAddr) {
   const rpcUrl = process.env.CHAINLINK_RPC_HTTP_URL;
   if (!rpcUrl) throw new Error('CHAINLINK_RPC_HTTP_URL is required');

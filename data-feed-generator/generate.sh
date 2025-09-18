@@ -29,8 +29,11 @@ port_for_node() {
 
 # Helper: compute container P2P IP per node number (per docker-compose.yml)
 ip_for_node() {
-  local node_num="$1"
-  echo "10.5.0.$((8 + node_num))"
+  if [[ "${ALL_IN_ONE:-}" == "true" ]]; then
+    local n="$1"; echo "127.0.0.1";
+  else
+    local n="$1"; echo "10.5.0.$((8 + n))";
+  fi
 }
 
 require_bin() {
@@ -88,7 +91,7 @@ login_node() {
   local port="$2"
   local cookie_file="$3"
 
-  local creds_file="${REPO_ROOT}/chainlink-node-${node_num}-data/apicredentials"
+  local creds_file="${NODE_ROOT_DIR}/apicredentials"
   if [[ ! -f "${creds_file}" ]]; then
     echo "Error: credentials file not found: ${creds_file}" >&2
     return 1
@@ -204,7 +207,7 @@ main() {
   fi
 
   if [[ -z "${EVM_CHAIN_ID}" ]]; then
-    local node1_cfg="${REPO_ROOT}/chainlink-node-1-data/config.toml"
+    local node1_cfg="${NODE_ROOT_DIR}/config.toml"
     if [[ -f "${node1_cfg}" ]]; then
       EVM_CHAIN_ID=$(awk -F"'" '/^\s*\[\[EVM\]\]/{f=1} f && /ChainID/{print $2; exit}' "${node1_cfg}" || true)
     fi

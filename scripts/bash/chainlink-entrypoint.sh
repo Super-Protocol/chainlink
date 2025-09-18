@@ -14,8 +14,12 @@ if [ -z "${NODE_NUMBER:-}" ]; then
   exit 1
 fi
 
+ROOT_DIR="${CHAINLINK_ROOT:-/chainlink}/node-${NODE_NUMBER}"
 SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
 CL_SHARED_DIR="$SP_SECRETS_DIR/cl-secrets"
+TMP_DIR="/tmp/node-${NODE_NUMBER}"
+
+mkdir -p "$TMP_DIR"
 
 wait_for_node_payload() {
   local n="$1"; local d="$CL_SHARED_DIR/$n"; local tries=0; local max_tries="${WAIT_SHARED_TRIES:-600}"
@@ -32,7 +36,7 @@ wait_for_node_payload() {
 wait_for_config_file() {
   local tries=0; local max_tries="${WAIT_CONFIG_TRIES:-600}"
   while [ "$tries" -lt "$max_tries" ]; do
-    if [ -s "/chainlink/config.toml" ]; then
+    if [ -s "${NODE_ROOT_DIR}/config.toml" ]; then
       return 0
     fi
     tries=$((tries+1)); sleep 1
@@ -57,9 +61,9 @@ fi
 # Bootstrap nodes write their P2P details to shared secrets for workers
 FIRST_START="false"
 if [ -x "/scripts/bash/init-chainlink.sh" ]; then
-  if [ ! -f "/tmp/first_start_done" ]; then
+  if [ ! -f "${ROOT_DIR}/first_start_done" ]; then
     /scripts/bash/init-chainlink.sh || true
-    touch /tmp/first_start_done || true
+    touch "${ROOT_DIR}/first_start_done" || true
     FIRST_START="true"
   fi
 fi
@@ -69,28 +73,45 @@ if ! wait_for_config_file; then
   log "config.toml not found after initial wait; rerunning init and waiting"
   if ! wait_for_config_file; then
     log "config.toml still not present; blocking until it appears"
-    while [ ! -s "/chainlink/config.toml" ]; do sleep 1; done
+    while [ ! -s "${NODE_ROOT_DIR}/config.toml" ]; do sleep 1; done
   fi
 fi
 
-if [ -f "/chainlink/apicredentials" ]; then
-  chmod 600 /chainlink/apicredentials || true
-  export CL_ADMIN_CREDENTIALS_FILE="/chainlink/apicredentials"
+if [ -f "${NODE_ROOT_DIR}/apicredentials" ]; then
+  chmod 600 "${NODE_ROOT_DIR}/apicredentials" || true
+  export CL_ADMIN_CREDENTIALS_FILE="${NODE_ROOT_DIR}/apicredentials"
 fi
 
 wait_for_node_payload $NODE_NUMBER
 
-nohup bash -c "
+HELPER_PID_FILE="$TMP_DIR/helper.pid"
+# Stop previous helper if running
+if [ -f "$HELPER_PID_FILE" ]; then
+  oldpid=$(cat "$HELPER_PID_FILE" || true)
+  if [ -n "$oldpid" ] && kill -0 "$oldpid" 2>/dev/null; then
+    log "stopping previous helper pid=$oldpid"
+    kill "$oldpid" 2>/dev/null || true
+    sleep 1
+    kill -9 "$oldpid" 2>/dev/null || true
+  fi
+fi
+
+nohup bash -c '
   /scripts/bash/wait-node.sh
-  if [ \"${FIRST_START}\" = \"true\" ]; then
+  if [ "'"${FIRST_START}"'" = "'"true"'" ]; then
     /scripts/bash/import-keys.sh
     # Signal supervisor to restart chainlink after first import
-    touch /tmp/restart-chainlink || true
-    sleep 1
+    touch "'"${TMP_DIR}"'"/restart-chainlink || true
+    sleep 5
     /scripts/bash/wait-node.sh
   fi
   /scripts/bash/publish-jobs.sh
-" >/proc/1/fd/1 2>/proc/1/fd/2 &
+' >/proc/1/fd/1 2>/proc/1/fd/2 &
+echo $! > "$HELPER_PID_FILE"
 
-cd /chainlink || exit 1
-exec chainlink node -config /chainlink/config.toml -secrets /chainlink/secrets.toml start -a /chainlink/apicredentials
+log "Changing working directory to ${ROOT_DIR} for node ${NODE_NUMBER}"
+cd "$ROOT_DIR" || exit 1
+
+log "Executing chainlink node for node ${NODE_NUMBER} from within ${ROOT_DIR}"
+cat "${NODE_ROOT_DIR}/config.toml"
+exec chainlink node -config "${NODE_ROOT_DIR}/config.toml" -secrets "${ROOT_DIR}/secrets.toml" start -a "${ROOT_DIR}/apicredentials"

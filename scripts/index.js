@@ -33,6 +33,9 @@ const mapConfigToEnv = (cfg) => {
     PRIMARY_NODES: toStr(cfg.primaryNodes),
     BOOTSTRAP_NODE_ADDRESSES: toStr(cfg.bootstrapNodeAddresses),
 
+    // Under s6-overlay, Postgres runs as a separate service; disable DB management in entrypoint.sh
+    MANAGE_POSTGRES: process.env.ALL_IN_ONE ? 'false' : 'true',
+
     ADMIN_CONTRACT_ADDRESS: toStr(cfg.adminContractAddress),
     DIAMOND_CONTRACT_ADDRESS: toStr(cfg.diamondContractAddress),
 

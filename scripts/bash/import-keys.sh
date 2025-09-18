@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-API_URL="http://127.0.0.1:6688"
+API_PORT="${API_PORT:-6688}"
+API_URL="http://127.0.0.1:${API_PORT}"
 COOKIE_FILE="$(cd /tmp && mktemp -t cl_cookie_import.XXXXXX)"
 SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
 
-email=$(sed -n '1p' /chainlink/apicredentials 2>/dev/null || echo "")
-password=$(sed -n '2p' /chainlink/apicredentials 2>/dev/null || echo "")
+email=$(sed -n '1p' $NODE_ROOT_DIR/apicredentials 2>/dev/null || echo "")
+password=$(sed -n '2p' $NODE_ROOT_DIR/apicredentials 2>/dev/null || echo "")
 
 http_ok() {
   # success codes: 200 OK, 201 Created, 204 No Content, 409 Conflict (already exists)

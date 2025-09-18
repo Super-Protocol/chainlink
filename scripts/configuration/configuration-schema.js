@@ -54,7 +54,7 @@ const solutionConfigurationSchema = Type.Object({
   }),
   bootstrapNodeAddresses: Type.String({
     description: 'comma-separated list of bootstrap node addresses host:port',
-    examples: ['chainlink-node-1:9999'],
+    examples: ['127.0.0.1:9901'],
   }),
   linkCa: Type.String({
     pattern: '^0x[0-9a-fA-F]{40}$',
