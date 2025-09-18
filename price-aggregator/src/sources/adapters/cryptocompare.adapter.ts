@@ -1,62 +1,61 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
+import { isAxiosError } from 'axios';
 
+import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
-import {
-  PriceNotFoundException,
-  FeatureNotImplementedException,
-  SourceApiException,
-} from '../exceptions';
-import {
-  Pair,
-  Quote,
-  SourceAdapter,
-  WithBatch,
-  WithWebSocket,
-} from '../source-adapter.interface';
+import { PriceNotFoundException, SourceApiException } from '../exceptions';
+import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
-const BASE_URL = 'https://min-api.cryptocompare.com/data/price';
+const BASE_URL = 'https://min-api.cryptocompare.com';
+const API_PATH = '/data/price';
 
-function splitPair(pair: Pair): { base: string; quote: string } {
-  const [base, quote] = pair;
-  return { base, quote };
-}
+type CryptoCompareResponse = Record<string, number>;
 
 @Injectable()
-export class CryptoCompareAdapter
-  implements SourceAdapter, WithBatch, WithWebSocket
-{
+export class CryptoCompareAdapter implements SourceAdapter {
   readonly name = SourceName.CRYPTOCOMPARE;
   readonly enabled: boolean;
-  private readonly apiKey?: string;
+  private readonly httpClient: HttpClient;
+  private readonly apiKey: string;
 
   constructor(
-    private readonly httpService: HttpService,
+    httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
-    this.apiKey = configService.get('sources.cryptocompare.apiKey');
-    this.enabled = configService.get('sources.cryptocompare.enabled');
+    const sourceConfig = configService.get('sources.cryptocompare');
+    this.apiKey = sourceConfig?.apiKey || '';
+    this.enabled = sourceConfig?.enabled && !!this.apiKey;
+
+    this.httpClient = httpClientBuilder.build({
+      sourceName: this.name,
+      timeoutMs: sourceConfig?.timeoutMs,
+      rps: sourceConfig?.rps,
+      useProxy: sourceConfig?.useProxy,
+      maxConcurrent: sourceConfig?.maxConcurrent,
+      baseUrl: BASE_URL,
+      defaultParams: {
+        api_key: this.apiKey,
+      },
+    });
   }
 
   async fetchQuote(pair: Pair): Promise<Quote> {
+    const [base, quote] = pair;
+
     try {
-      const { base, quote } = splitPair(pair);
-      const headers: Record<string, string> = {};
-
-      if (this.apiKey) {
-        headers.authorization = `Apikey ${this.apiKey}`;
-      }
-
-      const { data } = await firstValueFrom(
-        this.httpService.get(BASE_URL, {
-          params: { fsym: base.toUpperCase(), tsyms: quote.toUpperCase() },
-          headers,
-        }),
+      const { data } = await this.httpClient.get<CryptoCompareResponse>(
+        API_PATH,
+        {
+          params: {
+            fsym: base.toUpperCase(),
+            tsyms: quote.toUpperCase(),
+          },
+        },
       );
 
       const price = data?.[quote.toUpperCase()];
+
       if (price === undefined || price === null) {
         throw new PriceNotFoundException(pair, this.name);
       }
@@ -67,18 +66,13 @@ export class CryptoCompareAdapter
         receivedAt: Date.now(),
       };
     } catch (error) {
-      if (error instanceof PriceNotFoundException) {
-        throw error;
+      if (isAxiosError<{ Message?: string }>(error)) {
+        const errorMessage = error.response?.data?.Message;
+        if (errorMessage) {
+          throw new SourceApiException(this.name, new Error(errorMessage));
+        }
       }
       throw new SourceApiException(this.name, error as Error);
     }
-  }
-
-  async fetchQuotes(_pairs: Pair[]): Promise<Quote[]> {
-    throw new FeatureNotImplementedException('batch quotes', this.name);
-  }
-
-  streamQuotes(_pairs: Pair[]): AsyncIterable<Quote> {
-    throw new FeatureNotImplementedException('streaming quotes', this.name);
   }
 }

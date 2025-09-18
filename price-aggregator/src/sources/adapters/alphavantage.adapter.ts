@@ -1,13 +1,30 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
+import { isAxiosError } from 'axios';
 
+import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
 import { PriceNotFoundException, SourceApiException } from '../exceptions';
 import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
-const BASE_URL = 'https://www.alphavantage.co/query';
+const BASE_URL = 'https://www.alphavantage.co';
+const GET_QUOTE_ENDPOINT = '/query';
+
+interface AlphaVantageResponse {
+  'Realtime Currency Exchange Rate'?: {
+    '1. From_Currency Code': string;
+    '2. From_Currency Name': string;
+    '3. To_Currency Code': string;
+    '4. To_Currency Name': string;
+    '5. Exchange Rate': string;
+    '6. Last Refreshed': string;
+    '7. Time Zone': string;
+    '8. Bid Price': string;
+    '9. Ask Price': string;
+  };
+  'Error Message'?: string;
+  Note?: string;
+}
 
 function splitPair(pair: Pair): { base: string; quote: string } {
   const [base, quote] = pair;
@@ -18,15 +35,28 @@ function splitPair(pair: Pair): { base: string; quote: string } {
 export class AlphaVantageAdapter implements SourceAdapter {
   readonly name = SourceName.ALPHAVANTAGE;
   readonly enabled: boolean;
+  private readonly httpClient: HttpClient;
   private readonly apiKey: string;
 
   constructor(
-    private readonly httpService: HttpService,
+    httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
-    this.apiKey = configService.get('sources.alphavantage.apiKey') || '';
-    this.enabled =
-      configService.get('sources.alphavantage.enabled') && !!this.apiKey;
+    const sourceConfig = configService.get('sources.alphavantage');
+    this.apiKey = sourceConfig?.apiKey || '';
+    this.enabled = sourceConfig?.enabled && !!this.apiKey;
+
+    this.httpClient = httpClientBuilder.build({
+      sourceName: this.name,
+      timeoutMs: sourceConfig?.timeoutMs,
+      rps: sourceConfig?.rps,
+      useProxy: sourceConfig?.useProxy,
+      maxConcurrent: sourceConfig?.maxConcurrent,
+      baseUrl: BASE_URL,
+      defaultParams: {
+        apikey: this.apiKey,
+      },
+    });
   }
 
   async fetchQuote(pair: Pair): Promise<Quote> {
@@ -39,15 +69,15 @@ export class AlphaVantageAdapter implements SourceAdapter {
 
     try {
       const { base, quote } = splitPair(pair);
-      const { data } = await firstValueFrom(
-        this.httpService.get(BASE_URL, {
+      const { data } = await this.httpClient.get<AlphaVantageResponse>(
+        GET_QUOTE_ENDPOINT,
+        {
           params: {
             function: 'CURRENCY_EXCHANGE_RATE',
             from_currency: base,
             to_currency: quote,
-            apikey: this.apiKey,
           },
-        }),
+        },
       );
 
       if (data?.['Error Message']) {
@@ -57,7 +87,7 @@ export class AlphaVantageAdapter implements SourceAdapter {
         );
       }
 
-      if (data?.['Note']) {
+      if (data?.Note) {
         throw new SourceApiException(
           this.name,
           new Error('Rate limit exceeded'),
@@ -77,10 +107,7 @@ export class AlphaVantageAdapter implements SourceAdapter {
         receivedAt: Date.now(),
       };
     } catch (error) {
-      if (
-        error instanceof PriceNotFoundException ||
-        error instanceof SourceApiException
-      ) {
+      if (error instanceof PriceNotFoundException || isAxiosError(error)) {
         throw error;
       }
       throw new SourceApiException(this.name, error as Error);

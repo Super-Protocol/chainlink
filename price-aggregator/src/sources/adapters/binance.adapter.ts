@@ -1,11 +1,11 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
+import { isAxiosError } from 'axios';
 
+import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
 import {
-  PriceNotFoundException,
   FeatureNotImplementedException,
+  PriceNotFoundException,
   SourceApiException,
   UnsupportedPairException,
 } from '../exceptions';
@@ -18,25 +18,37 @@ import {
 } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
-const BASE_URL = 'https://api.binance.com/api/v3/ticker/price';
+const BASE_URL = 'https://api.binance.com';
+const API_PATH = '/api/v3/ticker/price';
 
 @Injectable()
 export class BinanceAdapter implements SourceAdapter, WithBatch, WithWebSocket {
   readonly name = SourceName.BINANCE;
   readonly enabled: boolean;
+  private readonly httpClient: HttpClient;
 
   constructor(
-    private readonly httpService: HttpService,
+    httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
-    this.enabled = configService.get('sources.binance.enabled');
+    const sourceConfig = configService.get('sources.binance');
+    this.enabled = sourceConfig?.enabled || false;
+
+    this.httpClient = httpClientBuilder.build({
+      sourceName: 'binance',
+      timeoutMs: sourceConfig?.timeoutMs || 10000,
+      rps: sourceConfig?.rps,
+      useProxy: sourceConfig?.useProxy || false,
+      maxConcurrent: sourceConfig?.maxConcurrent,
+      baseUrl: BASE_URL,
+    });
   }
 
   async fetchQuote(pair: Pair): Promise<Quote> {
     try {
-      const { data } = await firstValueFrom(
-        this.httpService.get(BASE_URL, { params: { symbol: pair.join('') } }),
-      );
+      const { data } = await this.httpClient.get<{ price: string }>(API_PATH, {
+        params: { symbol: pair.join('') },
+      });
       const price = data?.price;
       if (price === undefined || price === null) {
         throw new PriceNotFoundException(pair, this.name);
@@ -53,11 +65,13 @@ export class BinanceAdapter implements SourceAdapter, WithBatch, WithWebSocket {
         throw error;
       }
 
-      if (
-        error?.response?.status === 400 &&
-        error?.response?.data?.msg === 'Invalid symbol.'
-      ) {
-        throw new UnsupportedPairException(pair, this.name);
+      if (isAxiosError(error)) {
+        if (
+          error.response?.status === 400 &&
+          error.response?.data?.msg === 'Invalid symbol.'
+        ) {
+          throw new UnsupportedPairException(pair, this.name);
+        }
       }
 
       throw new SourceApiException(this.name, error as Error);

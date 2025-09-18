@@ -1,68 +1,71 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
+import { isAxiosError } from 'axios';
 
+import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
 import {
   PriceNotFoundException,
-  FeatureNotImplementedException,
   SourceApiException,
+  UnsupportedPairException,
 } from '../exceptions';
-import {
-  Pair,
-  Quote,
-  SourceAdapter,
-  WithBatch,
-  WithWebSocket,
-} from '../source-adapter.interface';
+import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
-const BASE_URL = 'https://api.coinbase.com/v2/prices';
+const BASE_URL = 'https://api.coinbase.com';
+const API_PATH = '/v2/prices';
+
+interface CoinbaseResponse {
+  data: {
+    base: string;
+    currency: string;
+    amount: string;
+  };
+}
 
 @Injectable()
-export class CoinbaseAdapter
-  implements SourceAdapter, WithBatch, WithWebSocket
-{
+export class CoinbaseAdapter implements SourceAdapter {
   readonly name = SourceName.COINBASE;
   readonly enabled: boolean;
+  private readonly httpClient: HttpClient;
 
   constructor(
-    private readonly httpService: HttpService,
+    httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
-    this.enabled = configService.get('sources.coinbase.enabled');
+    const sourceConfig = configService.get('sources.coinbase');
+    this.enabled = sourceConfig?.enabled || false;
+
+    this.httpClient = httpClientBuilder.build({
+      sourceName: this.name,
+      timeoutMs: sourceConfig?.timeoutMs,
+      rps: sourceConfig?.rps,
+      useProxy: sourceConfig?.useProxy,
+      maxConcurrent: sourceConfig?.maxConcurrent,
+      baseUrl: BASE_URL,
+    });
   }
 
   async fetchQuote(pair: Pair): Promise<Quote> {
     try {
-      const coinbasePair = pair.join('-');
-      const { data } = await firstValueFrom(
-        this.httpService.get(`${BASE_URL}/${coinbasePair}/spot`),
+      const { data } = await this.httpClient.get<CoinbaseResponse>(
+        `${API_PATH}/${pair[0]}-${pair[1]}/spot`,
       );
-
       const price = data?.data?.amount;
+
       if (price === undefined || price === null) {
         throw new PriceNotFoundException(pair, this.name);
       }
 
       return {
         pair,
-        price: String(price),
+        price,
         receivedAt: Date.now(),
       };
     } catch (error) {
-      if (error instanceof PriceNotFoundException) {
-        throw error;
+      if (isAxiosError(error) && error.response?.status === 404) {
+        throw new UnsupportedPairException(pair, this.name);
       }
       throw new SourceApiException(this.name, error as Error);
     }
-  }
-
-  async fetchQuotes(_pairs: Pair[]): Promise<Quote[]> {
-    throw new FeatureNotImplementedException('this feature', this.name);
-  }
-
-  streamQuotes(_pairs: Pair[]): AsyncIterable<Quote> {
-    throw new FeatureNotImplementedException('this feature', this.name);
   }
 }

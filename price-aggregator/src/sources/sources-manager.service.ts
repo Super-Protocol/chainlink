@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 
 import {
@@ -11,29 +11,44 @@ import {
 import { SourceAdapter, Quote, Pair } from './source-adapter.interface';
 import { SourceName } from './source-name.enum';
 import { SOURCES_MAP } from './sources.constants';
+import { SingleFlight } from '../common';
 
 @Injectable()
 export class SourcesManagerService {
+  private readonly logger = new Logger(SourcesManagerService.name);
   private readonly adaptersCache = new Map<SourceName, SourceAdapter>();
 
   constructor(private readonly moduleRef: ModuleRef) {}
 
+  @SingleFlight((sourceName, pair) => `${sourceName}-${pair.join('-')}`)
   async fetchQuote(sourceName: string, pair: Pair): Promise<Quote> {
+    this.logger.debug(`Fetching ${sourceName} ${pair.join('-')}`);
     const adapter = this.getAdapterByName(sourceName);
-    return await adapter.fetchQuote(pair);
+    return adapter.fetchQuote(pair);
   }
 
   async fetchQuotes(sourceName: string, pairs: Pair[]): Promise<Quote[]> {
+    this.logger.debug(
+      `Batch fetching ${pairs.length} quotes for ${sourceName}`,
+    );
     const adapter = this.getAdapterByName(sourceName);
 
     if (!adapter.fetchQuotes) {
       throw new BatchNotSupportedException(sourceName);
     }
 
-    return await adapter.fetchQuotes(pairs);
+    return adapter.fetchQuotes(pairs);
+  }
+
+  isFetchQuotesSupported(sourceName: string): boolean {
+    const adapter = this.getAdapterByName(sourceName);
+    return adapter.fetchQuotes !== undefined;
   }
 
   streamQuotes(sourceName: string, pairs: Pair[]): AsyncIterable<Quote> {
+    this.logger.debug(
+      `Starting stream for ${sourceName}, ${pairs.length} pairs`,
+    );
     const adapter = this.getAdapterByName(sourceName);
 
     if (!adapter.streamQuotes) {
@@ -41,6 +56,11 @@ export class SourcesManagerService {
     }
 
     return adapter.streamQuotes(pairs);
+  }
+
+  isStreamQuotesSupported(sourceName: string): boolean {
+    const adapter = this.getAdapterByName(sourceName);
+    return adapter.streamQuotes !== undefined;
   }
 
   private getAdapter(sourceName: SourceName): SourceAdapter {

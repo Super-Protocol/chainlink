@@ -2,6 +2,7 @@ import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 
+import { HttpClientModule } from '../common';
 import { AppConfigModule } from '../config';
 import { SourcesExceptionFilter } from './filters';
 import { SourcesManagerService } from './sources-manager.service';
@@ -9,7 +10,7 @@ import { SOURCES_PROVIDERS } from './sources.constants';
 import { SourcesController } from './sources.controller';
 
 @Module({
-  imports: [AppConfigModule, HttpModule],
+  imports: [AppConfigModule, HttpModule, HttpClientModule],
   controllers: [SourcesController],
   providers: [
     SourcesManagerService,

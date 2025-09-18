@@ -1,69 +1,79 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
 
+import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
 import {
   PriceNotFoundException,
-  FeatureNotImplementedException,
   SourceApiException,
+  UnsupportedPairException,
 } from '../exceptions';
-import {
-  Pair,
-  Quote,
-  SourceAdapter,
-  WithBatch,
-  WithWebSocket,
-} from '../source-adapter.interface';
+import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
-const BASE_URL = 'https://api.kraken.com/0/public/Ticker';
+const BASE_URL = 'https://api.kraken.com';
+const API_PATH = '/0/public/Ticker';
 
-// TODO: make normal mapping
-const KRAKEN_PAIR_MAP: Record<string, string> = {
-  'BTC-USD': 'XXBTZUSD',
-  'ETH-USD': 'XETHZUSD',
-  'BTC-EUR': 'XXBTZEUR',
-  'ETH-EUR': 'XETHZEUR',
-  // Add more mappings as needed
-};
+interface KrakenResponse {
+  error: string[];
+  result?: Record<
+    string,
+    {
+      a: [string, number, number];
+      b: [string, number, number];
+      c: [string, string];
+      v: [string, string];
+      p: [string, string];
+      t: [number, number];
+      l: [string, string];
+      h: [string, string];
+      o: string;
+    }
+  >;
+}
 
 @Injectable()
-export class KrakenAdapter implements SourceAdapter, WithBatch, WithWebSocket {
+export class KrakenAdapter implements SourceAdapter {
   readonly name = SourceName.KRAKEN;
   readonly enabled: boolean;
+  private readonly httpClient: HttpClient;
 
   constructor(
-    private readonly httpService: HttpService,
+    httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
-    this.enabled = configService.get('sources.kraken.enabled');
-  }
+    const sourceConfig = configService.get('sources.kraken');
+    this.enabled = sourceConfig?.enabled || false;
 
-  private mapPairToKraken(pair: Pair): string {
-    const krakenPair = KRAKEN_PAIR_MAP[pair.join('-').toUpperCase()];
-    if (!krakenPair) {
-      throw new PriceNotFoundException(pair, this.name);
-    }
-    return krakenPair;
+    this.httpClient = httpClientBuilder.build({
+      sourceName: this.name,
+      timeoutMs: sourceConfig?.timeoutMs,
+      rps: sourceConfig?.rps,
+      useProxy: sourceConfig?.useProxy,
+      maxConcurrent: sourceConfig?.maxConcurrent,
+      baseUrl: BASE_URL,
+    });
   }
 
   async fetchQuote(pair: Pair): Promise<Quote> {
+    const krakenPair = pair.join('').toUpperCase();
     try {
-      const krakenPair = this.mapPairToKraken(pair);
-      const { data } = await firstValueFrom(
-        this.httpService.get(BASE_URL, { params: { pair: krakenPair } }),
-      );
+      const { data } = await this.httpClient.get<KrakenResponse>(API_PATH, {
+        params: {
+          pair: krakenPair,
+        },
+      });
 
       if (data?.error?.length > 0) {
+        if (data.error[0].includes('Unknown asset pair')) {
+          throw new UnsupportedPairException(pair, this.name);
+        }
         throw new SourceApiException(
           this.name,
-          new Error(data.error.join(', ')),
+          new Error(data.error.join(',')),
         );
       }
 
-      const tickerData = data?.result?.[krakenPair];
-      const price = tickerData?.c?.[0]; // c[0] is the current price
+      const price = data?.result?.[krakenPair]?.c?.[0];
 
       if (price === undefined || price === null) {
         throw new PriceNotFoundException(pair, this.name);
@@ -71,22 +81,14 @@ export class KrakenAdapter implements SourceAdapter, WithBatch, WithWebSocket {
 
       return {
         pair,
-        price: String(price),
+        price,
         receivedAt: Date.now(),
       };
     } catch (error) {
-      if (error instanceof PriceNotFoundException) {
+      if (error instanceof UnsupportedPairException) {
         throw error;
       }
       throw new SourceApiException(this.name, error as Error);
     }
-  }
-
-  async fetchQuotes(_pairs: Pair[]): Promise<Quote[]> {
-    throw new FeatureNotImplementedException('this feature', this.name);
-  }
-
-  streamQuotes(_pairs: Pair[]): AsyncIterable<Quote> {
-    throw new FeatureNotImplementedException('this feature', this.name);
   }
 }

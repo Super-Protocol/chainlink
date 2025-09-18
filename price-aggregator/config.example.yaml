@@ -5,68 +5,101 @@ logger:
   level: info
   isPrettyEnabled: false
 
+proxy:
+  http:
+    enabled: false
+    host: proxy.example.com
+    port: 8080
+    username: optional-username
+    password: optional-password
+  https:
+    enabled: false
+    host: proxy.example.com
+    port: 8080
+    username: optional-username
+    password: optional-password
+
 sources:
   binance:
     enabled: true
-    updateType: events
     ttl: 10000
     timeoutMs: 10000
+    rps: 100 # 6000/min limit, null to disable
+    maxConcurrent: 10
     apiKey: optional-api-key
+    useProxy: false
 
   okx:
     enabled: true
-    updateType: batch
     ttl: 10000
     timeoutMs: 10000
+    rps: 10 # 20/2sec limit, null to disable
+    maxConcurrent: 10
+    useProxy: false
 
   finnhub:
     enabled: true
-    updateType: events
     ttl: 10000
     timeoutMs: 10000
+    rps: 1 # 60/min limit, null to disable
+    maxConcurrent: 10
     apiKey: required-finnhub-api-key
+    useProxy: false
 
   cryptocompare:
     enabled: true
-    updateType: batch
     ttl: 10000
     timeoutMs: 10000
+    rps: 25 # null to disable
+    maxConcurrent: 10
     apiKey: required-cryptocompare-api-key
     useProxy: false
 
   alphavantage:
     enabled: true
-    updateType: onDemand
     ttl: 60000
     timeoutMs: 15000
+    rps: 0.0003 # 25/day limit, null to disable
+    maxConcurrent: 10
     apiKey: your-alpha-vantage-api-key
+    useProxy: false
 
   coingecko:
     enabled: true
-    updateType: batch
     ttl: 30000
     timeoutMs: 10000
+    rps: 0.5 # 30/min limit, null to disable
+    maxConcurrent: 10
+    useProxy: false
 
   exchangeratehost:
     enabled: true
-    updateType: batch
     ttl: 60000
     timeoutMs: 10000
+    rps: 0.012 # 1000/day limit, null to disable
+    maxConcurrent: 10
+    useProxy: false
 
   kraken:
     enabled: true
-    updateType: events
     ttl: 10000
     timeoutMs: 10000
+    rps: 1 # null to disable
+    maxConcurrent: 10
+    useProxy: false
 
   coinbase:
     enabled: true
-    updateType: batch
     ttl: 15000
     timeoutMs: 10000
+    rps: 2.8 # 10000/hour limit, null to disable
+    maxConcurrent: 10
+    useProxy: false
 
   frankfurter:
     enabled: true
-    updateType: batch
     ttl: 60000
     timeoutMs: 10000
+    rps: null # unlimited
+    maxConcurrent: 10
+    useProxy: false
