@@ -1,0 +1,56 @@
+name: Chainlink (all in one) - run solution
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Target"
+        required: true
+        default: "develop"
+        type: choice
+        options:
+          - develop
+          - stage
+          - testnet
+          - mainnet
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.target }}
+  cancel-in-progress: false
+
+env:
+  TARGET: ${{ inputs.target }}
+  SPCTL_CONFIG_FILE: ./config.json
+  CONFIGURATION_FILE: ./configuration.json
+
+jobs:
+  deploy:
+    name: Run solution "Chainlink (all in one)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      - name: Import secrets from Vault
+        id: import-secrets
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          token: ${{ secrets.VAULT_TOKEN }}
+          secrets: |
+            github/data/${{ env.TARGET }}/chainlink configuration_json  | CONFIGURATION_JSON ;
+            github/data/${{ env.TARGET }}/spctl     offers_config_json  | OFFERS_SPCTL_CONFIG_JSON ;
+            github/data/${{ env.TARGET }}/chainlink solution_offer      | SOLUTION_OFFER
+            github/data/${{ env.TARGET }}/chainlink tee_offers          | TEE
+            github/data/${{ env.TARGET }}/chainlink spctl_version       | SPCTL_VERSION
+            github/data/${{ env.TARGET }}/chainlink spctl_repository    | SPCTL_REPOSITORY
+
+      - name: Display configuration
+        shell: bash
+        run: |
+          echo "🔧 Configuration:"
+          echo "  - Target: ${{ env.TARGET }}"
+          echo "  - SPCTL version: ${{ steps.import-secrets.outputs.SPCTL_VERSION }}"
+          echo "  - SPCTL repository: ${{ steps.import-secrets.outputs.SPCTL_REPOSITORY }}"
+          echo "  - Solution offer: ${{ steps.import-secrets.outputs.SOLUTION_OFFER }}"
