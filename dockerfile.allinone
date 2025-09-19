@@ -42,22 +42,15 @@ COPY data-feed-generator/templates /templates
 RUN cd /scripts && npm ci --no-audit --no-fund --omit=optional
 
 # s6 service layout
-RUN mkdir -p /etc/cont-init.d /etc/services.d/postgres
-
-# Init: database bootstrap (runs before services)
-COPY scripts/bash/init-db.sh /etc/cont-init.d/10-init-db.sh
-RUN chmod +x /etc/cont-init.d/10-init-db.sh
+RUN mkdir -p /etc/cont-init.d
 
 # Init: generate per-node services
 COPY scripts/bash/entrypoint-allinone.sh /etc/cont-init.d/20-generate-services.sh
 RUN chmod +x /etc/cont-init.d/20-generate-services.sh
 
-# Postgres service (bash wrapper)
-ADD aio/services.d/postgres/run /etc/services.d/postgres/run
-RUN chmod +x /etc/services.d/postgres/run
-
-RUN echo '#!/bin/sh\nexec /command/s6-svscan /var/run/s6/basedir/run-image/service/.s6-svscan' > /usr/local/bin/entrypoint && \
-  chmod +x /usr/local/bin/entrypoint
+# s6-rc services (postgres bootstrap, postgres longrun, init after up)
+COPY aio/s6-rc.d /etc/s6-overlay/s6-rc.d
+RUN find /etc/s6-overlay/s6-rc.d -type f \( -name run -o -name up \) -exec chmod +x {} +
 
 ENTRYPOINT ["/init"]
-
+CMD []

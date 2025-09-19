@@ -10,7 +10,7 @@ export PGDATA_DIR="${PGDATA:-/var/lib/postgresql/data}"
 export PGPORT="${PGPORT:-5432}"
 
 export DB_SUPERUSER="postgres"
-export APP_DB="${PGDATABASE:-chainlink_node}"
+export APP_DB="${PGDATABASE:-chainlink_node}_${NODE_NUMBER}"
 export APP_DB_USER="${PGUSER:-chainlink}"
 export APP_DB_PASS="${PGPASSWORD:-chainlinkchainlink}"
 

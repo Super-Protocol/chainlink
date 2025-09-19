@@ -48,7 +48,6 @@ export HOME=/root/node-${i}
 export XDG_CACHE_HOME=/root/node-${i}/.cache
 export ALL_IN_ONE="true"
 export NODE_NUMBER=${i}
-export PGDATABASE=chainlink_node_${i}
 export CHAINLINK_ROOT=/chainlink
 export NODE_ROOT_DIR=/chainlink/node-${i}
 export MANAGE_POSTGRES=false

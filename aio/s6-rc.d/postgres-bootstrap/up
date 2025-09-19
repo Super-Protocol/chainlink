@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /scripts/bash/init-db.sh bootstrap
