@@ -41,9 +41,9 @@ jobs:
           secrets: |
             github/data/${{ env.TARGET }}/chainlink configuration_json  | CONFIGURATION_JSON ;
             github/data/${{ env.TARGET }}/spctl     offers_config_json  | OFFERS_SPCTL_CONFIG_JSON ;
-            github/data/${{ env.TARGET }}/chainlink solution_offer      | SOLUTION_OFFER
-            github/data/${{ env.TARGET }}/chainlink tee_offers          | TEE
-            github/data/${{ env.TARGET }}/chainlink spctl_version       | SPCTL_VERSION
+            github/data/${{ env.TARGET }}/chainlink solution_offer      | SOLUTION_OFFER ;
+            github/data/${{ env.TARGET }}/chainlink tee_offers          | TEE ;
+            github/data/${{ env.TARGET }}/chainlink spctl_version       | SPCTL_VERSION ;
             github/data/${{ env.TARGET }}/chainlink spctl_repository    | SPCTL_REPOSITORY
 
       - name: Display configuration
