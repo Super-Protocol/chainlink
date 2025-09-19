@@ -3,11 +3,11 @@ import { isAxiosError } from 'axios';
 
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
+import { HandleSourceError } from '../decorators';
 import {
   FeatureNotImplementedException,
   PriceNotFoundException,
   SourceApiException,
-  UnsupportedPairException,
 } from '../exceptions';
 import {
   Pair,
@@ -45,40 +45,25 @@ export class BinanceAdapter implements SourceAdapter, WithBatch, WithWebSocket {
     });
   }
 
+  @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
-    try {
-      const { data } = await this.httpClient.get<{ price: string }>(API_PATH, {
-        params: { symbol: pair.join('') },
-      });
-      const price = data?.price;
-      if (price === undefined || price === null) {
-        throw new PriceNotFoundException(pair, this.name);
-      }
-      const now = Date.now();
-
-      return {
-        pair,
-        price: String(price),
-        receivedAt: now,
-      };
-    } catch (error) {
-      if (error instanceof PriceNotFoundException) {
-        throw error;
-      }
-
-      if (isAxiosError(error)) {
-        if (
-          error.response?.status === 400 &&
-          error.response?.data?.msg === 'Invalid symbol.'
-        ) {
-          throw new UnsupportedPairException(pair, this.name);
-        }
-      }
-
-      throw new SourceApiException(this.name, error as Error);
+    const { data } = await this.httpClient.get<{ price: string }>(API_PATH, {
+      params: { symbol: pair.join('') },
+    });
+    const price = data?.price;
+    if (price === undefined || price === null) {
+      throw new PriceNotFoundException(pair, this.name);
     }
+    const now = Date.now();
+
+    return {
+      pair,
+      price: String(price),
+      receivedAt: now,
+    };
   }
 
+  @HandleSourceError()
   async fetchQuotes(pairs: Pair[]): Promise<Quote[]> {
     if (!pairs || pairs.length === 0) {
       return [];

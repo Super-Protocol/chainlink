@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { isAxiosError } from 'axios';
 
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
+import { HandleSourceError } from '../decorators';
 import { PriceNotFoundException, SourceApiException } from '../exceptions';
 import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
@@ -59,58 +59,59 @@ export class AlphaVantageAdapter implements SourceAdapter {
     });
   }
 
+  @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     if (!this.apiKey) {
       throw new SourceApiException(
         this.name,
         new Error('API key is not configured'),
+        401,
       );
     }
 
-    try {
-      const { base, quote } = splitPair(pair);
-      const { data } = await this.httpClient.get<AlphaVantageResponse>(
-        GET_QUOTE_ENDPOINT,
-        {
-          params: {
-            function: 'CURRENCY_EXCHANGE_RATE',
-            from_currency: base,
-            to_currency: quote,
-          },
+    const { base, quote } = splitPair(pair);
+    const { data } = await this.httpClient.get<AlphaVantageResponse>(
+      GET_QUOTE_ENDPOINT,
+      {
+        params: {
+          function: 'CURRENCY_EXCHANGE_RATE',
+          from_currency: base,
+          to_currency: quote,
         },
+      },
+    );
+
+    if (data?.['Error Message']) {
+      const errorMessage = data['Error Message'];
+      const statusCode = errorMessage.toLowerCase().includes('invalid')
+        ? 400
+        : 502;
+      throw new SourceApiException(
+        this.name,
+        new Error(errorMessage),
+        statusCode,
       );
-
-      if (data?.['Error Message']) {
-        throw new SourceApiException(
-          this.name,
-          new Error(data['Error Message']),
-        );
-      }
-
-      if (data?.Note) {
-        throw new SourceApiException(
-          this.name,
-          new Error('Rate limit exceeded'),
-        );
-      }
-
-      const exchangeRate = data?.['Realtime Currency Exchange Rate'];
-      const price = exchangeRate?.['5. Exchange Rate'];
-
-      if (price === undefined || price === null) {
-        throw new PriceNotFoundException(pair, this.name);
-      }
-
-      return {
-        pair,
-        price: String(price),
-        receivedAt: Date.now(),
-      };
-    } catch (error) {
-      if (error instanceof PriceNotFoundException || isAxiosError(error)) {
-        throw error;
-      }
-      throw new SourceApiException(this.name, error as Error);
     }
+
+    if (data?.Note) {
+      throw new SourceApiException(
+        this.name,
+        new Error('Rate limit exceeded'),
+        429,
+      );
+    }
+
+    const exchangeRate = data?.['Realtime Currency Exchange Rate'];
+    const price = exchangeRate?.['5. Exchange Rate'];
+
+    if (price === undefined || price === null) {
+      throw new PriceNotFoundException(pair, this.name);
+    }
+
+    return {
+      pair,
+      price: String(price),
+      receivedAt: Date.now(),
+    };
   }
 }

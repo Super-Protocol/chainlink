@@ -5,11 +5,11 @@ import { isAxiosError } from 'axios';
 
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
+import { HandleSourceError } from '../decorators';
 import {
   BatchSizeExceededException,
   PriceNotFoundException,
   SourceApiException,
-  UnsupportedPairException,
 } from '../exceptions';
 import {
   Pair,
@@ -48,6 +48,7 @@ export class CoinGeckoAdapter implements SourceAdapter, WithBatch {
     });
   }
 
+  @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     const [base, quote] = pair;
 
@@ -56,43 +57,24 @@ export class CoinGeckoAdapter implements SourceAdapter, WithBatch {
       vs_currencies: quote,
     });
 
-    try {
-      const { data } = await this.httpClient.get<CoinGeckoResponse>(
-        `${API_PATH}?${params.toString()}`,
-      );
+    const { data } = await this.httpClient.get<CoinGeckoResponse>(
+      `${API_PATH}?${params.toString()}`,
+    );
 
-      const price = data?.[base]?.[quote];
+    const price = data?.[base]?.[quote];
 
-      if (price === undefined || price === null) {
-        throw new PriceNotFoundException(pair, this.name);
-      }
-
-      return {
-        pair,
-        price: String(price),
-        receivedAt: Date.now(),
-      };
-    } catch (error) {
-      if (error instanceof PriceNotFoundException) {
-        throw error;
-      }
-
-      if (isAxiosError(error) && error.response) {
-        const status = error.response.status;
-
-        if (status === 400 || status === 404) {
-          throw new UnsupportedPairException(pair, this.name);
-        }
-
-        if (status >= 500) {
-          throw new SourceApiException(this.name, error);
-        }
-      }
-
-      throw new SourceApiException(this.name, error as Error);
+    if (price === undefined || price === null) {
+      throw new PriceNotFoundException(pair, this.name);
     }
+
+    return {
+      pair,
+      price: String(price),
+      receivedAt: Date.now(),
+    };
   }
 
+  @HandleSourceError()
   async fetchQuotes(pairs: Pair[]): Promise<Quote[]> {
     if (!pairs || pairs.length === 0) {
       return [];

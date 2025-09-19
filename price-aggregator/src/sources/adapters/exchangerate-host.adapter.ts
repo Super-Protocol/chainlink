@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { isAxiosError } from 'axios';
 
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
-import {
-  PriceNotFoundException,
-  SourceApiException,
-  UnsupportedPairException,
-} from '../exceptions';
+import { HandleSourceError } from '../decorators';
+import { PriceNotFoundException, SourceApiException } from '../exceptions';
 import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
@@ -19,12 +15,20 @@ interface ExchangeRateHostResponse {
     msg: string;
     url: string;
   };
-  success: boolean;
+  success: true;
   base: string;
   date: string;
   rates: Record<string, number>;
 }
 
+interface ExchangeRateHostErrorResponse {
+  success: false;
+  error: {
+    code: number;
+    type: string;
+    info: string;
+  };
+}
 @Injectable()
 export class ExchangeRateHostAdapter implements SourceAdapter {
   readonly name = SourceName.EXCHANGERATE_HOST;
@@ -48,34 +52,68 @@ export class ExchangeRateHostAdapter implements SourceAdapter {
     });
   }
 
+  private mapErrorCodeToHttpStatus(errorCode: number): number {
+    switch (errorCode) {
+      case 404:
+        return 404;
+      case 101:
+      case 102:
+        return 401;
+      case 103:
+        return 404;
+      case 104:
+        return 429;
+      case 105:
+        return 403;
+      case 106:
+        return 404;
+      case 201:
+      case 202:
+      case 301:
+      case 302:
+      case 401:
+      case 402:
+      case 403:
+      case 501:
+      case 502:
+      case 503:
+      case 504:
+      case 505:
+        return 400;
+      default:
+        return 500;
+    }
+  }
+
+  @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     const [base, quote] = pair;
-    try {
-      const { data } = await this.httpClient.get<ExchangeRateHostResponse>(
-        API_PATH,
-        {
-          params: {
-            base: base.toUpperCase(),
-            symbols: quote.toUpperCase(),
-          },
-        },
+    const { data } = await this.httpClient.get<
+      ExchangeRateHostResponse | ExchangeRateHostErrorResponse
+    >(API_PATH, {
+      params: {
+        base: base.toUpperCase(),
+        symbols: quote.toUpperCase(),
+      },
+    });
+    if (data.success === false) {
+      throw new SourceApiException(
+        this.name,
+        new Error(data.error.info),
+        this.mapErrorCodeToHttpStatus(data.error.code),
       );
-      const price = data?.rates?.[quote.toUpperCase()];
-
-      if (price === undefined || price === null) {
-        throw new PriceNotFoundException(pair, this.name);
-      }
-
-      return {
-        pair,
-        price: String(price),
-        receivedAt: Date.now(),
-      };
-    } catch (error) {
-      if (isAxiosError(error)) {
-        throw new UnsupportedPairException(pair, this.name);
-      }
-      throw new SourceApiException(this.name, error as Error);
     }
+
+    const price = data?.rates?.[quote.toUpperCase()];
+
+    if (price === undefined || price === null) {
+      throw new PriceNotFoundException(pair, this.name);
+    }
+
+    return {
+      pair,
+      price: String(price),
+      receivedAt: Date.now(),
+    };
   }
 }

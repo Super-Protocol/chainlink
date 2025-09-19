@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { isAxiosError } from 'axios';
 
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
-import {
-  PriceNotFoundException,
-  SourceApiException,
-  UnsupportedPairException,
-} from '../exceptions';
+import { HandleSourceError } from '../decorators';
+import { PriceNotFoundException, SourceApiException } from '../exceptions';
 import {
   Pair,
   Quote,
@@ -97,123 +93,108 @@ export class OkxAdapter implements SourceAdapter, WithBatch {
     });
   }
 
+  @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     const okxPair = `${pair[0].toUpperCase()}-${pair[1].toUpperCase()}`;
-    try {
-      const { data } = await this.httpClient.get<OkxResponse>(API_PATH, {
-        params: {
-          instId: okxPair,
-        },
-      });
+    const { data } = await this.httpClient.get<OkxResponse>(API_PATH, {
+      params: {
+        instId: okxPair,
+      },
+    });
 
-      if (data?.code !== '0') {
-        throw new SourceApiException(this.name, new Error(data.msg));
-      }
-
-      const price = data?.data?.[0]?.last;
-
-      if (price === undefined || price === null) {
-        throw new PriceNotFoundException(pair, this.name);
-      }
-
-      return {
-        pair,
-        price,
-        receivedAt: Date.now(),
-      };
-    } catch (error) {
-      if (
-        isAxiosError(error) &&
-        (error.response?.data as any)?.code === '51001'
-      ) {
-        throw new UnsupportedPairException(pair, this.name);
-      }
-      throw new SourceApiException(this.name, error as Error);
+    if (data?.code !== '0') {
+      throw new SourceApiException(this.name, new Error(data.msg));
     }
+
+    const price = data?.data?.[0]?.last;
+
+    if (price === undefined || price === null) {
+      throw new PriceNotFoundException(pair, this.name);
+    }
+
+    return {
+      pair,
+      price,
+      receivedAt: Date.now(),
+    };
   }
 
+  @HandleSourceError()
   async getPairs(): Promise<Pair[]> {
-    try {
-      const { data } = await this.httpClient.get<OkxInstrumentsResponse>(
-        INSTRUMENTS_PATH,
-        {
-          params: {
-            instType: 'SPOT',
-          },
+    const { data } = await this.httpClient.get<OkxInstrumentsResponse>(
+      INSTRUMENTS_PATH,
+      {
+        params: {
+          instType: 'SPOT',
         },
-      );
+      },
+    );
 
-      if (data?.code !== '0') {
-        throw new SourceApiException(this.name, new Error(data.msg));
-      }
-
-      if (!data?.data) {
-        throw new SourceApiException(
-          this.name,
-          new Error('Invalid instruments response'),
-        );
-      }
-
-      const pairs: Pair[] = [];
-      for (const instrument of data.data) {
-        if (instrument.state === 'live') {
-          pairs.push([instrument.baseCcy, instrument.quoteCcy]);
-        }
-      }
-
-      return pairs;
-    } catch (error) {
-      throw new SourceApiException(this.name, error as Error);
+    if (data?.code !== '0') {
+      throw new SourceApiException(this.name, new Error(data.msg));
     }
+
+    if (!data?.data) {
+      throw new SourceApiException(
+        this.name,
+        new Error('Invalid instruments response'),
+      );
+    }
+
+    const pairs: Pair[] = [];
+    for (const instrument of data.data) {
+      if (instrument.state === 'live') {
+        pairs.push([instrument.baseCcy, instrument.quoteCcy]);
+      }
+    }
+
+    return pairs;
   }
 
+  @HandleSourceError()
   async fetchQuotes(pairs: Pair[]): Promise<Quote[]> {
     if (!pairs || pairs.length === 0) {
       return [];
     }
 
-    try {
-      // OKX tickers endpoint returns all SPOT tickers at once
-      const { data } = await this.httpClient.get<OkxResponse>(TICKERS_PATH, {
-        params: {
-          instType: 'SPOT',
-        },
-      });
+    // OKX tickers endpoint returns all SPOT tickers at once
+    const { data } = await this.httpClient.get<OkxResponse>(TICKERS_PATH, {
+      params: {
+        instType: 'SPOT',
+      },
+    });
 
-      if (data?.code !== '0') {
-        throw new SourceApiException(this.name, new Error(data.msg));
-      }
-
-      const quotes: Quote[] = [];
-      const now = Date.now();
-
-      if (data?.data) {
-        // Create a map for fast lookup
-        const tickerMap = new Map<string, string>();
-        for (const ticker of data.data) {
-          if (ticker.instId && ticker.last) {
-            tickerMap.set(ticker.instId, ticker.last);
-          }
-        }
-
-        // Find prices for requested pairs
-        for (const pair of pairs) {
-          const okxInstId = `${pair[0].toUpperCase()}-${pair[1].toUpperCase()}`;
-          const price = tickerMap.get(okxInstId);
-
-          if (price) {
-            quotes.push({
-              pair,
-              price: String(price),
-              receivedAt: now,
-            });
-          }
-        }
-      }
-
-      return quotes;
-    } catch (error) {
-      throw new SourceApiException(this.name, error as Error);
+    if (data?.code !== '0') {
+      throw new SourceApiException(this.name, new Error(data.msg));
     }
+
+    const quotes: Quote[] = [];
+    const now = Date.now();
+
+    if (data?.data) {
+      // Create a map for fast lookup
+      const tickerMap = new Map<string, string>();
+      for (const ticker of data.data) {
+        if (ticker.instId && ticker.last) {
+          tickerMap.set(ticker.instId, ticker.last);
+        }
+      }
+
+      // Find prices for requested pairs
+      for (const pair of pairs) {
+        const okxInstId = `${pair[0].toUpperCase()}-${pair[1].toUpperCase()}`;
+        const price = tickerMap.get(okxInstId);
+
+        if (price) {
+          quotes.push({
+            pair,
+            price: String(price),
+            receivedAt: now,
+          });
+        }
+      }
+    }
+
+    return quotes;
   }
 }

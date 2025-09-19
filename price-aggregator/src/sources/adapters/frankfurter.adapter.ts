@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { isAxiosError } from 'axios';
 
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
-import { PriceNotFoundException, SourceApiException } from '../exceptions';
+import { HandleSourceError } from '../decorators';
+import { PriceNotFoundException } from '../exceptions';
 import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
@@ -40,37 +40,25 @@ export class FrankfurterAdapter implements SourceAdapter {
     });
   }
 
+  @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     const [base, quote] = pair;
-    try {
-      const { data } = await this.httpClient.get<FrankfurterResponse>(
-        API_PATH,
-        {
-          params: {
-            from: base.toUpperCase(),
-            to: quote.toUpperCase(),
-          },
-        },
-      );
-      const price = data?.rates?.[quote.toUpperCase()];
+    const { data } = await this.httpClient.get<FrankfurterResponse>(API_PATH, {
+      params: {
+        from: base.toUpperCase(),
+        to: quote.toUpperCase(),
+      },
+    });
+    const price = data?.rates?.[quote.toUpperCase()];
 
-      if (price === undefined || price === null) {
-        throw new PriceNotFoundException(pair, this.name);
-      }
-
-      return {
-        pair,
-        price: String(price),
-        receivedAt: Date.now(),
-      };
-    } catch (error) {
-      if (isAxiosError(error)) {
-        throw new SourceApiException(
-          this.name,
-          new Error(error.response?.data?.message || error.message),
-        );
-      }
-      throw new SourceApiException(this.name, error as Error);
+    if (price === undefined || price === null) {
+      throw new PriceNotFoundException(pair, this.name);
     }
+
+    return {
+      pair,
+      price: String(price),
+      receivedAt: Date.now(),
+    };
   }
 }
