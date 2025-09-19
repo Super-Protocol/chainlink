@@ -61,4 +61,4 @@ WORKDIR /
 ADD aio/entrypoint /entrypoint
 RUN chmod +x /entrypoint
 
-ENTRYPOINT ["/init"]
+ENTRYPOINT ["/entrypoint"]
