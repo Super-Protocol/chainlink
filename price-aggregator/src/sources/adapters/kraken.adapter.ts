@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
+import { HandleSourceError } from '../decorators';
 import {
   BatchSizeExceededException,
   PriceNotFoundException,
   SourceApiException,
-  UnsupportedPairException,
 } from '../exceptions';
 import {
   Pair,
@@ -89,74 +89,60 @@ export class KrakenAdapter implements SourceAdapter, WithBatch {
     });
   }
 
+  @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     const krakenPair = pair.join('').toUpperCase();
-    try {
-      const { data } = await this.httpClient.get<KrakenResponse>(API_PATH, {
-        params: {
-          pair: krakenPair,
-        },
-      });
+    const { data } = await this.httpClient.get<KrakenResponse>(API_PATH, {
+      params: {
+        pair: krakenPair,
+      },
+    });
 
-      if (data?.error?.length > 0) {
-        if (data.error[0].includes('Unknown asset pair')) {
-          throw new UnsupportedPairException(pair, this.name);
-        }
-        throw new SourceApiException(
-          this.name,
-          new Error(data.error.join(',')),
-        );
-      }
-
-      const price = data?.result?.[krakenPair]?.c?.[0];
-
-      if (price === undefined || price === null) {
+    if (data?.error?.length > 0) {
+      if (data.error[0].includes('Unknown asset pair')) {
         throw new PriceNotFoundException(pair, this.name);
       }
-
-      return {
-        pair,
-        price,
-        receivedAt: Date.now(),
-      };
-    } catch (error) {
-      if (error instanceof UnsupportedPairException) {
-        throw error;
-      }
-      throw new SourceApiException(this.name, error as Error);
+      throw new SourceApiException(this.name, new Error(data.error.join(',')));
     }
+
+    const price = data?.result?.[krakenPair]?.c?.[0];
+
+    if (price === undefined || price === null) {
+      throw new PriceNotFoundException(pair, this.name);
+    }
+
+    return {
+      pair,
+      price,
+      receivedAt: Date.now(),
+    };
   }
 
+  @HandleSourceError()
   async getPairs(): Promise<Pair[]> {
-    try {
-      const { data } =
-        await this.httpClient.get<KrakenAssetPairsResponse>(ASSET_PAIRS_PATH);
+    const { data } =
+      await this.httpClient.get<KrakenAssetPairsResponse>(ASSET_PAIRS_PATH);
 
-      if (data?.error?.length > 0) {
-        throw new SourceApiException(
-          this.name,
-          new Error(data.error.join(',')),
-        );
-      }
-
-      if (!data?.result) {
-        throw new SourceApiException(
-          this.name,
-          new Error('Invalid asset pairs response'),
-        );
-      }
-
-      const pairs: Pair[] = [];
-      for (const [, pairInfo] of Object.entries(data.result)) {
-        pairs.push(pairInfo.wsname.split('/') as Pair);
-      }
-
-      return pairs;
-    } catch (error) {
-      throw new SourceApiException(this.name, error as Error);
+    if (data?.error?.length > 0) {
+      throw new SourceApiException(this.name, new Error(data.error.join(',')));
     }
+
+    if (!data?.result) {
+      throw new SourceApiException(
+        this.name,
+        new Error('Invalid asset pairs response'),
+      );
+    }
+
+    const pairs: Pair[] = [];
+    for (const [, pairInfo] of Object.entries(data.result)) {
+      pairs.push(pairInfo.wsname.split('/') as Pair);
+    }
+
+    return pairs;
   }
 
+  @HandleSourceError()
   async fetchQuotes(pairs: Pair[]): Promise<Quote[]> {
     if (!pairs || pairs.length === 0) {
       return [];
@@ -170,50 +156,39 @@ export class KrakenAdapter implements SourceAdapter, WithBatch {
       );
     }
 
-    try {
-      const krakenPairs = pairs.map((pair) => pair.join('').toUpperCase());
-      const { data } = await this.httpClient.get<KrakenResponse>(API_PATH, {
-        params: {
-          pair: krakenPairs.join(','),
-        },
-      });
+    const krakenPairs = pairs.map((pair) => pair.join('').toUpperCase());
+    const { data } = await this.httpClient.get<KrakenResponse>(API_PATH, {
+      params: {
+        pair: krakenPairs.join(','),
+      },
+    });
 
-      if (data?.error?.length > 0) {
-        if (data.error.some((err) => err.includes('Unknown asset pair'))) {
-          return [];
-        }
-        throw new SourceApiException(
-          this.name,
-          new Error(data.error.join(',')),
-        );
+    if (data?.error?.length > 0) {
+      if (data.error.some((err) => err.includes('Unknown asset pair'))) {
+        return [];
       }
-
-      const quotes: Quote[] = [];
-      const now = Date.now();
-
-      if (data?.result) {
-        for (const pair of pairs) {
-          const krakenPair = pair.join('').toUpperCase();
-          const tickerData = data.result[krakenPair];
-
-          if (tickerData && tickerData.c && tickerData.c[0]) {
-            const price = tickerData.c[0];
-            quotes.push({
-              pair,
-              price: String(price),
-              receivedAt: now,
-            });
-          }
-        }
-      }
-
-      return quotes;
-    } catch (error) {
-      if (error instanceof BatchSizeExceededException) {
-        throw error;
-      }
-
-      throw new SourceApiException(this.name, error as Error);
+      throw new SourceApiException(this.name, new Error(data.error.join(',')));
     }
+
+    const quotes: Quote[] = [];
+    const now = Date.now();
+
+    if (data?.result) {
+      for (const pair of pairs) {
+        const krakenPair = pair.join('').toUpperCase();
+        const tickerData = data.result[krakenPair];
+
+        if (tickerData && tickerData.c && tickerData.c[0]) {
+          const price = tickerData.c[0];
+          quotes.push({
+            pair,
+            price: String(price),
+            receivedAt: now,
+          });
+        }
+      }
+    }
+
+    return quotes;
   }
 }

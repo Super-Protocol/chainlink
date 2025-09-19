@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { isAxiosError } from 'axios';
 
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
-import {
-  PriceNotFoundException,
-  SourceApiException,
-  UnsupportedPairException,
-} from '../exceptions';
+import { HandleSourceError } from '../decorators';
+import { PriceNotFoundException, SourceApiException } from '../exceptions';
 import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
@@ -54,66 +50,48 @@ export class CoinbaseAdapter implements SourceAdapter {
     });
   }
 
+  @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
-    try {
-      const { data } = await this.httpClient.get<CoinbaseResponse>(
-        `${API_PATH}/${pair[0]}-${pair[1]}/spot`,
-      );
-      const price = data?.data?.amount;
+    const { data } = await this.httpClient.get<CoinbaseResponse>(
+      `${API_PATH}/${pair[0]}-${pair[1]}/spot`,
+    );
+    const price = data?.data?.amount;
 
-      if (price === undefined || price === null) {
-        throw new PriceNotFoundException(pair, this.name);
-      }
-
-      return {
-        pair,
-        price,
-        receivedAt: Date.now(),
-      };
-    } catch (error) {
-      if (isAxiosError(error) && error.response) {
-        const status = error.response.status;
-
-        if (status === 404) {
-          throw new UnsupportedPairException(pair, this.name);
-        }
-      }
-
-      throw new SourceApiException(this.name, error as Error);
+    if (price === undefined || price === null) {
+      throw new PriceNotFoundException(pair, this.name);
     }
+
+    return {
+      pair,
+      price,
+      receivedAt: Date.now(),
+    };
   }
 
+  @HandleSourceError()
   async getPairs(): Promise<Pair[]> {
-    try {
-      const { data } =
-        await this.httpClient.get<CoinbaseCurrenciesResponse>(CURRENCIES_PATH);
+    const { data } =
+      await this.httpClient.get<CoinbaseCurrenciesResponse>(CURRENCIES_PATH);
 
-      if (!data?.data) {
-        throw new SourceApiException(
-          this.name,
-          new Error('Invalid currencies response'),
-        );
-      }
+    if (!data?.data) {
+      throw new SourceApiException(
+        this.name,
+        new Error('Invalid currencies response'),
+      );
+    }
 
-      const currencies = data.data.map((currency) => currency.id);
-      const commonQuoteCurrencies = ['USD', 'EUR', 'BTC', 'ETH'];
-      const pairs: Pair[] = [];
+    const currencies = data.data.map((currency) => currency.id);
+    const commonQuoteCurrencies = ['USD', 'EUR', 'BTC', 'ETH'];
+    const pairs: Pair[] = [];
 
-      for (const baseCurrency of currencies) {
-        for (const quoteCurrency of commonQuoteCurrencies) {
-          if (baseCurrency !== quoteCurrency) {
-            pairs.push([baseCurrency, quoteCurrency]);
-          }
+    for (const baseCurrency of currencies) {
+      for (const quoteCurrency of commonQuoteCurrencies) {
+        if (baseCurrency !== quoteCurrency) {
+          pairs.push([baseCurrency, quoteCurrency]);
         }
       }
-
-      return pairs;
-    } catch (error) {
-      if (error instanceof SourceApiException) {
-        throw error;
-      }
-
-      throw new SourceApiException(this.name, error as Error);
     }
+
+    return pairs;
   }
 }

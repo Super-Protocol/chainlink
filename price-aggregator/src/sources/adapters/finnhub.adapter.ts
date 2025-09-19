@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { isAxiosError } from 'axios';
 
 import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
+import { HandleSourceError } from '../decorators';
 import { PriceNotFoundException, SourceApiException } from '../exceptions';
 import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
@@ -50,38 +50,29 @@ export class FinnhubAdapter implements SourceAdapter {
     });
   }
 
+  @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     const symbol = pair.join('').toUpperCase();
-    try {
-      const { data } = await this.httpClient.get<FinnhubResponse>(API_PATH, {
-        params: {
-          symbol,
-        },
-      });
+    const { data } = await this.httpClient.get<FinnhubResponse>(API_PATH, {
+      params: {
+        symbol,
+      },
+    });
 
-      if (data.error) {
-        throw new SourceApiException(this.name, new Error(data.error));
-      }
-
-      const price = data.c;
-
-      if (price === undefined || price === null || price === 0) {
-        throw new PriceNotFoundException(pair, this.name);
-      }
-
-      return {
-        pair,
-        price: String(price),
-        receivedAt: Date.now(),
-      };
-    } catch (error) {
-      if (isAxiosError(error) && error.response?.status === 401) {
-        throw new SourceApiException(
-          this.name,
-          new Error('Invalid Finnhub API key'),
-        );
-      }
-      throw new SourceApiException(this.name, error as Error);
+    if (data.error) {
+      throw new SourceApiException(this.name, new Error(data.error));
     }
+
+    const price = data.c;
+
+    if (price === undefined || price === null || price === 0) {
+      throw new PriceNotFoundException(pair, this.name);
+    }
+
+    return {
+      pair,
+      price: String(price),
+      receivedAt: Date.now(),
+    };
   }
 }

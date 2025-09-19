@@ -1,7 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, Logger } from '@nestjs/common';
 import { Response } from 'express';
 
-import { SourceException } from '../exceptions';
+import { SourceApiException, SourceException } from '../exceptions';
 
 @Catch(SourceException)
 export class SourcesExceptionFilter implements ExceptionFilter {
@@ -11,14 +11,17 @@ export class SourcesExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    const status = exception.httpStatus;
+    let status = exception.httpStatus;
     const message = exception.message;
 
-    if (exception.name === 'SourceApiException') {
+    if (exception instanceof SourceApiException) {
       this.logger.warn(
         `Source API error: ${message}`,
         exception.cause instanceof Error ? exception.cause.stack : undefined,
       );
+      if (exception.statusCode) {
+        status = exception.statusCode;
+      }
     }
 
     response.status(status).json({

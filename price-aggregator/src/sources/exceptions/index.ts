@@ -6,6 +6,5 @@ export { BatchNotSupportedException } from './batch-not-supported.exception';
 export { BatchSizeExceededException } from './batch-size-exceeded.exception';
 export { StreamingNotSupportedException } from './streaming-not-supported.exception';
 export { PriceNotFoundException } from './price-not-found.exception';
-export { UnsupportedPairException } from './unsupported-pair.exception';
 export { FeatureNotImplementedException } from './feature-not-implemented.exception';
 export { SourceApiException } from './source-api.exception';
