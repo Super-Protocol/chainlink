@@ -5,6 +5,9 @@ log() { echo "[s6-init] $*"; }
 
 CONFIG_JSON_PATH="/sp/configurations/configuration.json"
 
+echo "Configuration JSON: "
+cat $CONFIG_JSON_PATH
+
 export ALL_IN_ONE="true"
 
 if [ ! -f "$CONFIG_JSON_PATH" ]; then
