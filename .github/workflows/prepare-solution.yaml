@@ -64,7 +64,7 @@ jobs:
       - name: Build Docker image and save to file
         run: |
           IMAGE_FILE="$SOLUTION-b${{ github.run_id }}.tar.gz"
-          docker build -t sp-chainlink-all-in-one:latest -f $DOCKERFILE .
+          docker build -t chainlink-all-in-one:latest -f $DOCKERFILE .
           docker save chainlink-all-in-one:latest | gzip > $IMAGE_FILE
 
           echo "IMAGE_FILE=$IMAGE_FILE" >> $GITHUB_ENV
