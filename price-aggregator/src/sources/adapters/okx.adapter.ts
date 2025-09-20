@@ -114,6 +114,9 @@ export class OkxAdapter implements SourceAdapter {
     });
 
     if (data?.code !== '0') {
+      if (data.code === '51001') {
+        throw new PriceNotFoundException(pair, this.name);
+      }
       throw new SourceApiException(this.name, new Error(data.msg));
     }
 
