@@ -22,13 +22,19 @@ export class SourcesManagerService {
   constructor(private readonly moduleRef: ModuleRef) {}
 
   @SingleFlight((sourceName, pair) => `${sourceName}-${pair.join('-')}`)
-  async fetchQuote(sourceName: string, pair: Pair): Promise<Quote> {
+  async fetchQuote(
+    sourceName: SourceName | string,
+    pair: Pair,
+  ): Promise<Quote> {
     this.logger.debug(`Fetching ${sourceName} ${pair.join('-')}`);
     const adapter = this.getAdapterByName(sourceName);
     return adapter.fetchQuote(pair);
   }
 
-  async fetchQuotes(sourceName: string, pairs: Pair[]): Promise<Quote[]> {
+  async fetchQuotes(
+    sourceName: SourceName | string,
+    pairs: Pair[],
+  ): Promise<Quote[]> {
     this.logger.debug(
       `Batch fetching ${pairs.length} quotes for ${sourceName}`,
     );
@@ -41,12 +47,15 @@ export class SourcesManagerService {
     return adapter.fetchQuotes(pairs);
   }
 
-  isFetchQuotesSupported(sourceName: string): boolean {
+  isFetchQuotesSupported(sourceName: SourceName | string): boolean {
     const adapter = this.getAdapterByName(sourceName);
     return adapter.fetchQuotes !== undefined;
   }
 
-  streamQuotes(sourceName: string, pairs: Pair[]): AsyncIterable<Quote> {
+  streamQuotes(
+    sourceName: SourceName | string,
+    pairs: Pair[],
+  ): AsyncIterable<Quote> {
     this.logger.debug(
       `Starting stream for ${sourceName}, ${pairs.length} pairs`,
     );
@@ -59,12 +68,12 @@ export class SourcesManagerService {
     return adapter.streamQuotes(pairs);
   }
 
-  isStreamQuotesSupported(sourceName: string): boolean {
+  isStreamQuotesSupported(sourceName: SourceName | string): boolean {
     const adapter = this.getAdapterByName(sourceName);
     return adapter.streamQuotes !== undefined;
   }
 
-  async getPairs(sourceName: string): Promise<Pair[]> {
+  async getPairs(sourceName: SourceName | string): Promise<Pair[]> {
     this.logger.debug(`Fetching pairs for ${sourceName}`);
     const adapter = this.getAdapterByName(sourceName);
 
@@ -75,9 +84,26 @@ export class SourcesManagerService {
     return adapter.getPairs();
   }
 
-  isGetPairsSupported(sourceName: string): boolean {
+  isGetPairsSupported(sourceName: SourceName | string): boolean {
     const adapter = this.getAdapterByName(sourceName);
     return adapter.getPairs !== undefined;
+  }
+
+  isEnabled(sourceName: SourceName | string): boolean {
+    try {
+      const adapter = this.getAdapterByName(sourceName);
+      return adapter.isEnabled();
+    } catch (error) {
+      if (error instanceof SourceDisabledException) {
+        return false;
+      }
+      throw error;
+    }
+  }
+
+  getTtl(sourceName: SourceName | string): number {
+    const adapter = this.getAdapterByName(sourceName);
+    return adapter.getTtl();
   }
 
   private getAdapter(sourceName: SourceName): SourceAdapter {
@@ -104,16 +130,16 @@ export class SourcesManagerService {
     return adapter;
   }
 
-  private getAdapterByName(sourceName: string): SourceAdapter {
+  private getAdapterByName(sourceName: SourceName | string): SourceAdapter {
     const sourceNameEnum = this.validateSourceName(sourceName);
     return this.getAdapter(sourceNameEnum);
   }
 
-  private isSourceSupported(sourceName: string): boolean {
+  private isSourceSupported(sourceName: SourceName | string): boolean {
     return Object.values(SourceName).includes(sourceName as SourceName);
   }
 
-  private validateSourceName(sourceName: string): SourceName {
+  private validateSourceName(sourceName: SourceName | string): SourceName {
     if (!this.isSourceSupported(sourceName)) {
       const supportedSources = Object.values(SourceName);
       throw new SourceUnsupportedException(sourceName, supportedSources);
