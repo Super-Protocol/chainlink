@@ -100,6 +100,25 @@ export class PairService {
     return Array.from(pairKeys).map((pairKey) => pairKey.split('/') as Pair);
   }
 
+  getPairsBySourceWithTimestamps(source: SourceName): PairSourceRegistration[] {
+    const pairKeys = this.pairsBySource.get(source);
+    if (!pairKeys) {
+      return [];
+    }
+
+    const registrations: PairSourceRegistration[] = [];
+    for (const pairKey of pairKeys) {
+      const pair: Pair = pairKey.split('/') as Pair;
+      const registrationKey = this.getPairSourceKey(pair, source);
+      const registration = this.registrations.get(registrationKey);
+      if (registration) {
+        registrations.push(registration);
+      }
+    }
+
+    return registrations;
+  }
+
   getSourcesByPair(pair: Pair): string[] {
     const pairKey = this.getPairKey(pair);
     const sources = this.sourcesByPair.get(pairKey);

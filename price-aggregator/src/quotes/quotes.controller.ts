@@ -83,7 +83,7 @@ export class QuotesController {
   async getPairsBySource(
     @Param('source', new ParseEnumPipe(SourceName)) source: SourceName,
   ): Promise<PairsBySourceResponseDto> {
-    return this.quotesService.getPairsBySource(source);
+    return await this.quotesService.getPairsBySource(source);
   }
 
   @Get('registrations')
@@ -98,6 +98,6 @@ export class QuotesController {
     type: AllRegistrationsResponseDto,
   })
   async getAllRegistrations(): Promise<AllRegistrationsResponseDto> {
-    return this.quotesService.getAllRegistrations();
+    return await this.quotesService.getAllRegistrations();
   }
 }

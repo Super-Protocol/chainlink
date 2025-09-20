@@ -40,4 +40,25 @@ export class RegistrationResponseDto {
     example: '2021-12-31T23:00:00.200Z',
   })
   lastRequestAt: Date;
+
+  @ApiProperty({
+    description: 'Cached price value if available',
+    example: '42350.50',
+    required: false,
+  })
+  cachedPrice?: string;
+
+  @ApiProperty({
+    description: 'Timestamp when price was originally received',
+    example: '2021-12-31T23:00:00.150Z',
+    required: false,
+  })
+  receivedAt?: Date;
+
+  @ApiProperty({
+    description: 'Timestamp when price was cached',
+    example: '2021-12-31T23:00:00.160Z',
+    required: false,
+  })
+  cachedAt?: Date;
 }
