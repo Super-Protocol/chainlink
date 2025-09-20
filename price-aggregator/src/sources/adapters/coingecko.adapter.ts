@@ -11,12 +11,7 @@ import {
   PriceNotFoundException,
   SourceApiException,
 } from '../exceptions';
-import {
-  Pair,
-  Quote,
-  SourceAdapter,
-  WithBatch,
-} from '../source-adapter.interface';
+import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
 const BASE_URL = 'https://api.coingecko.com';
@@ -26,10 +21,11 @@ const MAX_BATCH_SIZE = 100;
 type CoinGeckoResponse = Record<string, Record<string, number>>;
 
 @Injectable()
-export class CoinGeckoAdapter implements SourceAdapter, WithBatch {
+export class CoinGeckoAdapter implements SourceAdapter {
   readonly name = SourceName.COINGECKO;
   private readonly enabled: boolean;
   private readonly ttl: number;
+  private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -39,6 +35,7 @@ export class CoinGeckoAdapter implements SourceAdapter, WithBatch {
     const sourceConfig = configService.get('sources.coingecko');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
+    this.refetch = sourceConfig?.refetch || false;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -56,6 +53,10 @@ export class CoinGeckoAdapter implements SourceAdapter, WithBatch {
 
   getTtl(): number {
     return this.ttl;
+  }
+
+  isRefetchEnabled(): boolean {
+    return this.refetch;
   }
 
   @HandleSourceError()

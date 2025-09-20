@@ -8,12 +8,7 @@ import {
   PriceNotFoundException,
   SourceApiException,
 } from '../exceptions';
-import {
-  Pair,
-  Quote,
-  SourceAdapter,
-  WithBatch,
-} from '../source-adapter.interface';
+import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
 const BASE_URL = 'https://min-api.cryptocompare.com';
@@ -25,10 +20,11 @@ type CryptoCompareResponse = Record<string, number>;
 type CryptoCompareMultiResponse = Record<string, Record<string, number>>;
 
 @Injectable()
-export class CryptoCompareAdapter implements SourceAdapter, WithBatch {
+export class CryptoCompareAdapter implements SourceAdapter {
   readonly name = SourceName.CRYPTOCOMPARE;
   private readonly enabled: boolean;
   private readonly ttl: number;
+  private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
   private readonly apiKey: string;
 
@@ -40,6 +36,7 @@ export class CryptoCompareAdapter implements SourceAdapter, WithBatch {
     this.apiKey = sourceConfig?.apiKey || '';
     this.enabled = sourceConfig?.enabled && !!this.apiKey;
     this.ttl = sourceConfig?.ttl || 10000;
+    this.refetch = sourceConfig?.refetch || false;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -60,6 +57,10 @@ export class CryptoCompareAdapter implements SourceAdapter, WithBatch {
 
   getTtl(): number {
     return this.ttl;
+  }
+
+  isRefetchEnabled(): boolean {
+    return this.refetch;
   }
 
   async fetchQuote(pair: Pair): Promise<Quote> {

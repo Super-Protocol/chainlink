@@ -9,13 +9,7 @@ import {
   PriceNotFoundException,
   SourceApiException,
 } from '../exceptions';
-import {
-  Pair,
-  Quote,
-  SourceAdapter,
-  WithBatch,
-  WithWebSocket,
-} from '../source-adapter.interface';
+import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
 const BASE_URL = 'https://api.binance.com';
@@ -23,10 +17,11 @@ const API_PATH = '/api/v3/ticker/price';
 const EXCHANGE_INFO_PATH = '/api/v3/exchangeInfo';
 
 @Injectable()
-export class BinanceAdapter implements SourceAdapter, WithBatch, WithWebSocket {
+export class BinanceAdapter implements SourceAdapter {
   readonly name = SourceName.BINANCE;
   private readonly enabled: boolean;
   private readonly ttl: number;
+  private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -36,6 +31,7 @@ export class BinanceAdapter implements SourceAdapter, WithBatch, WithWebSocket {
     const sourceConfig = configService.get('sources.binance');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
+    this.refetch = sourceConfig?.refetch || false;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: 'binance',
@@ -53,6 +49,10 @@ export class BinanceAdapter implements SourceAdapter, WithBatch, WithWebSocket {
 
   getTtl(): number {
     return this.ttl;
+  }
+
+  isRefetchEnabled(): boolean {
+    return this.refetch;
   }
 
   @HandleSourceError()

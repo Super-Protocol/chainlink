@@ -4,12 +4,7 @@ import { HttpClient, HttpClientBuilder } from '../../common';
 import { AppConfigService } from '../../config';
 import { HandleSourceError } from '../decorators';
 import { PriceNotFoundException, SourceApiException } from '../exceptions';
-import {
-  Pair,
-  Quote,
-  SourceAdapter,
-  WithBatch,
-} from '../source-adapter.interface';
+import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
 const BASE_URL = 'https://www.okx.com';
@@ -71,10 +66,11 @@ interface OkxInstrumentsResponse {
 }
 
 @Injectable()
-export class OkxAdapter implements SourceAdapter, WithBatch {
+export class OkxAdapter implements SourceAdapter {
   readonly name = SourceName.OKX;
   private readonly enabled: boolean;
   private readonly ttl: number;
+  private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -84,6 +80,7 @@ export class OkxAdapter implements SourceAdapter, WithBatch {
     const sourceConfig = configService.get('sources.okx');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
+    this.refetch = sourceConfig?.refetch || false;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -101,6 +98,10 @@ export class OkxAdapter implements SourceAdapter, WithBatch {
 
   getTtl(): number {
     return this.ttl;
+  }
+
+  isRefetchEnabled(): boolean {
+    return this.refetch;
   }
 
   @HandleSourceError()
