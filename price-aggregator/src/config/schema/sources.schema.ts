@@ -75,6 +75,13 @@ const createSourceSchema = ({
           default: false,
         }),
       ),
+      refetch: Type.Optional(
+        Type.Boolean({
+          description:
+            'Enable automatic refetch of price data when cache expires',
+          default: false,
+        }),
+      ),
     }),
     createApiKeySchema(apiKeyRequired, apiKeyDescription, apiKeyExamples),
   ]);

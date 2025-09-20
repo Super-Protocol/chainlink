@@ -28,6 +28,7 @@ sources:
     maxConcurrent: 10
     apiKey: optional-api-key
     useProxy: false
+    refetch: true
 
   okx:
     enabled: true
@@ -36,6 +37,7 @@ sources:
     rps: 10 # 20/2sec limit, null to disable
     maxConcurrent: 10
     useProxy: false
+    refetch: true
 
   finnhub:
     enabled: true
@@ -45,6 +47,7 @@ sources:
     maxConcurrent: 10
     apiKey: required-finnhub-api-key
     useProxy: false
+    refetch: true
 
   cryptocompare:
     enabled: true
@@ -54,6 +57,7 @@ sources:
     maxConcurrent: 10
     apiKey: required-cryptocompare-api-key
     useProxy: false
+    refetch: true
 
   alphavantage:
     enabled: true
@@ -63,6 +67,7 @@ sources:
     maxConcurrent: 10
     apiKey: your-alpha-vantage-api-key
     useProxy: false
+    refetch: true
 
   coingecko:
     enabled: true
@@ -71,6 +76,7 @@ sources:
     rps: 1 # 30/min limit, null to disable
     maxConcurrent: 10
     useProxy: false
+    refetch: true
 
   exchangeratehost:
     enabled: true
@@ -79,6 +85,7 @@ sources:
     rps: 1 # 1000/day limit, null to disable
     maxConcurrent: 10
     useProxy: false
+    refetch: true
 
   kraken:
     enabled: true
@@ -87,6 +94,7 @@ sources:
     rps: 1 # null to disable
     maxConcurrent: 10
     useProxy: false
+    refetch: true
 
   coinbase:
     enabled: true
@@ -95,6 +103,7 @@ sources:
     rps: 2.8 # 10000/hour limit, null to disable
     maxConcurrent: 10
     useProxy: false
+    refetch: true
 
   frankfurter:
     enabled: true
@@ -103,3 +112,4 @@ sources:
     rps: null # unlimited
     maxConcurrent: 10
     useProxy: false
+    refetch: true
