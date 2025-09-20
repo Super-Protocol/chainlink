@@ -7,6 +7,7 @@ import { PairService } from './pair.service';
 import { QuotesController } from './quotes.controller';
 import { QuotesService } from './quotes.service';
 import { RefetchService } from './refetch.service';
+import { StreamingQuotesService } from './streaming-quotes.service';
 import { MetricsModule } from '../metrics/metrics.module';
 import { SourcesModule } from '../sources/sources.module';
 
@@ -20,6 +21,7 @@ import { SourcesModule } from '../sources/sources.module';
     PairCleanupService,
     CacheService,
     RefetchService,
+    StreamingQuotesService,
   ],
   exports: [QuotesService, PairService],
 })

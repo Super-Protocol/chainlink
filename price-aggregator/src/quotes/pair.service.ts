@@ -1,9 +1,16 @@
+import { EventEmitter } from 'events';
+
 import { Injectable, Logger } from '@nestjs/common';
 
 import { AppConfigService } from '../config';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import { Pair } from '../sources/source-adapter.interface';
+
+type PairServiceEvents = {
+  'pair-added': { pair: Pair; source: SourceName };
+  'pair-removed': { pair: Pair; source: SourceName };
+};
 
 interface PairSourceRegistration {
   pair: Pair;
@@ -20,6 +27,7 @@ export class PairService {
   private readonly registrations = new Map<string, PairSourceRegistration>();
   private readonly pairsBySource = new Map<SourceName, Set<string>>();
   private readonly sourcesByPair = new Map<string, Set<SourceName>>();
+  private readonly eventEmitter = new EventEmitter();
 
   constructor(
     private readonly configService: AppConfigService,
@@ -34,7 +42,7 @@ export class PairService {
 
     if (existing) {
       existing.lastRequestAt = now;
-      this.logger.debug(
+      this.logger.verbose(
         `Updated request time for pair ${pair.join('/')} from source ${source}`,
       );
     } else {
@@ -47,6 +55,7 @@ export class PairService {
       this.logger.debug(
         `Started tracking pair ${pair.join('/')} for source ${source}`,
       );
+      this.eventEmitter.emit('pair-added', { pair, source });
     }
   }
 
@@ -56,7 +65,7 @@ export class PairService {
 
     if (existing) {
       existing.lastFetchAt = new Date();
-      this.logger.debug(
+      this.logger.verbose(
         `Updated fetch time for pair ${pair.join('/')} from source ${source}`,
       );
     } else {
@@ -72,7 +81,7 @@ export class PairService {
 
     if (existing) {
       existing.lastResponseAt = new Date();
-      this.logger.debug(
+      this.logger.verbose(
         `Updated response time for pair ${pair.join('/')} from source ${source}`,
       );
     } else {
@@ -128,6 +137,7 @@ export class PairService {
     if (removed) {
       this.removeFromIndices(pair, source);
       this.logger.debug(`Removed pair ${pair.join('/')} for source ${source}`);
+      this.eventEmitter.emit('pair-removed', { pair, source });
     }
   }
 
@@ -232,5 +242,19 @@ export class PairService {
       this.metricsService.trackedPairs.set({ source }, pairs.size);
     }
     this.metricsService.totalPairs.set(this.sourcesByPair.size);
+  }
+
+  on<K extends keyof PairServiceEvents>(
+    event: K,
+    handler: (payload: PairServiceEvents[K]) => void,
+  ): void {
+    this.eventEmitter.on(event, handler as (...args: unknown[]) => void);
+  }
+
+  off<K extends keyof PairServiceEvents>(
+    event: K,
+    handler: (payload: PairServiceEvents[K]) => void,
+  ): void {
+    this.eventEmitter.off(event, handler as (...args: unknown[]) => void);
   }
 }

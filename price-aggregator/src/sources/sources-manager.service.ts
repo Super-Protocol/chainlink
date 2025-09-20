@@ -127,6 +127,22 @@ export class SourcesManagerService {
     return adapter.getStreamService !== undefined;
   }
 
+  getStreamingSources(): SourceName[] {
+    const streamingSources: SourceName[] = [];
+
+    for (const name of Object.values(SourceName)) {
+      try {
+        if (this.isEnabled(name) && this.isStreamingSupported(name)) {
+          streamingSources.push(name);
+        }
+      } catch (error) {
+        // Ignore disabled or unavailable sources
+      }
+    }
+
+    return streamingSources;
+  }
+
   @SingleFlight((sourceName) => `${sourceName}-pairs`)
   async getPairs(sourceName: SourceName | string): Promise<Pair[]> {
     this.logger.debug(`Fetching pairs for ${sourceName}`);

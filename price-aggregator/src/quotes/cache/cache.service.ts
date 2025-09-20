@@ -100,7 +100,7 @@ export class CacheService extends EventEmitter implements OnModuleDestroy {
       this.scheduleStaleCheck(key, metadata);
       this.updateCacheSizeMetrics();
 
-      this.logger.debug(`Cached quote for ${key} with TTL ${cacheTtl}ms`);
+      this.logger.verbose(`Cached quote for ${key} with TTL ${cacheTtl}ms`);
     } catch (error) {
       this.logger.error(`Error setting cache for ${key}:`, error);
     }
@@ -118,7 +118,7 @@ export class CacheService extends EventEmitter implements OnModuleDestroy {
       }
       this.updateCacheSizeMetrics();
 
-      this.logger.debug(`Deleted cache for ${key}`);
+      this.logger.verbose(`Deleted cache for ${key}`);
     } catch (error) {
       this.logger.error(`Error deleting cache for ${key}:`, error);
     }
