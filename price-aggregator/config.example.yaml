@@ -3,38 +3,46 @@ environment: development
 
 logger:
   level: info
-  isPrettyEnabled: false
+  isPrettyEnabled: false # Set to true for development to get formatted logs
+
+# Proactive cache refresh configuration
+refetch:
+  enabled: true
+  staleTriggerBeforeExpiry: 3000 # Prevents cache misses by refreshing before expiry
+  batchInterval: 1000 # Batches multiple stale items to reduce API calls
+  minTimeBetweenRefreshes: 2000 # Prevents excessive API calls for same item
+  maxConcurrentRefreshes: 10 # Limits concurrent operations to prevent resource exhaustion
 
 proxy:
   http:
     enabled: false
     host: proxy.example.com
     port: 8080
-    username: optional-username
+    username: optional-username # Only needed if proxy requires authentication
     password: optional-password
   https:
     enabled: false
     host: proxy.example.com
     port: 8080
-    username: optional-username
+    username: optional-username # Only needed if proxy requires authentication
     password: optional-password
 
 sources:
   binance:
     enabled: true
-    ttl: 10000
+    ttl: 10000 # Cache duration in ms
     timeoutMs: 10000
-    rps: 100 # 6000/min limit, null to disable
+    rps: 100 # 6000/min API limit, null to disable rate limiting
     maxConcurrent: 10
-    apiKey: optional-api-key
-    useProxy: false
-    refetch: true
+    apiKey: optional-api-key # Not required for public market data
+    useProxy: false # Enable to bypass rate limits or geo-restrictions
+    refetch: true # Enable automatic cache refresh when data expires
 
   okx:
     enabled: true
     ttl: 10000
     timeoutMs: 10000
-    rps: 10 # 20/2sec limit, null to disable
+    rps: 10 # 20/2sec API limit, conservative setting
     maxConcurrent: 10
     useProxy: false
     refetch: true
@@ -43,9 +51,9 @@ sources:
     enabled: true
     ttl: 10000
     timeoutMs: 10000
-    rps: 1 # 60/min limit, null to disable
+    rps: 1 # Free tier: 60/min limit, paid plans have higher limits
     maxConcurrent: 10
-    apiKey: required-finnhub-api-key
+    apiKey: required-finnhub-api-key # Required even for free tier
     useProxy: false
     refetch: true
 
@@ -53,7 +61,7 @@ sources:
     enabled: true
     ttl: 10000
     timeoutMs: 10000
-    rps: 25 # null to disable
+    rps: 25 # Free tier: 100k/month, adjust based on your plan
     maxConcurrent: 10
     apiKey: required-cryptocompare-api-key
     useProxy: false
@@ -61,28 +69,28 @@ sources:
 
   alphavantage:
     enabled: true
-    ttl: 60000
+    ttl: 60000 # Longer cache due to strict rate limits
     timeoutMs: 15000
-    rps: 1 # 25/day limit, null to disable
+    rps: 1 # Free tier: only 25/day, extremely limited
     maxConcurrent: 10
-    apiKey: your-alpha-vantage-api-key
+    apiKey: DEMO_KEY # Use DEMO_KEY for testing
     useProxy: false
     refetch: true
 
   coingecko:
     enabled: true
-    ttl: 30000
+    ttl: 30000 # Moderate cache duration
     timeoutMs: 10000
-    rps: 1 # 30/min limit, null to disable
+    rps: 1 # Free tier: 30/min, Pro API has higher limits
     maxConcurrent: 10
     useProxy: false
     refetch: true
 
   exchangeratehost:
     enabled: true
-    ttl: 60000
+    ttl: 60000 # Forex rates change less frequently
     timeoutMs: 10000
-    rps: 1 # 1000/day limit, null to disable
+    rps: 1 # Free tier: 1000/day limit
     maxConcurrent: 10
     useProxy: false
     refetch: true
@@ -91,7 +99,7 @@ sources:
     enabled: true
     ttl: 10000
     timeoutMs: 10000
-    rps: 1 # null to disable
+    rps: 1 # Conservative rate to avoid hitting limits
     maxConcurrent: 10
     useProxy: false
     refetch: true
@@ -100,16 +108,16 @@ sources:
     enabled: true
     ttl: 15000
     timeoutMs: 10000
-    rps: 2.8 # 10000/hour limit, null to disable
+    rps: 2.8 # 10000/hour limit = ~2.78/sec
     maxConcurrent: 10
     useProxy: false
     refetch: true
 
   frankfurter:
     enabled: true
-    ttl: 60000
+    ttl: 60000 # ECB data updates once daily
     timeoutMs: 10000
-    rps: null # unlimited
+    rps: null # No strict limits, but be respectful
     maxConcurrent: 10
     useProxy: false
-    refetch: true
+    refetch: true # Useful for keeping forex rates fresh

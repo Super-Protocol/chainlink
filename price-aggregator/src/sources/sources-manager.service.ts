@@ -102,8 +102,11 @@ export class SourcesManagerService {
   }
 
   getTtl(sourceName: SourceName | string): number {
-    const adapter = this.getAdapterByName(sourceName);
-    return adapter.getTtl();
+    return this.getAdapterByName(sourceName).getTtl();
+  }
+
+  isRefetchEnabled(sourceName: SourceName | string): boolean {
+    return this.getAdapterByName(sourceName).isRefetchEnabled();
   }
 
   private getAdapter(sourceName: SourceName): SourceAdapter {

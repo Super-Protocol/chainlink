@@ -34,6 +34,7 @@ export class ExchangeRateHostAdapter implements SourceAdapter {
   readonly name = SourceName.EXCHANGERATE_HOST;
   private readonly enabled: boolean;
   private readonly ttl: number;
+  private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -43,6 +44,7 @@ export class ExchangeRateHostAdapter implements SourceAdapter {
     const sourceConfig = configService.get('sources.exchangeratehost');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
+    this.refetch = sourceConfig?.refetch || false;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -60,6 +62,10 @@ export class ExchangeRateHostAdapter implements SourceAdapter {
 
   getTtl(): number {
     return this.ttl;
+  }
+
+  isRefetchEnabled(): boolean {
+    return this.refetch;
   }
 
   private mapErrorCodeToHttpStatus(errorCode: number): number {

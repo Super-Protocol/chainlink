@@ -5,12 +5,19 @@ import { CacheService } from './cache';
 import { PairService } from './pair.service';
 import { QuotesController } from './quotes.controller';
 import { QuotesService } from './quotes.service';
+import { RefetchService } from './refetch.service';
 import { SourcesModule } from '../sources/sources.module';
 
 @Module({
   imports: [SourcesModule],
   controllers: [QuotesController],
-  providers: [QuotesService, BatchQuotesService, PairService, CacheService],
+  providers: [
+    QuotesService,
+    BatchQuotesService,
+    PairService,
+    CacheService,
+    RefetchService,
+  ],
   exports: [QuotesService, PairService],
 })
 export class QuotesModule {}

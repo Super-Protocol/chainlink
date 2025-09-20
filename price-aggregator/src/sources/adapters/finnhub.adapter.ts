@@ -27,6 +27,7 @@ export class FinnhubAdapter implements SourceAdapter {
   readonly name = SourceName.FINNHUB;
   private readonly enabled: boolean;
   private readonly ttl: number;
+  private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
   private readonly apiKey: string;
 
@@ -38,6 +39,7 @@ export class FinnhubAdapter implements SourceAdapter {
     this.apiKey = sourceConfig?.apiKey || '';
     this.enabled = sourceConfig?.enabled && !!this.apiKey;
     this.ttl = sourceConfig?.ttl || 10000;
+    this.refetch = sourceConfig?.refetch || false;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -58,6 +60,10 @@ export class FinnhubAdapter implements SourceAdapter {
 
   getTtl(): number {
     return this.ttl;
+  }
+
+  isRefetchEnabled(): boolean {
+    return this.refetch;
   }
 
   @HandleSourceError()

@@ -8,12 +8,7 @@ import {
   PriceNotFoundException,
   SourceApiException,
 } from '../exceptions';
-import {
-  Pair,
-  Quote,
-  SourceAdapter,
-  WithBatch,
-} from '../source-adapter.interface';
+import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
 
 const BASE_URL = 'https://api.kraken.com';
@@ -67,10 +62,11 @@ interface KrakenAssetPairsResponse {
 }
 
 @Injectable()
-export class KrakenAdapter implements SourceAdapter, WithBatch {
+export class KrakenAdapter implements SourceAdapter {
   readonly name = SourceName.KRAKEN;
   private readonly enabled: boolean;
   private readonly ttl: number;
+  private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -80,6 +76,7 @@ export class KrakenAdapter implements SourceAdapter, WithBatch {
     const sourceConfig = configService.get('sources.kraken');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
+    this.refetch = sourceConfig?.refetch || false;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -97,6 +94,10 @@ export class KrakenAdapter implements SourceAdapter, WithBatch {
 
   getTtl(): number {
     return this.ttl;
+  }
+
+  isRefetchEnabled(): boolean {
+    return this.refetch;
   }
 
   @HandleSourceError()

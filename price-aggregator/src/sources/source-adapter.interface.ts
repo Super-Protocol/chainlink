@@ -26,16 +26,9 @@ export interface SourceConfig {
 export interface SourceAdapter {
   isEnabled(): boolean;
   getTtl(): number;
+  isRefetchEnabled(): boolean;
   fetchQuote(pair: Pair): Promise<Quote>;
   getPairs?(): Promise<Pair[]>;
   fetchQuotes?(pairs: Pair[]): Promise<Quote[]>;
   streamQuotes?(pairs: Pair[]): AsyncIterable<Quote>;
-}
-
-export interface WithBatch {
-  fetchQuotes(pairs: Pair[]): Promise<Quote[]>;
-}
-
-export interface WithWebSocket {
-  streamQuotes(pairs: Pair[]): AsyncIterable<Quote>;
 }

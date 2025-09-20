@@ -32,6 +32,7 @@ export class CoinbaseAdapter implements SourceAdapter {
   readonly name = SourceName.COINBASE;
   private readonly enabled: boolean;
   private readonly ttl: number;
+  private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -41,6 +42,7 @@ export class CoinbaseAdapter implements SourceAdapter {
     const sourceConfig = configService.get('sources.coinbase');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
+    this.refetch = sourceConfig?.refetch || false;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -58,6 +60,10 @@ export class CoinbaseAdapter implements SourceAdapter {
 
   getTtl(): number {
     return this.ttl;
+  }
+
+  isRefetchEnabled(): boolean {
+    return this.refetch;
   }
 
   @HandleSourceError()
