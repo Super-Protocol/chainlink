@@ -130,4 +130,28 @@ export class QuotesController {
     const removedCount = this.pairCleanupService.manualCleanup();
     return { removedCount };
   }
+
+  @Post('cleanup')
+  @ApiOperation({
+    summary: 'Manually trigger cleanup of inactive pairs',
+    description:
+      'Manually trigger cleanup process to remove pairs that have not been requested for the configured timeout period',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Cleanup completed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        removedCount: {
+          type: 'number',
+          description: 'Number of inactive pairs removed',
+        },
+      },
+    },
+  })
+  async manualCleanup(): Promise<{ removedCount: number }> {
+    const removedCount = this.pairCleanupService.manualCleanup();
+    return { removedCount };
+  }
 }
