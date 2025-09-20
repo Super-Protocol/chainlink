@@ -4,6 +4,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppConfigModule, AppConfigService } from './config';
+import { QuotesModule } from './quotes';
 import { SourcesModule } from './sources';
 
 @Module({
@@ -30,6 +31,7 @@ import { SourcesModule } from './sources';
       },
     }),
     SourcesModule,
+    QuotesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

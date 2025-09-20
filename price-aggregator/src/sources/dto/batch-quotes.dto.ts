@@ -2,12 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsString, Length, ArrayMinSize } from 'class-validator';
 
 import { IsArrayOfPairs } from '../../common/decorators';
-import { Currency } from '../../config/pairs';
 
 export class PairDto {
   @ApiProperty({
     description: 'Base currency code',
-    example: Currency.BTC,
+    example: 'BTC',
     minLength: 1,
     maxLength: 50,
   })
@@ -17,7 +16,7 @@ export class PairDto {
 
   @ApiProperty({
     description: 'Quote currency code',
-    example: Currency.USD,
+    example: 'USD',
     minLength: 1,
     maxLength: 50,
   })
