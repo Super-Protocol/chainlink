@@ -124,7 +124,7 @@ export class KrakenAdapter implements SourceAdapter, WithBatch {
     return {
       pair,
       price,
-      receivedAt: Date.now(),
+      receivedAt: new Date(),
     };
   }
 
@@ -181,7 +181,7 @@ export class KrakenAdapter implements SourceAdapter, WithBatch {
     }
 
     const quotes: Quote[] = [];
-    const now = Date.now();
+    const now = new Date();
 
     if (data?.result) {
       for (const pair of pairs) {

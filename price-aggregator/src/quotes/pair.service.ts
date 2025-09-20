@@ -6,9 +6,9 @@ import { Pair } from '../sources/source-adapter.interface';
 interface PairSourceRegistration {
   pair: Pair;
   source: SourceName;
-  registeredAt: number;
-  lastQuoteAt: number;
-  lastRequestAt: number;
+  registeredAt: Date;
+  lastQuoteAt: Date;
+  lastRequestAt: Date;
 }
 
 @Injectable()
@@ -18,7 +18,7 @@ export class PairService {
 
   trackQuoteRequest(pair: Pair, source: SourceName): void {
     const key = this.getPairSourceKey(pair, source);
-    const now = Date.now();
+    const now = new Date();
 
     const existing = this.registrations.get(key);
 
@@ -32,7 +32,7 @@ export class PairService {
         pair,
         source,
         registeredAt: now,
-        lastQuoteAt: 0, // Will be updated when quote is successful
+        lastQuoteAt: new Date(0), // Will be updated when quote is successful
         lastRequestAt: now,
       });
       this.logger.debug(
@@ -43,7 +43,7 @@ export class PairService {
 
   trackSuccessfulQuote(pair: Pair, source: SourceName): void {
     const key = this.getPairSourceKey(pair, source);
-    const now = Date.now();
+    const now = new Date();
 
     const existing = this.registrations.get(key);
 

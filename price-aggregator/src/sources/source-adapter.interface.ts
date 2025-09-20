@@ -3,7 +3,7 @@ export type Pair = [string, string];
 export interface Quote {
   pair: Pair;
   price: string;
-  receivedAt: number;
+  receivedAt: Date;
 }
 
 export interface SourceCapabilities {

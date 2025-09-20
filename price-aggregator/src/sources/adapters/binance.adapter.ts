@@ -64,7 +64,7 @@ export class BinanceAdapter implements SourceAdapter, WithBatch, WithWebSocket {
     if (price === undefined || price === null) {
       throw new PriceNotFoundException(pair, this.name);
     }
-    const now = Date.now();
+    const now = new Date();
 
     return {
       pair,
@@ -86,7 +86,7 @@ export class BinanceAdapter implements SourceAdapter, WithBatch, WithWebSocket {
         );
 
       const quotes: Quote[] = [];
-      const now = Date.now();
+      const now = new Date();
       const priceMap = new Map<string, string>();
 
       if (Array.isArray(data)) {

@@ -18,22 +18,20 @@ export class RegistrationResponseDto {
   source: SourceName;
 
   @ApiProperty({
-    description:
-      'Timestamp when pair was first registered (Unix timestamp in milliseconds)',
-    example: 1640995200000,
+    description: 'Timestamp when pair was first registered',
+    example: '2021-12-31T23:00:00.000Z',
   })
-  registeredAt: number;
+  registeredAt: Date;
 
   @ApiProperty({
-    description:
-      'Timestamp of last successful quote (Unix timestamp in milliseconds)',
-    example: 1640995200100,
+    description: 'Timestamp of last successful quote',
+    example: '2021-12-31T23:00:00.100Z',
   })
-  lastQuoteAt: number;
+  lastQuoteAt: Date;
 
   @ApiProperty({
-    description: 'Timestamp of last request (Unix timestamp in milliseconds)',
-    example: 1640995200200,
+    description: 'Timestamp of last request',
+    example: '2021-12-31T23:00:00.200Z',
   })
-  lastRequestAt: number;
+  lastRequestAt: Date;
 }

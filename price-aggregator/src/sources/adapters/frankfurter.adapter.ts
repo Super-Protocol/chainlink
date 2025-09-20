@@ -68,7 +68,7 @@ export class FrankfurterAdapter implements SourceAdapter {
     return {
       pair,
       price: String(price),
-      receivedAt: Date.now(),
+      receivedAt: new Date(),
     };
   }
 }

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import { CacheService, CachedQuote } from './cache';
 import {
   QuoteResponseDto,
   PairsBySourceResponseDto,
@@ -18,6 +19,7 @@ export class QuotesService {
   constructor(
     private readonly sourcesManager: SourcesManagerService,
     private readonly pairService: PairService,
+    private readonly cacheService: CacheService,
   ) {}
 
   async getQuote(source: SourceName, pair: Pair): Promise<QuoteResponseDto> {
@@ -25,10 +27,33 @@ export class QuotesService {
 
     this.pairService.trackQuoteRequest(pair, source);
 
+    const cachedQuote = await this.cacheService.get(source, pair);
+    if (cachedQuote) {
+      this.logger.debug(
+        `Returning cached quote for ${source}:${pair.join('/')}`,
+      );
+      return {
+        source: cachedQuote.source,
+        pair: cachedQuote.pair,
+        price: cachedQuote.price,
+        receivedAt: cachedQuote.receivedAt,
+      };
+    }
+
     try {
       const quote = await this.sourcesManager.fetchQuote(source, pair);
 
       this.pairService.trackSuccessfulQuote(pair, source);
+
+      const cachedQuoteData: CachedQuote = {
+        source,
+        pair: quote.pair,
+        price: quote.price,
+        receivedAt: quote.receivedAt,
+        cachedAt: new Date(),
+      };
+
+      await this.cacheService.set(source, pair, cachedQuoteData);
 
       return {
         source,
@@ -42,6 +67,8 @@ export class QuotesService {
           `Pair ${pair.join('/')} not found for source ${source}, removing from registrations`,
         );
         this.pairService.removePairSource(pair, source);
+        // Remove from cache as well
+        await this.cacheService.del(source, pair);
       }
 
       throw error;
