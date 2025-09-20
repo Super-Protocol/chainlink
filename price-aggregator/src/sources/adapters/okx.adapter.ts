@@ -125,7 +125,7 @@ export class OkxAdapter implements SourceAdapter, WithBatch {
     return {
       pair,
       price,
-      receivedAt: Date.now(),
+      receivedAt: new Date(),
     };
   }
 
@@ -179,7 +179,7 @@ export class OkxAdapter implements SourceAdapter, WithBatch {
     }
 
     const quotes: Quote[] = [];
-    const now = Date.now();
+    const now = new Date();
 
     if (data?.data) {
       // Create a map for fast lookup

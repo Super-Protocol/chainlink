@@ -121,7 +121,7 @@ export class AlphaVantageAdapter implements SourceAdapter {
     return {
       pair,
       price: String(price),
-      receivedAt: Date.now(),
+      receivedAt: new Date(),
     };
   }
 }

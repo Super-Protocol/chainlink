@@ -74,7 +74,7 @@ export class CoinbaseAdapter implements SourceAdapter {
     return {
       pair,
       price,
-      receivedAt: Date.now(),
+      receivedAt: new Date(),
     };
   }
 

@@ -85,7 +85,7 @@ export class CryptoCompareAdapter implements SourceAdapter, WithBatch {
       return {
         pair,
         price: String(price),
-        receivedAt: Date.now(),
+        receivedAt: new Date(),
       };
     } catch (error) {
       if (isAxiosError<{ Message?: string }>(error)) {
@@ -126,7 +126,7 @@ export class CryptoCompareAdapter implements SourceAdapter, WithBatch {
       );
 
       const quotes: Quote[] = [];
-      const now = Date.now();
+      const now = new Date();
 
       for (const pair of pairs) {
         const [base, quote] = pair;

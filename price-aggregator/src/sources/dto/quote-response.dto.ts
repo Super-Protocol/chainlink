@@ -15,9 +15,8 @@ export class QuoteResponseDto {
   price: string;
 
   @ApiProperty({
-    description:
-      'Timestamp when quote was received (Unix timestamp in milliseconds)',
-    example: 1640995200100,
+    description: 'Timestamp when quote was received',
+    example: '2021-12-31T23:00:00.100Z',
   })
-  receivedAt: number;
+  receivedAt: Date;
 }
