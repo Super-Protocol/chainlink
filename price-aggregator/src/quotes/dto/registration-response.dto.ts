@@ -24,10 +24,16 @@ export class RegistrationResponseDto {
   registeredAt: Date;
 
   @ApiProperty({
-    description: 'Timestamp of last successful quote',
+    description: 'Timestamp of last successful fetch',
     example: '2021-12-31T23:00:00.100Z',
   })
-  lastQuoteAt: Date;
+  lastFetchAt: Date;
+
+  @ApiProperty({
+    description: 'Timestamp of last successful response',
+    example: '2021-12-31T23:00:00.200Z',
+  })
+  lastResponseAt: Date;
 
   @ApiProperty({
     description: 'Timestamp of last request',

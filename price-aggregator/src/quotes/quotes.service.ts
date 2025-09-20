@@ -32,6 +32,9 @@ export class QuotesService {
       this.logger.debug(
         `Returning cached quote for ${source}:${pair.join('/')}`,
       );
+
+      this.pairService.trackResponse(pair, source);
+
       return {
         source: cachedQuote.source,
         pair: cachedQuote.pair,
@@ -43,7 +46,8 @@ export class QuotesService {
     try {
       const quote = await this.sourcesManager.fetchQuote(source, pair);
 
-      this.pairService.trackSuccessfulQuote(pair, source);
+      this.pairService.trackSuccessfulFetch(pair, source);
+      this.pairService.trackResponse(pair, source);
 
       const cachedQuoteData: CachedQuote = {
         source,
@@ -67,8 +71,6 @@ export class QuotesService {
           `Pair ${pair.join('/')} not found for source ${source}, removing from registrations`,
         );
         this.pairService.removePairSource(pair, source);
-        // Remove from cache as well
-        await this.cacheService.del(source, pair);
       }
 
       throw error;
@@ -90,7 +92,8 @@ export class QuotesService {
         pair: reg.pair,
         source: reg.source,
         registeredAt: reg.registeredAt,
-        lastQuoteAt: reg.lastQuoteAt,
+        lastFetchAt: reg.lastFetchAt,
+        lastResponseAt: reg.lastResponseAt,
         lastRequestAt: reg.lastRequestAt,
       })),
     };
