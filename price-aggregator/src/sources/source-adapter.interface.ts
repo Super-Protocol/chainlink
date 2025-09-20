@@ -1,3 +1,5 @@
+import { QuoteStreamService } from './quote-stream.interface';
+
 export type Pair = [string, string];
 
 export interface Quote {
@@ -30,5 +32,5 @@ export interface SourceAdapter {
   fetchQuote(pair: Pair): Promise<Quote>;
   getPairs?(): Promise<Pair[]>;
   fetchQuotes?(pairs: Pair[]): Promise<Quote[]>;
-  streamQuotes?(pairs: Pair[]): AsyncIterable<Quote>;
+  getStreamService?(): QuoteStreamService;
 }

@@ -16,5 +16,3 @@ export interface BinanceWebSocketConfig {
   pingInterval?: number;
   pongTimeout?: number;
 }
-
-

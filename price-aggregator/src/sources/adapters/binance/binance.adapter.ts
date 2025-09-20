@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { isAxiosError } from 'axios';
 
-import { BinanceStream } from './binance.stream';
+import { BinanceStreamService } from './binance-stream.service';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
 import { PriceNotFoundException, SourceApiException } from '../../exceptions';
+import { QuoteStreamService } from '../../quote-stream.interface';
 import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
@@ -20,13 +21,13 @@ export class BinanceAdapter implements SourceAdapter {
   private readonly ttl: number;
   private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
-  private readonly binanceStream: BinanceStream;
+  private readonly binanceStreamService: BinanceStreamService;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
-    this.binanceStream = new BinanceStream();
+    this.binanceStreamService = new BinanceStreamService();
     const sourceConfig = configService.get('sources.binance');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
@@ -121,12 +122,12 @@ export class BinanceAdapter implements SourceAdapter {
     }
   }
 
-  async *streamQuotes(pairs: Pair[]): AsyncIterable<Quote> {
-    yield* this.binanceStream.streamQuotes(pairs);
+  getStreamService(): QuoteStreamService {
+    return this.binanceStreamService;
   }
 
-  closeAllStreams(): void {
-    this.binanceStream.closeAllStreams();
+  async closeAllStreams(): Promise<void> {
+    await this.binanceStreamService.disconnect();
   }
 
   async getPairs(): Promise<Pair[]> {

@@ -10,6 +10,7 @@ import {
   FeatureNotImplementedException,
   SourceApiException,
 } from './exceptions';
+import { QuoteStreamService } from './quote-stream.interface';
 import { SourceAdapter, Quote, Pair } from './source-adapter.interface';
 import { SourceName } from './source-name.enum';
 import { SOURCES_MAP } from './sources.constants';
@@ -110,25 +111,20 @@ export class SourcesManagerService {
     return adapter.fetchQuotes !== undefined;
   }
 
-  streamQuotes(
-    sourceName: SourceName | string,
-    pairs: Pair[],
-  ): AsyncIterable<Quote> {
-    this.logger.debug(
-      `Starting stream for ${sourceName}, ${pairs.length} pairs`,
-    );
+  getStreamService(sourceName: SourceName | string): QuoteStreamService {
+    this.logger.debug(`Getting stream service for ${sourceName}`);
     const adapter = this.getAdapterByName(sourceName);
 
-    if (!adapter.streamQuotes) {
+    if (!adapter.getStreamService) {
       throw new StreamingNotSupportedException(sourceName);
     }
 
-    return adapter.streamQuotes(pairs);
+    return adapter.getStreamService();
   }
 
-  isStreamQuotesSupported(sourceName: SourceName | string): boolean {
+  isStreamingSupported(sourceName: SourceName | string): boolean {
     const adapter = this.getAdapterByName(sourceName);
-    return adapter.streamQuotes !== undefined;
+    return adapter.getStreamService !== undefined;
   }
 
   @SingleFlight((sourceName) => `${sourceName}-pairs`)
