@@ -1,13 +1,13 @@
-import { AlphaVantageAdapter } from './adapters/alphavantage.adapter';
-import { BinanceAdapter } from './adapters/binance.adapter';
-import { CoinbaseAdapter } from './adapters/coinbase.adapter';
-import { CoinGeckoAdapter } from './adapters/coingecko.adapter';
-import { CryptoCompareAdapter } from './adapters/cryptocompare.adapter';
-import { ExchangeRateHostAdapter } from './adapters/exchangerate-host.adapter';
-import { FinnhubAdapter } from './adapters/finnhub.adapter';
-import { FrankfurterAdapter } from './adapters/frankfurter.adapter';
-import { KrakenAdapter } from './adapters/kraken.adapter';
-import { OkxAdapter } from './adapters/okx.adapter';
+import { AlphaVantageAdapter } from './adapters/alphavantage';
+import { BinanceAdapter } from './adapters/binance';
+import { CoinbaseAdapter } from './adapters/coinbase';
+import { CoinGeckoAdapter } from './adapters/coingecko';
+import { CryptoCompareAdapter } from './adapters/cryptocompare';
+import { ExchangeRateHostAdapter } from './adapters/exchangerate-host';
+import { FinnhubAdapter } from './adapters/finnhub';
+import { FrankfurterAdapter } from './adapters/frankfurter';
+import { KrakenAdapter } from './adapters/kraken';
+import { OkxAdapter } from './adapters/okx';
 import { SourceAdapter } from './source-adapter.interface';
 import { SourceName } from './source-name.enum';
 
@@ -27,4 +27,4 @@ export const SOURCES_MAP: Record<
   [SourceName.OKX]: OkxAdapter,
 };
 
-export const SOURCES_PROVIDERS = Object.values(SOURCES_MAP);
+export const SOURCES_PROVIDERS = [...Object.values(SOURCES_MAP)];
