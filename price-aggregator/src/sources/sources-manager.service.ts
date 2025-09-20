@@ -73,6 +73,7 @@ export class SourcesManagerService {
     return adapter.streamQuotes !== undefined;
   }
 
+  @SingleFlight((sourceName) => `${sourceName}-pairs`)
   async getPairs(sourceName: SourceName | string): Promise<Pair[]> {
     this.logger.debug(`Fetching pairs for ${sourceName}`);
     const adapter = this.getAdapterByName(sourceName);

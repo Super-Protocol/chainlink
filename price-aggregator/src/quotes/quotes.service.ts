@@ -8,6 +8,7 @@ import {
   AllRegistrationsResponseDto,
 } from './dto';
 import { PairService } from './pair.service';
+import { SingleFlight } from '../common';
 import { SourceName } from '../sources';
 import { PriceNotFoundException } from '../sources/exceptions';
 import { Pair, Quote } from '../sources/source-adapter.interface';
@@ -72,6 +73,7 @@ export class QuotesService {
     this.pairService.removePairSource(pair, source);
   }
 
+  @SingleFlight((source, pair) => `${source}-${pair.join('-')}`)
   async getQuote(source: SourceName, pair: Pair): Promise<QuoteResponseDto> {
     this.logger.debug(`Getting quote from ${source} for ${pair.join('/')}`);
 
