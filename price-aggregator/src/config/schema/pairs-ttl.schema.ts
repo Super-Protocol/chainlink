@@ -1,0 +1,30 @@
+import { Type } from '@sinclair/typebox';
+
+export const pairsTtlSchema = Type.Array(
+  Type.Object({
+    pair: Type.Array(Type.String(), {
+      minItems: 2,
+      maxItems: 2,
+      description: 'Trading pair as array of two symbols [base, quote]',
+      examples: [
+        ['BTC', 'USDT'],
+        ['ETH', 'USD'],
+      ],
+    }),
+    source: Type.String({
+      description: 'Source name for which this TTL applies',
+      examples: ['binance', 'okx', 'kraken'],
+    }),
+    ttl: Type.Integer({
+      minimum: 1000,
+      description: 'Time to live for cached prices in milliseconds',
+      examples: [15000, 30000, 60000],
+    }),
+  }),
+  {
+    description: 'Pair-specific TTL configuration overrides',
+    default: [],
+  },
+);
+
+export type PairsTtlConfig = typeof pairsTtlSchema.static;

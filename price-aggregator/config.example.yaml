@@ -19,6 +19,19 @@ pairCleanup:
   inactiveTimeoutMs: 600000 # 10 minutes - remove pairs not requested for this duration
   cleanupIntervalMs: 20000 # 20 seconds - how often to run cleanup process
 
+# Pair-specific TTL configuration overrides
+# These settings override the default TTL from source configuration for specific pairs
+pairsTtl:
+  - pair: [BTC, USDT]
+    source: binance
+    ttl: 15000 # 15 seconds for BTC/USDT on Binance
+  - pair: [ETH, USD]
+    source: coinbase
+    ttl: 30000 # 30 seconds for ETH/USD on Coinbase
+  - pair: [EUR, USD]
+    source: frankfurter
+    ttl: 300000 # 5 minutes for EUR/USD on Frankfurter (forex rates change less frequently)
+
 proxy:
   http:
     enabled: false
@@ -36,7 +49,7 @@ proxy:
 sources:
   binance:
     enabled: true
-    ttl: 10000 # Cache duration in ms
+    ttl: 60000 # Cache duration in ms
     timeoutMs: 10000
     rps: 100 # 6000/min API limit, null to disable rate limiting
     maxConcurrent: 10

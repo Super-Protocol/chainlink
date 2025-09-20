@@ -78,6 +78,13 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
         return false;
       }
 
+      if (!this.sourcesManager.isRefetchEnabled(item.source)) {
+        this.logger.verbose(
+          `Skipping ${key}, refetch disabled for source ${item.source}`,
+        );
+        return false;
+      }
+
       if (this.refreshInProgress.has(key)) {
         this.logger.debug(`Skipping ${key}, refresh already in progress`);
         return false;

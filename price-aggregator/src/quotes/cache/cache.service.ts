@@ -25,6 +25,7 @@ export class CacheService extends EventEmitter implements OnModuleDestroy {
   private pendingStaleBatch: StaleItem[] = [];
   private batchTimer: NodeJS.Timeout | null = null;
   private stalenessConfig: StalenessConfig;
+  private pairTtlCache = new Map<string, number | null>();
 
   constructor(
     private readonly sourcesManager: SourcesManagerService,
@@ -43,6 +44,7 @@ export class CacheService extends EventEmitter implements OnModuleDestroy {
     this.stalenessTimers.forEach((timer) => clearTimeout(timer));
     this.stalenessTimers.clear();
     if (this.batchTimer) clearTimeout(this.batchTimer);
+    this.pairTtlCache.clear();
   }
 
   async get(source: SourceName, pair: Pair): Promise<CachedQuote | null> {
@@ -77,7 +79,10 @@ export class CacheService extends EventEmitter implements OnModuleDestroy {
     const key = this.generateCacheKey(source, pair);
 
     try {
-      const cacheTtl = ttl || this.sourcesManager.getTtl(source);
+      const cacheTtl =
+        ttl ||
+        this.getPairSpecificTtl(source, pair) ||
+        this.sourcesManager.getTtl(source);
 
       const serializedQuote = {
         ...quote,
@@ -216,6 +221,38 @@ export class CacheService extends EventEmitter implements OnModuleDestroy {
 
   getCacheMetadata(): Map<string, CacheMetadata> {
     return new Map(this.cacheMetadata);
+  }
+
+  clearPairTtlCache(): void {
+    this.pairTtlCache.clear();
+    this.logger.debug('Pair TTL cache cleared');
+  }
+
+  private getPairSpecificTtl(source: SourceName, pair: Pair): number | null {
+    const cacheKey = `${source}:${pair.join('/')}`;
+
+    if (this.pairTtlCache.has(cacheKey)) {
+      return this.pairTtlCache.get(cacheKey)!;
+    }
+
+    const pairsTtlConfig = this.configService.get('pairsTtl');
+    if (!pairsTtlConfig || !Array.isArray(pairsTtlConfig)) {
+      this.pairTtlCache.set(cacheKey, null);
+      return null;
+    }
+
+    const pairConfig = pairsTtlConfig.find(
+      (config) =>
+        config.source === source &&
+        Array.isArray(config.pair) &&
+        config.pair.length === 2 &&
+        config.pair[0] === pair[0] &&
+        config.pair[1] === pair[1],
+    );
+
+    const ttl = pairConfig?.ttl || null;
+    this.pairTtlCache.set(cacheKey, ttl);
+    return ttl;
   }
 
   private updateCacheSizeMetrics(): void {
