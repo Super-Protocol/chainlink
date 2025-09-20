@@ -69,7 +69,8 @@ interface KrakenAssetPairsResponse {
 @Injectable()
 export class KrakenAdapter implements SourceAdapter, WithBatch {
   readonly name = SourceName.KRAKEN;
-  readonly enabled: boolean;
+  private readonly enabled: boolean;
+  private readonly ttl: number;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -78,6 +79,7 @@ export class KrakenAdapter implements SourceAdapter, WithBatch {
   ) {
     const sourceConfig = configService.get('sources.kraken');
     this.enabled = sourceConfig?.enabled || false;
+    this.ttl = sourceConfig?.ttl || 10000;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -87,6 +89,14 @@ export class KrakenAdapter implements SourceAdapter, WithBatch {
       maxConcurrent: sourceConfig?.maxConcurrent,
       baseUrl: BASE_URL,
     });
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  getTtl(): number {
+    return this.ttl;
   }
 
   @HandleSourceError()

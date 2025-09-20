@@ -20,7 +20,8 @@ interface FrankfurterResponse {
 @Injectable()
 export class FrankfurterAdapter implements SourceAdapter {
   readonly name = SourceName.FRANKFURTER;
-  readonly enabled: boolean;
+  private readonly enabled: boolean;
+  private readonly ttl: number;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -29,6 +30,7 @@ export class FrankfurterAdapter implements SourceAdapter {
   ) {
     const sourceConfig = configService.get('sources.frankfurter');
     this.enabled = sourceConfig?.enabled || false;
+    this.ttl = sourceConfig?.ttl || 10000;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -38,6 +40,14 @@ export class FrankfurterAdapter implements SourceAdapter {
       maxConcurrent: sourceConfig?.maxConcurrent,
       baseUrl: BASE_URL,
     });
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  getTtl(): number {
+    return this.ttl;
   }
 
   @HandleSourceError()

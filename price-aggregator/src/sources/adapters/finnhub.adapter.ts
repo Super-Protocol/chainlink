@@ -25,7 +25,8 @@ interface FinnhubResponse {
 @Injectable()
 export class FinnhubAdapter implements SourceAdapter {
   readonly name = SourceName.FINNHUB;
-  readonly enabled: boolean;
+  private readonly enabled: boolean;
+  private readonly ttl: number;
   private readonly httpClient: HttpClient;
   private readonly apiKey: string;
 
@@ -36,6 +37,7 @@ export class FinnhubAdapter implements SourceAdapter {
     const sourceConfig = configService.get('sources.finnhub');
     this.apiKey = sourceConfig?.apiKey || '';
     this.enabled = sourceConfig?.enabled && !!this.apiKey;
+    this.ttl = sourceConfig?.ttl || 10000;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -48,6 +50,14 @@ export class FinnhubAdapter implements SourceAdapter {
         token: this.apiKey,
       },
     });
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  getTtl(): number {
+    return this.ttl;
   }
 
   @HandleSourceError()

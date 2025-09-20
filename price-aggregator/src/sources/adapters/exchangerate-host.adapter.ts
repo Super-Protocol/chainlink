@@ -32,7 +32,8 @@ interface ExchangeRateHostErrorResponse {
 @Injectable()
 export class ExchangeRateHostAdapter implements SourceAdapter {
   readonly name = SourceName.EXCHANGERATE_HOST;
-  readonly enabled: boolean;
+  private readonly enabled: boolean;
+  private readonly ttl: number;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -41,6 +42,7 @@ export class ExchangeRateHostAdapter implements SourceAdapter {
   ) {
     const sourceConfig = configService.get('sources.exchangeratehost');
     this.enabled = sourceConfig?.enabled || false;
+    this.ttl = sourceConfig?.ttl || 10000;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -50,6 +52,14 @@ export class ExchangeRateHostAdapter implements SourceAdapter {
       maxConcurrent: sourceConfig?.maxConcurrent,
       baseUrl: BASE_URL,
     });
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  getTtl(): number {
+    return this.ttl;
   }
 
   private mapErrorCodeToHttpStatus(errorCode: number): number {

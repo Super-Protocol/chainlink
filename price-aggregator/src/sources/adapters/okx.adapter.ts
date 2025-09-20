@@ -73,7 +73,8 @@ interface OkxInstrumentsResponse {
 @Injectable()
 export class OkxAdapter implements SourceAdapter, WithBatch {
   readonly name = SourceName.OKX;
-  readonly enabled: boolean;
+  private readonly enabled: boolean;
+  private readonly ttl: number;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -82,6 +83,7 @@ export class OkxAdapter implements SourceAdapter, WithBatch {
   ) {
     const sourceConfig = configService.get('sources.okx');
     this.enabled = sourceConfig?.enabled || false;
+    this.ttl = sourceConfig?.ttl || 10000;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -91,6 +93,14 @@ export class OkxAdapter implements SourceAdapter, WithBatch {
       maxConcurrent: sourceConfig?.maxConcurrent,
       baseUrl: BASE_URL,
     });
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  getTtl(): number {
+    return this.ttl;
   }
 
   @HandleSourceError()

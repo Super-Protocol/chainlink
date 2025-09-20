@@ -30,7 +30,8 @@ interface CoinbaseCurrenciesResponse {
 @Injectable()
 export class CoinbaseAdapter implements SourceAdapter {
   readonly name = SourceName.COINBASE;
-  readonly enabled: boolean;
+  private readonly enabled: boolean;
+  private readonly ttl: number;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -39,6 +40,7 @@ export class CoinbaseAdapter implements SourceAdapter {
   ) {
     const sourceConfig = configService.get('sources.coinbase');
     this.enabled = sourceConfig?.enabled || false;
+    this.ttl = sourceConfig?.ttl || 10000;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -48,6 +50,14 @@ export class CoinbaseAdapter implements SourceAdapter {
       maxConcurrent: sourceConfig?.maxConcurrent,
       baseUrl: BASE_URL,
     });
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  getTtl(): number {
+    return this.ttl;
   }
 
   @HandleSourceError()

@@ -34,7 +34,8 @@ function splitPair(pair: Pair): { base: string; quote: string } {
 @Injectable()
 export class AlphaVantageAdapter implements SourceAdapter {
   readonly name = SourceName.ALPHAVANTAGE;
-  readonly enabled: boolean;
+  private readonly enabled: boolean;
+  private readonly ttl: number;
   private readonly httpClient: HttpClient;
   private readonly apiKey: string;
 
@@ -45,6 +46,7 @@ export class AlphaVantageAdapter implements SourceAdapter {
     const sourceConfig = configService.get('sources.alphavantage');
     this.apiKey = sourceConfig?.apiKey || '';
     this.enabled = sourceConfig?.enabled && !!this.apiKey;
+    this.ttl = sourceConfig?.ttl || 10000;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -57,6 +59,14 @@ export class AlphaVantageAdapter implements SourceAdapter {
         apikey: this.apiKey,
       },
     });
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  getTtl(): number {
+    return this.ttl;
   }
 
   @HandleSourceError()

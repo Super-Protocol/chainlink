@@ -28,7 +28,8 @@ type CoinGeckoResponse = Record<string, Record<string, number>>;
 @Injectable()
 export class CoinGeckoAdapter implements SourceAdapter, WithBatch {
   readonly name = SourceName.COINGECKO;
-  readonly enabled: boolean;
+  private readonly enabled: boolean;
+  private readonly ttl: number;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -37,6 +38,7 @@ export class CoinGeckoAdapter implements SourceAdapter, WithBatch {
   ) {
     const sourceConfig = configService.get('sources.coingecko');
     this.enabled = sourceConfig?.enabled || false;
+    this.ttl = sourceConfig?.ttl || 10000;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -46,6 +48,14 @@ export class CoinGeckoAdapter implements SourceAdapter, WithBatch {
       maxConcurrent: sourceConfig?.maxConcurrent,
       baseUrl: BASE_URL,
     });
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  getTtl(): number {
+    return this.ttl;
   }
 
   @HandleSourceError()

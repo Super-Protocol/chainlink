@@ -27,7 +27,8 @@ type CryptoCompareMultiResponse = Record<string, Record<string, number>>;
 @Injectable()
 export class CryptoCompareAdapter implements SourceAdapter, WithBatch {
   readonly name = SourceName.CRYPTOCOMPARE;
-  readonly enabled: boolean;
+  private readonly enabled: boolean;
+  private readonly ttl: number;
   private readonly httpClient: HttpClient;
   private readonly apiKey: string;
 
@@ -38,6 +39,7 @@ export class CryptoCompareAdapter implements SourceAdapter, WithBatch {
     const sourceConfig = configService.get('sources.cryptocompare');
     this.apiKey = sourceConfig?.apiKey || '';
     this.enabled = sourceConfig?.enabled && !!this.apiKey;
+    this.ttl = sourceConfig?.ttl || 10000;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -50,6 +52,14 @@ export class CryptoCompareAdapter implements SourceAdapter, WithBatch {
         api_key: this.apiKey,
       },
     });
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  getTtl(): number {
+    return this.ttl;
   }
 
   async fetchQuote(pair: Pair): Promise<Quote> {
