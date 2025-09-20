@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseEnumPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseEnumPipe, Post } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
 import {
@@ -6,6 +6,8 @@ import {
   PairsBySourceResponseDto,
   AllRegistrationsResponseDto,
 } from './dto';
+import { PairCleanupService } from './pair-cleanup.service';
+import { PairService } from './pair.service';
 import { QuotesService } from './quotes.service';
 import { Pair } from '../sources/source-adapter.interface';
 import { SourceName } from '../sources/source-name.enum';
@@ -13,7 +15,11 @@ import { SourceName } from '../sources/source-name.enum';
 @ApiTags('Quotes')
 @Controller('quote')
 export class QuotesController {
-  constructor(private readonly quotesService: QuotesService) {}
+  constructor(
+    private readonly quotesService: QuotesService,
+    private readonly pairService: PairService,
+    private readonly pairCleanupService: PairCleanupService,
+  ) {}
 
   @Get(':source/:baseCurrency/:quoteCurrency')
   @ApiOperation({
@@ -99,5 +105,29 @@ export class QuotesController {
   })
   async getAllRegistrations(): Promise<AllRegistrationsResponseDto> {
     return await this.quotesService.getAllRegistrations();
+  }
+
+  @Post('cleanup')
+  @ApiOperation({
+    summary: 'Manually trigger cleanup of inactive pairs',
+    description:
+      'Manually trigger cleanup process to remove pairs that have not been requested for the configured timeout period',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Cleanup completed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        removedCount: {
+          type: 'number',
+          description: 'Number of inactive pairs removed',
+        },
+      },
+    },
+  })
+  async manualCleanup(): Promise<{ removedCount: number }> {
+    const removedCount = this.pairCleanupService.manualCleanup();
+    return { removedCount };
   }
 }

@@ -71,10 +71,18 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
 
     const itemsToRefresh = batch.items.filter((item) => {
       const key = this.generateRefreshKey(item.source, item.pair);
+
+      const registeredSources = this.pairService.getSourcesByPair(item.pair);
+      if (!registeredSources.includes(item.source)) {
+        this.logger.debug(`Skipping ${key}, pair no longer registered`);
+        return false;
+      }
+
       if (this.refreshInProgress.has(key)) {
         this.logger.debug(`Skipping ${key}, refresh already in progress`);
         return false;
       }
+
       this.refreshInProgress.add(key);
       return true;
     });

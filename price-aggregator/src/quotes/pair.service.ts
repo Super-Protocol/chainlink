@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import { AppConfigService } from '../config';
 import { SourceName } from '../sources';
 import { Pair } from '../sources/source-adapter.interface';
 
@@ -18,6 +19,8 @@ export class PairService {
   private readonly registrations = new Map<string, PairSourceRegistration>();
   private readonly pairsBySource = new Map<SourceName, Set<string>>();
   private readonly sourcesByPair = new Map<string, Set<SourceName>>();
+
+  constructor(private readonly configService: AppConfigService) {}
 
   trackQuoteRequest(pair: Pair, source: SourceName): void {
     const key = this.getPairSourceKey(pair, source);
@@ -45,48 +48,32 @@ export class PairService {
 
   trackSuccessfulFetch(pair: Pair, source: SourceName): void {
     const key = this.getPairSourceKey(pair, source);
-    const now = new Date();
-
     const existing = this.registrations.get(key);
 
     if (existing) {
-      existing.lastFetchAt = now;
+      existing.lastFetchAt = new Date();
       this.logger.debug(
         `Updated fetch time for pair ${pair.join('/')} from source ${source}`,
       );
     } else {
-      this.createRegistration(pair, source, {
-        registeredAt: now,
-        lastFetchAt: now,
-        lastResponseAt: new Date(0),
-        lastRequestAt: now,
-      });
       this.logger.debug(
-        `Registered new pair ${pair.join('/')} for source ${source}`,
+        `Skipping fetch tracking for unregistered pair ${pair.join('/')} from source ${source}`,
       );
     }
   }
 
   trackResponse(pair: Pair, source: SourceName): void {
     const key = this.getPairSourceKey(pair, source);
-    const now = new Date();
-
     const existing = this.registrations.get(key);
 
     if (existing) {
-      existing.lastResponseAt = now;
+      existing.lastResponseAt = new Date();
       this.logger.debug(
         `Updated response time for pair ${pair.join('/')} from source ${source}`,
       );
     } else {
-      this.createRegistration(pair, source, {
-        registeredAt: now,
-        lastFetchAt: new Date(0),
-        lastResponseAt: now,
-        lastRequestAt: now,
-      });
       this.logger.debug(
-        `Registered new pair ${pair.join('/')} for source ${source}`,
+        `Skipping response tracking for unregistered pair ${pair.join('/')} from source ${source}`,
       );
     }
   }
@@ -138,6 +125,37 @@ export class PairService {
       this.removeFromIndices(pair, source);
       this.logger.debug(`Removed pair ${pair.join('/')} for source ${source}`);
     }
+  }
+
+  cleanupInactivePairs(): number {
+    const inactiveTimeoutMs = this.configService.get(
+      'pairCleanup.inactiveTimeoutMs',
+    );
+    const now = new Date();
+    const cutoffTime = new Date(now.getTime() - inactiveTimeoutMs);
+
+    let removedCount = 0;
+    const toRemove: Array<{ pair: Pair; source: SourceName }> = [];
+
+    for (const registration of this.registrations.values()) {
+      if (registration.lastRequestAt < cutoffTime) {
+        toRemove.push({
+          pair: registration.pair,
+          source: registration.source,
+        });
+      }
+    }
+
+    for (const { pair, source } of toRemove) {
+      this.removePairSource(pair, source);
+      removedCount++;
+    }
+
+    if (removedCount > 0) {
+      this.logger.log(`Cleaned up ${removedCount} inactive pairs`);
+    }
+
+    return removedCount;
   }
 
   private getPairKey(pair: Pair): string {

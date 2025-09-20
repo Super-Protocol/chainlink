@@ -13,6 +13,12 @@ refetch:
   minTimeBetweenRefreshes: 2000 # Prevents excessive API calls for same item
   maxConcurrentRefreshes: 10 # Limits concurrent operations to prevent resource exhaustion
 
+# Pair tracking and cleanup configuration
+pairCleanup:
+  enabled: true # Enable automatic cleanup of inactive pairs
+  inactiveTimeoutMs: 7200000 # 2 hours - remove pairs not requested for this duration
+  cleanupIntervalMs: 300000 # 5 minutes - how often to run cleanup process
+
 proxy:
   http:
     enabled: false

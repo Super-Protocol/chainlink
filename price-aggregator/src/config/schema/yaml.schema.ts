@@ -2,6 +2,7 @@ import { Type } from '@sinclair/typebox';
 
 import { NODE_ENVIRONMENTS } from '../constants';
 import { loggerSchema } from './logger.schema';
+import { pairCleanupSchema } from './pair-cleanup.schema';
 import { proxySchema } from './proxy.schema';
 import { refetchSchema } from './refetch.schema';
 import { sourcesSchema } from './sources.schema';
@@ -27,6 +28,7 @@ export const yamlValidationSchema = Type.Object(
     sources: sourcesSchema,
     proxy: Type.Optional(proxySchema),
     refetch: refetchSchema,
+    pairCleanup: pairCleanupSchema,
   },
   {
     default: {},
