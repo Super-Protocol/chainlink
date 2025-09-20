@@ -83,7 +83,7 @@ export class SourcesManagerService {
   private getAdapter(sourceName: SourceName): SourceAdapter {
     if (this.adaptersCache.has(sourceName)) {
       const cachedAdapter = this.adaptersCache.get(sourceName)!;
-      if (!cachedAdapter.enabled) {
+      if (!cachedAdapter.isEnabled()) {
         throw new SourceDisabledException(sourceName);
       }
       return cachedAdapter;
@@ -96,7 +96,7 @@ export class SourcesManagerService {
 
     const adapter = this.moduleRef.get<SourceAdapter>(AdapterClass);
 
-    if (!adapter.enabled) {
+    if (!adapter.isEnabled()) {
       throw new SourceDisabledException(sourceName);
     }
 

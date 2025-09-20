@@ -24,8 +24,8 @@ export interface SourceConfig {
 }
 
 export interface SourceAdapter {
-  readonly enabled: boolean;
-
+  isEnabled(): boolean;
+  getTtl(): number;
   fetchQuote(pair: Pair): Promise<Quote>;
   getPairs?(): Promise<Pair[]>;
   fetchQuotes?(pairs: Pair[]): Promise<Quote[]>;
