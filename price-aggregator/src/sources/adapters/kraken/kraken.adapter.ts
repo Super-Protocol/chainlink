@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 
-import { HttpClient, HttpClientBuilder } from '../../common';
-import { AppConfigService } from '../../config';
-import { HandleSourceError } from '../decorators';
+import { HttpClient, HttpClientBuilder } from '../../../common';
+import { AppConfigService } from '../../../config';
+import { HandleSourceError } from '../../decorators';
 import {
   BatchSizeExceededException,
   PriceNotFoundException,
   SourceApiException,
-} from '../exceptions';
-import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
-import { SourceName } from '../source-name.enum';
+} from '../../exceptions';
+import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://api.kraken.com';
 const API_PATH = '/0/public/Ticker';

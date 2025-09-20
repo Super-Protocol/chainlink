@@ -1,16 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { isAxiosError } from 'axios';
 
-import { HttpClient, HttpClientBuilder } from '../../common';
-import { AppConfigService } from '../../config';
-import { HandleSourceError } from '../decorators';
-import {
-  FeatureNotImplementedException,
-  PriceNotFoundException,
-  SourceApiException,
-} from '../exceptions';
-import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
-import { SourceName } from '../source-name.enum';
+import { BinanceStream } from './binance.stream';
+import { HttpClient, HttpClientBuilder } from '../../../common';
+import { AppConfigService } from '../../../config';
+import { HandleSourceError } from '../../decorators';
+import { PriceNotFoundException, SourceApiException } from '../../exceptions';
+import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://api.binance.com';
 const API_PATH = '/api/v3/ticker/price';
@@ -23,11 +20,13 @@ export class BinanceAdapter implements SourceAdapter {
   private readonly ttl: number;
   private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
+  private readonly binanceStream: BinanceStream;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
+    this.binanceStream = new BinanceStream();
     const sourceConfig = configService.get('sources.binance');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
@@ -122,8 +121,12 @@ export class BinanceAdapter implements SourceAdapter {
     }
   }
 
-  streamQuotes(_pairs: Pair[]): AsyncIterable<Quote> {
-    throw new FeatureNotImplementedException('streaming quotes', this.name);
+  async *streamQuotes(pairs: Pair[]): AsyncIterable<Quote> {
+    yield* this.binanceStream.streamQuotes(pairs);
+  }
+
+  closeAllStreams(): void {
+    this.binanceStream.closeAllStreams();
   }
 
   async getPairs(): Promise<Pair[]> {

@@ -9,6 +9,7 @@ import {
 } from './dto';
 import { PairService } from './pair.service';
 import { SingleFlight } from '../common';
+import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import { PriceNotFoundException } from '../sources/exceptions';
 import { Pair, Quote } from '../sources/source-adapter.interface';
@@ -23,6 +24,7 @@ export class QuotesService {
     private readonly pairService: PairService,
     private readonly cacheService: CacheService,
     private readonly batchQuotesService: BatchQuotesService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   private createCachedQuote(source: SourceName, quote: Quote): CachedQuote {
@@ -75,23 +77,39 @@ export class QuotesService {
 
   @SingleFlight((source, pair) => `${source}-${pair.join('-')}`)
   async getQuote(source: SourceName, pair: Pair): Promise<QuoteResponseDto> {
-    this.logger.debug(`Getting quote from ${source} for ${pair.join('/')}`);
+    const end = this.metricsService.requestLatency.startTimer({
+      route: '/quote',
+      method: 'GET',
+    });
 
-    this.pairService.trackQuoteRequest(pair, source);
+    try {
+      this.logger.debug(`Getting quote from ${source} for ${pair.join('/')}`);
 
-    const cachedQuote = await this.cacheService.get(source, pair);
-    if (cachedQuote) {
-      this.logger.debug(
-        `Returning cached quote for ${source}:${pair.join('/')}`,
-      );
-      this.pairService.trackResponse(pair, source);
-      return this.createQuoteResponseFromCached(cachedQuote);
-    }
+      this.pairService.trackQuoteRequest(pair, source);
 
-    if (this.sourcesManager.isFetchQuotesSupported(source)) {
-      return this.fetchWithBatch(source, pair);
-    } else {
-      return this.fetchSingle(source, pair);
+      const cachedQuote = await this.cacheService.get(source, pair);
+      if (cachedQuote) {
+        this.logger.debug(
+          `Returning cached quote for ${source}:${pair.join('/')}`,
+        );
+        this.pairService.trackResponse(pair, source);
+        this.metricsService.cacheHits.inc({ source });
+        return this.createQuoteResponseFromCached(cachedQuote);
+      }
+
+      this.metricsService.cacheMisses.inc({ source });
+
+      let result: QuoteResponseDto;
+      if (this.sourcesManager.isFetchQuotesSupported(source)) {
+        result = await this.fetchWithBatch(source, pair);
+      } else {
+        result = await this.fetchSingle(source, pair);
+      }
+      end({ status: '200' });
+      return result;
+    } catch (error) {
+      end({ status: '500' });
+      throw error;
     }
   }
 
@@ -100,14 +118,21 @@ export class QuotesService {
     pair: Pair,
   ): Promise<QuoteResponseDto> {
     const batch = this.batchQuotesService.buildBatch(source, pair);
+
     try {
-      return await this.batchQuotesService.fetchWithBatch(source, pair, batch);
+      const result = await this.batchQuotesService.fetchWithBatch(
+        source,
+        pair,
+        batch,
+      );
+      return result;
     } catch (error) {
       this.logger.debug(
         `Batch fetch failed for ${source}, falling back to single fetch: ${String(
           error,
         )}`,
       );
+      this.metricsService.errorCount.inc({ type: 'batch_error', source });
       return this.fetchSingle(source, pair);
     }
   }
@@ -121,7 +146,12 @@ export class QuotesService {
       await this.cacheAndTrackQuote(source, quote);
       return this.createQuoteResponse(source, quote);
     } catch (error) {
+      this.metricsService.errorCount.inc({ type: 'fetch_error', source });
       if (error instanceof PriceNotFoundException) {
+        this.metricsService.priceNotFoundCount.inc({
+          source,
+          pair: pair.join('/'),
+        });
         this.handlePriceNotFound(pair, source);
       }
       throw error;

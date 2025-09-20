@@ -8,18 +8,23 @@ import {
   BatchNotSupportedException,
   StreamingNotSupportedException,
   FeatureNotImplementedException,
+  SourceApiException,
 } from './exceptions';
 import { SourceAdapter, Quote, Pair } from './source-adapter.interface';
 import { SourceName } from './source-name.enum';
 import { SOURCES_MAP } from './sources.constants';
 import { SingleFlight } from '../common';
+import { MetricsService } from '../metrics/metrics.service';
 
 @Injectable()
 export class SourcesManagerService {
   private readonly logger = new Logger(SourcesManagerService.name);
   private readonly adaptersCache = new Map<SourceName, SourceAdapter>();
 
-  constructor(private readonly moduleRef: ModuleRef) {}
+  constructor(
+    private readonly moduleRef: ModuleRef,
+    private readonly metricsService: MetricsService,
+  ) {}
 
   @SingleFlight((sourceName, pair) => `${sourceName}-${pair.join('-')}`)
   async fetchQuote(
@@ -27,8 +32,32 @@ export class SourcesManagerService {
     pair: Pair,
   ): Promise<Quote> {
     this.logger.debug(`Fetching ${sourceName} ${pair.join('-')}`);
-    const adapter = this.getAdapterByName(sourceName);
-    return adapter.fetchQuote(pair);
+    const endTimer = this.metricsService.fetchLatency.startTimer({
+      source: sourceName,
+    });
+
+    try {
+      const adapter = this.getAdapterByName(sourceName);
+      const quote = await adapter.fetchQuote(pair);
+      this.metricsService.quoteThroughput.inc({
+        source: sourceName,
+        status: 'success',
+      });
+      return quote;
+    } catch (error) {
+      this.metricsService.quoteThroughput.inc({
+        source: sourceName,
+        status: 'error',
+      });
+
+      if (error instanceof SourceApiException && error.statusCode === 429) {
+        this.metricsService.rateLimitHits.inc({ source: sourceName });
+      }
+
+      throw error;
+    } finally {
+      endTimer();
+    }
   }
 
   async fetchQuotes(
@@ -38,13 +67,42 @@ export class SourcesManagerService {
     this.logger.debug(
       `Batch fetching ${pairs.length} quotes for ${sourceName}`,
     );
-    const adapter = this.getAdapterByName(sourceName);
 
-    if (!adapter.fetchQuotes) {
-      throw new BatchNotSupportedException(sourceName);
+    this.metricsService.batchSize.observe({ source: sourceName }, pairs.length);
+    const endTimer = this.metricsService.fetchLatency.startTimer({
+      source: sourceName,
+    });
+
+    try {
+      const adapter = this.getAdapterByName(sourceName);
+
+      if (!adapter.fetchQuotes) {
+        throw new BatchNotSupportedException(sourceName);
+      }
+
+      const quotes = await adapter.fetchQuotes(pairs);
+      this.metricsService.quoteThroughput.inc(
+        {
+          source: sourceName,
+          status: 'success',
+        },
+        quotes.length,
+      );
+      return quotes;
+    } catch (error) {
+      this.metricsService.quoteThroughput.inc({
+        source: sourceName,
+        status: 'error',
+      });
+
+      if (error instanceof SourceApiException && error.statusCode === 429) {
+        this.metricsService.rateLimitHits.inc({ source: sourceName });
+      }
+
+      throw error;
+    } finally {
+      endTimer();
     }
-
-    return adapter.fetchQuotes(pairs);
   }
 
   isFetchQuotesSupported(sourceName: SourceName | string): boolean {

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
-import { HttpClient, HttpClientBuilder } from '../../common';
-import { AppConfigService } from '../../config';
-import { HandleSourceError } from '../decorators';
-import { PriceNotFoundException } from '../exceptions';
-import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
-import { SourceName } from '../source-name.enum';
+import { HttpClient, HttpClientBuilder } from '../../../common';
+import { AppConfigService } from '../../../config';
+import { HandleSourceError } from '../../decorators';
+import { PriceNotFoundException } from '../../exceptions';
+import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://api.frankfurter.app';
 const API_PATH = '/latest';

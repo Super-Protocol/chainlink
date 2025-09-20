@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { isAxiosError } from 'axios';
 
-import { HttpClient, HttpClientBuilder } from '../../common';
-import { AppConfigService } from '../../config';
+import { HttpClient, HttpClientBuilder } from '../../../common';
+import { AppConfigService } from '../../../config';
 import {
   BatchSizeExceededException,
   PriceNotFoundException,
   SourceApiException,
-} from '../exceptions';
-import { Pair, Quote, SourceAdapter } from '../source-adapter.interface';
-import { SourceName } from '../source-name.enum';
+} from '../../exceptions';
+import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://min-api.cryptocompare.com';
 const QUOTE_PATH = '/data/price';

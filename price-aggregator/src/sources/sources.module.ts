@@ -8,9 +8,10 @@ import { SourcesExceptionFilter } from './filters';
 import { SourcesManagerService } from './sources-manager.service';
 import { SOURCES_PROVIDERS } from './sources.constants';
 import { SourcesController } from './sources.controller';
+import { MetricsModule } from '../metrics/metrics.module';
 
 @Module({
-  imports: [AppConfigModule, HttpModule, HttpClientModule],
+  imports: [AppConfigModule, HttpModule, HttpClientModule, MetricsModule],
   controllers: [SourcesController],
   providers: [
     SourcesManagerService,

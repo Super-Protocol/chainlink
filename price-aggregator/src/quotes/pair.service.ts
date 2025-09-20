@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { AppConfigService } from '../config';
+import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import { Pair } from '../sources/source-adapter.interface';
 
@@ -20,7 +21,10 @@ export class PairService {
   private readonly pairsBySource = new Map<SourceName, Set<string>>();
   private readonly sourcesByPair = new Map<string, Set<SourceName>>();
 
-  constructor(private readonly configService: AppConfigService) {}
+  constructor(
+    private readonly configService: AppConfigService,
+    private readonly metricsService: MetricsService,
+  ) {}
 
   trackQuoteRequest(pair: Pair, source: SourceName): void {
     const key = this.getPairSourceKey(pair, source);
@@ -197,6 +201,8 @@ export class PairService {
       this.sourcesByPair.set(pairKey, new Set());
     }
     this.sourcesByPair.get(pairKey)!.add(source);
+
+    this.updateMetrics();
   }
 
   private removeFromIndices(pair: Pair, source: SourceName): void {
@@ -217,5 +223,14 @@ export class PairService {
         this.sourcesByPair.delete(pairKey);
       }
     }
+
+    this.updateMetrics();
+  }
+
+  private updateMetrics(): void {
+    for (const [source, pairs] of this.pairsBySource.entries()) {
+      this.metricsService.trackedPairs.set({ source }, pairs.size);
+    }
+    this.metricsService.totalPairs.set(this.sourcesByPair.size);
   }
 }

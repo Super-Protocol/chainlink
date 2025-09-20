@@ -16,8 +16,8 @@ refetch:
 # Pair tracking and cleanup configuration
 pairCleanup:
   enabled: true # Enable automatic cleanup of inactive pairs
-  inactiveTimeoutMs: 7200000 # 2 hours - remove pairs not requested for this duration
-  cleanupIntervalMs: 300000 # 5 minutes - how often to run cleanup process
+  inactiveTimeoutMs: 600000 # 10 minutes - remove pairs not requested for this duration
+  cleanupIntervalMs: 20000 # 20 seconds - how often to run cleanup process
 
 proxy:
   http:

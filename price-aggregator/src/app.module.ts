@@ -4,6 +4,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppConfigModule, AppConfigService } from './config';
+import { MetricsModule } from './metrics/metrics.module';
 import { QuotesModule } from './quotes';
 import { SourcesModule } from './sources';
 
@@ -32,6 +33,7 @@ import { SourcesModule } from './sources';
     }),
     SourcesModule,
     QuotesModule,
+    MetricsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

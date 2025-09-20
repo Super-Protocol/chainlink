@@ -7,10 +7,11 @@ import { PairService } from './pair.service';
 import { QuotesController } from './quotes.controller';
 import { QuotesService } from './quotes.service';
 import { RefetchService } from './refetch.service';
+import { MetricsModule } from '../metrics/metrics.module';
 import { SourcesModule } from '../sources/sources.module';
 
 @Module({
-  imports: [SourcesModule],
+  imports: [SourcesModule, MetricsModule],
   controllers: [QuotesController],
   providers: [
     QuotesService,

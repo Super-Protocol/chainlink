@@ -11,6 +11,7 @@ import {
 } from './cache-staleness.interface';
 import { CachedQuote, SerializedCachedQuote } from './cache.interface';
 import { AppConfigService } from '../../config/config.service';
+import { MetricsService } from '../../metrics/metrics.service';
 import { SourceName } from '../../sources';
 import { Pair } from '../../sources/source-adapter.interface';
 import { SourcesManagerService } from '../../sources/sources-manager.service';
@@ -28,12 +29,14 @@ export class CacheService extends EventEmitter implements OnModuleDestroy {
   constructor(
     private readonly sourcesManager: SourcesManagerService,
     private readonly configService: AppConfigService,
+    private readonly metricsService: MetricsService,
   ) {
     super();
     this.cache = createCache({
       ttl: 60000,
     });
     this.stalenessConfig = this.configService.get('refetch');
+    this.updateCacheSizeMetrics();
   }
 
   onModuleDestroy(): void {
@@ -95,6 +98,7 @@ export class CacheService extends EventEmitter implements OnModuleDestroy {
       };
       this.cacheMetadata.set(key, metadata);
       this.scheduleStaleCheck(key, metadata);
+      this.updateCacheSizeMetrics();
 
       this.logger.debug(`Cached quote for ${key} with TTL ${cacheTtl}ms`);
     } catch (error) {
@@ -112,6 +116,7 @@ export class CacheService extends EventEmitter implements OnModuleDestroy {
         clearTimeout(this.stalenessTimers.get(key)!);
         this.stalenessTimers.delete(key);
       }
+      this.updateCacheSizeMetrics();
 
       this.logger.debug(`Deleted cache for ${key}`);
     } catch (error) {
@@ -211,5 +216,19 @@ export class CacheService extends EventEmitter implements OnModuleDestroy {
 
   getCacheMetadata(): Map<string, CacheMetadata> {
     return new Map(this.cacheMetadata);
+  }
+
+  private updateCacheSizeMetrics(): void {
+    const sourceCounts = new Map<SourceName, number>();
+
+    for (const key of this.cacheMetadata.keys()) {
+      const [, sourcePart] = key.split(':');
+      const source = sourcePart as SourceName;
+      sourceCounts.set(source, (sourceCounts.get(source) || 0) + 1);
+    }
+
+    for (const [source, count] of sourceCounts.entries()) {
+      this.metricsService.cacheSize.set({ source }, count);
+    }
   }
 }
