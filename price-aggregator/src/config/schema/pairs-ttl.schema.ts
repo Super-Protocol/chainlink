@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox';
+import { Static, Type } from '@sinclair/typebox';
 
 export const pairsTtlSchema = Type.Array(
   Type.Object({
@@ -11,10 +11,12 @@ export const pairsTtlSchema = Type.Array(
         ['ETH', 'USD'],
       ],
     }),
-    source: Type.String({
-      description: 'Source name for which this TTL applies',
-      examples: ['binance', 'okx', 'kraken'],
-    }),
+    source: Type.Optional(
+      Type.String({
+        description: 'Source name for which this TTL applies',
+        examples: ['binance', 'okx', 'kraken'],
+      }),
+    ),
     ttl: Type.Integer({
       minimum: 1000,
       description: 'Time to live for cached prices in milliseconds',
@@ -27,4 +29,4 @@ export const pairsTtlSchema = Type.Array(
   },
 );
 
-export type PairsTtlConfig = typeof pairsTtlSchema.static;
+export type PairsTtlConfig = Static<typeof pairsTtlSchema>;

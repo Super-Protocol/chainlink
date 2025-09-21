@@ -243,7 +243,7 @@ export class CacheService extends EventEmitter implements OnModuleDestroy {
 
     const pairConfig = pairsTtlConfig.find(
       (config) =>
-        config.source === source &&
+        (!config.source || config.source === source) &&
         Array.isArray(config.pair) &&
         config.pair.length === 2 &&
         config.pair[0] === pair[0] &&

@@ -21,16 +21,19 @@ pairCleanup:
 
 # Pair-specific TTL configuration overrides
 # These settings override the default TTL from source configuration for specific pairs
+# The 'source' field is optional - if omitted, the TTL applies to all sources for that pair
 pairsTtl:
   - pair: [BTC, USDT]
     source: binance
-    ttl: 15000 # 15 seconds for BTC/USDT on Binance
+    ttl: 15000 # 15 seconds for BTC/USDT on Binance specifically
   - pair: [ETH, USD]
     source: coinbase
-    ttl: 30000 # 30 seconds for ETH/USD on Coinbase
+    ttl: 30000 # 30 seconds for ETH/USD on Coinbase specifically
   - pair: [EUR, USD]
     source: frankfurter
     ttl: 300000 # 5 minutes for EUR/USD on Frankfurter (forex rates change less frequently)
+  - pair: [DOGE, USD]
+    ttl: 45000 # 45 seconds for DOGE/USD on ALL sources (source is optional)
 
 proxy:
   http:

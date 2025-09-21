@@ -56,6 +56,8 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
         this.streamServiceBySource.set(source, streamService);
         this.subscriptionsBySource.set(source, new Map());
 
+        this.setupStreamReconnectionHandler(source, streamService);
+
         const existingPairs = this.pairService.getPairsBySource(source);
         if (existingPairs.length > 0) {
           try {
@@ -191,6 +193,48 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
       this.subscriptionsBySource.set(source, new Map());
     }
     return this.subscriptionsBySource.get(source)!;
+  }
+
+  private setupStreamReconnectionHandler(
+    source: SourceName,
+    streamService: QuoteStreamService,
+  ): void {
+    if ('onConnectionStateChange' in streamService) {
+      (
+        streamService as QuoteStreamService & {
+          onConnectionStateChange: (
+            handler: (connected: boolean) => void,
+          ) => void;
+        }
+      ).onConnectionStateChange((connected: boolean) => {
+        if (connected) {
+          this.logger.log(
+            `Stream reconnected for ${source}, resubscribing pairs`,
+          );
+          this.resubscribeSourcePairs(source);
+        }
+      });
+    }
+  }
+
+  private async resubscribeSourcePairs(source: SourceName): Promise<void> {
+    const existingPairs = this.pairService.getPairsBySource(source);
+    const subs = this.subscriptionsBySource.get(source);
+
+    if (!subs || existingPairs.length === 0) return;
+
+    subs.clear();
+
+    for (const pair of existingPairs) {
+      try {
+        await this.subscribePair(source, pair);
+      } catch (error) {
+        this.logger.error(
+          `Failed to resubscribe ${source}:${this.getPairKey(pair)} after reconnect`,
+          error as Error,
+        );
+      }
+    }
   }
 
   private getPairKey(pair: Pair): string {

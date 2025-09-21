@@ -254,9 +254,13 @@ export class BinanceStreamService implements QuoteStreamService {
       }
     });
 
-    this.wsClient.on('reconnect', () => {
+    this.wsClient.on('reconnect', async () => {
       this.logger.log('WebSocket reconnected, resubscribing to streams');
-      this.resubscribeAllStreams();
+      try {
+        await this.resubscribeAllStreams();
+      } catch (error) {
+        this.logger.error('Failed to resubscribe after reconnect', error);
+      }
     });
   }
 
@@ -268,7 +272,6 @@ export class BinanceStreamService implements QuoteStreamService {
 
     try {
       await this.connect();
-      await this.resubscribeAllStreams();
       this.reconnecting = false;
     } catch (error) {
       this.logger.error('Reconnection failed', error);
@@ -283,16 +286,11 @@ export class BinanceStreamService implements QuoteStreamService {
     if (this.subscribedStreams.size === 0) return;
 
     const streams = [...this.subscribedStreams];
-    const streamPairs = new Map(this.streamToPairMap);
-
     this.subscribedStreams.clear();
-    this.streamToPairMap.clear();
 
-    streamPairs.forEach((pair, stream) => {
-      this.streamToPairMap.set(stream, pair);
-    });
-
-    await this.subscribeToStreams(streams);
+    if (streams.length > 0) {
+      await this.subscribeToStreams(streams);
+    }
   }
 
   private async subscribeToStreams(streams: string[]): Promise<void> {

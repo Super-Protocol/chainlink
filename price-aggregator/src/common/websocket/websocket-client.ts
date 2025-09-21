@@ -42,8 +42,12 @@ export class WebSocketClient extends EventEmitter {
 
       this.ws.on('open', () => {
         this.logger.log(`WebSocket connected to ${this.options.url}`);
+        const wasReconnecting = this.reconnectAttempts > 0;
         this.reconnectAttempts = 0;
         this.emit('open');
+        if (wasReconnecting) {
+          this.emit('reconnect');
+        }
         this.startHeartbeat();
       });
 
