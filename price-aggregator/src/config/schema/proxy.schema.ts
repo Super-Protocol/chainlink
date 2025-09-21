@@ -1,74 +1,46 @@
 import { Type } from '@sinclair/typebox';
 
+const createProxySchema = (protocol: 'HTTP' | 'HTTPS') =>
+  Type.Union([
+    Type.Object({
+      enabled: Type.Literal(false, {
+        description: `Disable ${protocol} proxy`,
+        default: false,
+      }),
+    }),
+    Type.Object({
+      enabled: Type.Literal(true, {
+        description: `Enable ${protocol} proxy`,
+      }),
+      host: Type.String({
+        description: `${protocol} proxy host address`,
+        examples: ['proxy.example.com', '192.168.1.100'],
+        minLength: 1,
+      }),
+      port: Type.Integer({
+        minimum: 1,
+        maximum: 65535,
+        description: `${protocol} proxy port`,
+        examples: [8080, 3128],
+      }),
+      username: Type.Optional(
+        Type.String({
+          description: `${protocol} proxy username (if authentication required)`,
+          examples: ['proxyuser'],
+        }),
+      ),
+      password: Type.Optional(
+        Type.String({
+          description: `${protocol} proxy password (if authentication required)`,
+          examples: ['proxypassword'],
+        }),
+      ),
+    }),
+  ]);
+
 export const proxySchema = Type.Object({
-  http: Type.Optional(
-    Type.Object({
-      enabled: Type.Boolean({
-        description: 'Enable HTTP proxy',
-        default: false,
-      }),
-      host: Type.Optional(
-        Type.String({
-          description: 'HTTP proxy host address',
-          examples: ['proxy.example.com', '192.168.1.100'],
-        }),
-      ),
-      port: Type.Optional(
-        Type.Integer({
-          minimum: 1,
-          maximum: 65535,
-          description: 'HTTP proxy port',
-          examples: [8080, 3128],
-        }),
-      ),
-      username: Type.Optional(
-        Type.String({
-          description: 'HTTP proxy username (if authentication required)',
-          examples: ['proxyuser'],
-        }),
-      ),
-      password: Type.Optional(
-        Type.String({
-          description: 'HTTP proxy password (if authentication required)',
-          examples: ['proxypassword'],
-        }),
-      ),
-    }),
-  ),
-  https: Type.Optional(
-    Type.Object({
-      enabled: Type.Boolean({
-        description: 'Enable HTTPS proxy',
-        default: false,
-      }),
-      host: Type.Optional(
-        Type.String({
-          description: 'HTTPS proxy host address',
-          examples: ['proxy.example.com', '192.168.1.100'],
-        }),
-      ),
-      port: Type.Optional(
-        Type.Integer({
-          minimum: 1,
-          maximum: 65535,
-          description: 'HTTPS proxy port',
-          examples: [8080, 3128],
-        }),
-      ),
-      username: Type.Optional(
-        Type.String({
-          description: 'HTTPS proxy username (if authentication required)',
-          examples: ['proxyuser'],
-        }),
-      ),
-      password: Type.Optional(
-        Type.String({
-          description: 'HTTPS proxy password (if authentication required)',
-          examples: ['proxypassword'],
-        }),
-      ),
-    }),
-  ),
+  http: Type.Optional(createProxySchema('HTTP')),
+  https: Type.Optional(createProxySchema('HTTPS')),
 });
 
 export type ProxyConfig = typeof proxySchema.static;

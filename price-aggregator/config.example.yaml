@@ -36,18 +36,23 @@ pairsTtl:
     ttl: 45000 # 45 seconds for DOGE/USD on ALL sources (source is optional)
 
 proxy:
+  # HTTP proxy configuration - when enabled, host and port are required
   http:
     enabled: false
-    host: proxy.example.com
-    port: 8080
-    username: optional-username # Only needed if proxy requires authentication
-    password: optional-password
+    # When enabled: true, these fields are required:
+    # host: proxy.example.com
+    # port: 8080
+    # username: optional-username # Only needed if proxy requires authentication
+    # password: optional-password
+
+  # HTTPS proxy configuration - when enabled, host and port are required
   https:
     enabled: false
-    host: proxy.example.com
-    port: 8080
-    username: optional-username # Only needed if proxy requires authentication
-    password: optional-password
+    # When enabled: true, these fields are required:
+    # host: proxy.example.com
+    # port: 8080
+    # username: optional-username # Only needed if proxy requires authentication
+    # password: optional-password
 
 sources:
   binance:
