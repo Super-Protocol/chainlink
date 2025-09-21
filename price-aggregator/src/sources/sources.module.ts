@@ -6,8 +6,8 @@ import { HttpClientModule } from '../common';
 import { AppConfigModule } from '../config';
 import { SourcesExceptionFilter } from './filters';
 import { SourcesManagerService } from './sources-manager.service';
-import { SOURCES_PROVIDERS } from './sources.constants';
 import { SourcesController } from './sources.controller';
+import { SOURCES_PROVIDERS } from './sources.providers';
 import { MetricsModule } from '../metrics/metrics.module';
 
 @Module({

@@ -13,7 +13,7 @@ import {
 import { QuoteStreamService } from './quote-stream.interface';
 import { SourceAdapter, Quote, Pair } from './source-adapter.interface';
 import { SourceName } from './source-name.enum';
-import { SOURCES_MAP } from './sources.constants';
+import { SOURCES_MAP } from './sources.providers';
 import { SingleFlight } from '../common';
 import { MetricsService } from '../metrics/metrics.service';
 
