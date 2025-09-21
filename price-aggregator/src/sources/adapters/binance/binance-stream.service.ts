@@ -340,7 +340,12 @@ export class BinanceStreamService implements QuoteStreamService {
   }
 
   private async unsubscribeFromStreams(streams: string[]): Promise<void> {
-    if (!this.isConnected || streams.length === 0) return;
+    if (streams.length === 0) return;
+    if (!this.isConnected) {
+      // Update local state even when offline to avoid stale resubscriptions
+      streams.forEach((s) => this.subscribedStreams.delete(s));
+      return;
+    }
 
     const commandId = this.commandId++;
     const command: WebSocketCommand = {
