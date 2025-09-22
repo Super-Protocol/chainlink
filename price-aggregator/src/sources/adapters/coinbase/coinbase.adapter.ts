@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
+import { CoinbaseStreamService } from './coinbase-stream.service';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
 import { PriceNotFoundException, SourceApiException } from '../../exceptions';
+import { QuoteStreamService } from '../../quote-stream.interface';
 import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
@@ -34,11 +36,13 @@ export class CoinbaseAdapter implements SourceAdapter {
   private readonly ttl: number;
   private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
+  private readonly coinbaseStreamService: CoinbaseStreamService;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
+    this.coinbaseStreamService = new CoinbaseStreamService();
     const sourceConfig = configService.get('sources.coinbase');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
@@ -109,5 +113,13 @@ export class CoinbaseAdapter implements SourceAdapter {
     }
 
     return pairs;
+  }
+
+  getStreamService(): QuoteStreamService {
+    return this.coinbaseStreamService;
+  }
+
+  async closeAllStreams(): Promise<void> {
+    await this.coinbaseStreamService.disconnect();
   }
 }

@@ -27,6 +27,7 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
     SourceName,
     Map<string, StreamSubscription>
   >();
+  private readonly initializedSources = new Set<SourceName>();
 
   private handlePairAddedRef?: (event: {
     pair: Pair;
@@ -73,6 +74,8 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
           for (const pair of existingPairs) {
             await this.subscribePair(source, pair);
           }
+
+          this.initializedSources.add(source);
         }
       } catch (error) {
         this.logger.debug(
@@ -118,7 +121,14 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
 
     const pairKey = this.getPairKey(pair);
     const subs = this.ensureSubsMap(source);
-    if (subs.has(pairKey)) return;
+    if (subs.has(pairKey)) {
+      this.logger.verbose(
+        `Already have subscription for ${source}:${pairKey}, skipping`,
+      );
+      return;
+    }
+
+    this.logger.debug(`Creating new subscription for ${source}:${pairKey}`);
 
     try {
       if (!streamService.isConnected) {
@@ -207,7 +217,7 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
           ) => void;
         }
       ).onConnectionStateChange((connected: boolean) => {
-        if (connected) {
+        if (connected && this.initializedSources.has(source)) {
           this.logger.log(
             `Stream reconnected for ${source}, resubscribing pairs`,
           );

@@ -53,10 +53,20 @@ export class WebSocketClient extends EventEmitter {
 
       this.ws.on('message', (data: WebSocket.Data) => {
         try {
-          const message = JSON.parse(data.toString());
+          const rawString = data.toString();
+          // this.logger.verbose(`Raw WebSocket data received: "${rawString}"`);
+
+          if (!rawString || rawString.trim() === '') {
+            this.logger.warn('Received empty WebSocket message');
+            return;
+          }
+
+          const message = JSON.parse(rawString);
           this.emit('message', message);
         } catch (error) {
-          this.logger.error('Failed to parse WebSocket message', error);
+          this.logger.error('Failed to parse WebSocket message', error, {
+            rawData: data.toString(),
+          });
         }
       });
 
@@ -75,8 +85,13 @@ export class WebSocketClient extends EventEmitter {
         }
       });
 
-      this.ws.on('pong', () => {
+      this.ws.on('pong', (data: Buffer) => {
+        this.logger.verbose(`Pong received: ${data.toString()}`);
         this.clearPongTimeout();
+      });
+
+      this.ws.on('ping', (data: Buffer) => {
+        this.logger.verbose(`Ping received: ${data.toString()}`);
       });
     } catch (error) {
       this.logger.error('Failed to create WebSocket', error);
