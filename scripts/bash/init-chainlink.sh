@@ -33,7 +33,7 @@ sed_inplace() {
 # Wait until bootstrap nodes expose a P2P peerId via /v2/keys/p2p
 wait_for_bootstrap_peer_ids() {
   local node_num="$1"
-  local IFS=' ,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
+  local IFS=' '; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
   local max_tries="${WAIT_BOOTSTRAP_PEER_TRIES:-300}"
   mkdir -p "$SP_SECRETS_DIR"
   for bn in "${bs_nodes[@]}"; do
@@ -94,13 +94,13 @@ main() {
   local tpl="/scripts/bash/config.toml.template"
   if [[ -s "$tpl" ]]; then
     # Compute DefaultBootstrappers from shared bootstrap secrets if available
-    local IFS=' ,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
+    local IFS=' '; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
     local is_bootstrap=false; local bn; local entries=()
     for bn in "${bs_nodes[@]}"; do if [[ "$bn" == "${NODE_NUMBER}" ]]; then is_bootstrap=true; break; fi; done
 
     # Determine if this node is primary
     local primary_nodes_str="${PRIMARY_NODES:-${NODES_LIST:-}}"
-    local IFS=' ,'; read -r -a pr_nodes <<< "$primary_nodes_str"
+    local IFS=' '; read -r -a pr_nodes <<< "$primary_nodes_str"
     local is_primary=false; local pn
     for pn in "${pr_nodes[@]:-}"; do if [[ "$pn" == "${NODE_NUMBER}" ]]; then is_primary=true; break; fi; done
     if [[ "$is_bootstrap" == false ]]; then
@@ -120,7 +120,8 @@ main() {
           local a="${addrs[$i]}"; a=$(echo "$a" | xargs)
           [[ -z "$a" ]] && continue
           if [[ "${ALL_IN_ONE:-}" == "true" ]]; then
-            local host="127.0.0.1"; local port="9901"
+            local host="127.0.0.1"; local port_base="${BOOTSTRAP_P2P_PORT_BASE:-9901}"
+            local port=$((port_base + i))
           else
             local host="${a%%:*}"; local port="${a##*:}"
             [[ -z "$port" || "$port" == "$host" ]] && port="9999"
@@ -244,7 +245,7 @@ main() {
   fi
 
   # Produce or consume shared secrets
-  local IFS=' ,'; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
+  local IFS=' '; read -r -a bs_nodes <<< "$BOOTSTRAP_NODES"
   local is_bootstrap=false
   for bn in "${bs_nodes[@]}"; do if [[ "$bn" == "${NODE_NUMBER}" ]]; then is_bootstrap=true; fi; done
 

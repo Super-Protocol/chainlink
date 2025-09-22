@@ -40,7 +40,7 @@ read_creds() {
 # Prefer reading bootstrap info from shared secrets written by bootstrap nodes
 bootstrap_info_from_shared_secrets() {
   local bs_env="${BOOTSTRAP_NODES:-1}"
-  local IFS=' ,'; read -r -a bs_nodes <<< "$bs_env"
+  local IFS=' '; read -r -a bs_nodes <<< "$bs_env"
   [[ ${#bs_nodes[@]} -gt 0 ]] || { echo "|"; return; }
   local first_bs="${bs_nodes[0]}"
   local fpeer="$SP_SECRETS_DIR/bootstrap-${first_bs}.peerid"
@@ -58,7 +58,7 @@ bootstrap_info_from_shared_secrets() {
 # Login to remote node and fetch its p2p peer id
 fetch_bootstrap_peer_from_env() {
   local bs_env="${BOOTSTRAP_NODES:-1}"
-  local IFS=' ,'; read -r -a bs_nodes <<< "$bs_env"
+  local IFS=' '; read -r -a bs_nodes <<< "$bs_env"
   [[ ${#bs_nodes[@]} -gt 0 ]] || { echo "|"; return; }
   local first_bs="${bs_nodes[0]}"
   local host; host=$(ip_for_node "$first_bs")
@@ -87,7 +87,7 @@ fetch_bootstrap_peer_from_env() {
 is_node_bootstrap() {
   local node_num="$1"
   local bstr="${BOOTSTRAP_NODES:-1}"
-  local IFS=' ,'; read -r -a bs_nodes <<< "$bstr"
+  local IFS=' '; read -r -a bs_nodes <<< "$bstr"
   for bn in "${bs_nodes[@]}"; do
     if [[ "$bn" == "$node_num" ]]; then
       echo true; return
@@ -101,7 +101,7 @@ bootstrap_peers_multiaddr_from_config() {
   local cfg="${NODE_ROOT_DIR}/config.toml"
   # Prefer explicit env BOOTSTRAP_NODE_ADDRESSES
   if [[ -n "${BOOTSTRAP_NODE_ADDRESSES:-}" ]]; then
-    local bs_env="${BOOTSTRAP_NODES:-1}"; local IFS=' ,'; read -r -a bs_nodes <<< "$bs_env"
+    local bs_env="${BOOTSTRAP_NODES:-1}"; local IFS=' '; read -r -a bs_nodes <<< "$bs_env"
     local peer_ids=()
     for bn in "${bs_nodes[@]}"; do
       local fpeer="${SP_SECRETS_DIR}/bootstrap-${bn}.peerid"

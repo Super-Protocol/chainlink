@@ -46,11 +46,27 @@ wait_for_config_file() {
 
 # First bootstrap node in BOOTSTRAP_NODES generates shared payload for all nodes
 bs_nodes_str="${BOOTSTRAP_NODES:-1}"
-IFS=' ,' read -r -a bs_nodes <<< "$bs_nodes_str"
+IFS=' ' read -r -a bs_nodes <<< "$bs_nodes_str"
 leader="${bs_nodes[0]:-1}"
 if [ "$NODE_NUMBER" = "$leader" ]; then
   log "running /scripts/bash/generate-secrets.sh for all nodes (leader=${leader}, TOTAL_NODES=${TOTAL_NODES:-5})"
   TOTAL_NODES="${TOTAL_NODES:-5}" bash /scripts/bash/generate-secrets.sh || log "generate-secrets failed (continuing)"
+  # After secrets are generated, publish peerId and IP for all bootstrap nodes
+  for b in "${bs_nodes[@]}"; do
+    # Write IP
+    if [ "${ALL_IN_ONE:-}" = "true" ]; then
+      host="127.0.0.1"
+    else
+      host="10.5.0.$((8 + b))"
+    fi
+    printf '%s\n' "$host" > "${SP_SECRETS_DIR}/bootstrap-${b}.ip"
+    # Write peerId from generated p2p_key.json
+    p2p_json="${CL_SHARED_DIR}/${b}/p2p_key.json"
+    if [ -s "$p2p_json" ]; then
+      pid=$(jq -r '(.peerID // .peerId // .peerId // empty)' "$p2p_json" 2>/dev/null || true)
+      if [ -n "$pid" ]; then printf '%s\n' "$pid" > "${SP_SECRETS_DIR}/bootstrap-${b}.peerid"; fi
+    fi
+  done
   node /scripts/secrets/register-admin.js
   /scripts/bash/set-config-for-all-feeds.sh
 else

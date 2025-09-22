@@ -17,6 +17,35 @@ export APP_DB_PASS="${PGPASSWORD:-chainlinkchainlink}"
 export CHAINLINK_ROOT="${CHAINLINK_ROOT:-/chainlink}"
 export NODE_ROOT_DIR="${CHAINLINK_ROOT:-/chainlink}/node-${NODE_NUMBER}"
 export TMP_DIR="/tmp/node-${NODE_NUMBER}"
+export SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
+
+# Derive BOOTSTRAP_NODE_ADDRESSES if not provided
+IFS=' ' read -r -a bs_nodes <<< "${BOOTSTRAP_NODES:-}"
+if [ ${#bs_nodes[@]} -gt 0 ]; then
+  addresses=()
+  for bn in "${bs_nodes[@]}"; do
+    [ -z "$bn" ] && continue
+    if [ "${ALL_IN_ONE:-}" = "true" ]; then
+      base="${BOOTSTRAP_P2P_PORT_BASE:-9900}"
+      host="127.0.0.1"
+      port=$((base + bn))
+    else
+      host_file="${SP_SECRETS_DIR}/bootstrap-${bn}.ip"
+      if [ -s "$host_file" ]; then
+        host=$(sed -n '1p' "$host_file")
+      else
+        host="10.5.0.$((8 + bn))"
+      fi
+      port="9999"
+    fi
+    addresses+=("${host}:${port}")
+  done
+  if [ ${#addresses[@]} -gt 0 ]; then
+    BOOTSTRAP_NODE_ADDRESSES=$(IFS=','; echo "${addresses[*]}")
+    export BOOTSTRAP_NODE_ADDRESSES
+    log "computed BOOTSTRAP_NODE_ADDRESSES=${BOOTSTRAP_NODE_ADDRESSES}"
+  fi
+fi
 
 mkdir -p "$TMP_DIR"
 
