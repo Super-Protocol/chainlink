@@ -204,7 +204,7 @@ export class QuotesService {
     );
 
     return {
-      registrations: registrationsWithCache,
+      pairs: registrationsWithCache,
     };
   }
 }

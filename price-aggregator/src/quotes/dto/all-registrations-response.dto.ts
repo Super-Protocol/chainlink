@@ -7,5 +7,5 @@ export class AllRegistrationsResponseDto {
     description: 'Array of all pair-source registrations',
     type: [RegistrationResponseDto],
   })
-  registrations: RegistrationResponseDto[];
+  pairs: RegistrationResponseDto[];
 }

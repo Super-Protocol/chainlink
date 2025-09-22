@@ -65,6 +65,21 @@ export class QuotesController {
     return this.quotesService.getQuote(source, pair);
   }
 
+  @Get('pairs/all')
+  @ApiOperation({
+    summary: 'Get all pair-source registrations',
+    description:
+      'Get all registered pair-source combinations with their tracking information',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'All registrations successfully retrieved',
+    type: AllRegistrationsResponseDto,
+  })
+  async getAllRegistrations(): Promise<AllRegistrationsResponseDto> {
+    return await this.quotesService.getAllRegistrations();
+  }
+
   @Get('pairs/:source')
   @ApiOperation({
     summary: 'Get registered pairs for specific source',
@@ -90,21 +105,6 @@ export class QuotesController {
     @Param('source', new ParseEnumPipe(SourceName)) source: SourceName,
   ): Promise<PairsBySourceResponseDto> {
     return await this.quotesService.getPairsBySource(source);
-  }
-
-  @Get('registrations')
-  @ApiOperation({
-    summary: 'Get all pair-source registrations',
-    description:
-      'Get all registered pair-source combinations with their tracking information',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'All registrations successfully retrieved',
-    type: AllRegistrationsResponseDto,
-  })
-  async getAllRegistrations(): Promise<AllRegistrationsResponseDto> {
-    return await this.quotesService.getAllRegistrations();
   }
 
   @Post('cleanup')
