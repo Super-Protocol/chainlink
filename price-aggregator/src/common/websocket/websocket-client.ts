@@ -10,6 +10,7 @@ export interface WebSocketClientOptions {
   maxReconnectAttempts?: number;
   pingInterval?: number;
   pongTimeout?: number;
+  parseJson?: boolean; // по умолчанию true для обратной совместимости
 }
 
 export class WebSocketClient extends EventEmitter {
@@ -28,6 +29,7 @@ export class WebSocketClient extends EventEmitter {
       maxReconnectAttempts: 10,
       pingInterval: 30000,
       pongTimeout: 10000,
+      parseJson: true,
       ...options,
     };
   }
@@ -61,12 +63,20 @@ export class WebSocketClient extends EventEmitter {
             return;
           }
 
-          const message = JSON.parse(rawString);
-          this.emit('message', message);
+          if (this.options.parseJson) {
+            const message = JSON.parse(rawString);
+            this.emit('message', message);
+          } else {
+            this.emit('message', rawString);
+          }
         } catch (error) {
-          this.logger.error('Failed to parse WebSocket message', error, {
-            rawData: data.toString(),
-          });
+          if (this.options.parseJson) {
+            this.logger.error('Failed to parse WebSocket message', error, {
+              rawData: data.toString(),
+            });
+          } else {
+            this.emit('message', data.toString());
+          }
         }
       });
 

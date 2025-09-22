@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 
+import { FinnhubStreamService } from './finnhub-stream.service';
+import { getSymbolAndEndpoint } from './finnhub.utils';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
 import { PriceNotFoundException, SourceApiException } from '../../exceptions';
+import { QuoteStreamService } from '../../quote-stream.interface';
 import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://finnhub.io';
-const API_PATH = '/api/v1/quote';
 
 interface FinnhubResponse {
   c: number;
@@ -30,6 +32,7 @@ export class FinnhubAdapter implements SourceAdapter {
   private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
   private readonly apiKey: string;
+  private readonly finnhubStreamService: FinnhubStreamService;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
@@ -38,6 +41,7 @@ export class FinnhubAdapter implements SourceAdapter {
     const sourceConfig = configService.get('sources.finnhub');
     this.apiKey = sourceConfig?.apiKey || '';
     this.enabled = sourceConfig?.enabled && !!this.apiKey;
+    this.finnhubStreamService = new FinnhubStreamService(this.apiKey);
     this.ttl = sourceConfig?.ttl || 10000;
     this.refetch = sourceConfig?.refetch || false;
 
@@ -68,8 +72,8 @@ export class FinnhubAdapter implements SourceAdapter {
 
   @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
-    const symbol = pair.join('').toUpperCase();
-    const { data } = await this.httpClient.get<FinnhubResponse>(API_PATH, {
+    const { symbol, endpoint } = getSymbolAndEndpoint(pair);
+    const { data } = await this.httpClient.get<FinnhubResponse>(endpoint, {
       params: {
         symbol,
       },
@@ -90,5 +94,13 @@ export class FinnhubAdapter implements SourceAdapter {
       price: String(price),
       receivedAt: new Date(),
     };
+  }
+
+  getStreamService(): QuoteStreamService {
+    return this.finnhubStreamService;
+  }
+
+  async closeAllStreams(): Promise<void> {
+    await this.finnhubStreamService.disconnect();
   }
 }

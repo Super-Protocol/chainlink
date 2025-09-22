@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { isAxiosError } from 'axios';
 
+import { CryptoCompareStreamService } from './cryptocompare-stream.service';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import {
@@ -8,6 +9,7 @@ import {
   PriceNotFoundException,
   SourceApiException,
 } from '../../exceptions';
+import { QuoteStreamService } from '../../quote-stream.interface';
 import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
@@ -28,6 +30,7 @@ export class CryptoCompareAdapter implements SourceAdapter {
   private readonly maxBatchSize: number;
   private readonly httpClient: HttpClient;
   private readonly apiKey: string;
+  private readonly cryptoCompareStreamService: CryptoCompareStreamService;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
@@ -36,6 +39,10 @@ export class CryptoCompareAdapter implements SourceAdapter {
     const sourceConfig = configService.get('sources.cryptocompare');
     this.apiKey = sourceConfig?.apiKey || '';
     this.enabled = sourceConfig?.enabled && !!this.apiKey;
+    this.cryptoCompareStreamService = new CryptoCompareStreamService(
+      undefined,
+      this.apiKey,
+    );
     this.ttl = sourceConfig?.ttl || 10000;
     this.refetch = sourceConfig?.refetch || false;
     this.maxBatchSize = sourceConfig.batchConfig?.maxBatchSize ?? 50;
@@ -164,5 +171,13 @@ export class CryptoCompareAdapter implements SourceAdapter {
       }
       throw new SourceApiException(this.name, error as Error);
     }
+  }
+
+  getStreamService(): QuoteStreamService {
+    return this.cryptoCompareStreamService;
+  }
+
+  async closeAllStreams(): Promise<void> {
+    await this.cryptoCompareStreamService.disconnect();
   }
 }
