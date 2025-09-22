@@ -4,6 +4,7 @@ import {
   OnModuleInit,
   OnModuleDestroy,
 } from '@nestjs/common';
+import PQueue from 'p-queue';
 
 import { CacheService, StaleBatch } from './cache';
 import { SourceName } from '../sources';
@@ -23,8 +24,8 @@ export interface RefetchConfig {
 @Injectable()
 export class RefetchService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RefetchService.name);
-  private staleBatchHandler: (batch: StaleBatch) => void;
-  private refreshInProgress = new Set<string>();
+  private refreshQueue: PQueue;
+  private inProgressKeys = new Set<string>();
   private config: RefetchConfig;
 
   constructor(
@@ -33,8 +34,10 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
     private readonly sourcesManager: SourcesManagerService,
     private readonly pairService: PairService,
   ) {
-    this.staleBatchHandler = this.handleStaleBatch.bind(this);
     this.config = this.configService.get('refetch');
+    this.refreshQueue = new PQueue({
+      concurrency: this.config.maxConcurrentRefreshes,
+    });
   }
 
   onModuleInit(): void {
@@ -43,12 +46,7 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    this.cacheService.onStaleBatch(this.staleBatchHandler);
-    this.cacheService.configureStaleness({
-      staleTriggerBeforeExpiry: this.config.staleTriggerBeforeExpiry,
-      batchInterval: this.config.batchInterval,
-      minTimeBetweenRefreshes: this.config.minTimeBetweenRefreshes,
-    });
+    this.cacheService.onStaleBatch((batch) => this.handleStaleBatch(batch));
 
     this.logger.log('Refetch service initialized with config:', this.config);
   }
@@ -58,142 +56,168 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    this.cacheService.offStaleBatch(this.staleBatchHandler);
+    this.cacheService.offStaleBatch((batch) => this.handleStaleBatch(batch));
     this.logger.log('Refetch service destroyed');
   }
 
   private async handleStaleBatch(batch: StaleBatch): Promise<void> {
     const startTime = Date.now();
 
-    this.logger.debug(
-      `Received stale batch with ${batch.items.length} items at ${batch.timestamp.toISOString()}`,
-    );
+    const validItems = batch.items.filter((item) => {
+      const key = this.getRefreshKey(item.source, item.pair);
 
-    const itemsToRefresh = batch.items.filter((item) => {
-      const key = this.generateRefreshKey(item.source, item.pair);
-
-      const registeredSources = this.pairService.getSourcesByPair(item.pair);
-      if (!registeredSources.includes(item.source)) {
-        this.logger.debug(`Skipping ${key}, pair no longer registered`);
+      if (this.inProgressKeys.has(key)) {
+        this.logger.debug(`Skipping ${key}, already in progress`);
         return false;
       }
 
-      if (!this.sourcesManager.isRefetchEnabled(item.source)) {
-        this.logger.verbose(
-          `Skipping ${key}, refetch disabled for source ${item.source}`,
-        );
+      if (!this.isRefreshable(item.source, item.pair)) {
         return false;
       }
 
-      if (this.refreshInProgress.has(key)) {
-        this.logger.debug(`Skipping ${key}, refresh already in progress`);
-        return false;
-      }
-
-      this.refreshInProgress.add(key);
+      this.inProgressKeys.add(key);
       return true;
     });
 
-    if (itemsToRefresh.length === 0) {
-      this.logger.debug('No items to refresh (all already in progress)');
+    if (validItems.length === 0) {
+      this.logger.debug('No new items to refresh');
       return;
     }
 
-    const itemsBySource = this.groupItemsBySource(itemsToRefresh);
-    await this.processRefreshBatches(itemsBySource);
+    const grouped = this.groupBySource(validItems);
 
-    itemsToRefresh.forEach((item) => {
-      const key = this.generateRefreshKey(item.source, item.pair);
-      this.refreshInProgress.delete(key);
-    });
+    const sourceStats = Array.from(grouped.entries())
+      .map(([source, pairs]) => `${source}:${pairs.length}`)
+      .join(', ');
 
-    const sources = Array.from(itemsBySource.keys());
+    this.logger.log(
+      `Processing stale batch: ${validItems.length} items across ${grouped.size} sources [${sourceStats}]`,
+    );
+
+    await Promise.all(
+      Array.from(grouped.entries()).map(([source, pairs]) =>
+        this.refreshQueue
+          .add(() => this.refreshSourcePairs(source, pairs))
+          .finally(() => {
+            pairs.forEach((pair) => {
+              this.inProgressKeys.delete(this.getRefreshKey(source, pair));
+            });
+          }),
+      ),
+    );
+
     const duration = Date.now() - startTime;
     this.logger.log(
-      `Completed proactive refresh for ${itemsToRefresh.length}/${batch.items.length} items from [${sources.join(', ')}] in ${duration}ms`,
+      `Completed stale batch processing: ${validItems.length} items in ${duration}ms`,
     );
   }
 
-  private groupItemsBySource(
-    items: Array<{ source: SourceName; pair: Pair }>,
-  ): Map<SourceName, Pair[]> {
-    const itemsBySource = new Map<SourceName, Pair[]>();
-
-    for (const item of items) {
-      const pairs = itemsBySource.get(item.source) || [];
-      pairs.push(item.pair);
-      itemsBySource.set(item.source, pairs);
+  private isRefreshable(source: SourceName, pair: Pair): boolean {
+    if (!this.pairService.getSourcesByPair(pair).includes(source)) {
+      return false;
     }
-
-    return itemsBySource;
+    return this.sourcesManager.isRefetchEnabled(source);
   }
 
-  private async processRefreshBatches(
-    itemsBySource: Map<SourceName, Pair[]>,
-  ): Promise<void> {
-    const sources = Array.from(itemsBySource.entries());
-    for (
-      let i = 0;
-      i < sources.length;
-      i += this.config.maxConcurrentRefreshes
-    ) {
-      await Promise.all(
-        sources
-          .slice(i, i + this.config.maxConcurrentRefreshes)
-          .map(([source, pairs]) => this.refreshSourcePairs(source, pairs)),
-      );
-    }
+  private groupBySource(
+    items: Array<{ source: SourceName; pair: Pair }>,
+  ): Map<SourceName, Pair[]> {
+    const grouped = new Map<SourceName, Pair[]>();
+    items.forEach(({ source, pair }) => {
+      const pairs = grouped.get(source) || [];
+      pairs.push(pair);
+      grouped.set(source, pairs);
+    });
+    return grouped;
+  }
+
+  private getRefreshKey(source: SourceName, pair: Pair): string {
+    return `${source}:${pair.join('/')}`;
   }
 
   private async refreshSourcePairs(
     source: SourceName,
     pairs: Pair[],
   ): Promise<void> {
+    const startTime = Date.now();
+    this.logger.debug(
+      `Starting refresh for ${source}: ${pairs.length} pairs [${pairs.map((p) => p.join('/')).join(', ')}]`,
+    );
+
     try {
-      if (
-        this.sourcesManager.isFetchQuotesSupported(source) &&
-        pairs.length > 1
-      ) {
-        this.logger.debug(
-          `Proactively refreshing ${pairs.length} stale pairs for ${source} using batch`,
-        );
-        await Promise.all(
-          (await this.sourcesManager.fetchQuotes(source, pairs)).map((quote) =>
-            this.cacheQuote(source, quote),
-          ),
-        );
-      } else {
-        await this.refreshIndividualPairs(source, pairs);
-      }
+      const quotes = await this.fetchQuotes(source, pairs);
+      await Promise.all(quotes.map((quote) => this.cacheQuote(source, quote)));
+
+      const duration = Date.now() - startTime;
+      this.logger.log(
+        `Successfully refreshed ${quotes.length}/${pairs.length} pairs for ${source} in ${duration}ms`,
+      );
     } catch (error) {
+      const duration = Date.now() - startTime;
       this.logger.error(
-        `Error refreshing stale pairs for ${source}: ${String(error)}`,
+        `Error refreshing ${pairs.length} pairs for ${source} after ${duration}ms: ${String(error)}`,
       );
     }
   }
 
-  private async refreshIndividualPairs(
+  private splitIntoBatches(pairs: Pair[], maxBatchSize: number): Pair[][] {
+    const batches: Pair[][] = [];
+    for (let i = 0; i < pairs.length; i += maxBatchSize) {
+      batches.push(pairs.slice(i, i + maxBatchSize));
+    }
+    return batches;
+  }
+
+  private async fetchQuotes(
     source: SourceName,
     pairs: Pair[],
-  ): Promise<void> {
-    this.logger.debug(
-      `Proactively refreshing ${pairs.length} stale pairs for ${source} individually`,
+  ): Promise<Quote[]> {
+    const supportsBatch = this.sourcesManager.isFetchQuotesSupported(source);
+
+    if (supportsBatch && pairs.length > 1) {
+      const maxBatchSize = this.sourcesManager.getMaxBatchSize(source);
+
+      if (pairs.length <= maxBatchSize) {
+        return this.sourcesManager.fetchQuotes(source, pairs);
+      }
+
+      const batches = this.splitIntoBatches(pairs, maxBatchSize);
+      this.logger.debug(
+        `Splitting ${pairs.length} pairs into ${batches.length} batches for ${source} (max: ${maxBatchSize})`,
+      );
+
+      const batchPromises = batches.map(async (batch, index) => {
+        try {
+          return await this.sourcesManager.fetchQuotes(source, batch);
+        } catch (error) {
+          this.logger.error(
+            `Batch ${index + 1}/${batches.length} failed for ${source}: ${String(error)}`,
+          );
+          return [];
+        }
+      });
+
+      const results = await Promise.allSettled(batchPromises);
+      const allQuotes = results
+        .filter(
+          (result): result is PromiseFulfilledResult<Quote[]> =>
+            result.status === 'fulfilled',
+        )
+        .flatMap((result) => result.value);
+
+      return allQuotes;
+    }
+
+    const quotes = await Promise.allSettled(
+      pairs.map((pair) => this.sourcesManager.fetchQuote(source, pair)),
     );
 
-    await Promise.all(
-      pairs.map(async (pair) => {
-        try {
-          await this.cacheQuote(
-            source,
-            await this.sourcesManager.fetchQuote(source, pair),
-          );
-        } catch (error) {
-          this.logger.warn(
-            `Failed to refresh stale pair ${pair.join('/')} from ${source}: ${String(error)}`,
-          );
-        }
-      }),
-    );
+    return quotes
+      .filter(
+        (result): result is PromiseFulfilledResult<Quote> =>
+          result.status === 'fulfilled',
+      )
+      .map((result) => result.value);
   }
 
   private async cacheQuote(source: SourceName, quote: Quote): Promise<void> {
@@ -206,19 +230,25 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
     this.pairService.trackResponse(quote.pair, source);
   }
 
-  private generateRefreshKey(source: SourceName, pair: Pair): string {
-    return `${source}:${pair.join('/')}`;
-  }
-
   getRefreshStatus(): {
     enabled: boolean;
     config: RefetchConfig;
-    refreshInProgress: string[];
+    queue: {
+      size: number;
+      pending: number;
+      isPaused: boolean;
+    };
+    inProgress: string[];
   } {
     return {
       enabled: this.config.enabled,
       config: this.config,
-      refreshInProgress: Array.from(this.refreshInProgress),
+      queue: {
+        size: this.refreshQueue.size,
+        pending: this.refreshQueue.pending,
+        isPaused: this.refreshQueue.isPaused,
+      },
+      inProgress: Array.from(this.inProgressKeys),
     };
   }
 
@@ -231,6 +261,6 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
       `Manual refresh triggered for ${pairs.length} pairs from ${source}`,
     );
 
-    await this.refreshSourcePairs(source, pairs);
+    await this.refreshQueue.add(() => this.refreshSourcePairs(source, pairs));
   }
 }

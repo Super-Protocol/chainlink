@@ -17,6 +17,7 @@ interface CreateSourceSchemaParams {
   apiKeyExamples?: string[];
   rpsDefault: number;
   maxConcurrentDefault?: number;
+  maxBatchSize?: number;
 }
 
 const createSourceSchema = ({
@@ -25,9 +26,10 @@ const createSourceSchema = ({
   apiKeyExamples = [],
   rpsDefault,
   maxConcurrentDefault = 10,
-}: CreateSourceSchemaParams) =>
-  Type.Intersect([
-    Type.Object({
+  maxBatchSize,
+}: CreateSourceSchemaParams) => {
+  const baseSchema = Type.Object(
+    {
       enabled: Type.Boolean({
         description: 'Enable or disable this price source',
         default: true,
@@ -82,9 +84,35 @@ const createSourceSchema = ({
           default: false,
         }),
       ),
-    }),
-    createApiKeySchema(apiKeyRequired, apiKeyDescription, apiKeyExamples),
-  ]);
+      ...(maxBatchSize && {
+        batchConfig: Type.Object(
+          {
+            maxBatchSize: Type.Integer({
+              minimum: 1,
+              maximum: 1000,
+              description: 'Maximum number of pairs in a single batch request',
+              default: maxBatchSize,
+            }),
+          },
+          {
+            default: {},
+          },
+        ),
+      }),
+    },
+    {
+      default: {},
+    },
+  );
+
+  const apiKeySchema = createApiKeySchema(
+    apiKeyRequired,
+    apiKeyDescription,
+    apiKeyExamples,
+  );
+
+  return Type.Intersect([baseSchema, apiKeySchema]);
+};
 
 export const binanceSourceSchema = createSourceSchema({
   apiKeyRequired: false,
@@ -92,6 +120,7 @@ export const binanceSourceSchema = createSourceSchema({
     'Optional API key for Binance (not required for public market data)',
   apiKeyExamples: ['your-binance-api-key'],
   rpsDefault: 100,
+  maxBatchSize: 500,
 });
 
 export const okxSourceSchema = createSourceSchema({
@@ -100,6 +129,7 @@ export const okxSourceSchema = createSourceSchema({
     'Optional API key for OKX (not required for public market data)',
   apiKeyExamples: ['your-okx-api-key'],
   rpsDefault: 10,
+  maxBatchSize: 200,
 });
 
 export const finnhubSourceSchema = createSourceSchema({
@@ -115,6 +145,7 @@ export const cryptocompareSourceSchema = createSourceSchema({
     'Required API key for CryptoCompare (free: 100,000 requests/month)',
   apiKeyExamples: ['your-cryptocompare-api-key'],
   rpsDefault: 25,
+  maxBatchSize: 50,
 });
 
 export const alphavantageSourceSchema = createSourceSchema({
@@ -131,6 +162,7 @@ export const coingeckoSourceSchema = createSourceSchema({
     'Optional API key for CoinGecko Pro (increases rate limits)',
   apiKeyExamples: ['your-coingecko-pro-api-key'],
   rpsDefault: 1,
+  maxBatchSize: 100,
 });
 
 export const exchangerateSourceSchema = createSourceSchema({
@@ -147,6 +179,7 @@ export const krakenSourceSchema = createSourceSchema({
     'Optional API key for Kraken (not required for public market data)',
   apiKeyExamples: ['your-kraken-api-key'],
   rpsDefault: 1,
+  maxBatchSize: 50,
 });
 
 export const coinbaseSourceSchema = createSourceSchema({

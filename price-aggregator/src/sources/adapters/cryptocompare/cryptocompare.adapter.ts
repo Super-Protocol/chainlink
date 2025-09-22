@@ -25,6 +25,7 @@ export class CryptoCompareAdapter implements SourceAdapter {
   private readonly enabled: boolean;
   private readonly ttl: number;
   private readonly refetch: boolean;
+  private readonly maxBatchSize: number;
   private readonly httpClient: HttpClient;
   private readonly apiKey: string;
 
@@ -37,6 +38,7 @@ export class CryptoCompareAdapter implements SourceAdapter {
     this.enabled = sourceConfig?.enabled && !!this.apiKey;
     this.ttl = sourceConfig?.ttl || 10000;
     this.refetch = sourceConfig?.refetch || false;
+    this.maxBatchSize = sourceConfig.batchConfig?.maxBatchSize ?? 50;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -61,6 +63,10 @@ export class CryptoCompareAdapter implements SourceAdapter {
 
   isRefetchEnabled(): boolean {
     return this.refetch;
+  }
+
+  getMaxBatchSize(): number {
+    return this.maxBatchSize;
   }
 
   async fetchQuote(pair: Pair): Promise<Quote> {

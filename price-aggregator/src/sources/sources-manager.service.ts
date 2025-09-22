@@ -180,6 +180,11 @@ export class SourcesManagerService {
     return this.getAdapterByName(sourceName).isRefetchEnabled();
   }
 
+  getMaxBatchSize(sourceName: SourceName | string): number {
+    const adapter = this.getAdapterByName(sourceName);
+    return adapter.getMaxBatchSize?.() ?? 100;
+  }
+
   private getAdapter(sourceName: SourceName): SourceAdapter {
     if (this.adaptersCache.has(sourceName)) {
       const cachedAdapter = this.adaptersCache.get(sourceName)!;

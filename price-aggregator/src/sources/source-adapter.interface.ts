@@ -29,6 +29,7 @@ export interface SourceAdapter {
   isEnabled(): boolean;
   getTtl(): number;
   isRefetchEnabled(): boolean;
+  getMaxBatchSize?(): number;
   fetchQuote(pair: Pair): Promise<Quote>;
   getPairs?(): Promise<Pair[]>;
   fetchQuotes?(pairs: Pair[]): Promise<Quote[]>;

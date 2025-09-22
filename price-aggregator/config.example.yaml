@@ -64,6 +64,10 @@ sources:
     apiKey: optional-api-key # Not required for public market data
     useProxy: false # Enable to bypass rate limits or geo-restrictions
     refetch: true # Enable automatic cache refresh when data expires
+    batchConfig: # Batch request configuration for efficient API usage
+      maxBatchSize: 500 # Maximum pairs in single batch request
+      optimalBatchSize: 100 # Optimal batch size for best performance
+      minBatchSize: 50 # Minimum pairs to wait for before sending batch
 
   okx:
     enabled: true
@@ -73,6 +77,10 @@ sources:
     maxConcurrent: 10
     useProxy: false
     refetch: true
+    batchConfig: # Batch request configuration for efficient API usage
+      maxBatchSize: 200 # Maximum pairs in single batch request
+      optimalBatchSize: 50 # Optimal batch size for best performance
+      minBatchSize: 20 # Minimum pairs to wait for before sending batch
 
   finnhub:
     enabled: true
@@ -93,6 +101,10 @@ sources:
     apiKey: required-cryptocompare-api-key
     useProxy: false
     refetch: true
+    batchConfig: # Batch request configuration for efficient API usage
+      maxBatchSize: 50 # Maximum pairs in single batch request (API limit)
+      optimalBatchSize: 30 # Optimal batch size for best performance
+      minBatchSize: 20 # Minimum pairs to wait for before sending batch
 
   alphavantage:
     enabled: true
@@ -112,6 +124,8 @@ sources:
     maxConcurrent: 10
     useProxy: false
     refetch: true
+    batchConfig: # Batch request configuration for efficient API usage
+      maxBatchSize: 100 # Maximum pairs in single batch request (API limit)
 
   exchangeratehost:
     enabled: true
@@ -130,6 +144,10 @@ sources:
     maxConcurrent: 10
     useProxy: false
     refetch: true
+    batchConfig: # Batch request configuration for efficient API usage
+      maxBatchSize: 50 # Maximum pairs in single batch request (API limit)
+      optimalBatchSize: 30 # Optimal batch size for best performance
+      minBatchSize: 20 # Minimum pairs to wait for before sending batch
 
   coinbase:
     enabled: true

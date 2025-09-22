@@ -32,13 +32,7 @@ export const refetchSchema = Type.Object(
     }),
   },
   {
-    default: {
-      enabled: true,
-      staleTriggerBeforeExpiry: 3000,
-      batchInterval: 1000,
-      minTimeBetweenRefreshes: 2000,
-      maxConcurrentRefreshes: 10,
-    },
+    default: {},
     description: 'Proactive cache refresh configuration',
   },
 );

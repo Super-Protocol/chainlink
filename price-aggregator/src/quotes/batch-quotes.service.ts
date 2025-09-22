@@ -11,7 +11,6 @@ import { SourcesManagerService } from '../sources/sources-manager.service';
 @Injectable()
 export class BatchQuotesService {
   private readonly logger = new Logger(BatchQuotesService.name);
-  private static readonly MAX_BATCH_SIZE = 100;
 
   constructor(
     private readonly sourcesManager: SourcesManagerService,
@@ -66,6 +65,8 @@ export class BatchQuotesService {
     const requestedPairKey = pair.join('/');
     const batch = [pair];
 
+    const maxBatchSize = this.sourcesManager.getMaxBatchSize(source);
+
     const registrations =
       this.pairService.getPairsBySourceWithTimestamps(source);
 
@@ -76,11 +77,11 @@ export class BatchQuotesService {
     for (const registration of sortedByOldest) {
       if (registration.pair.join('/') === requestedPairKey) continue;
       batch.push(registration.pair);
-      if (batch.length >= BatchQuotesService.MAX_BATCH_SIZE) break;
+      if (batch.length >= maxBatchSize) break;
     }
 
     this.logger.debug(
-      `Built batch of ${batch.length} for ${source}, requested ${requestedPairKey}`,
+      `Built batch of ${batch.length} for ${source} (max: ${maxBatchSize}), requested ${requestedPairKey}`,
     );
 
     return batch;
@@ -114,18 +115,63 @@ export class BatchQuotesService {
     }
   }
 
+  private splitIntoBatches(pairs: Pair[], maxBatchSize: number): Pair[][] {
+    const batches: Pair[][] = [];
+    for (let i = 0; i < pairs.length; i += maxBatchSize) {
+      batches.push(pairs.slice(i, i + maxBatchSize));
+    }
+    return batches;
+  }
+
   async prefetchBatch(source: SourceName, pairs: Pair[]): Promise<void> {
     if (pairs.length === 0) return;
 
-    try {
-      const quotes = await this.sourcesManager.fetchQuotes(source, pairs);
-      for (const quote of quotes) {
-        await this.cacheAndTrackQuote(source, quote);
+    const maxBatchSize = this.sourcesManager.getMaxBatchSize(source);
+
+    if (pairs.length <= maxBatchSize) {
+      try {
+        const quotes = await this.sourcesManager.fetchQuotes(source, pairs);
+        for (const quote of quotes) {
+          await this.cacheAndTrackQuote(source, quote);
+        }
+      } catch (error) {
+        this.logger.debug(
+          `Batch prefetch failed for ${source}: ${String(error)}`,
+        );
       }
-    } catch (error) {
-      this.logger.debug(
-        `Batch prefetch failed for ${source}: ${String(error)}`,
-      );
+      return;
     }
+
+    const batches = this.splitIntoBatches(pairs, maxBatchSize);
+    this.logger.debug(
+      `Splitting ${pairs.length} pairs into ${batches.length} batches for ${source} (max: ${maxBatchSize})`,
+    );
+
+    const batchPromises = batches.map(async (batch, index) => {
+      try {
+        const quotes = await this.sourcesManager.fetchQuotes(source, batch);
+        for (const quote of quotes) {
+          await this.cacheAndTrackQuote(source, quote);
+        }
+        return quotes.length;
+      } catch (error) {
+        this.logger.debug(
+          `Batch prefetch failed for ${source} (batch ${index + 1}/${batches.length}): ${String(error)}`,
+        );
+        return 0;
+      }
+    });
+
+    const results = await Promise.allSettled(batchPromises);
+    const successfulQuotes = results
+      .filter(
+        (result): result is PromiseFulfilledResult<number> =>
+          result.status === 'fulfilled',
+      )
+      .reduce((sum, result) => sum + result.value, 0);
+
+    this.logger.debug(
+      `Prefetched ${successfulQuotes} quotes in ${batches.length} parallel batches for ${source}`,
+    );
   }
 }

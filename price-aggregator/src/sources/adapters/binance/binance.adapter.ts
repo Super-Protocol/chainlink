@@ -20,6 +20,7 @@ export class BinanceAdapter implements SourceAdapter {
   private readonly enabled: boolean;
   private readonly ttl: number;
   private readonly refetch: boolean;
+  private readonly maxBatchSize: number;
   private readonly httpClient: HttpClient;
   private readonly binanceStreamService: BinanceStreamService;
 
@@ -32,6 +33,7 @@ export class BinanceAdapter implements SourceAdapter {
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
     this.refetch = sourceConfig?.refetch || false;
+    this.maxBatchSize = sourceConfig.batchConfig?.maxBatchSize ?? 500;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: 'binance',
@@ -53,6 +55,10 @@ export class BinanceAdapter implements SourceAdapter {
 
   isRefetchEnabled(): boolean {
     return this.refetch;
+  }
+
+  getMaxBatchSize(): number {
+    return this.maxBatchSize;
   }
 
   @HandleSourceError()

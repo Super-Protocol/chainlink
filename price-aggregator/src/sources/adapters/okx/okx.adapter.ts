@@ -71,6 +71,7 @@ export class OkxAdapter implements SourceAdapter {
   private readonly enabled: boolean;
   private readonly ttl: number;
   private readonly refetch: boolean;
+  private readonly maxBatchSize: number;
   private readonly httpClient: HttpClient;
   private readonly okxStreamService: OkxStreamService;
 
@@ -83,6 +84,7 @@ export class OkxAdapter implements SourceAdapter {
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
     this.refetch = sourceConfig?.refetch || false;
+    this.maxBatchSize = sourceConfig.batchConfig?.maxBatchSize ?? 100;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -104,6 +106,10 @@ export class OkxAdapter implements SourceAdapter {
 
   isRefetchEnabled(): boolean {
     return this.refetch;
+  }
+
+  getMaxBatchSize(): number {
+    return this.maxBatchSize;
   }
 
   @HandleSourceError()
