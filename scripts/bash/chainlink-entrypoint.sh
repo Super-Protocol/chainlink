@@ -57,6 +57,24 @@ else
   log "skip generate-secrets: node=$NODE_NUMBER, leader=$leader"
 fi
 
+# Workers: wait until ALL bootstrap nodes are ready (API /readyz responds)
+is_bootstrap=false
+for b in "${bs_nodes[@]}"; do
+  if [ "$NODE_NUMBER" = "$b" ]; then is_bootstrap=true; break; fi
+done
+
+if [ "$is_bootstrap" = "false" ]; then
+  BASE_API_PORT="${BASE_API_PORT:-6600}"
+  old_api_port="${API_PORT:-}"
+  for b in "${bs_nodes[@]}"; do
+    export API_PORT=$((BASE_API_PORT + b))
+    log "waiting for bootstrap node ${b} (API_PORT=${API_PORT}) to become ready..."
+    /scripts/bash/wait-node.sh || true
+  done
+  # restore API_PORT for this node if it was set
+  if [ -n "${old_api_port}" ]; then export API_PORT="${old_api_port}"; fi
+fi
+
 # Ensure Chainlink node stays PID 1. If present, run publisher in background.
 # Bootstrap nodes write their P2P details to shared secrets for workers
 FIRST_START="false"
