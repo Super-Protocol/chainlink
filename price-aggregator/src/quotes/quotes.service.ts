@@ -11,7 +11,10 @@ import { PairService } from './pair.service';
 import { SingleFlight } from '../common';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
-import { PriceNotFoundException } from '../sources/exceptions';
+import {
+  PriceNotFoundException,
+  SourceUnauthorizedException,
+} from '../sources/exceptions';
 import { Pair, Quote } from '../sources/source-adapter.interface';
 import { SourcesManagerService } from '../sources/sources-manager.service';
 
@@ -153,6 +156,11 @@ export class QuotesService {
           pair: pair.join('/'),
         });
         this.handlePriceNotFound(pair, source);
+      } else if (error instanceof SourceUnauthorizedException) {
+        this.logger.warn(
+          `Source ${source} is unauthorized, removing pair ${pair.join('/')}`,
+        );
+        this.pairService.removePairSource(pair, source);
       }
       throw error;
     }

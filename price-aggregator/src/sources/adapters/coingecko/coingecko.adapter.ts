@@ -3,6 +3,7 @@ import { URLSearchParams } from 'url';
 import { Injectable } from '@nestjs/common';
 import { isAxiosError } from 'axios';
 
+import { getCoinIdMap } from './coingecko.utils';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
@@ -14,7 +15,8 @@ import {
 import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
-const BASE_URL = 'https://api.coingecko.com';
+const PRO_BASE_URL = 'https://pro-api.coingecko.com';
+const FREE_BASE_URL = 'https://api.coingecko.com';
 const API_PATH = '/api/v3/simple/price';
 const MAX_BATCH_SIZE = 100;
 
@@ -28,6 +30,8 @@ export class CoinGeckoAdapter implements SourceAdapter {
   private readonly refetch: boolean;
   private readonly maxBatchSize: number;
   private readonly httpClient: HttpClient;
+  private readonly apiKey?: string;
+  private readonly coinIdMap: Promise<Map<string, string>>;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
@@ -38,6 +42,7 @@ export class CoinGeckoAdapter implements SourceAdapter {
     this.ttl = sourceConfig?.ttl || 10000;
     this.refetch = sourceConfig?.refetch || false;
     this.maxBatchSize = sourceConfig.batchConfig?.maxBatchSize ?? 200;
+    this.apiKey = sourceConfig?.apiKey;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -45,8 +50,10 @@ export class CoinGeckoAdapter implements SourceAdapter {
       rps: sourceConfig?.rps,
       useProxy: sourceConfig?.useProxy,
       maxConcurrent: sourceConfig?.maxConcurrent,
-      baseUrl: BASE_URL,
+      baseUrl: this.apiKey ? PRO_BASE_URL : FREE_BASE_URL,
     });
+
+    this.coinIdMap = getCoinIdMap();
   }
 
   isEnabled(): boolean {
@@ -68,17 +75,23 @@ export class CoinGeckoAdapter implements SourceAdapter {
   @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     const [base, quote] = pair;
+    const coinIdMap = await this.coinIdMap;
+    const coinId = coinIdMap.get(base.toLowerCase()) || base;
 
     const params = new URLSearchParams({
-      ids: base,
+      ids: coinId,
       vs_currencies: quote,
     });
+
+    if (this.apiKey) {
+      params.append('x_cg_pro_api_key', this.apiKey);
+    }
 
     const { data } = await this.httpClient.get<CoinGeckoResponse>(
       `${API_PATH}?${params.toString()}`,
     );
 
-    const price = data?.[base]?.[quote];
+    const price = data?.[coinId]?.[quote];
 
     if (price === undefined || price === null) {
       throw new PriceNotFoundException(pair, this.name);
@@ -105,13 +118,22 @@ export class CoinGeckoAdapter implements SourceAdapter {
       );
     }
 
-    const coinIds = [...new Set(pairs.map((pair) => pair[0]))];
+    const coinIdMap = await this.coinIdMap;
+    const coinIds = [
+      ...new Set(
+        pairs.map(([base]) => coinIdMap.get(base.toLowerCase()) || base),
+      ),
+    ];
     const currencies = [...new Set(pairs.map((pair) => pair[1]))];
 
     const params = new URLSearchParams({
       ids: coinIds.join(','),
       vs_currencies: currencies.join(','),
     });
+
+    if (this.apiKey) {
+      params.append('x_cg_pro_api_key', this.apiKey);
+    }
 
     try {
       const { data } = await this.httpClient.get<CoinGeckoResponse>(
@@ -123,7 +145,8 @@ export class CoinGeckoAdapter implements SourceAdapter {
 
       for (const pair of pairs) {
         const [base, quote] = pair;
-        const price = data?.[base]?.[quote];
+        const coinId = coinIdMap.get(base.toLowerCase()) || base;
+        const price = data?.[coinId]?.[quote];
 
         if (price !== undefined && price !== null) {
           quotes.push({

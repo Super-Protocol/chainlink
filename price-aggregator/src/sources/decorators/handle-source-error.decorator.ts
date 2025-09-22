@@ -4,6 +4,7 @@ import {
   PriceNotFoundException,
   SourceApiException,
   SourceException,
+  SourceUnauthorizedException,
 } from '../exceptions';
 import { Pair } from '../source-adapter.interface';
 import { SourceName } from '../source-name.enum';
@@ -45,7 +46,7 @@ export function HandleSourceError() {
           }
 
           if (status === 401) {
-            throw new SourceApiException(sourceName, error as Error, 401);
+            throw new SourceUnauthorizedException(sourceName);
           }
         }
 

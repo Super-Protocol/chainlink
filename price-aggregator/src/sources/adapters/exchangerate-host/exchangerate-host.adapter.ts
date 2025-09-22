@@ -3,22 +3,24 @@ import { Injectable } from '@nestjs/common';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
-import { PriceNotFoundException, SourceApiException } from '../../exceptions';
+import {
+  PriceNotFoundException,
+  SourceApiException,
+  SourceUnauthorizedException,
+} from '../../exceptions';
 import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://api.exchangerate.host';
-const API_PATH = '/latest';
+const API_PATH = '/live';
 
 interface ExchangeRateHostResponse {
-  motd: {
-    msg: string;
-    url: string;
-  };
   success: true;
-  base: string;
-  date: string;
-  rates: Record<string, number>;
+  terms: string;
+  privacy: string;
+  timestamp: number;
+  source: string;
+  quotes: Record<string, number>;
 }
 
 interface ExchangeRateHostErrorResponse {
@@ -36,6 +38,7 @@ export class ExchangeRateHostAdapter implements SourceAdapter {
   private readonly ttl: number;
   private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
+  private readonly apiKey?: string;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
@@ -45,6 +48,7 @@ export class ExchangeRateHostAdapter implements SourceAdapter {
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
     this.refetch = sourceConfig?.refetch || false;
+    this.apiKey = sourceConfig?.apiKey;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -53,6 +57,7 @@ export class ExchangeRateHostAdapter implements SourceAdapter {
       useProxy: sourceConfig?.useProxy,
       maxConcurrent: sourceConfig?.maxConcurrent,
       baseUrl: BASE_URL,
+      defaultParams: this.apiKey ? { access_key: this.apiKey } : {},
     });
   }
 
@@ -108,19 +113,26 @@ export class ExchangeRateHostAdapter implements SourceAdapter {
       ExchangeRateHostResponse | ExchangeRateHostErrorResponse
     >(API_PATH, {
       params: {
-        base: base.toUpperCase(),
-        symbols: quote.toUpperCase(),
+        source: base.toUpperCase(),
+        currencies: quote.toUpperCase(),
       },
     });
     if (data.success === false) {
+      const status = this.mapErrorCodeToHttpStatus(data.error.code);
+      if (status === 401) {
+        throw new SourceUnauthorizedException(this.name);
+      }
+      if (status === 404) {
+        throw new PriceNotFoundException(pair, this.name);
+      }
       throw new SourceApiException(
         this.name,
         new Error(data.error.info),
-        this.mapErrorCodeToHttpStatus(data.error.code),
+        status,
       );
     }
 
-    const price = data?.rates?.[quote.toUpperCase()];
+    const price = data?.quotes?.[`${base.toUpperCase()}${quote.toUpperCase()}`];
 
     if (price === undefined || price === null) {
       throw new PriceNotFoundException(pair, this.name);

@@ -122,6 +122,7 @@ sources:
     timeoutMs: 10000
     rps: 1 # Free tier: 30/min, Pro API has higher limits
     maxConcurrent: 10
+    apiKey: optional-coingecko-pro-api-key # Optional, for higher rate limits
     useProxy: false
     refetch: true
     batchConfig: # Batch request configuration for efficient API usage
@@ -133,6 +134,7 @@ sources:
     timeoutMs: 10000
     rps: 1 # Free tier: 1000/day limit
     maxConcurrent: 10
+    apiKey: optional-exchangerate-host-api-key # Optional, for higher rate limits
     useProxy: false
     refetch: true
 
