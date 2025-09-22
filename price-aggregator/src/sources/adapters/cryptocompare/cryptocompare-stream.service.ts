@@ -2,9 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { MESSAGE_TYPES } from './cryptocompare.types';
 import { WebSocketClient } from '../../../common';
+import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
 import { StreamServiceOptions } from '../../quote-stream.interface';
 import { Pair } from '../../source-adapter.interface';
+import { SourceName } from '../../source-name.enum';
 
 const WS_BASE_URL = 'wss://streamer.cryptocompare.com/v2';
 const AGGREGATE_INDEX = 'CCCAGG';
@@ -19,9 +21,17 @@ export class CryptoCompareStreamService extends BaseStreamService {
   protected readonly logger = new Logger(CryptoCompareStreamService.name);
   private readonly apiKey?: string;
 
-  constructor(options?: StreamServiceOptions, apiKey?: string) {
-    super(options);
+  constructor(
+    options?: StreamServiceOptions,
+    apiKey?: string,
+    metricsService?: MetricsService,
+  ) {
+    super(options, metricsService);
     this.apiKey = apiKey;
+  }
+
+  protected getSourceName(): SourceName {
+    return SourceName.CRYPTOCOMPARE;
   }
 
   protected getWsUrl(): string {

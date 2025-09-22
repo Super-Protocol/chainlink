@@ -4,6 +4,7 @@ import { isAxiosError } from 'axios';
 import { BinanceStreamService } from './binance-stream.service';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
+import { MetricsService } from '../../../metrics/metrics.service';
 import { HandleSourceError } from '../../decorators';
 import { PriceNotFoundException, SourceApiException } from '../../exceptions';
 import { QuoteStreamService } from '../../quote-stream.interface';
@@ -27,8 +28,12 @@ export class BinanceAdapter implements SourceAdapter {
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
+    metricsService: MetricsService,
   ) {
-    this.binanceStreamService = new BinanceStreamService();
+    this.binanceStreamService = new BinanceStreamService(
+      undefined,
+      metricsService,
+    );
     const sourceConfig = configService.get('sources.binance');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;

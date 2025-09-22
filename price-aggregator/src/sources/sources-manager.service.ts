@@ -44,6 +44,10 @@ export class SourcesManagerService {
         source: sourceName,
         status: 'success',
       });
+      this.metricsService.sourceLastUpdate.set(
+        { source: sourceName, pair: pair.join('-') },
+        Date.now() / 1000,
+      );
       return quote;
     } catch (error) {
       this.metricsService.quoteThroughput.inc({
@@ -51,8 +55,23 @@ export class SourcesManagerService {
         status: 'error',
       });
 
-      if (error instanceof SourceApiException && error.statusCode === 429) {
-        this.metricsService.rateLimitHits.inc({ source: sourceName });
+      if (error instanceof SourceApiException) {
+        const statusCode = error.statusCode?.toString() || 'unknown';
+        this.metricsService.sourceApiErrors.inc({
+          source: sourceName,
+          status_code: statusCode,
+          error_type: 'source_api',
+        });
+
+        if (error.statusCode === 429) {
+          this.metricsService.rateLimitHits.inc({ source: sourceName });
+        }
+      } else {
+        this.metricsService.sourceApiErrors.inc({
+          source: sourceName,
+          status_code: 'unknown',
+          error_type: error.constructor.name || 'unknown',
+        });
       }
 
       throw error;
@@ -96,8 +115,23 @@ export class SourcesManagerService {
         status: 'error',
       });
 
-      if (error instanceof SourceApiException && error.statusCode === 429) {
-        this.metricsService.rateLimitHits.inc({ source: sourceName });
+      if (error instanceof SourceApiException) {
+        const statusCode = error.statusCode?.toString() || 'unknown';
+        this.metricsService.sourceApiErrors.inc({
+          source: sourceName,
+          status_code: statusCode,
+          error_type: 'source_api',
+        });
+
+        if (error.statusCode === 429) {
+          this.metricsService.rateLimitHits.inc({ source: sourceName });
+        }
+      } else {
+        this.metricsService.sourceApiErrors.inc({
+          source: sourceName,
+          status_code: 'unknown',
+          error_type: error.constructor.name || 'unknown',
+        });
       }
 
       throw error;

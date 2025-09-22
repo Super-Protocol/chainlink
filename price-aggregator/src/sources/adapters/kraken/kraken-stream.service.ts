@@ -7,9 +7,11 @@ import {
   KrakenUnsubscribeRequest,
   KrakenWebSocketMessage,
 } from './kraken.types';
+import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
 import { StreamServiceOptions } from '../../quote-stream.interface';
 import { Pair } from '../../source-adapter.interface';
+import { SourceName } from '../../source-name.enum';
 
 const WS_BASE_URL = 'wss://ws.kraken.com/v2';
 
@@ -26,8 +28,12 @@ export class KrakenStreamService extends BaseStreamService {
     }
   >();
 
-  constructor(options?: StreamServiceOptions) {
-    super(options);
+  constructor(options?: StreamServiceOptions, metricsService?: MetricsService) {
+    super(options, metricsService);
+  }
+
+  protected getSourceName(): SourceName {
+    return SourceName.KRAKEN;
   }
 
   protected getWsUrl(): string {

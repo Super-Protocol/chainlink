@@ -12,6 +12,8 @@ import {
   StreamSubscription,
 } from './quote-stream.interface';
 import { Pair, Quote } from './source-adapter.interface';
+import { SourceName } from './source-name.enum';
+import { MetricsService } from '../metrics/metrics.service';
 
 interface Subscription {
   id: string;
@@ -28,10 +30,14 @@ export abstract class BaseStreamService implements QuoteStreamService {
   protected readonly subscriptions = new Map<string, Subscription>();
   protected readonly subscribedIdentifiers = new Set<string>();
   protected readonly identifierToPairMap = new Map<string, Pair>();
+  private readonly lastUpdateTimes = new Map<string, number>();
   private connectionPromise: Promise<void> | null = null;
   protected readonly options: Required<StreamServiceOptions>;
 
-  constructor(options?: StreamServiceOptions) {
+  constructor(
+    options?: StreamServiceOptions,
+    protected readonly metricsService?: MetricsService,
+  ) {
     this.options = {
       autoReconnect: options?.autoReconnect ?? true,
       reconnectInterval: options?.reconnectInterval ?? 5000,
@@ -39,6 +45,8 @@ export abstract class BaseStreamService implements QuoteStreamService {
       heartbeatInterval: options?.heartbeatInterval ?? 30000,
     };
   }
+
+  protected abstract getSourceName(): SourceName;
 
   get isConnected(): boolean {
     return this.wsClient?.isConnected ?? false;
@@ -176,6 +184,9 @@ export abstract class BaseStreamService implements QuoteStreamService {
 
       this.wsClient.once('open', () => {
         this.logger.log('WebSocket connection established');
+        this.metricsService?.websocketConnections.inc({
+          source: this.getSourceName(),
+        });
         this.eventEmitter.emit('connectionStateChange', true);
         this.onConnect();
         resolve();
@@ -194,11 +205,18 @@ export abstract class BaseStreamService implements QuoteStreamService {
     if (!this.wsClient) return;
 
     this.wsClient.on('message', (data: unknown) => {
+      this.metricsService?.websocketMessages.inc({
+        source: this.getSourceName(),
+      });
       this.handleMessage(data);
     });
 
     this.wsClient.on('error', (error: Error) => {
       this.logger.error('WebSocket error', error);
+      this.metricsService?.websocketErrors.inc({
+        source: this.getSourceName(),
+        error_type: error.name || 'unknown',
+      });
       this.subscriptions.forEach((sub) => {
         sub.onError?.(error);
       });
@@ -206,12 +224,22 @@ export abstract class BaseStreamService implements QuoteStreamService {
 
     this.wsClient.on('close', () => {
       this.logger.warn('WebSocket connection closed');
+      this.metricsService?.websocketConnections.dec({
+        source: this.getSourceName(),
+      });
       this.eventEmitter.emit('connectionStateChange', false);
       this.onDisconnect();
     });
 
     this.wsClient.on('reconnect', async () => {
       this.logger.log('WebSocket reconnected, resubscribing');
+      this.metricsService?.websocketReconnects.inc({
+        source: this.getSourceName(),
+        reason: 'auto_reconnect',
+      });
+      this.metricsService?.websocketConnections.inc({
+        source: this.getSourceName(),
+      });
       this.eventEmitter.emit('connectionStateChange', true);
       this.onConnect();
       try {
@@ -292,6 +320,26 @@ export abstract class BaseStreamService implements QuoteStreamService {
     if (!pair) return;
 
     const fullQuote: Quote = { ...quote, pair };
+
+    if (this.metricsService) {
+      const now = Date.now();
+      const pairKey = pair.join('-');
+      const lastUpdateTime = this.lastUpdateTimes.get(pairKey);
+
+      if (lastUpdateTime) {
+        const timeDiff = (now - lastUpdateTime) / 1000;
+        this.metricsService.priceUpdateFrequency.observe(
+          {
+            pair: pairKey,
+            source: this.getSourceName(),
+          },
+          timeDiff,
+        );
+      }
+
+      this.lastUpdateTimes.set(pairKey, now);
+    }
+
     this.subscriptions.forEach((sub) => {
       if (sub.identifier === identifier) {
         sub.onQuote(fullQuote);

@@ -4,6 +4,7 @@ import { FinnhubStreamService } from './finnhub-stream.service';
 import { getSymbolAndEndpoint } from './finnhub.utils';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
+import { MetricsService } from '../../../metrics/metrics.service';
 import { HandleSourceError } from '../../decorators';
 import { PriceNotFoundException, SourceApiException } from '../../exceptions';
 import { QuoteStreamService } from '../../quote-stream.interface';
@@ -37,11 +38,16 @@ export class FinnhubAdapter implements SourceAdapter {
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
+    metricsService: MetricsService,
   ) {
     const sourceConfig = configService.get('sources.finnhub');
     this.apiKey = sourceConfig?.apiKey || '';
     this.enabled = sourceConfig?.enabled && !!this.apiKey;
-    this.finnhubStreamService = new FinnhubStreamService(this.apiKey);
+    this.finnhubStreamService = new FinnhubStreamService(
+      this.apiKey,
+      undefined,
+      metricsService,
+    );
     this.ttl = sourceConfig?.ttl || 10000;
     this.refetch = sourceConfig?.refetch || false;
 

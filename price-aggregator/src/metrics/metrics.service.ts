@@ -90,4 +90,53 @@ export class MetricsService {
     help: 'Total number of quotes processed',
     labelNames: ['source', 'status'],
   });
+
+  public readonly sourceApiErrors = new Counter({
+    name: 'source_api_errors_total',
+    help: 'Total number of API errors from external sources',
+    labelNames: ['source', 'status_code', 'error_type'],
+  });
+
+  public readonly sourceLastUpdate = new Gauge({
+    name: 'source_last_successful_update_timestamp',
+    help: 'Timestamp of last successful update from source',
+    labelNames: ['source', 'pair'],
+  });
+
+  public readonly websocketConnections = new Gauge({
+    name: 'websocket_connections_total',
+    help: 'Number of active websocket connections',
+    labelNames: ['source'],
+  });
+
+  public readonly websocketErrors = new Counter({
+    name: 'websocket_errors_total',
+    help: 'Total number of websocket errors',
+    labelNames: ['source', 'error_type'],
+  });
+
+  public readonly websocketMessages = new Counter({
+    name: 'websocket_messages_received_total',
+    help: 'Total number of websocket messages received',
+    labelNames: ['source'],
+  });
+
+  public readonly priceUpdateFrequency = new Histogram({
+    name: 'price_update_frequency_seconds',
+    help: 'Time between price updates for each pair',
+    labelNames: ['pair', 'source'],
+    buckets: [1, 5, 10, 30, 60, 300, 600],
+  });
+
+  public readonly websocketReconnects = new Counter({
+    name: 'websocket_reconnects_total',
+    help: 'Total number of websocket reconnections',
+    labelNames: ['source', 'reason'],
+  });
+
+  public readonly messageDropRate = new Gauge({
+    name: 'message_drop_rate',
+    help: 'Rate of dropped messages from websocket streams',
+    labelNames: ['source'],
+  });
 }

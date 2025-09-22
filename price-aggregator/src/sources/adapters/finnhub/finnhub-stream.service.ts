@@ -7,9 +7,11 @@ import {
 } from './finnhub.types';
 import { pairToSymbol } from './finnhub.utils';
 import { WebSocketClient } from '../../../common';
+import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
 import { StreamServiceOptions } from '../../quote-stream.interface';
 import { Pair } from '../../source-adapter.interface';
+import { SourceName } from '../../source-name.enum';
 
 const WS_BASE_URL = 'wss://ws.finnhub.io';
 
@@ -19,9 +21,17 @@ export class FinnhubStreamService extends BaseStreamService {
   private readonly apiKey: string;
   private pingInterval?: NodeJS.Timeout;
 
-  constructor(apiKey: string, options?: StreamServiceOptions) {
-    super(options);
+  constructor(
+    apiKey: string,
+    options?: StreamServiceOptions,
+    metricsService?: MetricsService,
+  ) {
+    super(options, metricsService);
     this.apiKey = apiKey;
+  }
+
+  protected getSourceName(): SourceName {
+    return SourceName.FINNHUB;
   }
 
   protected getWsUrl(): string {

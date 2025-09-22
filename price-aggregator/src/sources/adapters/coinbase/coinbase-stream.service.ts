@@ -8,9 +8,11 @@ import {
   CoinbaseAdvancedTradeMessage,
   CoinbaseTickerEvent,
 } from './coinbase.types';
+import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
 import { StreamServiceOptions } from '../../quote-stream.interface';
 import { Pair } from '../../source-adapter.interface';
+import { SourceName } from '../../source-name.enum';
 
 const WS_BASE_URL = 'wss://advanced-trade-ws.coinbase.com';
 const TICKER_CHANNEL = 'ticker';
@@ -19,12 +21,16 @@ const TICKER_CHANNEL = 'ticker';
 export class CoinbaseStreamService extends BaseStreamService {
   protected readonly logger = new Logger(CoinbaseStreamService.name);
 
-  constructor(options?: StreamServiceOptions) {
-    super(options);
+  constructor(options?: StreamServiceOptions, metricsService?: MetricsService) {
+    super(options, metricsService);
     this.logger.verbose(
       'CoinbaseStreamService initialized with options:',
       this.options,
     );
+  }
+
+  protected getSourceName(): SourceName {
+    return SourceName.COINBASE;
   }
 
   protected getWsUrl(): string {

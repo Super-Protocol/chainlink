@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { CoinbaseStreamService } from './coinbase-stream.service';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
+import { MetricsService } from '../../../metrics/metrics.service';
 import { HandleSourceError } from '../../decorators';
 import { PriceNotFoundException, SourceApiException } from '../../exceptions';
 import { QuoteStreamService } from '../../quote-stream.interface';
@@ -41,8 +42,12 @@ export class CoinbaseAdapter implements SourceAdapter {
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
+    metricsService: MetricsService,
   ) {
-    this.coinbaseStreamService = new CoinbaseStreamService();
+    this.coinbaseStreamService = new CoinbaseStreamService(
+      undefined,
+      metricsService,
+    );
     const sourceConfig = configService.get('sources.coinbase');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;

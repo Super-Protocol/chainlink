@@ -4,6 +4,7 @@ import { isAxiosError } from 'axios';
 import { CryptoCompareStreamService } from './cryptocompare-stream.service';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
+import { MetricsService } from '../../../metrics/metrics.service';
 import {
   BatchSizeExceededException,
   PriceNotFoundException,
@@ -35,6 +36,7 @@ export class CryptoCompareAdapter implements SourceAdapter {
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
+    metricsService: MetricsService,
   ) {
     const sourceConfig = configService.get('sources.cryptocompare');
     this.apiKey = sourceConfig?.apiKey || '';
@@ -42,6 +44,7 @@ export class CryptoCompareAdapter implements SourceAdapter {
     this.cryptoCompareStreamService = new CryptoCompareStreamService(
       undefined,
       this.apiKey,
+      metricsService,
     );
     this.ttl = sourceConfig?.ttl || 10000;
     this.refetch = sourceConfig?.refetch || false;

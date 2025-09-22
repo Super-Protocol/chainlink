@@ -1,9 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { BinanceTickerData, WebSocketCommand } from './binance.types';
+import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
 import { StreamServiceOptions } from '../../quote-stream.interface';
 import { Pair } from '../../source-adapter.interface';
+import { SourceName } from '../../source-name.enum';
 
 const WS_BASE_URL = 'wss://stream.binance.com:9443';
 const SUBSCRIBE_METHOD = 'SUBSCRIBE';
@@ -22,8 +24,12 @@ export class BinanceStreamService extends BaseStreamService {
     }
   >();
 
-  constructor(options?: StreamServiceOptions) {
-    super(options);
+  constructor(options?: StreamServiceOptions, metricsService?: MetricsService) {
+    super(options, metricsService);
+  }
+
+  protected getSourceName(): SourceName {
+    return SourceName.BINANCE;
   }
 
   protected getWsUrl(): string {
