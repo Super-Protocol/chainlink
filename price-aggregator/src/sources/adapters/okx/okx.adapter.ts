@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
+import { OkxStreamService } from './okx-stream.service';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
 import { PriceNotFoundException, SourceApiException } from '../../exceptions';
+import { QuoteStreamService } from '../../quote-stream.interface';
 import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
@@ -70,11 +72,13 @@ export class OkxAdapter implements SourceAdapter {
   private readonly ttl: number;
   private readonly refetch: boolean;
   private readonly httpClient: HttpClient;
+  private readonly okxStreamService: OkxStreamService;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
+    this.okxStreamService = new OkxStreamService();
     const sourceConfig = configService.get('sources.okx');
     this.enabled = sourceConfig?.enabled || false;
     this.ttl = sourceConfig?.ttl || 10000;
@@ -208,5 +212,13 @@ export class OkxAdapter implements SourceAdapter {
     }
 
     return quotes;
+  }
+
+  getStreamService(): QuoteStreamService {
+    return this.okxStreamService;
+  }
+
+  async closeAllStreams(): Promise<void> {
+    await this.okxStreamService.disconnect();
   }
 }

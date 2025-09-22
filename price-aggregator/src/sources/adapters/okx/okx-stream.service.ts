@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 
 import { Injectable, Logger } from '@nestjs/common';
 
-import { BinanceTickerData } from './binance.types';
+import { OkxWebSocketMessage, OkxSubscribeRequest } from './okx.types';
 import { WebSocketClient } from '../../../common';
 import {
   QuoteHandler,
@@ -14,37 +14,33 @@ import {
 } from '../../quote-stream.interface';
 import { Pair, Quote } from '../../source-adapter.interface';
 
-const WS_BASE_URL = 'wss://stream.binance.com:9443';
-const SUBSCRIBE_METHOD = 'SUBSCRIBE';
-const UNSUBSCRIBE_METHOD = 'UNSUBSCRIBE';
+const WS_BASE_URL = 'wss://ws.okx.com:8443';
+const WS_PUBLIC_PATH = '/ws/v5/public';
+const SUBSCRIBE_OP = 'subscribe';
+const UNSUBSCRIBE_OP = 'unsubscribe';
+const TICKERS_CHANNEL = 'tickers';
 
 interface Subscription {
   id: string;
   pair: Pair;
-  stream: string;
+  instId: string;
   onQuote: QuoteHandler;
   onError?: ErrorHandler;
 }
 
-interface WebSocketCommand {
-  method: string;
-  params: string[];
-  id: number;
-}
-
 @Injectable()
-export class BinanceStreamService implements QuoteStreamService {
-  private readonly logger = new Logger(BinanceStreamService.name);
+export class OkxStreamService implements QuoteStreamService {
+  private readonly logger = new Logger(OkxStreamService.name);
   private readonly eventEmitter = new EventEmitter();
   private wsClient: WebSocketClient | null = null;
   private subscriptions = new Map<string, Subscription>();
-  private subscribedStreams = new Set<string>();
-  private streamToPairMap = new Map<string, Pair>();
-  private commandId = 1;
+  private subscribedInstruments = new Set<string>();
+  private instIdToPairMap = new Map<string, Pair>();
+  private reconnecting = false;
   private connectionPromise: Promise<void> | null = null;
   private readonly options: Required<StreamServiceOptions>;
   private pendingCommands = new Map<
-    number,
+    string,
     {
       resolve: () => void;
       reject: (error: Error) => void;
@@ -57,7 +53,7 @@ export class BinanceStreamService implements QuoteStreamService {
       autoReconnect: options?.autoReconnect ?? true,
       reconnectInterval: options?.reconnectInterval ?? 5000,
       maxReconnectAttempts: options?.maxReconnectAttempts ?? 10,
-      heartbeatInterval: options?.heartbeatInterval ?? 5000,
+      heartbeatInterval: options?.heartbeatInterval ?? 25000,
     };
   }
 
@@ -66,7 +62,7 @@ export class BinanceStreamService implements QuoteStreamService {
   }
 
   get subscribedPairs(): readonly Pair[] {
-    return Array.from(this.streamToPairMap.values());
+    return Array.from(this.instIdToPairMap.values());
   }
 
   async connect(): Promise<void> {
@@ -87,6 +83,8 @@ export class BinanceStreamService implements QuoteStreamService {
   }
 
   async disconnect(): Promise<void> {
+    this.reconnecting = false;
+
     this.pendingCommands.forEach((pending) => {
       clearTimeout(pending.timeout);
       pending.reject(new Error('Disconnected'));
@@ -106,19 +104,19 @@ export class BinanceStreamService implements QuoteStreamService {
     onError?: ErrorHandler,
   ): Promise<StreamSubscription> {
     const subscriptionId = randomUUID();
-    const stream = this.pairToStream(pair);
+    const instId = this.pairToInstId(pair);
 
     this.subscriptions.set(subscriptionId, {
       id: subscriptionId,
       pair,
-      stream,
+      instId,
       onQuote,
       onError,
     });
 
-    if (!this.subscribedStreams.has(stream)) {
-      this.streamToPairMap.set(stream, pair);
-      await this.subscribeToStreams([stream]);
+    if (!this.subscribedInstruments.has(instId)) {
+      this.instIdToPairMap.set(instId, pair);
+      await this.subscribeToInstruments([instId]);
     }
 
     return {
@@ -136,53 +134,53 @@ export class BinanceStreamService implements QuoteStreamService {
 
     this.subscriptions.delete(subscriptionId);
 
-    let isStreamUsedByOthers = false;
+    let isInstrumentUsedByOthers = false;
     for (const [id, sub] of this.subscriptions) {
-      if (id !== subscriptionId && sub.stream === subscription.stream) {
-        isStreamUsedByOthers = true;
+      if (id !== subscriptionId && sub.instId === subscription.instId) {
+        isInstrumentUsedByOthers = true;
         break;
       }
     }
 
-    if (!isStreamUsedByOthers) {
-      this.streamToPairMap.delete(subscription.stream);
-      await this.unsubscribeFromStreams([subscription.stream]);
+    if (!isInstrumentUsedByOthers) {
+      this.instIdToPairMap.delete(subscription.instId);
+      await this.unsubscribeFromInstruments([subscription.instId]);
     }
   }
 
   async unsubscribeAll(): Promise<void> {
-    const allStreams = [...this.subscribedStreams];
+    const allInstruments = [...this.subscribedInstruments];
     this.subscriptions.clear();
-    this.streamToPairMap.clear();
+    this.instIdToPairMap.clear();
 
-    if (allStreams.length > 0) {
-      await this.unsubscribeFromStreams(allStreams);
+    if (allInstruments.length > 0) {
+      await this.unsubscribeFromInstruments(allInstruments);
     }
   }
 
   async addPair(pair: Pair): Promise<void> {
-    const stream = this.pairToStream(pair);
+    const instId = this.pairToInstId(pair);
 
-    if (!this.subscribedStreams.has(stream)) {
-      this.streamToPairMap.set(stream, pair);
-      await this.subscribeToStreams([stream]);
+    if (!this.subscribedInstruments.has(instId)) {
+      this.instIdToPairMap.set(instId, pair);
+      await this.subscribeToInstruments([instId]);
     }
   }
 
   async removePair(pair: Pair): Promise<void> {
-    const stream = this.pairToStream(pair);
+    const instId = this.pairToInstId(pair);
 
     let isUsedBySubscription = false;
     for (const sub of this.subscriptions.values()) {
-      if (sub.stream === stream) {
+      if (sub.instId === instId) {
         isUsedBySubscription = true;
         break;
       }
     }
 
-    if (!isUsedBySubscription && this.subscribedStreams.has(stream)) {
-      this.streamToPairMap.delete(stream);
-      await this.unsubscribeFromStreams([stream]);
+    if (!isUsedBySubscription && this.subscribedInstruments.has(instId)) {
+      this.instIdToPairMap.delete(instId);
+      await this.unsubscribeFromInstruments([instId]);
     }
   }
 
@@ -192,7 +190,7 @@ export class BinanceStreamService implements QuoteStreamService {
 
   private async establishConnection(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const url = `${WS_BASE_URL}/ws`;
+      const url = `${WS_BASE_URL}${WS_PUBLIC_PATH}`;
 
       this.wsClient = new WebSocketClient({
         url,
@@ -200,7 +198,7 @@ export class BinanceStreamService implements QuoteStreamService {
         reconnectInterval: this.options.reconnectInterval,
         maxReconnectAttempts: this.options.maxReconnectAttempts,
         pingInterval: this.options.heartbeatInterval,
-        pongTimeout: 10000,
+        pongTimeout: 30000,
       });
 
       this.setupWebSocketHandlers();
@@ -238,59 +236,82 @@ export class BinanceStreamService implements QuoteStreamService {
       this.logger.warn('WebSocket connection closed');
       this.eventEmitter.emit('connectionStateChange', false);
 
-      // Отменяем все ожидающие команды
       this.pendingCommands.forEach((pending) => {
         clearTimeout(pending.timeout);
         pending.reject(new Error('Connection closed'));
       });
       this.pendingCommands.clear();
+
+      if (this.options.autoReconnect && !this.reconnecting) {
+        this.handleReconnection();
+      }
     });
 
     this.wsClient.on('reconnect', async () => {
-      this.logger.log('WebSocket reconnected, resubscribing to streams');
-      this.eventEmitter.emit('connectionStateChange', true);
+      this.logger.log('WebSocket reconnected, resubscribing to instruments');
       try {
-        await this.resubscribeAllStreams();
+        await this.resubscribeAllInstruments();
       } catch (error) {
         this.logger.error('Failed to resubscribe after reconnect', error);
       }
     });
   }
 
-  private async resubscribeAllStreams(): Promise<void> {
-    if (this.subscribedStreams.size === 0) return;
+  private async handleReconnection(): Promise<void> {
+    if (this.reconnecting) return;
 
-    const streams = [...this.subscribedStreams];
-    this.subscribedStreams.clear();
+    this.reconnecting = true;
+    this.logger.log('Attempting to reconnect...');
 
-    if (streams.length > 0) {
-      await this.subscribeToStreams(streams);
+    try {
+      await this.connect();
+      this.reconnecting = false;
+    } catch (error) {
+      this.logger.error('Reconnection failed', error);
+      this.reconnecting = false;
+      this.subscriptions.forEach((sub) => {
+        sub.onError?.(new Error('Reconnection failed'));
+      });
     }
   }
 
-  private async subscribeToStreams(streams: string[]): Promise<void> {
+  private async resubscribeAllInstruments(): Promise<void> {
+    if (this.subscribedInstruments.size === 0) return;
+
+    const instruments = [...this.subscribedInstruments];
+    this.subscribedInstruments.clear();
+
+    if (instruments.length > 0) {
+      await this.subscribeToInstruments(instruments);
+    }
+  }
+
+  private async subscribeToInstruments(instIds: string[]): Promise<void> {
     if (!this.isConnected) {
       await this.connect();
     }
 
-    const newStreams = streams.filter((s) => !this.subscribedStreams.has(s));
-    if (newStreams.length === 0) return;
+    const newInstruments = instIds.filter(
+      (id) => !this.subscribedInstruments.has(id),
+    );
+    if (newInstruments.length === 0) return;
 
-    const commandId = this.commandId++;
-    const command: WebSocketCommand = {
-      method: SUBSCRIBE_METHOD,
-      params: newStreams,
-      id: commandId,
+    const commandId = randomUUID();
+    const command: OkxSubscribeRequest = {
+      op: SUBSCRIBE_OP,
+      args: newInstruments.map((instId) => ({
+        channel: TICKERS_CHANNEL,
+        instId,
+      })),
     };
 
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         this.pendingCommands.delete(commandId);
         this.logger.warn(
-          `Subscribe timeout for streams: ${newStreams.join(', ')}`,
+          `Subscribe timeout for instruments: ${newInstruments.join(', ')}`,
         );
-        // Оптимистично добавляем стримы при таймауте
-        newStreams.forEach((s) => this.subscribedStreams.add(s));
+        newInstruments.forEach((id) => this.subscribedInstruments.add(id));
         resolve();
       }, 10000);
 
@@ -298,8 +319,8 @@ export class BinanceStreamService implements QuoteStreamService {
         resolve: () => {
           clearTimeout(timeout);
           this.pendingCommands.delete(commandId);
-          newStreams.forEach((s) => this.subscribedStreams.add(s));
-          this.logger.debug(`Subscribed to: ${newStreams.join(', ')}`);
+          newInstruments.forEach((id) => this.subscribedInstruments.add(id));
+          this.logger.debug(`Subscribed to: ${newInstruments.join(', ')}`);
           resolve();
         },
         reject: (error: Error) => {
@@ -314,24 +335,26 @@ export class BinanceStreamService implements QuoteStreamService {
     });
   }
 
-  private async unsubscribeFromStreams(streams: string[]): Promise<void> {
-    if (streams.length === 0) return;
+  private async unsubscribeFromInstruments(instIds: string[]): Promise<void> {
+    if (instIds.length === 0) return;
     if (!this.isConnected) {
-      streams.forEach((s) => this.subscribedStreams.delete(s));
+      instIds.forEach((id) => this.subscribedInstruments.delete(id));
       return;
     }
 
-    const commandId = this.commandId++;
-    const command: WebSocketCommand = {
-      method: UNSUBSCRIBE_METHOD,
-      params: streams,
-      id: commandId,
+    const commandId = randomUUID();
+    const command: OkxSubscribeRequest = {
+      op: UNSUBSCRIBE_OP,
+      args: instIds.map((instId) => ({
+        channel: TICKERS_CHANNEL,
+        instId,
+      })),
     };
 
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
         this.pendingCommands.delete(commandId);
-        streams.forEach((s) => this.subscribedStreams.delete(s));
+        instIds.forEach((id) => this.subscribedInstruments.delete(id));
         resolve();
       }, 5000);
 
@@ -339,13 +362,13 @@ export class BinanceStreamService implements QuoteStreamService {
         resolve: () => {
           clearTimeout(timeout);
           this.pendingCommands.delete(commandId);
-          streams.forEach((s) => this.subscribedStreams.delete(s));
+          instIds.forEach((id) => this.subscribedInstruments.delete(id));
           resolve();
         },
         reject: () => {
           clearTimeout(timeout);
           this.pendingCommands.delete(commandId);
-          resolve(); // Не отклоняем при ошибке отписки
+          resolve();
         },
         timeout,
       });
@@ -356,67 +379,68 @@ export class BinanceStreamService implements QuoteStreamService {
 
   private handleMessage(data: unknown): void {
     try {
-      const message = data as Record<string, unknown>;
+      const message = data as OkxWebSocketMessage;
 
-      // Обрабатываем ответы на команды
-      if ('id' in message && typeof message.id === 'number') {
-        const pending = this.pendingCommands.get(message.id);
+      if (message.event === 'subscribe') {
+        const commandId = Object.keys(
+          Object.fromEntries(this.pendingCommands),
+        )[0];
+        const pending = commandId
+          ? this.pendingCommands.get(commandId)
+          : undefined;
         if (pending) {
-          if (message.result === null || message.result === undefined) {
+          if (message.code === '0') {
             pending.resolve();
-          } else if (message.error) {
-            pending.reject(new Error(String(message.error)));
           } else {
-            pending.resolve();
+            pending.reject(new Error(message.msg || 'Subscribe failed'));
           }
         }
         return;
       }
 
-      if (
-        message.stream &&
-        message.data &&
-        typeof message.stream === 'string'
-      ) {
-        const tickerData = message.data as BinanceTickerData;
-        const pair = this.streamToPairMap.get(message.stream);
-        if (pair && typeof tickerData.c === 'string') {
-          const quote: Quote = {
-            pair,
-            price: String(tickerData.c),
-            receivedAt: new Date(
-              typeof tickerData.E === 'number' ? tickerData.E : Date.now(),
-            ),
-          };
-
-          this.subscriptions.forEach((sub) => {
-            if (sub.stream === message.stream) {
-              sub.onQuote(quote);
-            }
-          });
+      if (message.event === 'unsubscribe') {
+        const commandId = Object.keys(
+          Object.fromEntries(this.pendingCommands),
+        )[0];
+        const pending = commandId
+          ? this.pendingCommands.get(commandId)
+          : undefined;
+        if (pending) {
+          if (message.code === '0') {
+            pending.resolve();
+          } else {
+            pending.reject(new Error(message.msg || 'Unsubscribe failed'));
+          }
         }
-      } else if (
-        message.e === '24hrMiniTicker' &&
-        typeof message.s === 'string' &&
-        typeof message.c === 'string'
-      ) {
-        const stream = `${message.s.toLowerCase()}@miniTicker`;
-        const pair = this.streamToPairMap.get(stream);
+        return;
+      }
 
-        if (pair) {
-          const quote: Quote = {
-            pair,
-            price: String(message.c),
-            receivedAt: new Date(
-              typeof message.E === 'number' ? message.E : Date.now(),
-            ),
-          };
+      if (message.event === 'error') {
+        this.logger.error('OKX WebSocket error event', {
+          code: message.code,
+          msg: message.msg,
+        });
+        return;
+      }
 
-          this.subscriptions.forEach((sub) => {
-            if (sub.stream === stream) {
-              sub.onQuote(quote);
+      if (message.arg?.channel === TICKERS_CHANNEL && message.data) {
+        for (const tickerData of message.data) {
+          if (tickerData.instId && tickerData.last) {
+            const pair = this.instIdToPairMap.get(tickerData.instId);
+            if (pair) {
+              const quote: Quote = {
+                pair,
+                price: String(tickerData.last),
+                receivedAt: new Date(parseInt(tickerData.ts, 10)),
+              };
+
+              this.subscriptions.forEach((sub) => {
+                if (sub.instId === tickerData.instId) {
+                  sub.onQuote(quote);
+                }
+              });
             }
-          });
+          }
         }
       }
     } catch (error) {
@@ -424,7 +448,7 @@ export class BinanceStreamService implements QuoteStreamService {
     }
   }
 
-  private pairToStream(pair: Pair): string {
-    return `${pair.join('').toLowerCase()}@miniTicker`;
+  private pairToInstId(pair: Pair): string {
+    return `${pair[0].toUpperCase()}-${pair[1].toUpperCase()}`;
   }
 }
