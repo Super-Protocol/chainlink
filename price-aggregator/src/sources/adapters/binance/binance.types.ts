@@ -9,6 +9,12 @@ export interface BinanceStreamMessage {
   data?: BinanceTickerData;
 }
 
+export interface WebSocketCommand {
+  method: string;
+  params: string[];
+  id: number;
+}
+
 export interface BinanceWebSocketConfig {
   reconnect?: boolean;
   reconnectInterval?: number;
