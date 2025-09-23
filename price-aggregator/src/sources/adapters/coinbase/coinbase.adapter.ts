@@ -5,14 +5,13 @@ import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { MetricsService } from '../../../metrics/metrics.service';
 import { HandleSourceError } from '../../decorators';
-import { PriceNotFoundException, SourceApiException } from '../../exceptions';
+import { PriceNotFoundException } from '../../exceptions';
 import { QuoteStreamService } from '../../quote-stream.interface';
 import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://api.coinbase.com';
 const API_PATH = '/v2/prices';
-const CURRENCIES_PATH = '/v2/currencies';
 
 interface CoinbaseResponse {
   data: {
@@ -20,14 +19,6 @@ interface CoinbaseResponse {
     currency: string;
     amount: string;
   };
-}
-
-interface CoinbaseCurrenciesResponse {
-  data: Array<{
-    id: string;
-    name: string;
-    min_size: string;
-  }>;
 }
 
 @Injectable()
@@ -89,33 +80,6 @@ export class CoinbaseAdapter implements SourceAdapter {
       price,
       receivedAt: new Date(),
     };
-  }
-
-  @HandleSourceError()
-  async getPairs(): Promise<Pair[]> {
-    const { data } =
-      await this.httpClient.get<CoinbaseCurrenciesResponse>(CURRENCIES_PATH);
-
-    if (!data?.data) {
-      throw new SourceApiException(
-        this.name,
-        new Error('Invalid currencies response'),
-      );
-    }
-
-    const currencies = data.data.map((currency) => currency.id);
-    const commonQuoteCurrencies = ['USD', 'EUR', 'BTC', 'ETH'];
-    const pairs: Pair[] = [];
-
-    for (const baseCurrency of currencies) {
-      for (const quoteCurrency of commonQuoteCurrencies) {
-        if (baseCurrency !== quoteCurrency) {
-          pairs.push([baseCurrency, quoteCurrency]);
-        }
-      }
-    }
-
-    return pairs;
   }
 
   getStreamService(): QuoteStreamService {

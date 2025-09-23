@@ -11,6 +11,7 @@ import {
   BatchSizeExceededException,
   PriceNotFoundException,
   SourceApiException,
+  SourceUnauthorizedException,
 } from '../../exceptions';
 import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
@@ -166,6 +167,10 @@ export class CoinGeckoAdapter implements SourceAdapter {
 
         if (status === 400 || status === 404) {
           return [];
+        }
+
+        if (status === 401) {
+          throw new SourceUnauthorizedException(this.name);
         }
 
         if (status >= 500) {
