@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+log() { echo "[gen] $*"; }
+
 # Required environment
 if [ -z "${TOTAL_NODES:-}" ]; then
   log "TOTAL_NODES env var is required" >&2
@@ -17,8 +19,6 @@ fi
 SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
 OUT_ROOT="$SP_SECRETS_DIR/cl-secrets"
 SCRIPTS_DIR="/scripts/secrets"
-
-log() { echo "[gen] $*"; }
 
 ensure_node() { command -v node >/dev/null 2>&1 || { log "node is not available"; return 1; }; }
 

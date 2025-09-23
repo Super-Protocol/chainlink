@@ -1,5 +1,23 @@
 # Chainlink Multi-Node Setup Guide
 
+## ALL IN ONE
+```bash
+docker build --platform linux/amd64 -f dockerfile.allinone -t sp-chainlink-all-in-one .
+docker run -d --name chainlink-stack \
+  --platform linux/amd64 \
+  -p 6601:6601 \
+  -p 6602:6602 \
+  -p 6603:6603 \
+  -p 6604:6604 \
+  -p 6605:6605 \
+  -v "$(pwd)/temp/certs:/sp/certs:ro" \
+  -v "$(pwd)/temp/configurations:/sp/configurations:ro" \
+  -v "$(pwd)/sp-secrets:/sp/secrets:rw" \
+  -v "$(pwd)/scripts:/scripts" \
+  --env-file .env \
+  sp-chainlink-all-in-one
+```
+
 ## Overview
 This guide walks through setting up multiple Chainlink Oracle Nodes with Docker Compose for testing purposes, including shared PostgreSQL database and automated configuration. The setup supports dynamic scaling with additional nodes.
 
@@ -254,11 +272,11 @@ docker volume ls | grep chainlink
 - Check database connection: `docker-compose exec chainlink-node-1 cat /chainlink/secrets.toml`
 - View node logs: `docker-compose logs -f chainlink-node-1 | grep -i error`
 
+
 ## Next Steps
 - Deploy Oracle contracts
 - Fund nodes with LINK tokens
 - Create consumer contracts
 - Test end-to-end oracle functionality
 - Configure a load balancer for high availability
-
 **Happy Oracle Building! 🚀**

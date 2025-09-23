@@ -1,16 +1,53 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cd $(dirname $0)
+
 log() { echo "[entrypoint] $*"; }
 
 # Postgres settings
-PGDATA_DIR="${PGDATA:-/var/lib/postgresql/data}"
-PGPORT="${PGPORT:-5432}"
+export PGDATA_DIR="${PGDATA:-/var/lib/postgresql/data}"
+export PGPORT="${PGPORT:-5432}"
 
-DB_SUPERUSER="postgres"
-APP_DB="${PGDATABASE:-chainlink_node}"
-APP_DB_USER="${PGUSER:-chainlink}"
-APP_DB_PASS="${PGPASSWORD:-chainlinkchainlink}"
+export DB_SUPERUSER="postgres"
+export APP_DB="${PGDATABASE:-chainlink_node}_${NODE_NUMBER}"
+export APP_DB_USER="${PGUSER:-chainlink}"
+export APP_DB_PASS="${PGPASSWORD:-chainlinkchainlink}"
+
+export CHAINLINK_ROOT="${CHAINLINK_ROOT:-/chainlink}"
+export NODE_ROOT_DIR="${CHAINLINK_ROOT:-/chainlink}/node-${NODE_NUMBER}"
+export TMP_DIR="/tmp/node-${NODE_NUMBER}"
+export SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
+
+# Derive BOOTSTRAP_NODE_ADDRESSES if not provided
+IFS=' ' read -r -a bs_nodes <<< "${BOOTSTRAP_NODES:-}"
+if [ ${#bs_nodes[@]} -gt 0 ]; then
+  addresses=()
+  for bn in "${bs_nodes[@]}"; do
+    [ -z "$bn" ] && continue
+    if [ "${ALL_IN_ONE:-}" = "true" ]; then
+      base="${BOOTSTRAP_P2P_PORT_BASE:-9900}"
+      host="127.0.0.1"
+      port=$((base + bn))
+    else
+      host_file="${SP_SECRETS_DIR}/bootstrap-${bn}.ip"
+      if [ -s "$host_file" ]; then
+        host=$(sed -n '1p' "$host_file")
+      else
+        host="10.5.0.$((8 + bn))"
+      fi
+      port="9999"
+    fi
+    addresses+=("${host}:${port}")
+  done
+  if [ ${#addresses[@]} -gt 0 ]; then
+    BOOTSTRAP_NODE_ADDRESSES=$(IFS=','; echo "${addresses[*]}")
+    export BOOTSTRAP_NODE_ADDRESSES
+    log "computed BOOTSTRAP_NODE_ADDRESSES=${BOOTSTRAP_NODE_ADDRESSES}"
+  fi
+fi
+
+mkdir -p "$TMP_DIR"
 
 if [ -z "${BOOTSTRAP_NODE_ADDRESSES:-}" ]; then
   log "BOOTSTRAP_NODE_ADDRESSES env var is required" >&2
@@ -47,7 +84,7 @@ if [ -z "${CHAINLINK_KEYSTORE_PASSWORD:-}" ] || [ ${#CHAINLINK_KEYSTORE_PASSWORD
   exit 1
 fi
 
-mkdir -p /chainlink
+mkdir -p "$NODE_ROOT_DIR"
 
 # Ensure ownership/dirs
 mkdir -p "$PGDATA_DIR"
@@ -88,7 +125,7 @@ ensure_app_db() {
 }
 
 generate_secrets() {
-  local dst="/chainlink/secrets.toml"
+  local dst="${NODE_ROOT_DIR}/secrets.toml"
   local url="postgresql://${APP_DB_USER}:${APP_DB_PASS}@127.0.0.1:${PGPORT}/${APP_DB}?sslmode=disable"
   umask 077
   cat > "$dst" <<EOF
@@ -122,39 +159,71 @@ shutdown_all() {
   kill -9 ${PG_PID:-0} 2>/dev/null || true
 }
 
-trap shutdown_all SIGINT SIGTERM
-
 # Boot sequence
-init_db_if_needed
-start_postgres
-wait_postgres
-ensure_app_db
-generate_secrets
-start_chainlink
+if [ "${MANAGE_POSTGRES:-true}" != "false" ]; then
+  log "Postgres management is ENABLED."
 
-# Monitor both processes; if any exits, stop the other and exit non-zero
-while true; do
-  # Handle requested chainlink restarts
-  if [ -f /tmp/restart-chainlink ]; then
-    log "restart requested for chainlink"
-    rm -f /tmp/restart-chainlink || true
-    if kill -0 ${CL_PID} 2>/dev/null; then
-      kill ${CL_PID} || true
-      wait ${CL_PID} 2>/dev/null || true
+  # Ensure ownership/dirs
+  mkdir -p "$PGDATA_DIR"
+  chown -R postgres:postgres "${PGDATA_DIR}" /var/lib/postgresql || true
+
+  trap shutdown_all SIGINT SIGTERM
+
+  # Boot sequence
+  init_db_if_needed
+  start_postgres
+  wait_postgres
+  ensure_app_db
+  generate_secrets
+  start_chainlink
+
+  # Monitor both processes; if any exits, stop the other and exit non-zero
+  while true; do
+    # Handle requested chainlink restarts
+    if [ -f "$TMP_DIR/restart-chainlink" ]; then
+      log "restart requested for chainlink"
+      rm -f "$TMP_DIR/restart-chainlink" || true
+      if kill -0 ${CL_PID} 2>/dev/null; then
+        kill ${CL_PID} || true
+        wait ${CL_PID} 2>/dev/null || true
+      fi
+      start_chainlink
     fi
-    start_chainlink
-  fi
-  if ! kill -0 ${PG_PID} 2>/dev/null; then
-    log "postgres exited"
-    if kill -0 ${CL_PID} 2>/dev/null; then kill ${CL_PID} || true; fi
-    wait ${CL_PID} 2>/dev/null || true
-    exit 1
-  fi
-  if ! kill -0 ${CL_PID} 2>/dev/null; then
-    log "chainlink exited"
-    if kill -0 ${PG_PID} 2>/dev/null; then kill ${PG_PID} || true; fi
-    wait ${PG_PID} 2>/dev/null || true
-    exit 1
-  fi
-  sleep 1
-done
+    if ! kill -0 ${PG_PID} 2>/dev/null; then
+      log "postgres exited"
+      if kill -0 ${CL_PID} 2>/dev/null; then kill ${CL_PID} || true; fi
+      wait ${CL_PID} 2>/dev/null || true
+      exit 1
+    fi
+    if ! kill -0 ${CL_PID} 2>/dev/null; then
+      log "chainlink exited"
+      if kill -0 ${PG_PID} 2>/dev/null; then kill ${PG_PID} || true; fi
+      wait ${PG_PID} 2>/dev/null || true
+      exit 1
+    fi
+    sleep 1
+  done
+
+else
+  log "Postgres management is DISABLED. Assuming external Postgres."
+  generate_secrets
+  start_chainlink
+  log "Monitoring Chainlink process (PID: ${CL_PID}) for node ${NODE_NUMBER}..."
+  while true; do
+    if [ -f $TMP_DIR/restart-chainlink ]; then
+      log "Restart requested for chainlink node ${NODE_NUMBER}"
+      rm -f $TMP_DIR/restart-chainlink || true
+      if kill -0 ${CL_PID} 2>/dev/null; then
+        kill ${CL_PID} || true
+        wait ${CL_PID} 2>/dev/null || true
+      fi
+      start_chainlink
+      log "Chainlink process for node ${NODE_NUMBER} restarted. New PID: ${CL_PID}"
+    fi
+    if ! kill -0 ${CL_PID} 2>/dev/null; then
+      log "Chainlink process for node ${NODE_NUMBER} has exited unexpectedly."
+      exit 1
+    fi
+    sleep 2
+  done
+fi

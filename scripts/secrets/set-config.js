@@ -100,6 +100,14 @@ function encryptSharedSecret(x25519PubKeys, sharedSecret16) {
   };
 }
 
+const compareDonConfig = (a, b) => {
+  const left = normalizeForCompare(a);
+  const right = normalizeForCompare(b);
+  delete left.sharedSecretEncryptions;
+  delete right.sharedSecretEncryptions;
+  return JSON.stringify(left) === JSON.stringify(right);
+};
+
 async function main() {
   const rpcUrl = process.env.CHAINLINK_RPC_HTTP_URL;
   const contractAddr = process.argv[2];
@@ -155,7 +163,7 @@ async function main() {
 
   const cache = readDonConfigCache(cacheFile);
   const existing = cache[normalizedAddr] ? normalizeForCompare(cache[normalizedAddr]) : null;
-  if (existing && JSON.stringify(existing) === JSON.stringify(comparableDonConfig)) {
+  if (existing && compareDonConfig(existing, comparableDonConfig)) {
     console.log(`Config for ${normalizedAddr} is up-to-date; skipping on-chain update.`);
     return;
   }

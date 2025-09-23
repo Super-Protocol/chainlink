@@ -52,10 +52,6 @@ const solutionConfigurationSchema = Type.Object({
   primaryNodes: Type.String({
     description: 'Space-separated list of primary node indices',
   }),
-  bootstrapNodeAddresses: Type.String({
-    description: 'comma-separated list of bootstrap node addresses host:port',
-    examples: ['chainlink-node-1:9999'],
-  }),
   linkCa: Type.String({
     pattern: '^0x[0-9a-fA-F]{40}$',
     description: 'LINK token contract address',

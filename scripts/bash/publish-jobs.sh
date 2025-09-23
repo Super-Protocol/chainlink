@@ -9,9 +9,10 @@ json_escape() {
       -e 's/\r/\\r/g' \
       -e 's/\n/\\n/g'
 }
-API_URL="http://127.0.0.1:6688"
+API_PORT="${API_PORT:-6688}"
+API_URL="http://127.0.0.1:${API_PORT}"
 CL_FEED_TEMPLATES_DIR="${CL_FEED_TEMPLATES_DIR:-/templates}"
-JOB_RENDERS_DIR="${JOB_RENDERS_DIR:-/tmp/job-renders}"
+JOB_RENDERS_DIR="${JOB_RENDERS_DIR:-/tmp/node-${NODE_NUMBER}/job-renders}"
 COOKIE_FILE="$(cd /tmp && mktemp -t cl_cookie_import.XXXXXX)"
 SP_SECRETS_DIR="/sp/secrets"
 EVM_EXPORT_PASSWORD="${EVM_EXPORT_PASSWORD:-${CHAINLINK_KEYSTORE_PASSWORD:-export}}"
@@ -21,21 +22,25 @@ mkdir -p "${JOB_RENDERS_DIR}"
 
 # Compose IP helper
 ip_for_node() {
-  local n="$1"; echo "10.5.0.$((8 + n))";
+  if [[ "${ALL_IN_ONE:-}" == "true" ]]; then
+    local n="$1"; echo "127.0.0.1";
+  else
+    local n="$1"; echo "10.5.0.$((8 + n))";
+  fi
 }
 
 # Read local credentials
 read_creds() {
   local email password
-  email=$(sed -n '1p' /chainlink/apicredentials 2>/dev/null || echo "")
-  password=$(sed -n '2p' /chainlink/apicredentials 2>/dev/null || echo "")
+  email=$(sed -n '1p' $NODE_ROOT_DIR/apicredentials 2>/dev/null || echo "")
+  password=$(sed -n '2p' $NODE_ROOT_DIR/apicredentials 2>/dev/null || echo "")
   printf '%s|%s' "$email" "$password"
 }
 
 # Prefer reading bootstrap info from shared secrets written by bootstrap nodes
 bootstrap_info_from_shared_secrets() {
   local bs_env="${BOOTSTRAP_NODES:-1}"
-  local IFS=' ,'; read -r -a bs_nodes <<< "$bs_env"
+  local IFS=' '; read -r -a bs_nodes <<< "$bs_env"
   [[ ${#bs_nodes[@]} -gt 0 ]] || { echo "|"; return; }
   local first_bs="${bs_nodes[0]}"
   local fpeer="$SP_SECRETS_DIR/bootstrap-${first_bs}.peerid"
@@ -53,11 +58,11 @@ bootstrap_info_from_shared_secrets() {
 # Login to remote node and fetch its p2p peer id
 fetch_bootstrap_peer_from_env() {
   local bs_env="${BOOTSTRAP_NODES:-1}"
-  local IFS=' ,'; read -r -a bs_nodes <<< "$bs_env"
+  local IFS=' '; read -r -a bs_nodes <<< "$bs_env"
   [[ ${#bs_nodes[@]} -gt 0 ]] || { echo "|"; return; }
   local first_bs="${bs_nodes[0]}"
   local host; host=$(ip_for_node "$first_bs")
-  local port=6688
+  local port="${API_PORT:-6688}"
   local cookie_file="/tmp/cl_cookie_bootstrap"
   rm -f "$cookie_file" || true
   IFS='|' read -r email password < <(read_creds)
@@ -82,7 +87,7 @@ fetch_bootstrap_peer_from_env() {
 is_node_bootstrap() {
   local node_num="$1"
   local bstr="${BOOTSTRAP_NODES:-1}"
-  local IFS=' ,'; read -r -a bs_nodes <<< "$bstr"
+  local IFS=' '; read -r -a bs_nodes <<< "$bstr"
   for bn in "${bs_nodes[@]}"; do
     if [[ "$bn" == "$node_num" ]]; then
       echo true; return
@@ -93,10 +98,10 @@ is_node_bootstrap() {
 
 # Parse first bootstrap entry from config.toml DefaultBootstrappers and convert to multiaddr
 bootstrap_peers_multiaddr_from_config() {
-  local cfg="/chainlink/config.toml"
+  local cfg="${NODE_ROOT_DIR}/config.toml"
   # Prefer explicit env BOOTSTRAP_NODE_ADDRESSES
   if [[ -n "${BOOTSTRAP_NODE_ADDRESSES:-}" ]]; then
-    local bs_env="${BOOTSTRAP_NODES:-1}"; local IFS=' ,'; read -r -a bs_nodes <<< "$bs_env"
+    local bs_env="${BOOTSTRAP_NODES:-1}"; local IFS=' '; read -r -a bs_nodes <<< "$bs_env"
     local peer_ids=()
     for bn in "${bs_nodes[@]}"; do
       local fpeer="${SP_SECRETS_DIR}/bootstrap-${bn}.peerid"
@@ -154,13 +159,13 @@ bootstrap_peers_multiaddr_from_config() {
 
 # Extract EVM ChainID from config.toml
 chain_id_from_config() {
-  local cfg="/chainlink/config.toml"
+  local cfg="${NODE_ROOT_DIR}/config.toml"
   [[ -f "$cfg" ]] || { echo ""; return; }
   awk -F"'" '/^\s*\[\[EVM\]\]/{f=1} f && /ChainID/{print $2; exit}' "$cfg" || true
 }
 
-email=$(sed -n '1p' /chainlink/apicredentials 2>/dev/null || echo "")
-password=$(sed -n '2p' /chainlink/apicredentials 2>/dev/null || echo "")
+email=$(sed -n '1p' $NODE_ROOT_DIR/apicredentials 2>/dev/null || echo "")
+password=$(sed -n '2p' $NODE_ROOT_DIR/apicredentials 2>/dev/null || echo "")
 
 login() {
   [[ -n "$email" && -n "$password" ]] || return 1
@@ -231,7 +236,7 @@ render_jobs() {
   for tpl in "${CL_FEED_TEMPLATES_DIR}"/*.toml; do
     local base out
     base=$(basename "$tpl" .toml)
-    out="${JOB_RENDERS_DIR}/${base}.node-${NODE_NUMBER}.toml"
+    out="${JOB_RENDERS_DIR}/${base}.toml"
     envsubst < "$tpl" > "$out"
     # For bootstrap node, mirror generate.sh behavior: drop fields not allowed
     if [[ "$IS_BOOTSTRAP" == "true" ]]; then

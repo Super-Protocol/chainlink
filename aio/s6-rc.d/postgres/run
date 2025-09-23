@@ -1,0 +1,2 @@
+#!/bin/sh
+exec su -s /bin/bash -c "postgres -D ${PGDATA:-/var/lib/postgresql/data}" postgres
