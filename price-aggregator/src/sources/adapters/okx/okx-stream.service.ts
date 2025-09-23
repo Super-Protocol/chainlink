@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { OkxWebSocketMessage, OkxSubscribeRequest } from './okx.types';
+import { WebSocketClient } from '../../../common';
 import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
 import { StreamServiceOptions } from '../../quote-stream.interface';
@@ -16,6 +17,8 @@ const TICKERS_CHANNEL = 'tickers';
 @Injectable()
 export class OkxStreamService extends BaseStreamService {
   protected readonly logger = new Logger(OkxStreamService.name);
+  private pingInterval?: NodeJS.Timeout;
+  private lastMessageTime = 0;
 
   constructor(options?: StreamServiceOptions, metricsService?: MetricsService) {
     super(options, metricsService);
@@ -27,6 +30,12 @@ export class OkxStreamService extends BaseStreamService {
 
   protected getWsUrl(): string {
     return `${WS_BASE_URL}${WS_PUBLIC_PATH}`;
+  }
+
+  protected getWebSocketClientOptions(): Partial<
+    ConstructorParameters<typeof WebSocketClient>[0]
+  > {
+    return { pingInterval: 0 };
   }
 
   protected pairToIdentifier(pair: Pair): string {
@@ -58,7 +67,14 @@ export class OkxStreamService extends BaseStreamService {
   }
 
   protected handleMessage(data: unknown): void {
+    this.lastMessageTime = Date.now();
+
     try {
+      if (typeof data === 'string' && data === 'pong') {
+        this.logger.debug('Received pong from OKX');
+        return;
+      }
+
       const message = data as OkxWebSocketMessage;
 
       if (message.event === 'subscribe') {
@@ -97,6 +113,36 @@ export class OkxStreamService extends BaseStreamService {
       }
     } catch (error) {
       this.logger.error('Error handling OKX message', error);
+    }
+  }
+
+  protected onConnect(): void {
+    this.lastMessageTime = Date.now();
+    this.startPing();
+  }
+
+  protected onDisconnect(): void {
+    this.stopPing();
+  }
+
+  private startPing(): void {
+    this.stopPing();
+
+    this.pingInterval = setInterval(() => {
+      const now = Date.now();
+      const timeSinceLastMessage = now - this.lastMessageTime;
+
+      if (timeSinceLastMessage > 25000 && this.isConnected) {
+        this.wsClient?.send('ping');
+        this.logger.debug('Sent ping to OKX');
+      }
+    }, 25000);
+  }
+
+  private stopPing(): void {
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+      this.pingInterval = undefined;
     }
   }
 }

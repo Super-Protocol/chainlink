@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
-import { createCache, Cache } from 'cache-manager';
+import * as NodeCache from 'node-cache';
 
 import { StaleBatch } from './cache-staleness.interface';
 import { CacheStalenessService } from './cache-staleness.service';
@@ -13,7 +13,7 @@ import { SourcesManagerService } from '../../sources/sources-manager.service';
 @Injectable()
 export class CacheService implements OnModuleDestroy {
   private readonly logger = new Logger(CacheService.name);
-  private cache: Cache;
+  private cache: NodeCache;
   private pairTtlCache = new Map<string, number | null>();
   private metricsUpdateInterval: NodeJS.Timeout;
 
@@ -23,8 +23,10 @@ export class CacheService implements OnModuleDestroy {
     private readonly metricsService: MetricsService,
     private readonly stalenessService: CacheStalenessService,
   ) {
-    this.cache = createCache({
-      ttl: 60000,
+    this.cache = new NodeCache({
+      stdTTL: 60,
+      checkperiod: 10,
+      useClones: false,
     });
 
     this.setupCacheEventListeners();
@@ -39,18 +41,23 @@ export class CacheService implements OnModuleDestroy {
   }
 
   private setupCacheEventListeners(): void {
-    this.cache.on('del', ({ key }) => {
-      this.logger.debug(`Cache key expired: ${key}`);
+    const handleCacheRemoval = (key: string, event: string) => {
+      this.logger.debug(`Cache key ${event}: ${key}`);
       this.stalenessService.removeEntry(key);
       this.updateCacheSizeMetrics();
-    });
+    };
+
+    this.cache.on('expired', (key: string) =>
+      handleCacheRemoval(key, 'expired'),
+    );
+    this.cache.on('del', (key: string) => handleCacheRemoval(key, 'deleted'));
   }
 
   async get(source: SourceName, pair: Pair): Promise<CachedQuote | null> {
     const key = this.generateCacheKey(source, pair);
 
     try {
-      const cached = await this.cache.get<SerializedCachedQuote>(key);
+      const cached = this.cache.get<SerializedCachedQuote>(key);
 
       if (cached) {
         this.logger.debug(`Cache hit for ${key}`);
@@ -78,22 +85,13 @@ export class CacheService implements OnModuleDestroy {
     const key = this.generateCacheKey(source, pair);
 
     try {
-      const cacheTtl =
-        ttl ||
-        this.getPairSpecificTtl(source, pair) ||
-        this.sourcesManager.getTtl(source);
+      const cacheTtlMs = this.resolveTtl(source, pair, ttl);
+      const serializedQuote = this.serializeQuote(quote);
 
-      const serializedQuote = {
-        ...quote,
-        receivedAt: quote.receivedAt.getTime(),
-        cachedAt: quote.cachedAt.getTime(),
-      };
-
-      await this.cache.set(key, serializedQuote, cacheTtl);
-      this.stalenessService.trackCacheEntry(key, source, pair, cacheTtl);
-      await this.updateCacheSizeMetrics();
-
-      this.logger.verbose(`Cached quote for ${key} with TTL ${cacheTtl}ms`);
+      this.cache.set(key, serializedQuote, Math.floor(cacheTtlMs / 1000));
+      this.stalenessService.trackCacheEntry(key, source, pair, cacheTtlMs);
+      this.updateCacheSizeMetrics();
+      this.logger.verbose(`Cached quote for ${key} with TTL ${cacheTtlMs}ms`);
     } catch (error) {
       this.logger.error(`Error setting cache for ${key}:`, error);
     }
@@ -103,10 +101,9 @@ export class CacheService implements OnModuleDestroy {
     const key = this.generateCacheKey(source, pair);
 
     try {
-      await this.cache.del(key);
+      this.cache.del(key);
       this.stalenessService.removeEntry(key);
-      await this.updateCacheSizeMetrics();
-
+      this.updateCacheSizeMetrics();
       this.logger.verbose(`Deleted cache for ${key}`);
     } catch (error) {
       this.logger.error(`Error deleting cache for ${key}:`, error);
@@ -115,7 +112,7 @@ export class CacheService implements OnModuleDestroy {
 
   async clear(): Promise<void> {
     try {
-      await this.cache.clear();
+      this.cache.flushAll();
       this.stalenessService.clear();
       this.logger.debug('Cache cleared');
     } catch (error) {
@@ -125,6 +122,22 @@ export class CacheService implements OnModuleDestroy {
 
   private generateCacheKey(source: SourceName, pair: Pair): string {
     return `quote:${source}:${pair.join('/')}`;
+  }
+
+  private resolveTtl(source: SourceName, pair: Pair, ttl?: number): number {
+    return (
+      ttl ||
+      this.getPairSpecificTtl(source, pair) ||
+      this.sourcesManager.getTtl(source)
+    );
+  }
+
+  private serializeQuote(quote: CachedQuote): SerializedCachedQuote {
+    return {
+      ...quote,
+      receivedAt: quote.receivedAt.getTime(),
+      cachedAt: quote.cachedAt.getTime(),
+    };
   }
 
   onStaleBatch(callback: (batch: StaleBatch) => void): void {
@@ -172,27 +185,19 @@ export class CacheService implements OnModuleDestroy {
     return ttl;
   }
 
-  private async updateCacheSizeMetrics(): Promise<void> {
-    const metadata = this.stalenessService.getMetadata();
-    const sourceCounts = new Map<SourceName, number>();
+  private updateCacheSizeMetrics(): void {
+    const sourceCounts = Object.values(SourceName).reduce(
+      (acc, source) => acc.set(source, 0),
+      new Map<SourceName, number>(),
+    );
 
-    for (const source of Object.values(SourceName)) {
-      sourceCounts.set(source, 0);
-    }
+    this.cache.keys().forEach((key) => {
+      const source = key.split(':')[1] as SourceName;
+      sourceCounts.set(source, (sourceCounts.get(source) || 0) + 1);
+    });
 
-    for (const key of metadata.keys()) {
-      const exists = await this.cache.get(key);
-      if (exists) {
-        const [, sourcePart] = key.split(':');
-        const source = sourcePart as SourceName;
-        sourceCounts.set(source, (sourceCounts.get(source) || 0) + 1);
-      } else {
-        this.stalenessService.removeEntry(key);
-      }
-    }
-
-    for (const [source, count] of sourceCounts.entries()) {
+    sourceCounts.forEach((count, source) => {
       this.metricsService.cacheSize.set({ source }, count);
-    }
+    });
   }
 }
