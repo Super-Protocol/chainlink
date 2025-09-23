@@ -168,6 +168,7 @@ export class WebSocketClient extends EventEmitter {
 
   private setPongTimeout(): void {
     if (this.options.pongTimeout) {
+      this.clearPongTimeout();
       this.pongTimer = setTimeout(() => {
         this.logger.warn('Pong timeout, closing connection');
         this.ws?.terminate();
