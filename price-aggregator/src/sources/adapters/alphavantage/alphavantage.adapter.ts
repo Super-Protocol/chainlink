@@ -45,10 +45,11 @@ export class AlphaVantageAdapter implements SourceAdapter {
     configService: AppConfigService,
   ) {
     const sourceConfig = configService.get('sources.alphavantage');
-    this.apiKey = sourceConfig?.apiKey || '';
-    this.enabled = sourceConfig?.enabled && !!this.apiKey;
-    this.ttl = sourceConfig?.ttl || 10000;
-    this.refetch = sourceConfig?.refetch || false;
+    const { apiKey, enabled, ttl, refetch } = sourceConfig;
+    this.apiKey = apiKey || '';
+    this.enabled = enabled && !!this.apiKey;
+    this.ttl = ttl;
+    this.refetch = refetch;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,

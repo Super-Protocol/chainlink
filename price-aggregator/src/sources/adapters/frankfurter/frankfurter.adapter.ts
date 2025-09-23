@@ -30,9 +30,10 @@ export class FrankfurterAdapter implements SourceAdapter {
     configService: AppConfigService,
   ) {
     const sourceConfig = configService.get('sources.frankfurter');
-    this.enabled = sourceConfig?.enabled || false;
-    this.ttl = sourceConfig?.ttl || 10000;
-    this.refetch = sourceConfig?.refetch || false;
+    const { enabled, ttl, refetch } = sourceConfig;
+    this.enabled = enabled;
+    this.ttl = ttl;
+    this.refetch = refetch;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,

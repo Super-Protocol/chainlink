@@ -49,9 +49,10 @@ export class CoinbaseAdapter implements SourceAdapter {
       metricsService,
     );
     const sourceConfig = configService.get('sources.coinbase');
-    this.enabled = sourceConfig?.enabled || false;
-    this.ttl = sourceConfig?.ttl || 10000;
-    this.refetch = sourceConfig?.refetch || false;
+    const { enabled, ttl, refetch } = sourceConfig;
+    this.enabled = enabled;
+    this.ttl = ttl;
+    this.refetch = refetch;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,

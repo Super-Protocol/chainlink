@@ -45,10 +45,11 @@ export class ExchangeRateHostAdapter implements SourceAdapter {
     configService: AppConfigService,
   ) {
     const sourceConfig = configService.get('sources.exchangeratehost');
-    this.enabled = sourceConfig?.enabled || false;
-    this.ttl = sourceConfig?.ttl || 10000;
-    this.refetch = sourceConfig?.refetch || false;
-    this.apiKey = sourceConfig?.apiKey;
+    const { enabled, ttl, refetch, apiKey } = sourceConfig;
+    this.enabled = enabled;
+    this.ttl = ttl;
+    this.refetch = refetch;
+    this.apiKey = apiKey;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
