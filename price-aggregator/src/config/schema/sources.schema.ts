@@ -37,7 +37,7 @@ const createSourceSchema = ({
       ttl: Type.Integer({
         minimum: 1000,
         description: 'Time to live for cached prices in milliseconds',
-        default: 10000,
+        default: 5000,
       }),
       maxConcurrent: Type.Integer({
         minimum: 1,

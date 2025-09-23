@@ -113,12 +113,12 @@ export class ConfiguredHttpClient implements HttpClient {
   }
 
   private buildProxyConfig(proxyConfig: ProxyConfig) {
-    const { host, port, username, password } = proxyConfig;
+    const { host, port, username, password, protocol = 'http' } = proxyConfig;
 
     const proxyUrl =
       username && password
-        ? `http://${username}:${password}@${host}:${port}`
-        : `http://${host}:${port}`;
+        ? `${protocol}://${username}:${password}@${host}:${port}`
+        : `${protocol}://${host}:${port}`;
 
     const axiosProxy: AxiosProxyConfig = {
       host,

@@ -22,6 +22,12 @@ export class HttpClientBuilder {
   build(params: ClientParams): HttpClient {
     const proxyConfig = params.useProxy ? this.getProxyConfig() : null;
 
+    if (params.useProxy && !proxyConfig) {
+      throw new Error(
+        'Proxy is enabled (useProxy = true), but no proxy configuration was provided or resolved from config.',
+      );
+    }
+
     return this.createClient({
       ...params,
       proxyConfig,
@@ -41,7 +47,8 @@ export class HttpClientBuilder {
     let proxy: ProxyConfig | null = null;
     if (httpProxy?.enabled) {
       proxy = httpProxy;
-    } else if (httpsProxy?.enabled) {
+    }
+    if (httpsProxy?.enabled) {
       proxy = httpsProxy;
     }
 
