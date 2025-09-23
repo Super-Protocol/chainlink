@@ -31,6 +31,10 @@ export class CacheService implements OnModuleDestroy {
 
     this.setupCacheEventListeners();
     this.updateCacheSizeMetrics();
+
+    this.metricsUpdateInterval = setInterval(() => {
+      this.updateCacheSizeMetrics();
+    }, 30000);
   }
 
   onModuleDestroy(): void {
