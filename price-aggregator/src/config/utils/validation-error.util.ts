@@ -55,7 +55,7 @@ function handleSchemaValidationError(
       ? 'YAML configuration validation failed.\n' +
         'Please verify your YAML configuration structure.\n' +
         '\nFor help with configuration, see:\n' +
-        '- config.yaml.example file for reference\n' +
+        '- config.example.yaml file for reference\n' +
         '- Schema definitions in src/config/schema/'
       : 'Environment variables validation failed.\n' +
         'Please verify your environment variables structure.\n' +
@@ -93,7 +93,7 @@ function handleSchemaValidationError(
       schemaHint,
       '',
       'For help with configuration, see:',
-      '- config.yaml.example file for reference',
+      '- config.example.yaml file for reference',
       '- Schema definitions in src/config/schema/yaml.schema.ts',
     ]
       .filter(Boolean)

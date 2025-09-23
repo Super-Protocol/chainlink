@@ -107,8 +107,8 @@ sources:
       minBatchSize: 20 # Minimum pairs to wait for before sending batch
 
   alphavantage:
-    enabled: true
-    ttl: 60000 # Longer cache due to strict rate limits
+    enabled: false # Consider disabling for production due to severe rate limits
+    ttl: 3600000 # 1 hour cache for free tier (25 requests/day limit)
     timeoutMs: 15000
     rps: 1 # Free tier: only 25/day, extremely limited
     maxConcurrent: 10
@@ -155,10 +155,11 @@ sources:
     enabled: true
     ttl: 15000
     timeoutMs: 10000
-    rps: 2.8 # 10000/hour limit = ~2.78/sec
+    rps: 9 # Conservative rate for public endpoints (10 req/sec limit, burst to 15)
     maxConcurrent: 10
     useProxy: false
     refetch: true
+    # Note: Implement token-bucket limiter with exponential backoff for 429 responses
 
   frankfurter:
     enabled: true

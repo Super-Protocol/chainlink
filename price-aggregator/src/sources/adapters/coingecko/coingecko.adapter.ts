@@ -46,10 +46,7 @@ export class CoinGeckoAdapter implements SourceAdapter {
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
-      timeoutMs: sourceConfig?.timeoutMs,
-      rps: sourceConfig?.rps,
-      useProxy: sourceConfig?.useProxy,
-      maxConcurrent: sourceConfig?.maxConcurrent,
+      ...sourceConfig,
       baseUrl: this.apiKey ? PRO_BASE_URL : FREE_BASE_URL,
     });
 

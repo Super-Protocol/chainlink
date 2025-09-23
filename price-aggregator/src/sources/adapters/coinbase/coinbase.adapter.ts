@@ -55,10 +55,7 @@ export class CoinbaseAdapter implements SourceAdapter {
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
-      timeoutMs: sourceConfig?.timeoutMs,
-      rps: sourceConfig?.rps,
-      useProxy: sourceConfig?.useProxy,
-      maxConcurrent: sourceConfig?.maxConcurrent,
+      ...sourceConfig,
       baseUrl: BASE_URL,
     });
   }

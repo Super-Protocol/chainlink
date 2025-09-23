@@ -41,11 +41,8 @@ export class BinanceAdapter implements SourceAdapter {
     this.maxBatchSize = sourceConfig.batchConfig?.maxBatchSize ?? 500;
 
     this.httpClient = httpClientBuilder.build({
-      sourceName: 'binance',
-      timeoutMs: sourceConfig?.timeoutMs || 10000,
-      rps: sourceConfig?.rps,
-      useProxy: sourceConfig?.useProxy || false,
-      maxConcurrent: sourceConfig?.maxConcurrent,
+      sourceName: this.name,
+      ...sourceConfig,
       baseUrl: BASE_URL,
     });
   }

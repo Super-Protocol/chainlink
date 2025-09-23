@@ -44,10 +44,10 @@ $ npm run test:cov
 
 The application is configured using a YAML file.
 
-Copy `config.yaml.example` to `config.yaml` and modify as needed:
+Copy `config.example.yaml` to `config.yaml` and modify as needed:
 
 ```bash
-cp config.yaml.example config.yaml
+cp config.example.yaml config.yaml
 ```
 
 The application will automatically detect and use the YAML configuration if `config.yaml` exists.

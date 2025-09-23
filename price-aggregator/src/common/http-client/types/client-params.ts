@@ -1,15 +1,18 @@
-import { ProxyConfig } from './index';
+import { ProxyConfig } from '../interfaces/http-client.interface';
 
 export interface ClientParams {
   sourceName: string;
   timeoutMs: number;
-  rps?: number | null;
-  useProxy?: boolean;
-  proxyConfig?: ProxyConfig;
-  maxRetries?: number;
-  maxConcurrent?: number;
+  rps: number | null;
+  maxConcurrent: number;
+  useProxy: boolean;
+  maxRetries: number;
   baseUrl?: string;
   defaultParams?: Record<string, unknown>;
+}
+
+export interface ClientParamsWithProxy extends ClientParams {
+  proxyConfig: ProxyConfig;
 }
 
 export interface BasicClientParams {

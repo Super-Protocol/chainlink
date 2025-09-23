@@ -52,10 +52,7 @@ export class AlphaVantageAdapter implements SourceAdapter {
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
-      timeoutMs: sourceConfig?.timeoutMs,
-      rps: sourceConfig?.rps,
-      useProxy: sourceConfig?.useProxy,
-      maxConcurrent: sourceConfig?.maxConcurrent,
+      ...sourceConfig,
       baseUrl: BASE_URL,
       defaultParams: {
         apikey: this.apiKey,

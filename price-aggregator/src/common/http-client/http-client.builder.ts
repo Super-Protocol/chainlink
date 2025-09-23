@@ -5,9 +5,9 @@ import { ConfiguredHttpClient } from './configured-http-client';
 import { RpsLimiterService } from './rps-limiter.service';
 import {
   HttpClient,
-  HttpClientConfig,
   ProxyConfig,
   ClientParams,
+  ClientParamsWithProxy,
 } from './types';
 import { AppConfigService } from '../../config';
 
@@ -20,25 +20,15 @@ export class HttpClientBuilder {
   ) {}
 
   build(params: ClientParams): HttpClient {
-    const clientConfig: HttpClientConfig = {
-      timeoutMs: params.timeoutMs,
-      rps: params.rps,
-      useProxy: params.useProxy || false,
-      proxyConfig: params.proxyConfig,
-      maxRetries: params.maxRetries || 3,
-      maxConcurrent: params.maxConcurrent || 10,
-      baseUrl: params.baseUrl,
-      defaultParams: params.defaultParams,
-    };
+    const proxyConfig = params.useProxy ? this.getProxyConfig() : null;
 
-    if (clientConfig.useProxy && !clientConfig.proxyConfig) {
-      clientConfig.proxyConfig = this.getProxyConfig();
-    }
-
-    return this.createClient(clientConfig);
+    return this.createClient({
+      ...params,
+      proxyConfig,
+    });
   }
 
-  private getProxyConfig(): ProxyConfig | undefined {
+  private getProxyConfig(): ProxyConfig | null {
     const proxyConfig = this.configService.get('proxy');
 
     if (!proxyConfig) {
@@ -48,7 +38,7 @@ export class HttpClientBuilder {
     const httpProxy = proxyConfig.http;
     const httpsProxy = proxyConfig.https;
 
-    let proxy = null;
+    let proxy: ProxyConfig | null = null;
     if (httpProxy?.enabled) {
       proxy = httpProxy;
     } else if (httpsProxy?.enabled) {
@@ -56,22 +46,13 @@ export class HttpClientBuilder {
     }
 
     if (!proxy || !proxy.host || !proxy.port) {
-      return undefined;
+      return null;
     }
 
-    return {
-      host: proxy.host,
-      port: proxy.port,
-      username: proxy.username,
-      password: proxy.password,
-    };
+    return proxy;
   }
 
-  private createClient(clientConfig: HttpClientConfig): HttpClient {
-    return new ConfiguredHttpClient(
-      clientConfig,
-      this.httpService,
-      this.rpsLimiter,
-    );
+  private createClient(config: ClientParamsWithProxy): HttpClient {
+    return new ConfiguredHttpClient(config, this.httpService, this.rpsLimiter);
   }
 }

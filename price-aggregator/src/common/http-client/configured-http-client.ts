@@ -4,18 +4,15 @@ import { AxiosProxyConfig, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { HttpProxyAgent } from 'http-proxy-agent';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
-import {
-  HttpClient,
-  HttpClientConfig,
-  ProxyConfig,
-} from './interfaces/http-client.interface';
+import { HttpClient, ProxyConfig } from './interfaces/http-client.interface';
 import { RpsLimiterService } from './rps-limiter.service';
+import { ClientParams, ClientParamsWithProxy } from './types/client-params';
 
 export class ConfiguredHttpClient implements HttpClient {
   private readonly logger = new Logger(ConfiguredHttpClient.name);
 
   constructor(
-    private readonly clientConfig: HttpClientConfig,
+    private readonly clientConfig: ClientParamsWithProxy,
     private readonly httpService: HttpService,
     private readonly rpsLimiter: RpsLimiterService,
   ) {}
@@ -93,7 +90,7 @@ export class ConfiguredHttpClient implements HttpClient {
 
   private buildRequestConfig(
     baseConfig: AxiosRequestConfig,
-    clientConfig: HttpClientConfig,
+    clientConfig: ClientParamsWithProxy,
   ): AxiosRequestConfig {
     const config: AxiosRequestConfig = {
       ...baseConfig,
@@ -135,7 +132,7 @@ export class ConfiguredHttpClient implements HttpClient {
     };
   }
 
-  private generateLimiterKey(url: string, config: HttpClientConfig): string {
+  private generateLimiterKey(url: string, config: ClientParams): string {
     const hostname = new URL(url).hostname;
     const rps = config.rps || 'unlimited';
     return `${hostname}-${rps}`;

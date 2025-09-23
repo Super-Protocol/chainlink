@@ -5,6 +5,7 @@ export interface ProxyConfig {
   port: number;
   username?: string;
   password?: string;
+  protocol?: 'http' | 'https';
 }
 
 export interface RpsLimiterConfig {
@@ -12,17 +13,6 @@ export interface RpsLimiterConfig {
   minTime: number;
   reservoirRefreshInterval?: number;
   reservoirRefreshAmount?: number;
-}
-
-export interface HttpClientConfig {
-  timeoutMs: number;
-  rps?: number | null;
-  maxConcurrent?: number;
-  useProxy?: boolean;
-  proxyConfig?: ProxyConfig;
-  maxRetries?: number;
-  baseUrl?: string;
-  defaultParams?: Record<string, unknown>;
 }
 
 export interface HttpClient {

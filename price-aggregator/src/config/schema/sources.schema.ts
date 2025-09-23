@@ -39,51 +39,49 @@ const createSourceSchema = ({
         description: 'Time to live for cached prices in milliseconds',
         default: 10000,
       }),
-      maxConcurrent: Type.Optional(
-        Type.Integer({
-          minimum: 1,
-          description: 'Maximum number of concurrent requests',
-          default: maxConcurrentDefault,
-        }),
-      ),
+      maxConcurrent: Type.Integer({
+        minimum: 1,
+        description: 'Maximum number of concurrent requests',
+        default: maxConcurrentDefault,
+      }),
       timeoutMs: Type.Integer({
         minimum: 1000,
         description: 'Request timeout in milliseconds',
         default: 10000,
       }),
-      rps: Type.Optional(
-        Type.Union(
-          [
-            Type.Number({
-              minimum: 0.0001,
-              maximum: 1000,
-              description:
-                'Requests per second limit to prevent API rate limiting',
-            }),
-            Type.Null({
-              description: 'Disable RPS limiting',
-            }),
-          ],
-          {
-            default: rpsDefault,
+      rps: Type.Union(
+        [
+          Type.Number({
+            minimum: 0.0001,
+            maximum: 1000,
             description:
-              'Requests per second limit to prevent API rate limiting. Set to null to disable limiting',
-          },
-        ),
-      ),
-      useProxy: Type.Optional(
-        Type.Boolean({
-          description: 'Use proxy for requests (useful to bypass rate limits)',
-          default: false,
-        }),
-      ),
-      refetch: Type.Optional(
-        Type.Boolean({
+              'Requests per second limit to prevent API rate limiting',
+          }),
+          Type.Null({
+            description: 'Disable RPS limiting',
+          }),
+        ],
+        {
+          default: rpsDefault,
           description:
-            'Enable automatic refetch of price data when cache expires',
-          default: false,
-        }),
+            'Requests per second limit to prevent API rate limiting. Set to null to disable limiting',
+        },
       ),
+      useProxy: Type.Boolean({
+        description: 'Use proxy for requests (useful to bypass rate limits)',
+        default: false,
+      }),
+      maxRetries: Type.Integer({
+        minimum: 0,
+        maximum: 10,
+        description: 'Maximum number of retry attempts for failed requests',
+        default: 3,
+      }),
+      refetch: Type.Boolean({
+        description:
+          'Enable automatic refetch of price data when cache expires',
+        default: false,
+      }),
       ...(maxBatchSize && {
         batchConfig: Type.Object(
           {
