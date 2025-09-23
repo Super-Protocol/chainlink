@@ -5,15 +5,15 @@ log() { echo "[s6-init] $*"; }
 
 CONFIG_JSON_PATH="/sp/configurations/configuration.json"
 
-echo "Configuration JSON: "
-cat $CONFIG_JSON_PATH
-
-export ALL_IN_ONE="true"
-
 if [ ! -f "$CONFIG_JSON_PATH" ]; then
   log "ERROR: Configuration file not found at $CONFIG_JSON_PATH"
   exit 1
 fi
+
+echo "Configuration JSON: "
+cat $CONFIG_JSON_PATH
+
+export ALL_IN_ONE="true"
 
 TOTAL_NODES=$(jq -r '.solution.totalNodes' "$CONFIG_JSON_PATH")
 if ! [[ "$TOTAL_NODES" =~ ^[0-9]+$ ]] || [ "$TOTAL_NODES" -lt 1 ]; then
