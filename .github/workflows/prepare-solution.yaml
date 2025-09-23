@@ -31,7 +31,7 @@ env:
   TARGET: ${{ inputs.target }}
 
 jobs:
-  stub-build-and-update-offer:
+  build-and-update-offer:
     runs-on: ubuntu-latest
     steps:
       - name: Validate inputs
