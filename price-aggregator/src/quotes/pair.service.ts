@@ -238,8 +238,9 @@ export class PairService {
   }
 
   private updateMetrics(): void {
-    for (const [source, pairs] of this.pairsBySource.entries()) {
-      this.metricsService.trackedPairs.set({ source }, pairs.size);
+    for (const source of Object.values(SourceName)) {
+      const pairs = this.pairsBySource.get(source);
+      this.metricsService.trackedPairs.set({ source }, pairs?.size || 0);
     }
     this.metricsService.totalPairs.set(this.sourcesByPair.size);
   }

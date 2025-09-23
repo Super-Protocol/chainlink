@@ -26,11 +26,9 @@ export class CacheService implements OnModuleDestroy {
     this.cache = createCache({
       ttl: 60000,
     });
-    this.updateCacheSizeMetrics();
 
-    this.metricsUpdateInterval = setInterval(() => {
-      this.updateCacheSizeMetrics();
-    }, 30000);
+    this.setupCacheEventListeners();
+    this.updateCacheSizeMetrics();
   }
 
   onModuleDestroy(): void {
@@ -38,6 +36,14 @@ export class CacheService implements OnModuleDestroy {
       clearInterval(this.metricsUpdateInterval);
     }
     this.pairTtlCache.clear();
+  }
+
+  private setupCacheEventListeners(): void {
+    this.cache.on('del', ({ key }) => {
+      this.logger.debug(`Cache key expired: ${key}`);
+      this.stalenessService.removeEntry(key);
+      this.updateCacheSizeMetrics();
+    });
   }
 
   async get(source: SourceName, pair: Pair): Promise<CachedQuote | null> {
@@ -85,7 +91,7 @@ export class CacheService implements OnModuleDestroy {
 
       await this.cache.set(key, serializedQuote, cacheTtl);
       this.stalenessService.trackCacheEntry(key, source, pair, cacheTtl);
-      this.updateCacheSizeMetrics();
+      await this.updateCacheSizeMetrics();
 
       this.logger.verbose(`Cached quote for ${key} with TTL ${cacheTtl}ms`);
     } catch (error) {
@@ -99,7 +105,7 @@ export class CacheService implements OnModuleDestroy {
     try {
       await this.cache.del(key);
       this.stalenessService.removeEntry(key);
-      this.updateCacheSizeMetrics();
+      await this.updateCacheSizeMetrics();
 
       this.logger.verbose(`Deleted cache for ${key}`);
     } catch (error) {
@@ -166,7 +172,7 @@ export class CacheService implements OnModuleDestroy {
     return ttl;
   }
 
-  private updateCacheSizeMetrics(): void {
+  private async updateCacheSizeMetrics(): Promise<void> {
     const metadata = this.stalenessService.getMetadata();
     const sourceCounts = new Map<SourceName, number>();
 
@@ -175,9 +181,14 @@ export class CacheService implements OnModuleDestroy {
     }
 
     for (const key of metadata.keys()) {
-      const [, sourcePart] = key.split(':');
-      const source = sourcePart as SourceName;
-      sourceCounts.set(source, (sourceCounts.get(source) || 0) + 1);
+      const exists = await this.cache.get(key);
+      if (exists) {
+        const [, sourcePart] = key.split(':');
+        const source = sourcePart as SourceName;
+        sourceCounts.set(source, (sourceCounts.get(source) || 0) + 1);
+      } else {
+        this.stalenessService.removeEntry(key);
+      }
     }
 
     for (const [source, count] of sourceCounts.entries()) {
