@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Ensure config file exists; default to example if none provided
+CONFIG_FILE_PATH=${CONFIG_FILE:-/etc/price-aggregator/config.yaml}
+if [ ! -f "$CONFIG_FILE_PATH" ]; then
+  if [ -f "/etc/price-aggregator/config.yaml" ]; then
+    cp /etc/price-aggregator/config.yaml "$CONFIG_FILE_PATH" || true
+  else
+    echo "[price-aggregator] ERROR: No config file at $CONFIG_FILE_PATH and no example to copy from" >&2
+    exit 1
+  fi
+fi
+
+export CONFIG_FILE="$CONFIG_FILE_PATH"
+export NODE_ENV=${NODE_ENV:-production}
+
+cd /price-aggregator
+
+# Build once if dist is missing
+if [ ! -d "dist" ]; then
+  echo "[price-aggregator] Building application..."
+  npm run build
+fi
+
+echo "[price-aggregator] Starting..."
+exec node dist/main

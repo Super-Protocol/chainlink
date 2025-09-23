@@ -26,6 +26,21 @@ log "Found 'totalNodes': $TOTAL_NODES. Generating s6 services..."
 export TOTAL_NODES
 export PGDATA=/var/lib/postgresql/data
 export POSTGRES_USER=postgres
+export PRICE_AGGREGATOR_PORT=$(jq -r '.solution.priceAggregatorConfig.port' "$CONFIG_JSON_PATH")
+
+# Validate PRICE_AGGREGATOR_PORT
+if [ -z "$PRICE_AGGREGATOR_PORT" ] || [ "$PRICE_AGGREGATOR_PORT" = "null" ]; then
+  log "ERROR: Missing 'priceAggregatorConfig.port' in configuration"
+  exit 1
+fi
+if ! [[ "$PRICE_AGGREGATOR_PORT" =~ ^[0-9]+$ ]]; then
+  log "ERROR: PRICE_AGGREGATOR_PORT must be an integer: '$PRICE_AGGREGATOR_PORT'"
+  exit 1
+fi
+if [ "$PRICE_AGGREGATOR_PORT" -lt 1 ] || [ "$PRICE_AGGREGATOR_PORT" -gt 65535 ]; then
+  log "ERROR: PRICE_AGGREGATOR_PORT out of range (1-65535): '$PRICE_AGGREGATOR_PORT'"
+  exit 1
+fi
 
 # Initialize data dir (idempotent)
 mkdir -p "$PGDATA"

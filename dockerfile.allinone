@@ -42,6 +42,14 @@ COPY data-feed-generator/templates /templates
 
 RUN cd /scripts && npm ci --no-audit --no-fund --omit=optional
 
+# Pirce aggregator
+COPY price-aggregator /price-aggregator
+RUN cd /price-aggregator && npm ci --no-audit --no-fund --omit=optional
+
+# Global config for price-aggregator
+RUN mkdir -p /etc/price-aggregator
+COPY price-aggregator/config.example.yaml /etc/price-aggregator/config.yaml
+
 # s6 service layout
 RUN mkdir -p /etc/cont-init.d
 
