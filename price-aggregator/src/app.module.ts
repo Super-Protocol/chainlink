@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { MetricsInterceptor } from './common';
 import { AppConfigModule, AppConfigService } from './config';
 import { MetricsModule } from './metrics/metrics.module';
 import { QuotesModule } from './quotes';
@@ -36,6 +38,12 @@ import { SourcesModule } from './sources';
     MetricsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: MetricsInterceptor,
+    },
+  ],
 })
 export class AppModule {}

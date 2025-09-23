@@ -80,39 +80,26 @@ export class QuotesService {
 
   @SingleFlight((source, pair) => `${source}-${pair.join('-')}`)
   async getQuote(source: SourceName, pair: Pair): Promise<QuoteResponseDto> {
-    const end = this.metricsService.requestLatency.startTimer({
-      route: '/quote',
-      method: 'GET',
-    });
+    this.logger.debug(`Getting quote from ${source} for ${pair.join('/')}`);
 
-    try {
-      this.logger.debug(`Getting quote from ${source} for ${pair.join('/')}`);
+    this.pairService.trackQuoteRequest(pair, source);
 
-      this.pairService.trackQuoteRequest(pair, source);
+    const cachedQuote = await this.cacheService.get(source, pair);
+    if (cachedQuote) {
+      this.logger.debug(
+        `Returning cached quote for ${source}:${pair.join('/')}`,
+      );
+      this.pairService.trackResponse(pair, source);
+      this.metricsService.cacheHits.inc({ source });
+      return this.createQuoteResponseFromCached(cachedQuote);
+    }
 
-      const cachedQuote = await this.cacheService.get(source, pair);
-      if (cachedQuote) {
-        this.logger.debug(
-          `Returning cached quote for ${source}:${pair.join('/')}`,
-        );
-        this.pairService.trackResponse(pair, source);
-        this.metricsService.cacheHits.inc({ source });
-        return this.createQuoteResponseFromCached(cachedQuote);
-      }
+    this.metricsService.cacheMisses.inc({ source });
 
-      this.metricsService.cacheMisses.inc({ source });
-
-      let result: QuoteResponseDto;
-      if (this.sourcesManager.isFetchQuotesSupported(source)) {
-        result = await this.fetchWithBatch(source, pair);
-      } else {
-        result = await this.fetchSingle(source, pair);
-      }
-      end({ status: '200' });
-      return result;
-    } catch (error) {
-      end({ status: '500' });
-      throw error;
+    if (this.sourcesManager.isFetchQuotesSupported(source)) {
+      return await this.fetchWithBatch(source, pair);
+    } else {
+      return await this.fetchSingle(source, pair);
     }
   }
 
