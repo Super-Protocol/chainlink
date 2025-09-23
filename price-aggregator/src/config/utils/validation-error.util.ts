@@ -66,9 +66,6 @@ function handleSchemaValidationError(
     throw new Error(genericMessage, { cause: error });
   }
 
-  const pathDisplay = errorDetails.path
-    ? ` at path "${errorDetails.path}"`
-    : '';
   const valueDisplay =
     errorDetails.value !== undefined
       ? ` (received: ${JSON.stringify(errorDetails.value)})`

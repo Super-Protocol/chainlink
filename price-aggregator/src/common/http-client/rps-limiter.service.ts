@@ -17,8 +17,11 @@ function shouldRetryError(error: unknown): boolean {
     if (!error.response) {
       return true;
     }
-
-    return error.response.status >= 500;
+    const status = error.response.status;
+    if (status >= 500 || status === 429 || status === 408) {
+      return true;
+    }
+    return false;
   }
 
   if (error instanceof Error) {
