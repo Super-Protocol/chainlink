@@ -1,5 +1,8 @@
 import { Static, Type } from '@sinclair/typebox';
 
+import { SourceName } from '../../sources/source-name.enum';
+import { variantsSchema } from '../utils/schema.util';
+
 export const pairsTtlSchema = Type.Array(
   Type.Object({
     pair: Type.Array(Type.String(), {
@@ -12,9 +15,8 @@ export const pairsTtlSchema = Type.Array(
       ],
     }),
     source: Type.Optional(
-      Type.String({
+      variantsSchema(Object.values(SourceName), {
         description: 'Source name for which this TTL applies',
-        examples: ['binance', 'okx', 'kraken'],
       }),
     ),
     ttl: Type.Integer({
