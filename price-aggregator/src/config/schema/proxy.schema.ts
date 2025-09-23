@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox';
+import { Static, Type } from '@sinclair/typebox';
 
 const createProxySchema = (protocol: 'HTTP' | 'HTTPS') =>
   Type.Union([
@@ -43,4 +43,4 @@ export const proxySchema = Type.Object({
   https: Type.Optional(createProxySchema('HTTPS')),
 });
 
-export type ProxyConfig = typeof proxySchema.static;
+export type ProxyConfig = Static<typeof proxySchema>;
