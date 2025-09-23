@@ -14,9 +14,3 @@ export interface ClientParams {
 export interface ClientParamsWithProxy extends ClientParams {
   proxyConfig: ProxyConfig;
 }
-
-export interface BasicClientParams {
-  timeoutMs: number;
-  rps?: number | null;
-  useProxy?: boolean;
-}

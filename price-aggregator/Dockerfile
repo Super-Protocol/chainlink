@@ -1,4 +1,4 @@
-FROM node:22.18.0-alpine AS builder
+FROM node:22 AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN npm run build
 RUN npm ci --only=production --no-audit --no-fund
 
 
-FROM node:22.18.0-alpine
+FROM node:22
 
 WORKDIR /app
 

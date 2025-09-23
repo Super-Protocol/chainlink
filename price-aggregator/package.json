@@ -2,9 +2,12 @@
   "name": "price-aggregator",
   "version": "1.0.0",
   "description": "NestJS Price Aggregator Service",
-  "author": "",
+  "author": {
+    "name": "Super Protocol",
+    "url": "https://superprotocol.com/"
+  },
   "private": true,
-  "license": "UNLICENSED",
+  "license": "BSL-1.1",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

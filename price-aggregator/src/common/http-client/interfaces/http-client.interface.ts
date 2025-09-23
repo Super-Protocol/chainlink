@@ -8,13 +8,6 @@ export interface ProxyConfig {
   protocol?: 'http' | 'https';
 }
 
-export interface RpsLimiterConfig {
-  maxConcurrent: number;
-  minTime: number;
-  reservoirRefreshInterval?: number;
-  reservoirRefreshAmount?: number;
-}
-
 export interface HttpClient {
   get<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>>;
   post<T, D>(
