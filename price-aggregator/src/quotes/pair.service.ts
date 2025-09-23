@@ -119,7 +119,7 @@ export class PairService {
     return registrations;
   }
 
-  getSourcesByPair(pair: Pair): string[] {
+  getSourcesByPair(pair: Pair): SourceName[] {
     const pairKey = this.getPairKey(pair);
     const sources = this.sourcesByPair.get(pairKey);
 

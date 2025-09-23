@@ -42,8 +42,8 @@ export class FinnhubAdapter implements SourceAdapter {
   ) {
     const sourceConfig = configService.get('sources.finnhub');
     const { apiKey, enabled, ttl, refetch } = sourceConfig;
-    this.apiKey = apiKey || '';
-    this.enabled = enabled && !!this.apiKey;
+    this.apiKey = apiKey;
+    this.enabled = enabled;
     this.finnhubStreamService = new FinnhubStreamService(
       this.apiKey,
       undefined,

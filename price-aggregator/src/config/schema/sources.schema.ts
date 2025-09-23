@@ -4,17 +4,19 @@ const createApiKeySchema = (
   required: boolean = false,
   description: string,
   examples: string[] = [],
+  minLength: number = 1,
 ) =>
   Type.Object({
     apiKey: required
-      ? Type.String({ description, examples })
-      : Type.Optional(Type.String({ description, examples })),
+      ? Type.String({ description, examples, minLength })
+      : Type.Optional(Type.String({ description, examples, minLength })),
   });
 
 interface CreateSourceSchemaParams {
   apiKeyRequired: boolean;
   apiKeyDescription: string;
   apiKeyExamples?: string[];
+  apiKeyMinLength?: number;
   rpsDefault: number;
   maxConcurrentDefault?: number;
   maxBatchSize?: number;
@@ -24,6 +26,7 @@ const createSourceSchema = ({
   apiKeyRequired,
   apiKeyDescription,
   apiKeyExamples = [],
+  apiKeyMinLength = 1,
   rpsDefault,
   maxConcurrentDefault = 10,
   maxBatchSize,
@@ -100,6 +103,7 @@ const createSourceSchema = ({
     apiKeyRequired,
     apiKeyDescription,
     apiKeyExamples,
+    apiKeyMinLength,
   );
 
   return Type.Intersect([baseSchema, apiKeySchema]);
@@ -127,6 +131,7 @@ export const finnhubSourceSchema = createSourceSchema({
   apiKeyRequired: true,
   apiKeyDescription: 'Required API key for Finnhub (free: 60 requests/minute)',
   apiKeyExamples: ['your-finnhub-api-key'],
+  apiKeyMinLength: 2,
   rpsDefault: 1,
 });
 

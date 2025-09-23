@@ -27,6 +27,8 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
   private refreshQueue: PQueue;
   private inProgressKeys = new Set<string>();
   private config: RefetchConfig;
+  private readonly staleBatchHandler = (batch: StaleBatch) =>
+    this.handleStaleBatch(batch);
 
   constructor(
     private readonly configService: AppConfigService,
@@ -46,7 +48,7 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    this.cacheService.onStaleBatch((batch) => this.handleStaleBatch(batch));
+    this.cacheService.onStaleBatch(this.staleBatchHandler);
 
     this.logger.log('Refetch service initialized with config:', this.config);
   }
@@ -56,7 +58,7 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    this.cacheService.offStaleBatch((batch) => this.handleStaleBatch(batch));
+    this.cacheService.offStaleBatch(this.staleBatchHandler);
     this.logger.log('Refetch service destroyed');
   }
 

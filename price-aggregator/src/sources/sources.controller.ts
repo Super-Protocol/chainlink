@@ -69,6 +69,7 @@ export class SourcesController {
 
     const quote = await this.sourcesManager.fetchQuote(source, pair);
     return {
+      source,
       pair: quote.pair,
       price: quote.price,
       receivedAt: quote.receivedAt,
@@ -117,6 +118,7 @@ export class SourcesController {
 
     const quotes = await this.sourcesManager.fetchQuotes(source, pairs);
     return quotes.map((quote) => ({
+      source,
       pair: quote.pair,
       price: quote.price,
       receivedAt: quote.receivedAt,

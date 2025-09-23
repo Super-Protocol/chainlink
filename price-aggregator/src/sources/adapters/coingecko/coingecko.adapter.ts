@@ -52,7 +52,7 @@ export class CoinGeckoAdapter implements SourceAdapter {
       baseUrl: this.apiKey ? PRO_BASE_URL : FREE_BASE_URL,
     });
 
-    this.coinIdMap = getCoinIdMap();
+    this.coinIdMap = getCoinIdMap(this.httpClient);
   }
 
   isEnabled(): boolean {
@@ -79,7 +79,7 @@ export class CoinGeckoAdapter implements SourceAdapter {
 
     const params = new URLSearchParams({
       ids: coinId,
-      vs_currencies: quote,
+      vs_currencies: quote.toLowerCase(),
     });
 
     if (this.apiKey) {
@@ -90,7 +90,7 @@ export class CoinGeckoAdapter implements SourceAdapter {
       `${API_PATH}?${params.toString()}`,
     );
 
-    const price = data?.[coinId]?.[quote];
+    const price = data?.[coinId]?.[quote.toLowerCase()];
 
     if (price === undefined || price === null) {
       throw new PriceNotFoundException(pair, this.name);
@@ -127,7 +127,7 @@ export class CoinGeckoAdapter implements SourceAdapter {
 
     const params = new URLSearchParams({
       ids: coinIds.join(','),
-      vs_currencies: currencies.join(','),
+      vs_currencies: currencies.map((c) => c.toLowerCase()).join(','),
     });
 
     if (this.apiKey) {
@@ -145,7 +145,7 @@ export class CoinGeckoAdapter implements SourceAdapter {
       for (const pair of pairs) {
         const [base, quote] = pair;
         const coinId = coinIdMap.get(base.toLowerCase()) || base;
-        const price = data?.[coinId]?.[quote];
+        const price = data?.[coinId]?.[quote.toLowerCase()];
 
         if (price !== undefined && price !== null) {
           quotes.push({

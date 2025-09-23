@@ -90,7 +90,7 @@ sources:
     enabled: true
     ttl: 10000
     timeoutMs: 10000
-    rps: 25 # Free tier: 100k/month, adjust based on your plan
+    rps: 1 # ~60/min; adjust per paid plan to avoid exhausting monthly quota
     maxConcurrent: 10
     apiKey: required-cryptocompare-api-key
     useProxy: false

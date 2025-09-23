@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { HttpClient } from '../../../common';
 
 export interface CoinGeckoCoin {
   id: string;
@@ -16,8 +16,10 @@ const coinListCache: {
 
 const CACHE_TTL = 24 * 60 * 60 * 1000;
 
-async function fetchCoinList(): Promise<Map<string, string>> {
-  const { data } = await axios.get<CoinGeckoCoin[]>(
+async function fetchCoinList(
+  httpClient: HttpClient,
+): Promise<Map<string, string>> {
+  const { data } = await httpClient.get<CoinGeckoCoin[]>(
     'https://api.coingecko.com/api/v3/coins/list',
   );
 
@@ -31,10 +33,12 @@ async function fetchCoinList(): Promise<Map<string, string>> {
   return symbolToIdMap;
 }
 
-export function getCoinIdMap(): Promise<Map<string, string>> {
+export function getCoinIdMap(
+  httpClient: HttpClient,
+): Promise<Map<string, string>> {
   const now = Date.now();
   if (!coinListCache.promise || now - coinListCache.timestamp > CACHE_TTL) {
-    coinListCache.promise = fetchCoinList();
+    coinListCache.promise = fetchCoinList(httpClient);
     coinListCache.timestamp = now;
   }
   return coinListCache.promise;

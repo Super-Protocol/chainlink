@@ -11,7 +11,7 @@ export class SourcesExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    let status = exception.httpStatus;
+    const status = exception.httpStatus;
     const message = exception.message;
 
     if (exception instanceof SourceApiException) {
@@ -19,9 +19,6 @@ export class SourcesExceptionFilter implements ExceptionFilter {
         `Source API error: ${message}`,
         exception.cause instanceof Error ? exception.cause.stack : undefined,
       );
-      if (exception.statusCode) {
-        status = exception.statusCode;
-      }
     }
 
     response.status(status).json({

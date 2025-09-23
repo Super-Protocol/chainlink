@@ -115,8 +115,8 @@ export class CryptoCompareStreamService extends BaseStreamService {
   private handleCurrentMessage(parts: string[]): void {
     if (parts.length < 6) return;
 
-    const [, market, fromSymbol, toSymbol, , priceStr] = parts;
-    const channel = `2~${market}~${fromSymbol}~${toSymbol}`;
+    const [, , fromSymbol, toSymbol, , priceStr] = parts;
+    const channel = this.buildChannel(fromSymbol, toSymbol);
     const price = parseFloat(priceStr);
 
     if (!isNaN(price)) {

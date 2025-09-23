@@ -3,12 +3,17 @@ import { Counter, Histogram, Gauge, collectDefaultMetrics } from 'prom-client';
 
 @Injectable()
 export class MetricsService {
+  private static defaultMetricsRegistered = false;
+
   constructor() {
-    collectDefaultMetrics({
-      prefix: 'nodejs_',
-      gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
-      eventLoopMonitoringPrecision: 10,
-    });
+    if (!MetricsService.defaultMetricsRegistered) {
+      collectDefaultMetrics({
+        prefix: 'nodejs_',
+        gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
+        eventLoopMonitoringPrecision: 10,
+      });
+      MetricsService.defaultMetricsRegistered = true;
+    }
   }
 
   public readonly requestLatency = new Histogram({

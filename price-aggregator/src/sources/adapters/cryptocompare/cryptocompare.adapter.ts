@@ -5,6 +5,7 @@ import { CryptoCompareStreamService } from './cryptocompare-stream.service';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { MetricsService } from '../../../metrics/metrics.service';
+import { HandleSourceError } from '../../decorators';
 import {
   BatchSizeExceededException,
   PriceNotFoundException,
@@ -78,7 +79,16 @@ export class CryptoCompareAdapter implements SourceAdapter {
     return this.maxBatchSize;
   }
 
+  @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
+    if (!this.apiKey) {
+      throw new SourceApiException(
+        this.name,
+        new Error('API key is not configured'),
+        401,
+      );
+    }
+
     const [base, quote] = pair;
 
     try {
@@ -105,16 +115,24 @@ export class CryptoCompareAdapter implements SourceAdapter {
       };
     } catch (error) {
       if (isAxiosError<{ Message?: string }>(error)) {
-        const errorMessage = error.response?.data?.Message;
-        if (errorMessage) {
-          throw new SourceApiException(this.name, new Error(errorMessage));
-        }
+        const status = error.response?.status;
+        const msg = error.response?.data?.Message ?? error.message;
+        throw new SourceApiException(this.name, new Error(msg), status);
       }
       throw new SourceApiException(this.name, error as Error);
     }
   }
 
+  @HandleSourceError()
   async fetchQuotes(pairs: Pair[]): Promise<Quote[]> {
+    if (!this.apiKey) {
+      throw new SourceApiException(
+        this.name,
+        new Error('API key is not configured'),
+        401,
+      );
+    }
+
     if (!pairs || pairs.length === 0) {
       return [];
     }
@@ -166,10 +184,9 @@ export class CryptoCompareAdapter implements SourceAdapter {
       }
 
       if (isAxiosError<{ Message?: string }>(error)) {
-        const errorMessage = error.response?.data?.Message;
-        if (errorMessage) {
-          throw new SourceApiException(this.name, new Error(errorMessage));
-        }
+        const status = error.response?.status;
+        const msg = error.response?.data?.Message ?? error.message;
+        throw new SourceApiException(this.name, new Error(msg), status);
       }
       throw new SourceApiException(this.name, error as Error);
     }

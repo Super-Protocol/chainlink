@@ -72,7 +72,7 @@ export class KrakenStreamService extends BaseStreamService {
         this.logger.warn(
           `Subscribe timeout for symbols: ${symbols.join(', ')}, req_id: ${requestId}`,
         );
-        resolve();
+        reject(new Error('Subscribe timeout'));
       }, 10000);
 
       this.pendingRequests.set(requestId, {

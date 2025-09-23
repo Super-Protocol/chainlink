@@ -65,7 +65,11 @@ export class CacheStalenessService
   updateRefreshTime(key: string): void {
     const metadata = this.metadata.get(key);
     if (metadata) {
-      metadata.lastRefreshed = new Date();
+      const now = new Date();
+      metadata.lastRefreshed = now;
+      metadata.cachedAt = now;
+      metadata.expiresAt = new Date(now.getTime() + metadata.ttl);
+      this.scheduleStaleCheck(key, metadata);
     }
   }
 

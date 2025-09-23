@@ -254,10 +254,17 @@ export abstract class BaseStreamService implements QuoteStreamService {
     if (this.subscribedIdentifiers.size === 0) return;
 
     const identifiers = [...this.subscribedIdentifiers];
-    this.subscribedIdentifiers.clear();
 
     if (identifiers.length > 0) {
-      await this.subscribeToIdentifiers(identifiers);
+      const successfulIdentifiers = new Set<string>();
+      try {
+        this.subscribedIdentifiers.clear();
+        await this.subscribeToIdentifiers(identifiers);
+        identifiers.forEach((i) => successfulIdentifiers.add(i));
+      } catch (error) {
+        successfulIdentifiers.forEach((i) => this.subscribedIdentifiers.add(i));
+        throw error;
+      }
     }
   }
 
