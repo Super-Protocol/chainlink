@@ -1,18 +1,18 @@
 #!/usr/bin/env node
-"use strict";
+'use strict';
 
-const fs = require("fs");
-const path = require("path");
-const crypto = require("crypto");
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 
 const ROOT = path.resolve(__dirname);
-const MAP_PATH = path.join(ROOT, "data-feeds-map.json");
-const CAS_PATH = path.join(ROOT, "feed-cas.json");
-const TEMPLATE_PATH = path.join(ROOT, "job-template.toml");
-const OUTPUT_DIR = path.join(ROOT, "templates");
+const MAP_PATH = path.join(ROOT, 'data-feeds-map.json');
+const CAS_PATH = path.join(ROOT, 'feed-cas.json');
+const TEMPLATE_PATH = path.join(ROOT, 'job-template.toml');
+const OUTPUT_DIR = path.join(ROOT, 'templates');
 
 function readJson(filePath) {
-  const raw = fs.readFileSync(filePath, "utf8");
+  const raw = fs.readFileSync(filePath, 'utf8');
   return JSON.parse(raw);
 }
 
@@ -23,21 +23,27 @@ function ensureDir(dir) {
 function slugifyNameToFilename(name) {
   return name
     .toLowerCase()
-    .replace(/\s*\/\s*/g, "-") // replace " / " with '-'
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .concat(".toml");
+    .replace(/\s*\/\s*/g, '-') // replace " / " with '-'
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .concat('.toml');
 }
 
 function generateDeterministicJobId(name, ca) {
-  const ns = "d113bc61-4f8b-5d2a-9a35-4d7c7a599c9e"; // arbitrary fixed namespace UUIDv5-like
-  const hash = crypto.createHash("sha1").update(String(ns) + "|" + name + "|" + ca).digest();
+  const ns = 'd113bc61-4f8b-5d2a-9a35-4d7c7a599c9e'; // arbitrary fixed namespace UUIDv5-like
+  const hash = crypto
+    .createHash('sha1')
+    .update(String(ns) + '|' + name + '|' + ca)
+    .digest();
   const bytes = Buffer.from(hash.slice(0, 16));
   bytes[6] = (bytes[6] & 0x0f) | 0x50; // set version 5 (0b0101 << 4)
   bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant 10
-  const hex = bytes.toString("hex");
-  return `${hex.substr(0, 8)}-${hex.substr(8, 4)}-${hex.substr(12, 4)}-${hex.substr(16, 4)}-${hex.substr(20)}`;
+  const hex = bytes.toString('hex');
+  return `${hex.substr(0, 8)}-${hex.substr(8, 4)}-${hex.substr(
+    12,
+    4
+  )}-${hex.substr(16, 4)}-${hex.substr(20)}`;
 }
 
 function parseQueryParam(url, key) {
@@ -50,7 +56,7 @@ function parseQueryParam(url, key) {
 }
 
 function decimalsToTimesString(decimalsRaw) {
-  let d = Number.parseInt(String(decimalsRaw ?? ""), 10);
+  let d = Number.parseInt(String(decimalsRaw ?? ''), 10);
   if (!Number.isFinite(d) || d < 0) d = 8; // default
   if (d > 36) d = 36; // protect against absurdly large numbers
   const times = 10n ** BigInt(d);
@@ -70,12 +76,12 @@ function buildObservationSource(dataSources, decimalsRaw) {
     const mult = `${ds}_multiply`;
 
     // Support legacy string URL entries and new object entries with { url, path }
-    let url = "";
-    let pathExpr = "";
-    if (typeof entry === "string") {
+    let url = '';
+    let pathExpr = '';
+    if (typeof entry === 'string') {
       url = entry;
-    } else if (entry && typeof entry === "object") {
-      url = entry.url || "";
+    } else if (entry && typeof entry === 'object') {
+      url = entry.url || '';
       // New structure provides explicit path to the value inside returned JSON
       if (entry.path) {
         const raw = String(entry.path);
@@ -85,7 +91,7 @@ function buildObservationSource(dataSources, decimalsRaw) {
         //  - "data[0].last" -> "data,0,last"
         //  - "[0].value" -> "0,value"
         const segments = [];
-        raw.split('.').forEach(seg => {
+        raw.split('.').forEach((seg) => {
           if (!seg) return;
           // Extract name and any bracket indices
           let m;
@@ -95,10 +101,10 @@ function buildObservationSource(dataSources, decimalsRaw) {
             const name = m[1];
             if (name) segments.push(name);
             // Push each index inside brackets as separate segment
-            const idxPart = m[0].slice((name||'').length);
+            const idxPart = m[0].slice((name || '').length);
             const idxMatches = idxPart.match(/\[([0-9]+)\]/g) || [];
-            idxMatches.forEach(ix => {
-              const num = ix.replace(/\[|\]/g, "");
+            idxMatches.forEach((ix) => {
+              const num = ix.replace(/\[|\]/g, '');
               segments.push(num);
             });
             lastIndex = re.lastIndex;
@@ -111,7 +117,9 @@ function buildObservationSource(dataSources, decimalsRaw) {
             if (nameMatch) segments.push(nameMatch[0]);
             const rest = simple.slice(nameMatch ? nameMatch[0].length : 0);
             const idxMatches2 = rest.match(/\[([0-9]+)\]/g) || [];
-            idxMatches2.forEach(ix => segments.push(ix.replace(/\[|\]/g, "")));
+            idxMatches2.forEach((ix) =>
+              segments.push(ix.replace(/\[|\]/g, ''))
+            );
           }
         });
         pathExpr = segments.join(',');
@@ -124,19 +132,22 @@ function buildObservationSource(dataSources, decimalsRaw) {
 
     // If path not provided (legacy), try best-effort inference
     if (!pathExpr) {
-      if (url.includes("api.binance.com")) {
-        pathExpr = "price";
-      } else if (url.includes("min-api.cryptocompare.com")) {
-        pathExpr = "USD";
-      } else if (url.includes("api.coingecko.com") && url.includes("/simple/price")) {
-        const id = parseQueryParam(url, "ids");
+      if (url.includes('api.binance.com')) {
+        pathExpr = 'price';
+      } else if (url.includes('min-api.cryptocompare.com')) {
+        pathExpr = 'USD';
+      } else if (
+        url.includes('api.coingecko.com') &&
+        url.includes('/simple/price')
+      ) {
+        const id = parseQueryParam(url, 'ids');
         if (id) pathExpr = `${id},usd`;
-      } else if (url.includes("api.coinbase.com")) {
-        pathExpr = "data,amount";
+      } else if (url.includes('api.coinbase.com')) {
+        pathExpr = 'data,amount';
       }
       if (!pathExpr) {
         // Fallback: try common fields
-        pathExpr = url.includes("coingecko") ? "usd" : "USD";
+        pathExpr = url.includes('coingecko') ? 'usd' : 'USD';
       }
     }
 
@@ -153,22 +164,25 @@ function buildObservationSource(dataSources, decimalsRaw) {
   medianInputs.forEach((m) => {
     edges.push(`${m} -> median;`);
   });
-  lines.push("median [type=median];");
+  lines.push('median [type=median];');
 
   const all = [];
   all.push(...lines);
-  all.push("");
+  all.push('');
   all.push(...edges);
-  return all.join("\n");
+  return all.join('\n');
 }
 
-function replacePlaceholders(template, { jobName, jobId, jobCa, observationSource }) {
+function replacePlaceholders(
+  template,
+  { jobName, jobId, jobCa, observationSource }
+) {
   function indentBlock(text, spaces = 4) {
-    const pad = " ".repeat(spaces);
+    const pad = ' '.repeat(spaces);
     return text
-      .split("\n")
+      .split('\n')
       .map((line) => pad + line)
-      .join("\n");
+      .join('\n');
   }
 
   let out = template
@@ -188,7 +202,7 @@ ${indentBlock(observationSource)}
 function main() {
   const feeds = readJson(MAP_PATH);
   const cas = readJson(CAS_PATH);
-  const template = fs.readFileSync(TEMPLATE_PATH, "utf8");
+  const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
   ensureDir(OUTPUT_DIR);
 
   let generated = 0;
@@ -205,7 +219,10 @@ function main() {
 
     const jobName = `OCR Oracle: ${feed.name} Price Feed`;
     const jobId = generateDeterministicJobId(feed.name, ca);
-    const observationSource = buildObservationSource(feed.dataSources, feed.decimals);
+    const observationSource = buildObservationSource(
+      feed.dataSources,
+      feed.decimals
+    );
 
     const rendered = replacePlaceholders(template, {
       jobName,
@@ -216,7 +233,7 @@ function main() {
 
     const filename = slugifyNameToFilename(feed.name);
     const dest = path.join(OUTPUT_DIR, filename);
-    fs.writeFileSync(dest, rendered, "utf8");
+    fs.writeFileSync(dest, rendered, 'utf8');
     generated++;
     console.log(`Generated: ${dest}`);
   }
@@ -232,5 +249,3 @@ if (require.main === module) {
     process.exit(1);
   }
 }
-
-
