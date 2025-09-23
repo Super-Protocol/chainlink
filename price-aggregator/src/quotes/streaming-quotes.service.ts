@@ -7,6 +7,7 @@ import {
 
 import { CacheService, CachedQuote } from './cache';
 import { PairService } from './pair.service';
+import { SingleFlight } from '../common';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import {
@@ -115,6 +116,7 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
     this.subscriptionsBySource.clear();
   }
 
+  @SingleFlight((source, pair) => `${source}-${pair.join('-')}`)
   private async subscribePair(source: SourceName, pair: Pair): Promise<void> {
     const streamService = this.streamServiceBySource.get(source);
     if (!streamService) return;
