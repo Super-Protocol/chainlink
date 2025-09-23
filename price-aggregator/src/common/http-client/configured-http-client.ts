@@ -59,7 +59,7 @@ export class ConfiguredHttpClient implements HttpClient {
     axiosConfig?: AxiosRequestConfig,
   ): Promise<AxiosResponse<T>> {
     const requestUrl = this.clientConfig.baseUrl
-      ? `${this.clientConfig.baseUrl}${url}`
+      ? new URL(url, this.clientConfig.baseUrl).toString()
       : url;
 
     const enhancedConfig = this.buildRequestConfig(
@@ -83,6 +83,7 @@ export class ConfiguredHttpClient implements HttpClient {
       {
         rps: this.clientConfig.rps,
         maxConcurrent: this.clientConfig.maxConcurrent,
+        maxRetries: this.clientConfig.maxRetries,
       },
       requestFn,
     );

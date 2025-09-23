@@ -221,7 +221,7 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async cacheQuote(source: SourceName, quote: Quote): Promise<void> {
-    await this.cacheService.set(source, quote.pair, {
+    await this.cacheService.set({
       ...quote,
       source,
       cachedAt: new Date(),

@@ -33,11 +33,7 @@ export class BatchQuotesService {
     source: SourceName,
     quote: Quote,
   ): Promise<void> {
-    await this.cacheService.set(
-      source,
-      quote.pair,
-      this.createCachedQuote(source, quote),
-    );
+    await this.cacheService.set(this.createCachedQuote(source, quote));
     this.pairService.trackSuccessfulFetch(quote.pair, source);
     this.pairService.trackResponse(quote.pair, source);
   }

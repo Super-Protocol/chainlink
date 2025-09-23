@@ -4,21 +4,8 @@ export interface BinanceTickerData {
   E?: number; // event time
 }
 
-export interface BinanceStreamMessage {
-  stream?: string;
-  data?: BinanceTickerData;
-}
-
 export interface WebSocketCommand {
   method: string;
   params: string[];
   id: number;
-}
-
-export interface BinanceWebSocketConfig {
-  reconnect?: boolean;
-  reconnectInterval?: number;
-  maxReconnectAttempts?: number;
-  pingInterval?: number;
-  pongTimeout?: number;
 }

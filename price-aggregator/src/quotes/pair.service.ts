@@ -205,12 +205,12 @@ export class PairService {
     if (!this.pairsBySource.has(source)) {
       this.pairsBySource.set(source, new Set());
     }
-    this.pairsBySource.get(source)!.add(pairKey);
+    this.pairsBySource.get(source)?.add(pairKey);
 
     if (!this.sourcesByPair.has(pairKey)) {
       this.sourcesByPair.set(pairKey, new Set());
     }
-    this.sourcesByPair.get(pairKey)!.add(source);
+    this.sourcesByPair.get(pairKey)?.add(source);
 
     this.updateMetrics();
   }

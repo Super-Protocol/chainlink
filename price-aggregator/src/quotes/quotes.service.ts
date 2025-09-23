@@ -66,7 +66,7 @@ export class QuotesService {
     quote: Quote,
   ): Promise<void> {
     const cachedQuoteData = this.createCachedQuote(source, quote);
-    await this.cacheService.set(source, quote.pair, cachedQuoteData);
+    await this.cacheService.set(cachedQuoteData);
     this.pairService.trackSuccessfulFetch(quote.pair, source);
     this.pairService.trackResponse(quote.pair, source);
   }

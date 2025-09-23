@@ -76,12 +76,8 @@ export class CacheService implements OnModuleDestroy {
     }
   }
 
-  async set(
-    source: SourceName,
-    pair: Pair,
-    quote: CachedQuote,
-    ttl?: number,
-  ): Promise<void> {
+  async set(quote: CachedQuote, ttl?: number): Promise<void> {
+    const { source, pair } = quote;
     const key = this.generateCacheKey(source, pair);
 
     try {
@@ -148,18 +144,8 @@ export class CacheService implements OnModuleDestroy {
     this.stalenessService.off('stale-batch', callback);
   }
 
-  updateEntryRefreshTime(source: SourceName, pair: Pair): void {
-    const key = this.generateCacheKey(source, pair);
-    this.stalenessService.updateRefreshTime(key);
-  }
-
-  clearPairTtlCache(): void {
-    this.pairTtlCache.clear();
-    this.logger.debug('Pair TTL cache cleared');
-  }
-
   private getPairSpecificTtl(source: SourceName, pair: Pair): number | null {
-    const cacheKey = `${source}:${pair.join('/')}`;
+    const cacheKey = this.generateCacheKey(source, pair);
 
     if (this.pairTtlCache.has(cacheKey)) {
       return this.pairTtlCache.get(cacheKey)!;

@@ -5,6 +5,7 @@ import Bottleneck from 'bottleneck';
 export interface RpsLimiterOptions {
   rps?: number | null;
   maxConcurrent?: number;
+  maxRetries: number;
 }
 
 function shouldRetryError(error: unknown): boolean {
@@ -80,10 +81,11 @@ export class RpsLimiterService {
         `Request failed for ${key}, retries: ${jobInfo.retryCount}, status: ${statusCode}, shouldRetry: ${shouldRetry}`,
       );
 
-      if (shouldRetry && jobInfo.retryCount < 3) {
+      const maxRetries = options.maxRetries;
+      if (shouldRetry && jobInfo.retryCount < maxRetries) {
         const delay = 100 * Math.pow(2, jobInfo.retryCount);
         this.logger.debug(
-          `Retrying request for ${key} in ${delay}ms (attempt ${jobInfo.retryCount + 1}/3)`,
+          `Retrying request for ${key} in ${delay}ms (attempt ${jobInfo.retryCount + 1}/${maxRetries})`,
         );
         return delay;
       }
