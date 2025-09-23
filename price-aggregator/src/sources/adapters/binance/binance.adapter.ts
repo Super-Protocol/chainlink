@@ -35,10 +35,12 @@ export class BinanceAdapter implements SourceAdapter {
       metricsService,
     );
     const sourceConfig = configService.get('sources.binance');
-    this.enabled = sourceConfig?.enabled || false;
-    this.ttl = sourceConfig?.ttl || 10000;
-    this.refetch = sourceConfig?.refetch || false;
-    this.maxBatchSize = sourceConfig.batchConfig?.maxBatchSize ?? 500;
+    const { enabled, ttl, refetch, maxBatchSize } = sourceConfig;
+
+    this.enabled = enabled;
+    this.ttl = ttl;
+    this.refetch = refetch;
+    this.maxBatchSize = maxBatchSize;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,

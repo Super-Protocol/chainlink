@@ -17,7 +17,6 @@ import { SourceName } from '../../source-name.enum';
 const BASE_URL = 'https://min-api.cryptocompare.com';
 const QUOTE_PATH = '/data/price';
 const PRICEMULTI_PATH = '/data/pricemulti';
-const MAX_BATCH_SIZE = 50;
 
 type CryptoCompareResponse = Record<string, number>;
 type CryptoCompareMultiResponse = Record<string, Record<string, number>>;
@@ -39,16 +38,19 @@ export class CryptoCompareAdapter implements SourceAdapter {
     metricsService: MetricsService,
   ) {
     const sourceConfig = configService.get('sources.cryptocompare');
-    this.apiKey = sourceConfig?.apiKey || '';
-    this.enabled = sourceConfig?.enabled && !!this.apiKey;
+    const { enabled, ttl, refetch, maxBatchSize, apiKey } = sourceConfig;
+
+    this.apiKey = apiKey;
+    this.enabled = enabled && !!this.apiKey;
+    this.ttl = ttl;
+    this.refetch = refetch;
+    this.maxBatchSize = maxBatchSize;
+
     this.cryptoCompareStreamService = new CryptoCompareStreamService(
       undefined,
       this.apiKey,
       metricsService,
     );
-    this.ttl = sourceConfig?.ttl || 10000;
-    this.refetch = sourceConfig?.refetch || false;
-    this.maxBatchSize = sourceConfig.batchConfig?.maxBatchSize ?? 50;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -117,10 +119,10 @@ export class CryptoCompareAdapter implements SourceAdapter {
       return [];
     }
 
-    if (pairs.length > MAX_BATCH_SIZE) {
+    if (pairs.length > this.maxBatchSize) {
       throw new BatchSizeExceededException(
         pairs.length,
-        MAX_BATCH_SIZE,
+        this.maxBatchSize,
         this.name,
       );
     }

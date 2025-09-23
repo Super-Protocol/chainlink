@@ -81,10 +81,12 @@ export class OkxAdapter implements SourceAdapter {
   ) {
     this.okxStreamService = new OkxStreamService();
     const sourceConfig = configService.get('sources.okx');
-    this.enabled = sourceConfig?.enabled || false;
-    this.ttl = sourceConfig?.ttl || 10000;
-    this.refetch = sourceConfig?.refetch || false;
-    this.maxBatchSize = sourceConfig.batchConfig?.maxBatchSize ?? 100;
+    const { enabled, ttl, refetch, maxBatchSize } = sourceConfig;
+
+    this.enabled = enabled;
+    this.ttl = ttl;
+    this.refetch = refetch;
+    this.maxBatchSize = maxBatchSize;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,

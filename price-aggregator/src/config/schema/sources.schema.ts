@@ -83,19 +83,12 @@ const createSourceSchema = ({
         default: false,
       }),
       ...(maxBatchSize && {
-        batchConfig: Type.Object(
-          {
-            maxBatchSize: Type.Integer({
-              minimum: 1,
-              maximum: 1000,
-              description: 'Maximum number of pairs in a single batch request',
-              default: maxBatchSize,
-            }),
-          },
-          {
-            default: {},
-          },
-        ),
+        maxBatchSize: Type.Integer({
+          minimum: 1,
+          maximum: 1000,
+          description: 'Maximum number of pairs in a single batch request',
+          default: maxBatchSize,
+        }),
       }),
     },
     {

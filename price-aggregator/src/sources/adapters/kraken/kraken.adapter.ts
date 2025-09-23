@@ -35,10 +35,12 @@ export class KrakenAdapter implements SourceAdapter {
     metricsService: MetricsService,
   ) {
     const sourceConfig = configService.get('sources.kraken');
-    this.enabled = sourceConfig?.enabled || false;
-    this.ttl = sourceConfig?.ttl || 10000;
-    this.refetch = sourceConfig?.refetch || false;
-    this.maxBatchSize = sourceConfig.batchConfig?.maxBatchSize ?? 50;
+    const { enabled, ttl, refetch, maxBatchSize } = sourceConfig;
+
+    this.enabled = enabled;
+    this.ttl = ttl;
+    this.refetch = refetch;
+    this.maxBatchSize = maxBatchSize;
     this.krakenStreamService = new KrakenStreamService(
       undefined,
       metricsService,

@@ -18,7 +18,6 @@ import { SourceName } from '../../source-name.enum';
 const PRO_BASE_URL = 'https://pro-api.coingecko.com';
 const FREE_BASE_URL = 'https://api.coingecko.com';
 const API_PATH = '/api/v3/simple/price';
-const MAX_BATCH_SIZE = 100;
 
 type CoinGeckoResponse = Record<string, Record<string, number>>;
 
@@ -38,11 +37,13 @@ export class CoinGeckoAdapter implements SourceAdapter {
     configService: AppConfigService,
   ) {
     const sourceConfig = configService.get('sources.coingecko');
-    this.enabled = sourceConfig?.enabled || false;
-    this.ttl = sourceConfig?.ttl || 10000;
-    this.refetch = sourceConfig?.refetch || false;
-    this.maxBatchSize = sourceConfig.batchConfig?.maxBatchSize ?? 200;
-    this.apiKey = sourceConfig?.apiKey;
+    const { enabled, ttl, refetch, maxBatchSize, apiKey } = sourceConfig;
+
+    this.enabled = enabled;
+    this.ttl = ttl;
+    this.refetch = refetch;
+    this.maxBatchSize = maxBatchSize;
+    this.apiKey = apiKey;
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
@@ -107,10 +108,10 @@ export class CoinGeckoAdapter implements SourceAdapter {
       return [];
     }
 
-    if (pairs.length > MAX_BATCH_SIZE) {
+    if (pairs.length > this.maxBatchSize) {
       throw new BatchSizeExceededException(
         pairs.length,
-        MAX_BATCH_SIZE,
+        this.maxBatchSize,
         this.name,
       );
     }
