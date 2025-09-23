@@ -34,8 +34,35 @@ export class WebSocketClient extends EventEmitter {
     };
   }
 
+  private redactUrl(input: string): string {
+    try {
+      const u = new URL(input);
+      u.search = '';
+      u.hash = '';
+      if (u.username) u.username = '***';
+      if (u.password) u.password = '***';
+      return u.toString();
+    } catch {
+      return '[redacted-url]';
+    }
+  }
+
+  private toReasonString(reason: Buffer | string): string {
+    return Buffer.isBuffer(reason) ? reason.toString('utf8') : String(reason);
+  }
+
+  private safeEmitError(error: unknown): void {
+    if (this.listenerCount('error') > 0) {
+      this.emit('error', error);
+    }
+  }
+
   connect(): void {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+    if (
+      this.ws &&
+      (this.ws.readyState === WebSocket.OPEN ||
+        this.ws.readyState === WebSocket.CONNECTING)
+    ) {
       return;
     }
 
@@ -43,7 +70,9 @@ export class WebSocketClient extends EventEmitter {
       this.ws = new WebSocket(this.options.url);
 
       this.ws.on('open', () => {
-        this.logger.log(`WebSocket connected to ${this.options.url}`);
+        this.logger.log(
+          `WebSocket connected to ${this.redactUrl(this.options.url)}`,
+        );
         const wasReconnecting = this.reconnectAttempts > 0;
         this.reconnectAttempts = 0;
         this.emit('open');
@@ -81,12 +110,14 @@ export class WebSocketClient extends EventEmitter {
       });
 
       this.ws.on('error', (error: Error) => {
-        this.logger.error('WebSocket error', error);
-        this.emit('error', error);
+        this.logger.error(`WebSocket error: ${error.message}`, error.stack);
+        this.safeEmitError(error);
       });
 
       this.ws.on('close', (code: number, reason: string) => {
-        this.logger.log(`WebSocket closed: ${code} - ${reason}`);
+        this.logger.log(
+          `WebSocket closed: ${code} - ${this.toReasonString(reason)}`,
+        );
         this.stopHeartbeat();
         this.emit('close', code, reason);
 
@@ -96,16 +127,20 @@ export class WebSocketClient extends EventEmitter {
       });
 
       this.ws.on('pong', (data: Buffer) => {
-        this.logger.verbose(`Pong received: ${data.toString()}`);
+        this.logger.verbose(`Pong received: ${this.toReasonString(data)}`);
         this.clearPongTimeout();
       });
 
       this.ws.on('ping', (data: Buffer) => {
-        this.logger.verbose(`Ping received: ${data.toString()}`);
+        this.logger.verbose(`Ping received: ${this.toReasonString(data)}`);
       });
     } catch (error) {
-      this.logger.error('Failed to create WebSocket', error);
-      this.emit('error', error);
+      const err = error as Error;
+      this.logger.error(
+        `Failed to create WebSocket: ${err.message}`,
+        err.stack,
+      );
+      this.safeEmitError(err);
       if (this.options.reconnect) {
         this.attemptReconnect();
       }
