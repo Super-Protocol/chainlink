@@ -31,14 +31,11 @@ export const numberFromString = (
     }),
   )
     .Decode((value) => {
-      if (typeof value === 'string') {
-        const parsed = parseInt(value, 10);
-        if (isNaN(parsed)) {
-          throw new Error(`Invalid number value: ${value}`);
-        }
-        return parsed;
+      const n = typeof value === 'string' ? Number(value.trim()) : value;
+      if (!Number.isFinite(n)) {
+        throw new Error(`Invalid number value: ${value}`);
       }
-      return value;
+      return n;
     })
     .Encode((value) => value);
 
