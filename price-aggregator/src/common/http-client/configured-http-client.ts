@@ -4,7 +4,10 @@ import { AxiosProxyConfig, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { HttpProxyAgent } from 'http-proxy-agent';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
-import { HttpClient, ProxyConfig } from './interfaces/http-client.interface';
+import {
+  HttpClient,
+  HttpProxyConfig,
+} from './interfaces/http-client.interface';
 import { RpsLimiterService } from './rps-limiter.service';
 import { ClientParams, ClientParamsWithProxy } from './types/client-params';
 
@@ -112,7 +115,7 @@ export class ConfiguredHttpClient implements HttpClient {
     return config;
   }
 
-  private buildProxyConfig(proxyConfig: ProxyConfig) {
+  private buildProxyConfig(proxyConfig: HttpProxyConfig) {
     const { host, port, username, password, protocol = 'http' } = proxyConfig;
 
     const proxyUrl =

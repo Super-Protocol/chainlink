@@ -5,7 +5,7 @@ import { ConfiguredHttpClient } from './configured-http-client';
 import { RpsLimiterService } from './rps-limiter.service';
 import {
   HttpClient,
-  ProxyConfig,
+  HttpProxyConfig,
   ClientParams,
   ClientParamsWithProxy,
 } from './types';
@@ -34,7 +34,7 @@ export class HttpClientBuilder {
     });
   }
 
-  private getProxyConfig(): ProxyConfig | null {
+  private getProxyConfig(): HttpProxyConfig | null {
     const proxyConfig = this.configService.get('proxy');
 
     if (!proxyConfig) {
@@ -44,7 +44,7 @@ export class HttpClientBuilder {
     const httpProxy = proxyConfig.http;
     const httpsProxy = proxyConfig.https;
 
-    let proxy: ProxyConfig | null = null;
+    let proxy: HttpProxyConfig | null = null;
     if (httpProxy?.enabled) {
       proxy = httpProxy;
     }

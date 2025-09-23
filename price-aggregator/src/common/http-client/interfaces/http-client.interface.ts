@@ -1,6 +1,6 @@
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-export interface ProxyConfig {
+export interface HttpProxyConfig {
   host: string;
   port: number;
   username?: string;
