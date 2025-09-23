@@ -15,6 +15,7 @@ export class CacheService implements OnModuleDestroy {
   private readonly logger = new Logger(CacheService.name);
   private cache: Cache;
   private pairTtlCache = new Map<string, number | null>();
+  private metricsUpdateInterval: NodeJS.Timeout;
 
   constructor(
     private readonly sourcesManager: SourcesManagerService,
@@ -26,9 +27,16 @@ export class CacheService implements OnModuleDestroy {
       ttl: 60000,
     });
     this.updateCacheSizeMetrics();
+
+    this.metricsUpdateInterval = setInterval(() => {
+      this.updateCacheSizeMetrics();
+    }, 30000);
   }
 
   onModuleDestroy(): void {
+    if (this.metricsUpdateInterval) {
+      clearInterval(this.metricsUpdateInterval);
+    }
     this.pairTtlCache.clear();
   }
 
