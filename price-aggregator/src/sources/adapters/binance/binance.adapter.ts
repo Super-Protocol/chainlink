@@ -68,7 +68,7 @@ export class BinanceAdapter implements SourceAdapter {
   @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     const { data } = await this.httpClient.get<{ price: string }>(API_PATH, {
-      params: { symbol: pair.join('') },
+      params: { symbol: pair.map((p) => p.toUpperCase()).join('') },
     });
     const price = data?.price;
     if (price === undefined || price === null) {
@@ -108,7 +108,7 @@ export class BinanceAdapter implements SourceAdapter {
       }
 
       for (const pair of pairs) {
-        const symbol = pair.join('');
+        const symbol = pair.map((p) => p.toUpperCase()).join('');
         const price = priceMap.get(symbol);
 
         if (price !== undefined && price !== null) {
@@ -140,6 +140,7 @@ export class BinanceAdapter implements SourceAdapter {
     await this.binanceStreamService.disconnect();
   }
 
+  @HandleSourceError()
   async getPairs(): Promise<Pair[]> {
     try {
       const { data } = await this.httpClient.get<{
