@@ -55,7 +55,7 @@ RUN chmod +x /etc/cont-init.d/20-generate-services.sh
 
 # s6-rc services (postgres bootstrap, postgres longrun, init after up)
 COPY aio/s6-rc.d /etc/s6-overlay/s6-rc.d
-RUN find /etc/s6-overlay/s6-rc.d -type f \( -name run -o -name up \) -exec chmod +x {} +
+RUN find /etc/s6-overlay/s6-rc.d -type f \( -name run -o -name up -o -name finish \) -exec chmod +x {} +
 
 RUN chmod +x /scripts/bash/init-db.sh
 

@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "[price-aggregator] Starting..."
+
 GLOBAL_CONFIG_JSON_PATH="/sp/configurations/configuration.json"
 mkdir -p /etc/price-aggregator
 
 # Ensure config file exists; default to example if none provided
 CONFIG_FILE_PATH=${CONFIG_FILE:-/etc/price-aggregator/config.yaml}
-cat $GLOBAL_CONFIG_JSON_PATH | jq '.solution.priceAggregatorConfig' -r > $CONFIG_FILE_PATH
+if [ -f "$GLOBAL_CONFIG_JSON_PATH" ]; then
+  if ! jq -r '.solution.priceAggregatorConfig' "$GLOBAL_CONFIG_JSON_PATH" > "$CONFIG_FILE_PATH" 2>/dev/null; then
+    echo "[price-aggregator] WARN: failed to extract priceAggregatorConfig from $GLOBAL_CONFIG_JSON_PATH" >&2
+  fi
+else
+  echo "[price-aggregator] WARN: global config not found at $GLOBAL_CONFIG_JSON_PATH; using existing $CONFIG_FILE_PATH if present" >&2
+fi
 
 export CONFIG_FILE="$CONFIG_FILE_PATH"
 export NODE_ENV=${NODE_ENV:-production}
@@ -19,5 +27,4 @@ if [ ! -d "dist" ]; then
   npm run build
 fi
 
-echo "[price-aggregator] Starting..."
 exec node dist/main

@@ -68,11 +68,41 @@ export NODE_ROOT_DIR=/chainlink/node-${i}
 export CHAINLINK_WEB_SERVER_HTTP_PORT=${API_PORT}
 export API_PORT=${API_PORT}
 export P2P_PORT=${P2P_PORT}
+export PRICE_AGGREGATOR_PORT=${PRICE_AGGREGATOR_PORT}
 export CONFIGURATION_PUBLIC_KEY="MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE1mXRd/v32RmPknpTnasAa3b5G31lbOUwMV4cQK/GU8WHySSvJj1MSCsdwhGggGoroMD2Qp/Ql2UOAiGvDRDmGw=="
 cd /scripts
 exec node index.js
 EOF
   chmod +x "$svc_dir/run"
+
+  # Generate finish script to stop container after repeated failures
+  cat > "$svc_dir/finish" <<EOF
+#!/usr/bin/env bash
+set -eu
+
+# Fixed service name using node index from generator time
+SERVICE_NAME="chainlink-node-${i}"
+
+STATE_DIR="/run/\${SERVICE_NAME}"
+COUNT_FILE="\${STATE_DIR}/restart-count"
+MAX_RESTARTS="\${MAX_RESTARTS:-3}"
+
+mkdir -p "\$STATE_DIR"
+count=\$(cat "\$COUNT_FILE" 2>/dev/null || echo 0)
+count=\$((count+1))
+echo "\$count" > "\$COUNT_FILE"
+
+echo "[\${SERVICE_NAME}] crash count: \$count/\${MAX_RESTARTS}"
+
+if [ "\$count" -ge "\$MAX_RESTARTS" ]; then
+  echo "[\${SERVICE_NAME}] too many failures, terminating supervision tree"
+  # Ask s6-svscan (PID 1) to exit; this will stop the container
+  s6-svscanctl -t /run/service || true
+fi
+
+exit 0
+EOF
+  chmod +x "$svc_dir/finish"
 done
 
 log "s6 service generation complete."

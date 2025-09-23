@@ -14,6 +14,29 @@ if [ -z "${NODE_NUMBER:-}" ]; then
   exit 1
 fi
 
+if [ -z "${PRICE_AGGREGATOR_PORT:-}" ]; then
+  log "PRICE_AGGREGATOR_PORT env var is required" >&2
+  exit 1
+fi
+
+# Wait for price-aggregator readiness
+wait_for_price_aggregator() {
+  local tries=0; local max_tries="${WAIT_PRICE_AGGREGATOR_TRIES:-300}"; local url="http://127.0.0.1:${PRICE_AGGREGATOR_PORT}/metrics"
+  while [ "$tries" -lt "$max_tries" ]; do
+    if curl -fsS "$url" >/dev/null 2>&1; then
+      return 0
+    fi
+    tries=$((tries+1)); sleep 1
+  done
+  return 1
+}
+
+log "waiting for price-aggregator at http://127.0.0.1:${PRICE_AGGREGATOR_PORT}/metrics ..."
+if ! wait_for_price_aggregator; then
+  log "price-aggregator did not become ready in time"
+  exit 1
+fi
+
 ROOT_DIR="${CHAINLINK_ROOT:-/chainlink}/node-${NODE_NUMBER}"
 SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
 CL_SHARED_DIR="$SP_SECRETS_DIR/cl-secrets"
