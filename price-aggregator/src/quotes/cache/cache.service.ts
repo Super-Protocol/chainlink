@@ -170,6 +170,10 @@ export class CacheService implements OnModuleDestroy {
     const metadata = this.stalenessService.getMetadata();
     const sourceCounts = new Map<SourceName, number>();
 
+    for (const source of Object.values(SourceName)) {
+      sourceCounts.set(source, 0);
+    }
+
     for (const key of metadata.keys()) {
       const [, sourcePart] = key.split(':');
       const source = sourcePart as SourceName;
