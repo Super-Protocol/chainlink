@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox';
+import { Type, Static } from '@sinclair/typebox';
 
 const createApiKeySchema = (
   required: boolean = false,
@@ -204,4 +204,4 @@ export const sourcesSchema = Type.Object(
   { default: {} },
 );
 
-export type SourcesConfig = typeof sourcesSchema.static;
+export type SourcesConfig = Static<typeof sourcesSchema>;
