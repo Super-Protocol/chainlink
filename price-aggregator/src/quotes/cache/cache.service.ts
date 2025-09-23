@@ -126,8 +126,8 @@ export class CacheService implements OnModuleDestroy {
 
   private resolveTtl(source: SourceName, pair: Pair, ttl?: number): number {
     return (
-      ttl ||
-      this.getPairSpecificTtl(source, pair) ||
+      ttl ??
+      this.getPairSpecificTtl(source, pair) ??
       this.sourcesManager.getTtl(source)
     );
   }
@@ -180,7 +180,7 @@ export class CacheService implements OnModuleDestroy {
         config.pair[1] === pair[1],
     );
 
-    const ttl = pairConfig?.ttl || null;
+    const ttl = pairConfig?.ttl ?? null;
     this.pairTtlCache.set(cacheKey, ttl);
     return ttl;
   }
