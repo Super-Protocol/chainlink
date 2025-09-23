@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+GLOBAL_CONFIG_JSON_PATH="/sp/configurations/configuration.json"
+mkdir -p /etc/price-aggregator
+
 # Ensure config file exists; default to example if none provided
 CONFIG_FILE_PATH=${CONFIG_FILE:-/etc/price-aggregator/config.yaml}
-if [ ! -f "$CONFIG_FILE_PATH" ]; then
-  if [ -f "/etc/price-aggregator/config.yaml" ]; then
-    cp /etc/price-aggregator/config.yaml "$CONFIG_FILE_PATH" || true
-  else
-    echo "[price-aggregator] ERROR: No config file at $CONFIG_FILE_PATH and no example to copy from" >&2
-    exit 1
-  fi
-fi
+cat $GLOBAL_CONFIG_JSON_PATH | jq '.solution.priceAggregatorConfig' -r > $CONFIG_FILE_PATH
 
 export CONFIG_FILE="$CONFIG_FILE_PATH"
 export NODE_ENV=${NODE_ENV:-production}
