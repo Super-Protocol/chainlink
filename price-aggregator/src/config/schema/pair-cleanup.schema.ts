@@ -7,14 +7,14 @@ export const pairCleanupSchema = Type.Object(
       description: 'Enable automatic cleanup of inactive pairs',
     }),
     inactiveTimeoutMs: Type.Integer({
-      minimum: 60000, // 1 minute minimum
+      minimum: 10000, // 10 seconds minimum
       maximum: 86400000, // 24 hours maximum
       default: 7200000, // 2 hours default
       description:
         'Milliseconds after which inactive pairs are removed from tracking',
     }),
     cleanupIntervalMs: Type.Integer({
-      minimum: 5000, // 5 seconds minimum
+      minimum: 1000, // 1 seconds minimum
       maximum: 3600000, // 1 hour maximum
       default: 300000, // 5 minutes default
       description:

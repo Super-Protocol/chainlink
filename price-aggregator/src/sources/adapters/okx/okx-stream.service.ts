@@ -35,7 +35,10 @@ export class OkxStreamService extends BaseStreamService {
   protected getWebSocketClientOptions(): Partial<
     ConstructorParameters<typeof WebSocketClient>[0]
   > {
-    return { pingInterval: 0 };
+    return {
+      pingInterval: 0,
+      parseJson: false,
+    };
   }
 
   protected pairToIdentifier(pair: Pair): string {
@@ -71,76 +74,95 @@ export class OkxStreamService extends BaseStreamService {
 
     try {
       if (typeof data === 'string' && data === 'pong') {
-        this.logger.debug('Received pong from OKX');
+        this.logger.verbose('Received pong from OKX');
+        return;
+      }
+
+      if (typeof data === 'string') {
+        try {
+          const message = JSON.parse(data) as OkxWebSocketMessage;
+          this.processOkxMessage(message);
+        } catch {
+          this.logger.warn('Received non-JSON string message from OKX', {
+            data,
+          });
+        }
         return;
       }
 
       const message = data as OkxWebSocketMessage;
-
-      if (message.event === 'subscribe') {
-        this.logger.debug('OKX subscribe confirmation received');
-        return;
-      }
-
-      if (message.event === 'unsubscribe') {
-        this.logger.debug('OKX unsubscribe confirmation received');
-        return;
-      }
-
-      if (message.event === 'error') {
-        this.logger.error('OKX WebSocket error event', {
-          code: message.code,
-          msg: message.msg,
-        });
-        return;
-      }
-
-      if (message.arg?.channel === TICKERS_CHANNEL && message.data) {
-        for (const tickerData of message.data) {
-          if (tickerData.instId && tickerData.last) {
-            const pair = this.identifierToPairMap.get(tickerData.instId);
-            if (pair) {
-              const quote: Quote = {
-                pair,
-                price: String(tickerData.last),
-                receivedAt: new Date(parseInt(tickerData.ts, 10)),
-              };
-
-              this.emitQuote(tickerData.instId, quote);
-            }
-          }
-        }
-      }
+      this.processOkxMessage(message);
     } catch (error) {
       this.logger.error('Error handling OKX message', error);
     }
   }
 
+  private processOkxMessage(message: OkxWebSocketMessage): void {
+    if (message.event === 'subscribe') {
+      this.logger.debug('OKX subscribe confirmation received');
+      return;
+    }
+
+    if (message.event === 'unsubscribe') {
+      this.logger.debug('OKX unsubscribe confirmation received');
+      return;
+    }
+
+    if (message.event === 'error') {
+      this.logger.error('OKX WebSocket error event', {
+        code: message.code,
+        msg: message.msg,
+      });
+      return;
+    }
+
+    if (message.arg?.channel === TICKERS_CHANNEL && message.data) {
+      for (const tickerData of message.data) {
+        if (tickerData.instId && tickerData.last) {
+          const pair = this.identifierToPairMap.get(tickerData.instId);
+          if (pair) {
+            const quote: Quote = {
+              pair,
+              price: String(tickerData.last),
+              receivedAt: new Date(parseInt(tickerData.ts, 10)),
+            };
+
+            this.emitQuote(tickerData.instId, quote);
+          }
+        }
+      }
+    }
+  }
+
   protected onConnect(): void {
     this.lastMessageTime = Date.now();
+    this.logger.verbose('OKX connected, starting ping');
     this.startPing();
   }
 
   protected onDisconnect(): void {
+    this.logger.verbose('OKX disconnected, stopping ping');
     this.stopPing();
   }
 
   private startPing(): void {
     this.stopPing();
+    this.logger.verbose('Starting OKX ping timer');
 
     this.pingInterval = setInterval(() => {
       const now = Date.now();
       const timeSinceLastMessage = now - this.lastMessageTime;
 
-      if (timeSinceLastMessage > 25000 && this.isConnected) {
+      if (timeSinceLastMessage >= 5000 && this.isConnected) {
         this.wsClient?.send('ping');
-        this.logger.debug('Sent ping to OKX');
+        this.logger.verbose('Sent ping to OKX');
       }
-    }, 25000);
+    }, 5000);
   }
 
   private stopPing(): void {
     if (this.pingInterval) {
+      this.logger.verbose('Stopping OKX ping timer');
       clearInterval(this.pingInterval);
       this.pingInterval = undefined;
     }
