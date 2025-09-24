@@ -21,11 +21,14 @@ export class ConfiguredHttpClient implements HttpClient {
     private readonly rpsLimiter: RpsLimiterService,
   ) {}
 
-  get<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+  get<T = Record<string, unknown>>(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<T>> {
     return this.execute<T>('GET', url, undefined, config);
   }
 
-  post<T, D = unknown>(
+  post<T = Record<string, unknown>, D = unknown>(
     url: string,
     data?: D,
     config?: AxiosRequestConfig,
@@ -33,7 +36,7 @@ export class ConfiguredHttpClient implements HttpClient {
     return this.execute<T>('POST', url, data, config);
   }
 
-  put<T, D = unknown>(
+  put<T = Record<string, unknown>, D = unknown>(
     url: string,
     data?: D,
     config?: AxiosRequestConfig,
@@ -41,7 +44,7 @@ export class ConfiguredHttpClient implements HttpClient {
     return this.execute<T>('PUT', url, data, config);
   }
 
-  patch<T, D = unknown>(
+  patch<T = Record<string, unknown>, D = unknown>(
     url: string,
     data?: D,
     config?: AxiosRequestConfig,
@@ -49,14 +52,14 @@ export class ConfiguredHttpClient implements HttpClient {
     return this.execute<T>('PATCH', url, data, config);
   }
 
-  delete<T>(
+  delete<T = Record<string, unknown>>(
     url: string,
     config?: AxiosRequestConfig,
   ): Promise<AxiosResponse<T>> {
     return this.execute<T>('DELETE', url, undefined, config);
   }
 
-  private async execute<T>(
+  private async execute<T = Record<string, unknown>>(
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     url: string,
     data?: unknown,
