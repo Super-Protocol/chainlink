@@ -97,10 +97,12 @@ export class CacheService implements OnModuleDestroy {
     const key = this.generateCacheKey(source, pair);
 
     try {
-      this.cache.del(key);
-      this.stalenessService.removeEntry(key);
-      this.updateCacheSizeMetrics();
-      this.logger.verbose(`Deleted cache for ${key}`);
+      const affected = this.cache.del(key);
+      if (affected > 0) {
+        this.stalenessService.removeEntry(key);
+        this.updateCacheSizeMetrics();
+        this.logger.verbose(`Deleted cache for ${key}`);
+      }
     } catch (error) {
       this.logger.error(`Error deleting cache for ${key}:`, error);
     }
