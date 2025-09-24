@@ -4,7 +4,6 @@ import { KrakenStreamService } from './kraken-stream.service';
 import { KrakenResponse, KrakenAssetPairsResponse } from './kraken.types';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
-import { MetricsService } from '../../../metrics/metrics.service';
 import { HandleSourceError } from '../../decorators';
 import {
   BatchSizeExceededException,
@@ -27,12 +26,11 @@ export class KrakenAdapter implements SourceAdapter {
   private readonly refetch: boolean;
   private readonly maxBatchSize: number;
   private readonly httpClient: HttpClient;
-  private readonly krakenStreamService: KrakenStreamService;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
-    metricsService: MetricsService,
+    private readonly krakenStreamService: KrakenStreamService,
   ) {
     const sourceConfig = configService.get('sources.kraken');
     const { enabled, ttl, refetch, maxBatchSize } = sourceConfig;
@@ -41,10 +39,6 @@ export class KrakenAdapter implements SourceAdapter {
     this.ttl = ttl;
     this.refetch = refetch;
     this.maxBatchSize = maxBatchSize;
-    this.krakenStreamService = new KrakenStreamService(
-      undefined,
-      metricsService,
-    );
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,

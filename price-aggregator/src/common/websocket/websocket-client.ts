@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 
 import { Logger } from '@nestjs/common';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as WebSocket from 'ws';
 
 export interface WebSocketClientOptions {
@@ -10,7 +11,8 @@ export interface WebSocketClientOptions {
   maxReconnectAttempts?: number;
   pingInterval?: number;
   pongTimeout?: number;
-  parseJson?: boolean; // по умолчанию true для обратной совместимости
+  parseJson?: boolean;
+  proxyUrl?: string;
 }
 
 export class WebSocketClient extends EventEmitter {
@@ -67,7 +69,16 @@ export class WebSocketClient extends EventEmitter {
     }
 
     try {
-      this.ws = new WebSocket(this.options.url);
+      const wsOptions: WebSocket.ClientOptions = {};
+
+      if (this.options.proxyUrl) {
+        wsOptions.agent = new HttpsProxyAgent(this.options.proxyUrl);
+        this.logger.log(
+          `Using proxy: ${this.redactUrl(this.options.proxyUrl)}`,
+        );
+      }
+
+      this.ws = new WebSocket(this.options.url, wsOptions);
 
       this.ws.on('open', () => {
         this.logger.log(

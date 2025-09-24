@@ -33,6 +33,16 @@ export function yamlLoader(configPath?: string): Config {
       throw new Error('YAML config file is empty or invalid');
     }
 
+    // Handle empty proxy section (YAML parses it as null)
+    if (
+      parsedYaml &&
+      typeof parsedYaml === 'object' &&
+      'proxy' in parsedYaml &&
+      parsedYaml.proxy === null
+    ) {
+      parsedYaml.proxy = {};
+    }
+
     const validatedConfig = Value.Parse(yamlValidationSchema, parsedYaml);
 
     return validatedConfig;

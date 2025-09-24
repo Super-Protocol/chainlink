@@ -22,6 +22,32 @@ interface CreateSourceSchemaParams {
   maxBatchSize?: number;
 }
 
+const streamOptionsSchema = Type.Object(
+  {
+    autoReconnect: Type.Boolean({
+      description: 'Enable automatic reconnection on disconnect',
+      default: true,
+    }),
+    reconnectInterval: Type.Integer({
+      minimum: 1000,
+      description: 'Interval between reconnection attempts in ms',
+      default: 5000,
+    }),
+    maxReconnectAttempts: Type.Integer({
+      minimum: 0,
+      maximum: 100,
+      description: 'Maximum number of reconnection attempts',
+      default: 10,
+    }),
+    heartbeatInterval: Type.Integer({
+      minimum: 5000,
+      description: 'Heartbeat ping interval in ms',
+      default: 30000,
+    }),
+  },
+  { additionalProperties: false },
+);
+
 const createSourceSchema = ({
   apiKeyRequired,
   apiKeyDescription,
@@ -70,10 +96,22 @@ const createSourceSchema = ({
             'Requests per second limit to prevent API rate limiting. Set to null to disable limiting',
         },
       ),
-      useProxy: Type.Boolean({
-        description: 'Use proxy for requests (useful to bypass rate limits)',
-        default: false,
-      }),
+      useProxy: Type.Union(
+        [
+          Type.Boolean({
+            description: 'Use global proxy configuration from config.proxy.url',
+          }),
+          Type.String({
+            description: 'Custom proxy URL for this source',
+            pattern: '^https?://.+',
+          }),
+        ],
+        {
+          description:
+            'Proxy configuration: true/false for global proxy, or URL string for custom proxy',
+          default: false,
+        },
+      ),
       maxRetries: Type.Integer({
         minimum: 0,
         maximum: 10,
@@ -85,6 +123,7 @@ const createSourceSchema = ({
           'Enable automatic refetch of price data when cache expires',
         default: false,
       }),
+      stream: Type.Optional(streamOptionsSchema),
       ...(maxBatchSize && {
         maxBatchSize: Type.Integer({
           minimum: 1,

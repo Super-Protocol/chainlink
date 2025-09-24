@@ -73,13 +73,12 @@ export class OkxAdapter implements SourceAdapter {
   private readonly refetch: boolean;
   private readonly maxBatchSize: number;
   private readonly httpClient: HttpClient;
-  private readonly okxStreamService: OkxStreamService;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
+    private readonly okxStreamService: OkxStreamService,
   ) {
-    this.okxStreamService = new OkxStreamService();
     const sourceConfig = configService.get('sources.okx');
     const { enabled, ttl, refetch, maxBatchSize } = sourceConfig;
 

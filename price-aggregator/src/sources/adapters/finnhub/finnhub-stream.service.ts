@@ -6,10 +6,10 @@ import {
   FinnhubSubscribeCommand,
 } from './finnhub.types';
 import { pairToSymbol } from './finnhub.utils';
-import { WebSocketClient } from '../../../common';
+import { WebSocketClient, WebSocketClientBuilder } from '../../../common';
+import { AppConfigService } from '../../../config';
 import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
-import { StreamServiceOptions } from '../../quote-stream.interface';
 import { Pair } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
@@ -22,12 +22,13 @@ export class FinnhubStreamService extends BaseStreamService {
   private pingInterval?: NodeJS.Timeout;
 
   constructor(
-    apiKey: string,
-    options?: StreamServiceOptions,
+    wsClientBuilder: WebSocketClientBuilder,
+    appConfigService: AppConfigService,
     metricsService?: MetricsService,
   ) {
-    super(options, metricsService);
-    this.apiKey = apiKey;
+    const streamConfig = appConfigService.get('sources.finnhub.stream');
+    super(wsClientBuilder, streamConfig, metricsService);
+    this.apiKey = appConfigService.get('sources.finnhub.apiKey');
   }
 
   protected getSourceName(): SourceName {

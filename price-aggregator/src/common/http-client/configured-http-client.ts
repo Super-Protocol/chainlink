@@ -1,23 +1,18 @@
 import { HttpService } from '@nestjs/axios';
 import { Logger } from '@nestjs/common';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { HttpProxyAgent } from 'http-proxy-agent';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
-import {
-  HttpClient,
-  HttpProxyConfig,
-  ProxyConfiguration,
-} from './interfaces/http-client.interface';
+import { HttpClient } from './interfaces/http-client.interface';
 import { RpsLimiterService } from './rps-limiter.service';
-import { ClientParams, ClientParamsWithProxy } from './types/client-params';
+import { ClientOptions } from './types/client-params';
 import { sanitizeUrlForLogging } from './url-sanitizer';
 
 export class ConfiguredHttpClient implements HttpClient {
   private readonly logger = new Logger(ConfiguredHttpClient.name);
 
   constructor(
-    private readonly clientConfig: ClientParamsWithProxy,
+    private readonly clientConfig: ClientOptions,
     private readonly httpService: HttpService,
     private readonly rpsLimiter: RpsLimiterService,
   ) {}
@@ -100,7 +95,7 @@ export class ConfiguredHttpClient implements HttpClient {
 
   private buildRequestConfig(
     baseConfig: AxiosRequestConfig,
-    clientConfig: ClientParamsWithProxy,
+    clientConfig: ClientOptions,
   ): AxiosRequestConfig {
     const config: AxiosRequestConfig = {
       ...baseConfig,
@@ -111,38 +106,14 @@ export class ConfiguredHttpClient implements HttpClient {
       timeout: clientConfig.timeoutMs,
     };
 
-    if (clientConfig.useProxy && clientConfig.proxyConfig) {
-      const proxyConfig = this.buildProxyConfig(clientConfig.proxyConfig);
-      config.httpsAgent = proxyConfig.httpsAgent;
-      config.httpAgent = proxyConfig.httpAgent;
+    if (clientConfig.proxyUrl) {
+      config.httpsAgent = new HttpsProxyAgent(clientConfig.proxyUrl);
     }
 
     return config;
   }
 
-  private buildProxyConfig(proxyConfig: ProxyConfiguration) {
-    const { http: httpConfig, https: httpsConfig } = proxyConfig;
-
-    const httpsProxy = httpsConfig || httpConfig;
-    const httpProxy = httpConfig || httpsConfig;
-
-    return {
-      httpsAgent: httpsProxy
-        ? new HttpsProxyAgent(this.buildProxyUrl(httpsProxy))
-        : undefined,
-      httpAgent: httpProxy
-        ? new HttpProxyAgent(this.buildProxyUrl(httpProxy))
-        : undefined,
-    };
-  }
-
-  private buildProxyUrl(config: HttpProxyConfig): string {
-    const { host, port, username, password, protocol } = config;
-    const auth = username && password ? `${username}:${password}@` : '';
-    return `${protocol || 'http'}://${auth}${host}:${port}`;
-  }
-
-  private generateLimiterKey(url: string, config: ClientParams): string {
+  private generateLimiterKey(url: string, config: ClientOptions): string {
     const hostname = new URL(url).hostname;
     const rps = config.rps || 'unlimited';
     return `${hostname}-${rps}`;

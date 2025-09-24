@@ -4,7 +4,6 @@ import { isAxiosError } from 'axios';
 import { CryptoCompareStreamService } from './cryptocompare-stream.service';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
-import { MetricsService } from '../../../metrics/metrics.service';
 import { HandleSourceError } from '../../decorators';
 import {
   BatchSizeExceededException,
@@ -31,12 +30,11 @@ export class CryptoCompareAdapter implements SourceAdapter {
   private readonly maxBatchSize: number;
   private readonly httpClient: HttpClient;
   private readonly apiKey: string;
-  private readonly cryptoCompareStreamService: CryptoCompareStreamService;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
-    metricsService: MetricsService,
+    private readonly cryptoCompareStreamService: CryptoCompareStreamService,
   ) {
     const sourceConfig = configService.get('sources.cryptocompare');
     const { enabled, ttl, refetch, maxBatchSize, apiKey } = sourceConfig;
@@ -46,12 +44,6 @@ export class CryptoCompareAdapter implements SourceAdapter {
     this.ttl = ttl;
     this.refetch = refetch;
     this.maxBatchSize = maxBatchSize;
-
-    this.cryptoCompareStreamService = new CryptoCompareStreamService(
-      undefined,
-      this.apiKey,
-      metricsService,
-    );
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,

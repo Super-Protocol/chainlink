@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { MESSAGE_TYPES } from './cryptocompare.types';
-import { WebSocketClient } from '../../../common';
+import { WebSocketClient, WebSocketClientBuilder } from '../../../common';
+import { AppConfigService } from '../../../config';
 import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
-import { StreamServiceOptions } from '../../quote-stream.interface';
 import { Pair } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
@@ -22,14 +22,13 @@ export class CryptoCompareStreamService extends BaseStreamService {
   private readonly apiKey?: string;
 
   constructor(
-    options?: StreamServiceOptions,
-    apiKey?: string,
+    wsClientBuilder: WebSocketClientBuilder,
+    appConfigService: AppConfigService,
     metricsService?: MetricsService,
   ) {
-    super(options, metricsService);
-    this.apiKey = apiKey;
+    const streamConfig = appConfigService.get('sources.cryptocompare.stream');
+    super(wsClientBuilder, streamConfig, metricsService);
   }
-
   protected getSourceName(): SourceName {
     return SourceName.CRYPTOCOMPARE;
   }

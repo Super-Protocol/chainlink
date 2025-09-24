@@ -109,6 +109,10 @@ export class QuotesService {
   ): Promise<QuoteResponseDto> {
     const batch = this.batchQuotesService.buildBatch(source, pair);
 
+    if (batch.length === 1) {
+      return this.fetchSingle(source, pair);
+    }
+
     try {
       const result = await this.batchQuotesService.fetchWithBatch(
         source,
