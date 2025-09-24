@@ -1,0 +1,158 @@
+port: 3000
+environment: development
+
+logger:
+  level: info
+  isPrettyEnabled: false # Set to true for development to get formatted logs
+
+# Proactive cache refresh configuration
+refetch:
+  enabled: true
+  staleTriggerBeforeExpiry: 3000 # Prevents cache misses by refreshing before expiry
+  batchInterval: 1000 # Batches multiple stale items to reduce API calls
+  minTimeBetweenRefreshes: 2000 # Prevents excessive API calls for same item
+  maxConcurrentRefreshes: 10 # Limits concurrent operations to prevent resource exhaustion
+
+# Pair tracking and cleanup configuration
+pairCleanup:
+  enabled: true # Enable automatic cleanup of inactive pairs
+  inactiveTimeoutMs: 600000 # 10 minutes - remove pairs not requested for this duration
+  cleanupIntervalMs: 20000 # 20 seconds - how often to run cleanup process
+
+# Pair-specific TTL configuration overrides
+# These settings override the default TTL from source configuration for specific pairs
+# The 'source' field is optional - if omitted, the TTL applies to all sources for that pair
+pairsTtl:
+  - pair: [BTC, USDT]
+    source: binance
+    ttl: 15000 # 15 seconds for BTC/USDT on Binance specifically
+  - pair: [ETH, USD]
+    source: coinbase
+    ttl: 30000 # 30 seconds for ETH/USD on Coinbase specifically
+  - pair: [EUR, USD]
+    source: frankfurter
+    ttl: 300000 # 5 minutes for EUR/USD on Frankfurter (forex rates change less frequently)
+  - pair: [DOGE, USD]
+    ttl: 45000 # 45 seconds for DOGE/USD on ALL sources (source is optional)
+
+proxy:
+  # HTTP proxy configuration - when enabled, host and port are required
+  http:
+    enabled: false
+    # When enabled: true, these fields are required:
+    # host: proxy.example.com
+    # port: 8080
+    # username: optional-username # Only needed if proxy requires authentication
+    # password: optional-password
+
+  # HTTPS proxy configuration - when enabled, host and port are required
+  https:
+    enabled: false
+    # When enabled: true, these fields are required:
+    # host: proxy.example.com
+    # port: 8080
+    # username: optional-username # Only needed if proxy requires authentication
+    # password: optional-password
+
+sources:
+  binance:
+    enabled: true
+    ttl: 60000 # Cache duration in ms
+    timeoutMs: 10000
+    rps: 100 # 6000/min API limit, null to disable rate limiting
+    maxConcurrent: 10
+    apiKey: optional-api-key # Not required for public market data
+    useProxy: false # Enable to bypass rate limits or geo-restrictions
+    refetch: true # Enable automatic cache refresh when data expires
+    maxBatchSize: 500 # Maximum pairs in single batch request
+
+  okx:
+    enabled: true
+    ttl: 10000
+    timeoutMs: 10000
+    rps: 10 # 20/2sec API limit, conservative setting
+    maxConcurrent: 10
+    useProxy: false
+    refetch: true
+    maxBatchSize: 200 # Maximum pairs in single batch request
+
+  finnhub:
+    enabled: true
+    ttl: 10000
+    timeoutMs: 10000
+    rps: 1 # Free tier: 60/min limit, paid plans have higher limits
+    maxConcurrent: 10
+    apiKey: required-finnhub-api-key # Required even for free tier
+    useProxy: false
+    refetch: true
+
+  cryptocompare:
+    enabled: true
+    ttl: 10000
+    timeoutMs: 10000
+    rps: 1 # ~60/min; adjust per paid plan to avoid exhausting monthly quota
+    maxConcurrent: 10
+    apiKey: required-cryptocompare-api-key
+    useProxy: false
+    refetch: true
+    maxBatchSize: 50 # Maximum pairs in single batch request (API limit)
+
+  alphavantage:
+    enabled: false # Consider disabling for production due to severe rate limits
+    ttl: 3600000 # 1 hour cache for free tier (25 requests/day limit)
+    timeoutMs: 15000
+    rps: 1 # Free tier: only 25/day, extremely limited
+    maxConcurrent: 10
+    apiKey: DEMO_KEY # Use DEMO_KEY for testing
+    useProxy: false
+    refetch: true
+
+  coingecko:
+    enabled: true
+    ttl: 30000 # Moderate cache duration
+    timeoutMs: 10000
+    rps: 1 # Free tier: 30/min, Pro API has higher limits
+    maxConcurrent: 10
+    apiKey: optional-coingecko-pro-api-key # Optional, for higher rate limits
+    useProxy: false
+    refetch: true
+    maxBatchSize: 100 # Maximum pairs in single batch request (API limit)
+
+  exchangeratehost:
+    enabled: true
+    ttl: 60000 # Forex rates change less frequently
+    timeoutMs: 10000
+    rps: 1 # Free tier: 1000/day limit
+    maxConcurrent: 10
+    apiKey: optional-exchangerate-host-api-key # Optional, for higher rate limits
+    useProxy: false
+    refetch: true
+
+  kraken:
+    enabled: true
+    ttl: 10000
+    timeoutMs: 10000
+    rps: 1 # Conservative rate to avoid hitting limits
+    maxConcurrent: 10
+    useProxy: false
+    refetch: true
+    maxBatchSize: 50 # Maximum pairs in single batch request (API limit)
+
+  coinbase:
+    enabled: true
+    ttl: 15000
+    timeoutMs: 10000
+    rps: 9 # Conservative rate for public endpoints (10 req/sec limit, burst to 15)
+    maxConcurrent: 10
+    useProxy: false
+    refetch: true
+    # Note: Implement token-bucket limiter with exponential backoff for 429 responses
+
+  frankfurter:
+    enabled: true
+    ttl: 60000 # ECB data updates once daily
+    timeoutMs: 10000
+    rps: null # No strict limits, but be respectful
+    maxConcurrent: 10
+    useProxy: false
+    refetch: true # Useful for keeping forex rates fresh
