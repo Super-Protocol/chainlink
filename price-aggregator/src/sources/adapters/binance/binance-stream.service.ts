@@ -54,7 +54,7 @@ export class BinanceStreamService extends BaseStreamService {
         this.logger.warn(
           `Subscribe timeout for streams: ${streams.join(', ')}`,
         );
-        resolve();
+        reject(new Error('Subscribe timeout'));
       }, 10000);
 
       this.pendingCommands.set(commandId, {

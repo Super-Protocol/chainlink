@@ -116,7 +116,10 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
     this.subscriptionsBySource.clear();
   }
 
-  @SingleFlight((source, pair) => `${source}-${pair.join('-')}`)
+  @SingleFlight(
+    (source, pair) =>
+      `${source}:${encodeURIComponent(pair[0])}|${encodeURIComponent(pair[1])}`,
+  )
   private async subscribePair(source: SourceName, pair: Pair): Promise<void> {
     const streamService = this.streamServiceBySource.get(source);
     if (!streamService) return;
@@ -142,6 +145,9 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
         (error) => this.handleStreamError(source, pair, error),
       );
       subs.set(pairKey, subscription);
+      if (!this.initializedSources.has(source)) {
+        this.initializedSources.add(source);
+      }
       this.logger.log(`Subscribed to ${source}:${pairKey}`);
     } catch (error) {
       this.logger.error(

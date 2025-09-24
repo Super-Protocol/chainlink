@@ -114,7 +114,7 @@ export class WebSocketClient extends EventEmitter {
         this.safeEmitError(error);
       });
 
-      this.ws.on('close', (code: number, reason: string) => {
+      this.ws.on('close', (code: number, reason: Buffer) => {
         this.logger.log(
           `WebSocket closed: ${code} - ${this.toReasonString(reason)}`,
         );

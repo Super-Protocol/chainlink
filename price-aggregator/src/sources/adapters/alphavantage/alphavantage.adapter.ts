@@ -3,7 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
-import { PriceNotFoundException, SourceApiException } from '../../exceptions';
+import {
+  PriceNotFoundException,
+  SourceApiException,
+  SourceUnauthorizedException,
+} from '../../exceptions';
 import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
@@ -97,14 +101,18 @@ export class AlphaVantageAdapter implements SourceAdapter {
 
     if (data?.['Error Message']) {
       const errorMessage = data['Error Message'];
-      const statusCode = errorMessage.toLowerCase().includes('invalid')
-        ? 400
-        : 502;
-      throw new SourceApiException(
-        this.name,
-        new Error(errorMessage),
-        statusCode,
-      );
+      const lower = errorMessage.toLowerCase();
+      if (lower.includes('api key')) {
+        throw new SourceUnauthorizedException(this.name);
+      }
+      if (
+        lower.includes('invalid') ||
+        lower.includes('not available') ||
+        lower.includes('not supported')
+      ) {
+        throw new PriceNotFoundException(pair, this.name);
+      }
+      throw new SourceApiException(this.name, new Error(errorMessage), 502);
     }
 
     if (data?.Note) {

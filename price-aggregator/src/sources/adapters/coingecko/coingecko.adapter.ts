@@ -77,9 +77,11 @@ export class CoinGeckoAdapter implements SourceAdapter {
     const coinIdMap = await this.coinIdMap;
     const coinId = coinIdMap.get(base.toLowerCase()) || base;
 
+    const coinIdLc = coinId.toLowerCase();
+    const quoteLc = quote.toLowerCase();
     const params = new URLSearchParams({
-      ids: coinId,
-      vs_currencies: quote.toLowerCase(),
+      ids: coinIdLc,
+      vs_currencies: quoteLc,
     });
 
     if (this.apiKey) {
@@ -90,7 +92,7 @@ export class CoinGeckoAdapter implements SourceAdapter {
       `${API_PATH}?${params.toString()}`,
     );
 
-    const price = data?.[coinId]?.[quote.toLowerCase()];
+    const price = data?.[coinIdLc]?.[quoteLc];
 
     if (price === undefined || price === null) {
       throw new PriceNotFoundException(pair, this.name);

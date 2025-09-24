@@ -11,6 +11,7 @@ import {
 } from './interfaces/http-client.interface';
 import { RpsLimiterService } from './rps-limiter.service';
 import { ClientParams, ClientParamsWithProxy } from './types/client-params';
+import { sanitizeUrlForLogging } from './url-sanitizer';
 
 export class ConfiguredHttpClient implements HttpClient {
   private readonly logger = new Logger(ConfiguredHttpClient.name);
@@ -76,7 +77,8 @@ export class ConfiguredHttpClient implements HttpClient {
     const limiterKey = this.generateLimiterKey(requestUrl, this.clientConfig);
 
     const requestFn = () => {
-      this.logger.debug(`Making ${method} request to ${requestUrl}`);
+      const safeUrlForLog = sanitizeUrlForLogging(requestUrl);
+      this.logger.debug(`HTTP ${method} ${safeUrlForLog}`);
       return this.httpService.axiosRef.request<T>({
         method,
         url: requestUrl,

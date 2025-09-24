@@ -38,7 +38,7 @@ export class CoinbaseStreamService extends BaseStreamService {
   }
 
   protected pairToIdentifier(pair: Pair): string {
-    return `${pair[0]}-${pair[1]}`;
+    return `${pair[0].toUpperCase()}-${pair[1].toUpperCase()}`;
   }
 
   protected async sendSubscribeMessage(productIds: string[]): Promise<void> {

@@ -27,6 +27,28 @@ function extractDescription(
   return undefined;
 }
 
+const SENSITIVE_FIELD_RE =
+  /(api[_-]?key|token|secret|password|pass|auth|private[_-]?key|proxy.*(password|user|auth)|certificate|cred(s|entials)?)/i;
+
+function sanitizeValueForError(
+  path: string | undefined,
+  value: unknown,
+): string {
+  const isSensitive = !!path && SENSITIVE_FIELD_RE.test(path);
+  if (isSensitive) return '[redacted]';
+  if (typeof value === 'string') {
+    if (value.length <= 4) return '[redacted]';
+    return `${value.slice(0, 2)}***${value.slice(-2)}`;
+  }
+  try {
+    const json = JSON.stringify(value);
+    if (!json) return String(value);
+    return json.length > 256 ? `${json.slice(0, 253)}...` : json;
+  } catch {
+    return typeof value;
+  }
+}
+
 function getSchemaHint(path?: string): string {
   if (!path) return '';
 
@@ -68,7 +90,7 @@ function handleSchemaValidationError(
 
   const valueDisplay =
     errorDetails.value !== undefined
-      ? ` (received: ${JSON.stringify(errorDetails.value)})`
+      ? ` (received: ${sanitizeValueForError(errorDetails.path, errorDetails.value)})`
       : '';
 
   const fieldDescription = extractDescription(
