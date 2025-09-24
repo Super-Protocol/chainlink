@@ -3,12 +3,15 @@ FROM smartcontract/chainlink:2.27.0
 USER root
 
 ARG NODE_VERSION=22.18.0
+ARG CONFIGURATION_PUBLIC_KEY="MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE1mXRd/v32RmPknpTnasAa3b5G31lbOUwMV4cQK/GU8WHySSvJj1MSCsdwhGggGoroMD2Qp/Ql2UOAiGvDRDmGw=="
+
 ENV NVM_DIR=/root/.nvm
 ENV SP_SECRETS_DIR=/sp/secrets
 ENV PATH=$PATH:/root/.nvm/versions/node/v$NODE_VERSION/bin/
 ENV PGDATA=/var/lib/postgresql/data
 ENV HOME=/root
 ENV XDG_CACHE_HOME=/root/.cache
+ENV CONFIGURATION_PUBLIC_KEY=$CONFIGURATION_PUBLIC_KEY
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
