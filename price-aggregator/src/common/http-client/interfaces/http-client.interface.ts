@@ -6,6 +6,12 @@ export interface HttpProxyConfig {
   username?: string;
   password?: string;
   protocol?: 'http' | 'https';
+  enabled?: boolean;
+}
+
+export interface ProxyConfiguration {
+  http?: HttpProxyConfig;
+  https?: HttpProxyConfig;
 }
 
 export interface HttpClient {

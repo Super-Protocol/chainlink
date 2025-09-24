@@ -1,4 +1,4 @@
-import { HttpProxyConfig } from '../interfaces/http-client.interface';
+import { ProxyConfiguration } from '../interfaces/http-client.interface';
 
 export interface ClientParams {
   sourceName: string;
@@ -12,5 +12,5 @@ export interface ClientParams {
 }
 
 export interface ClientParamsWithProxy extends ClientParams {
-  proxyConfig: HttpProxyConfig;
+  proxyConfig: ProxyConfiguration;
 }

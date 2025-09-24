@@ -1,12 +1,13 @@
 import { HttpService } from '@nestjs/axios';
 import { Logger } from '@nestjs/common';
-import { AxiosProxyConfig, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { HttpProxyAgent } from 'http-proxy-agent';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
 import {
   HttpClient,
   HttpProxyConfig,
+  ProxyConfiguration,
 } from './interfaces/http-client.interface';
 import { RpsLimiterService } from './rps-limiter.service';
 import { ClientParams, ClientParamsWithProxy } from './types/client-params';
@@ -107,7 +108,6 @@ export class ConfiguredHttpClient implements HttpClient {
 
     if (clientConfig.useProxy && clientConfig.proxyConfig) {
       const proxyConfig = this.buildProxyConfig(clientConfig.proxyConfig);
-      config.proxy = proxyConfig.axiosProxy;
       config.httpsAgent = proxyConfig.httpsAgent;
       config.httpAgent = proxyConfig.httpAgent;
     }
@@ -115,25 +115,26 @@ export class ConfiguredHttpClient implements HttpClient {
     return config;
   }
 
-  private buildProxyConfig(proxyConfig: HttpProxyConfig) {
-    const { host, port, username, password, protocol = 'http' } = proxyConfig;
+  private buildProxyConfig(proxyConfig: ProxyConfiguration) {
+    const { http: httpConfig, https: httpsConfig } = proxyConfig;
 
-    const proxyUrl =
-      username && password
-        ? `${protocol}://${username}:${password}@${host}:${port}`
-        : `${protocol}://${host}:${port}`;
-
-    const axiosProxy: AxiosProxyConfig = {
-      host,
-      port,
-      ...(username && { auth: { username, password: password || '' } }),
-    };
+    const httpsProxy = httpsConfig || httpConfig;
+    const httpProxy = httpConfig || httpsConfig;
 
     return {
-      axiosProxy,
-      httpsAgent: new HttpsProxyAgent(proxyUrl),
-      httpAgent: new HttpProxyAgent(proxyUrl),
+      httpsAgent: httpsProxy
+        ? new HttpsProxyAgent(this.buildProxyUrl(httpsProxy))
+        : undefined,
+      httpAgent: httpProxy
+        ? new HttpProxyAgent(this.buildProxyUrl(httpProxy))
+        : undefined,
     };
+  }
+
+  private buildProxyUrl(config: HttpProxyConfig): string {
+    const { host, port, username, password, protocol } = config;
+    const auth = username && password ? `${username}:${password}@` : '';
+    return `${protocol || 'http'}://${auth}${host}:${port}`;
   }
 
   private generateLimiterKey(url: string, config: ClientParams): string {
