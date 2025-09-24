@@ -48,6 +48,7 @@ RUN cd /scripts && npm ci --no-audit --no-fund --omit=optional
 # Pirce aggregator
 COPY price-aggregator /price-aggregator
 RUN cd /price-aggregator && npm ci --no-audit --no-fund --omit=optional
+RUN cd /price-aggregator && npm run build
 
 # s6 service layout
 RUN mkdir -p /etc/cont-init.d
