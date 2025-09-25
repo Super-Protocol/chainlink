@@ -17,14 +17,14 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=FXS&tsyms=USD"];
-    ds1_parse [type=jsonparse path="USD"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/FXS/USDT"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=fx-usd-saving&vs_currencies=usd"];
-    ds2_parse [type=jsonparse path="fx-usd-saving,usd"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/FXS/USD"];
+    ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=FXSUSD"];
-    ds3_parse [type=jsonparse path="result,FXSUSD,c,0"];
+    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/FXS/USDT"];
+    ds3_parse [type=jsonparse path="price"];
     ds3_multiply [type=multiply times=100000000];
     median [type=median];
     

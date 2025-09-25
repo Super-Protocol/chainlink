@@ -17,24 +17,21 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=DAIUSDT"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/DAI/USDT"];
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=DAI&tsyms=USD"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/DAI/USD"];
+    ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=avalanche-bridged-dai-avalanche&vs_currencies=usd"];
-    ds3_parse [type=jsonparse path="avalanche-bridged-dai-avalanche,usd"];
+    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/DAI/USD"];
+    ds3_parse [type=jsonparse path="price"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/DAI-USD/spot"];
-    ds4_parse [type=jsonparse path="data,amount"];
+    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/DAI/USD"];
+    ds4_parse [type=jsonparse path="price"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=DAIUSD"];
-    ds5_parse [type=jsonparse path="result,DAIUSD,c,0"];
+    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/DAI/USDT"];
+    ds5_parse [type=jsonparse path="price"];
     ds5_multiply [type=multiply times=100000000];
-    ds6 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=DAI-USD"];
-    ds6_parse [type=jsonparse path="data,0,last"];
-    ds6_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
@@ -42,11 +39,9 @@ observationSource = """
     ds3 -> ds3_parse -> ds3_multiply;
     ds4 -> ds4_parse -> ds4_multiply;
     ds5 -> ds5_parse -> ds5_multiply;
-    ds6 -> ds6_parse -> ds6_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
     ds4_multiply -> median;
     ds5_multiply -> median;
-    ds6_multiply -> median;
 """

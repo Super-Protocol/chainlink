@@ -17,23 +17,23 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.binance.com/api/v3/ticker/price?symbol=CVXUSDT"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/CVX/USDT"];
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=CVX&tsyms=USD"];
-    ds2_parse [type=jsonparse path="USD"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/CVX/USD"];
+    ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=convex-finance&vs_currencies=usd"];
-    ds3_parse [type=jsonparse path="convex-finance,usd"];
+    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/CVX/USD"];
+    ds3_parse [type=jsonparse path="price"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.coinbase.com/v2/prices/CVX-USD/spot"];
-    ds4_parse [type=jsonparse path="data,amount"];
+    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/CVX/USD"];
+    ds4_parse [type=jsonparse path="price"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=CVXUSD"];
-    ds5_parse [type=jsonparse path="result,CVXUSD,c,0"];
+    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/CVX/USD"];
+    ds5_parse [type=jsonparse path="price"];
     ds5_multiply [type=multiply times=100000000];
-    ds6 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=CVX-USD"];
-    ds6_parse [type=jsonparse path="data,0,last"];
+    ds6 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/CVX/USDT"];
+    ds6_parse [type=jsonparse path="price"];
     ds6_multiply [type=multiply times=100000000];
     median [type=median];
     

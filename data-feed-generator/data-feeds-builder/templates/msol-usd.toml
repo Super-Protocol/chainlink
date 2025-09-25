@@ -17,26 +17,21 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=MSOL&tsyms=USD"];
-    ds1_parse [type=jsonparse path="USD"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/MSOL/USD"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=msol&vs_currencies=usd"];
-    ds2_parse [type=jsonparse path="msol,usd"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/MSOL/USD"];
+    ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/MSOL-USD/spot"];
-    ds3_parse [type=jsonparse path="data,amount"];
+    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/MSOL/USD"];
+    ds3_parse [type=jsonparse path="price"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=MSOLUSD"];
-    ds4_parse [type=jsonparse path="result,MSOLUSD,c,0"];
-    ds4_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
     ds3 -> ds3_parse -> ds3_multiply;
-    ds4 -> ds4_parse -> ds4_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
-    ds4_multiply -> median;
 """
