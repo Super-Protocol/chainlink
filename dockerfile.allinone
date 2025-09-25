@@ -16,7 +16,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     gettext \
     jq \
-    postgresql \
+    postgresql-17 \
     xz-utils \
     curl
 # RUN rm -rf /var/lib/apt/lists/*
