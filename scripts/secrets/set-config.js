@@ -1,10 +1,18 @@
-#!/usr/bin/env node
 /* eslint-disable no-console */
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const nacl = require('tweetnacl'); // X25519 via scalarMult
 const { ethers } = require('ethers');
+const { BlockchainConnector } = require('@super-protocol/sdk-js');
+// Note: Avoid deep imports from @super-protocol/sdk-js to prevent exports errors
+let TxManager;
+try {
+  // Using CJS build explicitly to avoid ESM interop issues
+  TxManager = require('@super-protocol/sdk-js/dist/cjs/utils/TxManager.js').default;
+} catch (_) {
+  TxManager = null;
+}
 const { hexToBuf, keccak256, aes128EcbEncryptBlock, decryptEvmKeystore } = require('./crypto-utils');
 const aggregatorAbi = require('./abis/AccessControlledOffchainAggregator.json').abi;
 
@@ -49,9 +57,68 @@ function writeDonConfigCache(cacheFilePath, data) {
   fs.writeFileSync(cacheFilePath, JSON.stringify(data, null, 2));
 }
 
+// In-memory cache and deferred flush handling
+let _loadedCache = null;
+let _cacheFilePathGlobal = null;
+let _cacheDirty = false;
+let _exitHandlersInstalled = false;
+
+function ensureCacheLoaded(cacheFilePath) {
+  if (!_cacheFilePathGlobal) _cacheFilePathGlobal = cacheFilePath;
+  if (_loadedCache === null) {
+    _loadedCache = readDonConfigCache(cacheFilePath);
+  }
+  if (!_exitHandlersInstalled) {
+    _exitHandlersInstalled = true;
+    const tryFlush = () => {
+      try { flushDonConfigCacheSync(); } catch {}
+    };
+    process.once('beforeExit', tryFlush);
+    process.once('exit', tryFlush);
+    process.once('SIGINT', () => { tryFlush(); process.exit(130); });
+    process.once('SIGTERM', () => { tryFlush(); process.exit(143); });
+    process.on('uncaughtException', (e) => { try { console.error(e); } catch {}; tryFlush(); process.exit(1); });
+    process.on('unhandledRejection', (e) => { try { console.error(e); } catch {}; tryFlush(); process.exit(1); });
+  }
+}
+
+function getLoadedCache(cacheFilePath) {
+  ensureCacheLoaded(cacheFilePath);
+  return _loadedCache;
+}
+
+function markCacheUpdated(addr, comparableConfig, cacheFilePath) {
+  ensureCacheLoaded(cacheFilePath);
+  _loadedCache[addr] = comparableConfig;
+  _cacheDirty = true;
+}
+
+function flushDonConfigCacheSync() {
+  if (!_cacheDirty || !_cacheFilePathGlobal || _loadedCache === null) return;
+  writeDonConfigCache(_cacheFilePathGlobal, _loadedCache);
+  _cacheDirty = false;
+}
+
+async function flushDonConfigCache() {
+  flushDonConfigCacheSync();
+}
+
 function readJSON(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
 }
+
+// Serialize cache writes across concurrent calls within this process
+let _cacheWrite = Promise.resolve();
+async function updateDonConfigCache(cacheFilePath, addr, data) {
+  _cacheWrite = _cacheWrite.then(async () => {
+    const updated = readDonConfigCache(cacheFilePath);
+    updated[addr] = data;
+    writeDonConfigCache(cacheFilePath, updated);
+  });
+  await _cacheWrite;
+}
+
+// SDK manages nonces internally; no local nonce allocator needed when using TxManager
 
 function listWorkers(nodesList, bootstrapSet) {
   const out = [];
@@ -108,9 +175,8 @@ const compareDonConfig = (a, b) => {
   return JSON.stringify(left) === JSON.stringify(right);
 };
 
-async function main() {
+async function setConfigForContract(contractAddr) {
   const rpcUrl = process.env.CHAINLINK_RPC_HTTP_URL;
-  const contractAddr = process.argv[2];
   if (!rpcUrl) throw new Error('CHAINLINK_RPC_HTTP_URL is required');
   if (!contractAddr) throw new Error('Missing contract address. Usage: node set-config.js <contractAddress>');
 
@@ -144,9 +210,8 @@ async function main() {
   if (sharedSecret16.length !== 16) throw new Error('SHARED_SECRET_HEX must be 16 bytes');
   const sse = encryptSharedSecret(x25519PubKeys, sharedSecret16);
 
-  const provider = new ethers.JsonRpcProvider(rpcUrl);
-
-  // Using aggregator ABI below; no need for a local iface here
+  // Optional env, not strictly needed when sending via ethers
+  const diamondContractAddress = process.env.DIAMOND_CONTRACT_ADDRESS;
 
   const donConfig = {
     signers,
@@ -161,7 +226,7 @@ async function main() {
   const normalizedAddr = ethers.getAddress(contractAddr);
   const comparableDonConfig = computeComparableDonConfig(donConfig);
 
-  const cache = readDonConfigCache(cacheFile);
+  const cache = getLoadedCache(cacheFile);
   const existing = cache[normalizedAddr] ? normalizeForCompare(cache[normalizedAddr]) : null;
   if (existing && compareDonConfig(existing, comparableDonConfig)) {
     console.log(`Config for ${normalizedAddr} is up-to-date; skipping on-chain update.`);
@@ -169,10 +234,6 @@ async function main() {
   }
 
   console.log('donConfig (to publish)', donConfig);
-
-  // Encode tx data using AccessControlledOffchainAggregator.setConfig(donConfig)
-  const iface = new ethers.Interface(aggregatorAbi);
-  const data = iface.encodeFunctionData('setConfig', [donConfig]);
 
   // Derive and print sender and signer addresses (from this node's evm_key.json only)
   let signerAddress = null;
@@ -190,20 +251,57 @@ async function main() {
   if (!derivedPkHex) {
     throw new Error('Unable to decrypt sender key from evm_key.json. Ensure CHAINLINK_KEYSTORE_PASSWORD and file are correct.');
   }
-  const sender = new ethers.Wallet(derivedPkHex, provider);
-  console.log('Sender:', sender.address);
+
+  // Initialize SDK and send transaction via TxManager
+  const conn = BlockchainConnector.getInstance();
+  await conn.initialize({ contractAddress: diamondContractAddress || normalizedAddr, blockchainUrl: rpcUrl });
+  const actionAddress = await conn.initializeActionAccount(derivedPkHex);
+  console.log('Sender:', actionAddress);
   if (signerAddress) console.log('Signer:', signerAddress);
 
-  // Send transaction using the node's decrypted key
-  const tx = await sender.sendTransaction({ to: normalizedAddr, data, value: 0 });
-  console.log('Submitted tx', tx.hash);
-  const rcpt = await tx.wait();
-  console.log('Mined', rcpt?.transactionHash);
+  // Encode call data using ethers Interface
+  const iface = new ethers.Interface(aggregatorAbi);
+  const data = iface.encodeFunctionData('setConfig', [{
+    signers,
+    transmitters,
+    threshold,
+    s: sArr,
+    offchainPublicKeys,
+    peerIDs,
+    sharedSecretEncryptions: sse,
+  }]);
 
-  // Persist comparable DON config after successful transaction
-  const updated = readDonConfigCache(cacheFile);
-  updated[normalizedAddr] = comparableDonConfig;
-  writeDonConfigCache(cacheFile, updated);
+  // Execute raw transaction via TxManager when available; fallback to ethers otherwise
+  let receipt;
+  try {
+    if (TxManager && typeof TxManager.publishTransaction === 'function') {
+      const transactionOptions = { from: actionAddress };
+      receipt = await TxManager.publishTransaction({ to: normalizedAddr, data }, transactionOptions);
+      console.log('Mined', receipt?.transactionHash);
+    } else {
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
+      const sender = new ethers.Wallet(derivedPkHex, provider);
+      const tx = await sender.sendTransaction({ to: normalizedAddr, data, value: 0 });
+      console.log('Submitted tx', tx.hash);
+      receipt = await tx.wait();
+      console.log('Mined', receipt?.hash || receipt?.transactionHash);
+    }
+
+    // Stage comparable DON config in memory; actual write is deferred
+    markCacheUpdated(normalizedAddr, comparableDonConfig, cacheFile);
+  } finally {
+    try { BlockchainConnector.getInstance().shutdown(); } catch {}
+  }
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+async function main() {
+  const contractAddr = process.argv[2];
+  await setConfigForContract(contractAddr);
+  await flushDonConfigCache();
+}
+
+if (require.main === module) {
+  main().catch((e) => { console.error(e); process.exit(1); });
+}
+
+module.exports = { setConfigForContract, flushDonConfigCache };
