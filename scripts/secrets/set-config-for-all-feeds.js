@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 const fs = require('fs');
 const path = require('path');
-const { setConfigForContract, flushDonConfigCache } = require('./set-config');
+const { setConfigForContract, flushDonConfigCache, initConnector, shutdownConnector } = require('./set-config');
 
 function findTomlFiles(dir) {
   const files = fs.readdirSync(dir, { withFileTypes: true })
@@ -34,38 +34,43 @@ async function main() {
     throw new Error(`Directory not found: ${templatesDir}`);
   }
 
-  const files = findTomlFiles(templatesDir);
-  if (files.length === 0) {
-    console.error(`No .toml files found in ${templatesDir}`);
-    await flushDonConfigCache();
-    return;
-  }
-
-  const items = files.map((file) => ({ file, addr: extractContractAddress(file) }));
-  const valid = items.filter(({ file, addr }) => {
-    if (!addr) { console.log(`[skip] No contractAddress in ${path.basename(file)}`); return false; }
-    if (addr.startsWith('$')) { console.log(`[skip] Placeholder contractAddress (${addr}) in ${path.basename(file)}`); return false; }
-    if (!isValidAddress(addr)) { console.log(`[skip] Invalid contractAddress '${addr}' in ${path.basename(file)}`); return false; }
-    return true;
-  });
-
-  const concurrency = Number(process.env.CONCURRENCY || '10');
-  let idx = 0;
-  const runNext = async () => {
-    if (idx >= valid.length) return;
-    const current = valid[idx++];
-    console.log(`[run ] ${path.basename(current.file)}: contractAddress=${current.addr}`);
-    try {
-      await setConfigForContract(current.addr);
-    } catch (e) {
-      console.error(`[fail] ${path.basename(current.file)}:`, e?.message || e);
-    } finally {
-      await runNext();
+  await initConnector({});
+  try {
+    const files = findTomlFiles(templatesDir);
+    if (files.length === 0) {
+      console.error(`No .toml files found in ${templatesDir}`);
+      await flushDonConfigCache();
+      return;
     }
-  };
 
-  await Promise.all(Array.from({ length: Math.min(concurrency, valid.length) }, () => runNext()));
-  await flushDonConfigCache();
+    const items = files.map((file) => ({ file, addr: extractContractAddress(file) }));
+    const valid = items.filter(({ file, addr }) => {
+      if (!addr) { console.log(`[skip] No contractAddress in ${path.basename(file)}`); return false; }
+      if (addr.startsWith('$')) { console.log(`[skip] Placeholder contractAddress (${addr}) in ${path.basename(file)}`); return false; }
+      if (!isValidAddress(addr)) { console.log(`[skip] Invalid contractAddress '${addr}' in ${path.basename(file)}`); return false; }
+      return true;
+    });
+
+    const concurrency = Number(process.env.CONCURRENCY || '10');
+    let idx = 0;
+    const runNext = async () => {
+      if (idx >= valid.length) return;
+      const current = valid[idx++];
+      console.log(`[run ] ${path.basename(current.file)}: contractAddress=${current.addr}`);
+      try {
+        await setConfigForContract(current.addr);
+      } catch (e) {
+        console.error(`[fail] ${path.basename(current.file)}:`, e?.message || e);
+      } finally {
+        await runNext();
+      }
+    };
+
+    await Promise.all(Array.from({ length: Math.min(concurrency, valid.length) }, () => runNext()));
+    await flushDonConfigCache();
+  } finally {
+    shutdownConnector();
+  }
 }
 
 if (require.main === module) {

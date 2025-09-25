@@ -175,6 +175,69 @@ const compareDonConfig = (a, b) => {
   return JSON.stringify(left) === JSON.stringify(right);
 };
 
+// Global connector state for reuse across multiple calls
+let _conn = null;
+let _connectorInitialized = false;
+let _connectorChainUrl = null;
+let _connectorContractAddress = null;
+let _actionAddress = null;
+let _derivedPkHexGlobal = null;
+let _signerAddressGlobal = null;
+
+async function initConnector(options = {}) {
+  if (_connectorInitialized) return { actionAddress: _actionAddress, rpcUrl: _connectorChainUrl, contractAddress: _connectorContractAddress };
+
+  const rpcUrl = options.rpcUrl || process.env.CHAINLINK_RPC_HTTP_URL;
+  if (!rpcUrl) throw new Error('CHAINLINK_RPC_HTTP_URL is required');
+
+  const secretsRoot = process.env.SP_SECRETS_DIR ? `${process.env.SP_SECRETS_DIR}` : '/sp/secrets';
+  const secretsChainlinkRoot = `${secretsRoot}/cl-secrets`;
+
+  // Derive sender key (can be overridden)
+  let derivedPkHex = options.derivedPkHex || null;
+  let signerAddress = null;
+  if (!derivedPkHex) {
+    const nodeNum = String(process.env.NODE_NUMBER || '1');
+    const evmPath = path.join(secretsChainlinkRoot, nodeNum, 'evm_key.json');
+    const ksPassword = process.env.CHAINLINK_KEYSTORE_PASSWORD;
+    if (!ksPassword) throw new Error('CHAINLINK_KEYSTORE_PASSWORD is required for connector initialization');
+    const evmJson = readJSON(evmPath);
+    derivedPkHex = decryptEvmKeystore(evmJson, ksPassword);
+    signerAddress = new ethers.Wallet(derivedPkHex).address;
+  } else {
+    signerAddress = new ethers.Wallet(derivedPkHex).address;
+  }
+
+  const diamondContractAddress = options.contractAddress || process.env.DIAMOND_CONTRACT_ADDRESS || null;
+
+  _conn = BlockchainConnector.getInstance();
+  await _conn.initialize({ contractAddress: diamondContractAddress || undefined, blockchainUrl: rpcUrl });
+  const actionAddress = await _conn.initializeActionAccount(derivedPkHex);
+
+  _connectorInitialized = true;
+  _connectorChainUrl = rpcUrl;
+  _connectorContractAddress = diamondContractAddress || null;
+  _actionAddress = actionAddress;
+  _derivedPkHexGlobal = derivedPkHex;
+  _signerAddressGlobal = signerAddress;
+
+  try { console.log('Sender:', actionAddress); } catch {}
+  try { if (signerAddress) console.log('Signer:', signerAddress); } catch {}
+
+  return { actionAddress, rpcUrl, contractAddress: diamondContractAddress };
+}
+
+function shutdownConnector() {
+  try { BlockchainConnector.getInstance().shutdown(); } catch {}
+  _conn = null;
+  _connectorInitialized = false;
+  _connectorChainUrl = null;
+  _connectorContractAddress = null;
+  _actionAddress = null;
+  _derivedPkHexGlobal = null;
+  _signerAddressGlobal = null;
+}
+
 async function setConfigForContract(contractAddr) {
   const rpcUrl = process.env.CHAINLINK_RPC_HTTP_URL;
   if (!rpcUrl) throw new Error('CHAINLINK_RPC_HTTP_URL is required');
@@ -235,29 +298,10 @@ async function setConfigForContract(contractAddr) {
 
   console.log('donConfig (to publish)', donConfig);
 
-  // Derive and print sender and signer addresses (from this node's evm_key.json only)
-  let signerAddress = null;
-  let derivedPkHex = null;
-  try {
-    const nodeNum = String(process.env.NODE_NUMBER || '1');
-    const evmPath = path.join(secretsChainlinkRoot, nodeNum, 'evm_key.json');
-    const ksPassword = process.env.CHAINLINK_KEYSTORE_PASSWORD;
-    if (ksPassword) {
-      const evmJson = readJSON(evmPath);
-      derivedPkHex = decryptEvmKeystore(evmJson, ksPassword);
-      signerAddress = new ethers.Wallet(derivedPkHex).address;
-    }
-  } catch {}
-  if (!derivedPkHex) {
-    throw new Error('Unable to decrypt sender key from evm_key.json. Ensure CHAINLINK_KEYSTORE_PASSWORD and file are correct.');
+  // Ensure connector is initialized (backward compatible when called directly)
+  if (!_connectorInitialized) {
+    await initConnector({ rpcUrl, contractAddress: diamondContractAddress || normalizedAddr });
   }
-
-  // Initialize SDK and send transaction via TxManager
-  const conn = BlockchainConnector.getInstance();
-  await conn.initialize({ contractAddress: diamondContractAddress || normalizedAddr, blockchainUrl: rpcUrl });
-  const actionAddress = await conn.initializeActionAccount(derivedPkHex);
-  console.log('Sender:', actionAddress);
-  if (signerAddress) console.log('Signer:', signerAddress);
 
   // Encode call data using ethers Interface
   const iface = new ethers.Interface(aggregatorAbi);
@@ -273,35 +317,37 @@ async function setConfigForContract(contractAddr) {
 
   // Execute raw transaction via TxManager when available; fallback to ethers otherwise
   let receipt;
-  try {
-    if (TxManager && typeof TxManager.publishTransaction === 'function') {
-      const transactionOptions = { from: actionAddress };
-      receipt = await TxManager.publishTransaction({ to: normalizedAddr, data }, transactionOptions);
-      console.log('Mined', receipt?.transactionHash);
-    } else {
-      const provider = new ethers.JsonRpcProvider(rpcUrl);
-      const sender = new ethers.Wallet(derivedPkHex, provider);
-      const tx = await sender.sendTransaction({ to: normalizedAddr, data, value: 0 });
-      console.log('Submitted tx', tx.hash);
-      receipt = await tx.wait();
-      console.log('Mined', receipt?.hash || receipt?.transactionHash);
-    }
-
-    // Stage comparable DON config in memory; actual write is deferred
-    markCacheUpdated(normalizedAddr, comparableDonConfig, cacheFile);
-  } finally {
-    try { BlockchainConnector.getInstance().shutdown(); } catch {}
+  if (TxManager && typeof TxManager.publishTransaction === 'function') {
+    const transactionOptions = { from: _actionAddress };
+    receipt = await TxManager.publishTransaction({ to: normalizedAddr, data }, transactionOptions);
+    console.log('Mined', receipt?.transactionHash);
+  } else {
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    if (!_derivedPkHexGlobal) throw new Error('Connector not initialized with derived private key; cannot fallback to ethers signer');
+    const sender = new ethers.Wallet(_derivedPkHexGlobal, provider);
+    const tx = await sender.sendTransaction({ to: normalizedAddr, data, value: 0 });
+    console.log('Submitted tx', tx.hash);
+    receipt = await tx.wait();
+    console.log('Mined', receipt?.hash || receipt?.transactionHash);
   }
+
+  // Stage comparable DON config in memory; actual write is deferred
+  markCacheUpdated(normalizedAddr, comparableDonConfig, cacheFile);
 }
 
 async function main() {
   const contractAddr = process.argv[2];
-  await setConfigForContract(contractAddr);
-  await flushDonConfigCache();
+  await initConnector({});
+  try {
+    await setConfigForContract(contractAddr);
+    await flushDonConfigCache();
+  } finally {
+    shutdownConnector();
+  }
 }
 
 if (require.main === module) {
   main().catch((e) => { console.error(e); process.exit(1); });
 }
 
-module.exports = { setConfigForContract, flushDonConfigCache };
+module.exports = { setConfigForContract, flushDonConfigCache, initConnector, shutdownConnector };
