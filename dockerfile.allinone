@@ -3,12 +3,15 @@ FROM smartcontract/chainlink:2.27.0
 USER root
 
 ARG NODE_VERSION=22.18.0
+ARG CONFIGURATION_PUBLIC_KEY="MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE1mXRd/v32RmPknpTnasAa3b5G31lbOUwMV4cQK/GU8WHySSvJj1MSCsdwhGggGoroMD2Qp/Ql2UOAiGvDRDmGw=="
+
 ENV NVM_DIR=/root/.nvm
 ENV SP_SECRETS_DIR=/sp/secrets
 ENV PATH=$PATH:/root/.nvm/versions/node/v$NODE_VERSION/bin/
 ENV PGDATA=/var/lib/postgresql/data
 ENV HOME=/root
 ENV XDG_CACHE_HOME=/root/.cache
+ENV CONFIGURATION_PUBLIC_KEY=$CONFIGURATION_PUBLIC_KEY
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -37,10 +40,15 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz
 
 # Project files
 COPY scripts /scripts
-# COPY data-feed-generator/data-feeds-builder/templates /templates
-COPY data-feed-generator/templates /templates
+COPY data-feed-generator/data-feeds-builder/templates /templates
+# COPY data-feed-generator/templates /templates
 
 RUN cd /scripts && npm ci --no-audit --no-fund --omit=optional
+
+# Pirce aggregator
+COPY price-aggregator /price-aggregator
+RUN cd /price-aggregator && npm ci --no-audit --no-fund --omit=optional
+RUN cd /price-aggregator && npm run build
 
 # s6 service layout
 RUN mkdir -p /etc/cont-init.d
@@ -51,7 +59,7 @@ RUN chmod +x /etc/cont-init.d/20-generate-services.sh
 
 # s6-rc services (postgres bootstrap, postgres longrun, init after up)
 COPY aio/s6-rc.d /etc/s6-overlay/s6-rc.d
-RUN find /etc/s6-overlay/s6-rc.d -type f \( -name run -o -name up \) -exec chmod +x {} +
+RUN find /etc/s6-overlay/s6-rc.d -type f \( -name run -o -name up -o -name finish \) -exec chmod +x {} +
 
 RUN chmod +x /scripts/bash/init-db.sh
 
