@@ -3,341 +3,15 @@
 
 // Data Feeds Builder
 // - Reads data-feeds.json
-// - For each feed, checks data availability on CoinGecko, CryptoCompare, Binance
+// - For each feed, checks data availability on providers via local Price Aggregator
 // - Builds an array of objects: { name, decimals, smartDataFeed, deltaC, alphaPPB, dataSources }
 // - Resumable: persists progress after each feed so you can stop and continue later
 
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
-let globalHttpAgent = undefined;
-(function setupProxyAgent() {
-  const log = (...args) => {
-    try {
-      console.warn('[proxy]', ...args);
-    } catch (_) {}
-  };
-  try {
-    const env = process.env || {};
-    let proxyUrlStr =
-      env.HTTPS_PROXY ||
-      env.https_proxy ||
-      env.HTTP_PROXY ||
-      env.http_proxy ||
-      env.SOCKS_PROXY ||
-      env.socks_proxy;
-    if (!proxyUrlStr || !String(proxyUrlStr).trim()) return;
-    proxyUrlStr = String(proxyUrlStr).trim();
+const http = require('http');
 
-    // Detect protocol
-    const lower = proxyUrlStr.toLowerCase();
-    const isSocks =
-      lower.startsWith('socks://') ||
-      lower.startsWith('socks5://') ||
-      lower.startsWith('socks4://');
-    const isHttpish =
-      lower.startsWith('http://') || lower.startsWith('https://');
-
-    if (!isSocks && !isHttpish) {
-      log(
-        `Unsupported proxy protocol in ${proxyUrlStr}. Supported: http, https, socks, socks5, socks4. Skipping proxy.`
-      );
-      return;
-    }
-
-    if (isSocks) {
-      // Try to use socks-proxy-agent if available
-      try {
-        const SocksProxyAgent = require('socks-proxy-agent');
-        globalHttpAgent = SocksProxyAgent.SocksProxyAgent
-          ? new SocksProxyAgent.SocksProxyAgent(proxyUrlStr)
-          : new SocksProxyAgent(proxyUrlStr);
-        log(`Using socks-proxy-agent for ${proxyUrlStr}`);
-        return;
-      } catch (e) {
-        if (lower.startsWith('socks4://')) {
-          log(
-            `socks-proxy-agent not available (err: ${
-              e && e.message ? e.message : String(e)
-            }). Built-in fallback does not support SOCKS4. Skipping proxy.`
-          );
-          return;
-        }
-        log(
-          `socks-proxy-agent not available (err: ${
-            e && e.message ? e.message : String(e)
-          }). Falling back to built-in SOCKS5 tunneler for ${proxyUrlStr}`
-        );
-      }
-
-      // Minimal SOCKS5 tunneling agent (supports no-auth and username/password)
-      const net = require('net');
-      const tls = require('tls');
-      const { URL } = require('url');
-
-      let purl;
-      try {
-        purl = new URL(proxyUrlStr.replace(/^socks:\/\//i, 'socks5://'));
-      } catch (e) {
-        log(
-          `Invalid SOCKS proxy URL: ${proxyUrlStr} (${
-            e && e.message ? e.message : String(e)
-          }) — skipping proxy.`
-        );
-        return;
-      }
-      const proxyHost = purl.hostname;
-      const proxyPort = Number(purl.port) || 1080;
-      const username = purl.username ? decodeURIComponent(purl.username) : null;
-      const password = purl.password ? decodeURIComponent(purl.password) : null;
-      if (!proxyHost) {
-        log(
-          `Missing host in SOCKS proxy URL: ${proxyUrlStr} — skipping proxy.`
-        );
-        return;
-      }
-
-      class Socks5HttpsAgent extends https.Agent {
-        createConnection(options, callback) {
-          const targetHost = options.host || options.hostname;
-          const targetPort = options.port || 443;
-
-          const socket = net.connect({ host: proxyHost, port: proxyPort });
-
-          const onError = (err) => {
-            try {
-              log(
-                `SOCKS5 tunnel error: ${
-                  err && err.message ? err.message : String(err)
-                }`
-              );
-            } catch (_) {}
-            socket.destroy();
-            callback(err);
-          };
-          socket.once('error', onError);
-
-          socket.once('connect', () => {
-            const methods = username
-              ? Buffer.from([0x05, 0x02, 0x00, 0x02])
-              : Buffer.from([0x05, 0x01, 0x00]);
-            socket.write(methods);
-
-            const readAuthMethod = () => {
-              socket.once('data', (buf) => {
-                if (buf.length < 2 || buf[0] !== 0x05)
-                  return onError(new Error('Invalid SOCKS5 method response'));
-                const method = buf[1];
-                if (method === 0x00) {
-                  sendConnect();
-                } else if (method === 0x02 && username) {
-                  const u = Buffer.from(username, 'utf8');
-                  const p = Buffer.from(password || '', 'utf8');
-                  const authReq = Buffer.concat([
-                    Buffer.from([0x01, u.length]),
-                    u,
-                    Buffer.from([p.length]),
-                    p,
-                  ]);
-                  socket.write(authReq);
-                  socket.once('data', (abuf) => {
-                    if (abuf.length < 2 || abuf[1] !== 0x00)
-                      return onError(new Error('SOCKS5 auth failed'));
-                    sendConnect();
-                  });
-                } else {
-                  return onError(
-                    new Error('SOCKS5: no acceptable auth method')
-                  );
-                }
-              });
-            };
-
-            const sendConnect = () => {
-              const hostBuf = Buffer.from(targetHost, 'utf8');
-              const req = Buffer.concat([
-                Buffer.from([0x05, 0x01, 0x00, 0x03, hostBuf.length]),
-                hostBuf,
-                Buffer.from([(targetPort >> 8) & 0xff, targetPort & 0xff]),
-              ]);
-              socket.write(req);
-              socket.once('data', (rbuf) => {
-                if (rbuf.length < 2 || rbuf[1] !== 0x00)
-                  return onError(new Error('SOCKS5 connect failed'));
-                const tlsSocket = tls.connect({
-                  socket,
-                  servername: targetHost,
-                  host: targetHost,
-                  port: targetPort,
-                });
-                tlsSocket.once('error', onError);
-                tlsSocket.once('secureConnect', () => {
-                  socket.removeListener('error', onError);
-                  callback(null, tlsSocket);
-                });
-              });
-            };
-
-            readAuthMethod();
-          });
-        }
-      }
-
-      globalHttpAgent = new Socks5HttpsAgent();
-      log(
-        `Using built-in SOCKS5 tunneler for ${proxyUrlStr} (${proxyHost}:${proxyPort})`
-      );
-      return;
-    }
-
-    // HTTP(S) proxy branch
-    // Try to use https-proxy-agent if available
-    try {
-      const HttpsProxyAgent = require('https-proxy-agent');
-      globalHttpAgent = HttpsProxyAgent.HttpsProxyAgent
-        ? new HttpsProxyAgent.HttpsProxyAgent(proxyUrlStr)
-        : new HttpsProxyAgent(proxyUrlStr);
-      log(`Using https-proxy-agent for ${proxyUrlStr}`);
-      return;
-    } catch (e) {
-      log(
-        `https-proxy-agent not available (err: ${
-          e && e.message ? e.message : String(e)
-        }). Falling back to built-in CONNECT tunneler for ${proxyUrlStr}`
-      );
-    }
-
-    // Lightweight built-in HTTPS CONNECT tunneling agent (no external deps)
-    const net = require('net');
-    const tls = require('tls');
-    const { URL } = require('url');
-
-    let purl;
-    try {
-      purl = new URL(proxyUrlStr);
-    } catch (e) {
-      log(
-        `Invalid HTTP(S) proxy URL: ${proxyUrlStr} (${
-          e && e.message ? e.message : String(e)
-        }) — skipping proxy.`
-      );
-      return;
-    }
-    const proxyHost = purl.hostname;
-    const proxyPort =
-      Number(purl.port) || (purl.protocol === 'https:' ? 443 : 80);
-    const proxyIsHttps = purl.protocol === 'https:';
-    const proxyAuth = purl.username
-      ? `${decodeURIComponent(purl.username)}:${decodeURIComponent(
-          purl.password || ''
-        )}`
-      : null;
-    if (!proxyHost) {
-      log(
-        `Missing host in HTTP(S) proxy URL: ${proxyUrlStr} — skipping proxy.`
-      );
-      return;
-    }
-
-    class HttpsTunnelAgent extends https.Agent {
-      createConnection(options, callback) {
-        const targetHost = options.host || options.hostname;
-        const targetPort = options.port || 443;
-        const connectReq =
-          `CONNECT ${targetHost}:${targetPort} HTTP/1.1\r\n` +
-          `Host: ${targetHost}:${targetPort}\r\n` +
-          (proxyAuth
-            ? `Proxy-Authorization: Basic ${Buffer.from(proxyAuth).toString(
-                'base64'
-              )}\r\n`
-            : '') +
-          `Connection: keep-alive\r\n` +
-          `\r\n`;
-
-        const onConnected = (proxySocket) => {
-          let buffered = '';
-          const onData = (chunk) => {
-            buffered += chunk.toString('utf8');
-            if (buffered.includes('\r\n\r\n')) {
-              proxySocket.removeListener('data', onData);
-              const statusLine = buffered.split('\r\n')[0];
-              const match = statusLine.match(/^HTTP\/\d+\.\d+\s+(\d+)/);
-              const statusCode = match ? Number(match[1]) : 0;
-              if (statusCode !== 200) {
-                proxySocket.destroy();
-                return callback(
-                  new Error(`Proxy CONNECT failed with status ${statusCode}`)
-                );
-              }
-              const tlsSocket = tls.connect({
-                socket: proxySocket,
-                servername: targetHost,
-                host: targetHost,
-                port: targetPort,
-              });
-              tlsSocket.once('error', (err) => {
-                try {
-                  log(
-                    `TLS over proxy error: ${
-                      err && err.message ? err.message : String(err)
-                    }`
-                  );
-                } catch (_) {}
-                callback(err);
-              });
-              tlsSocket.once('secureConnect', () => callback(null, tlsSocket));
-            }
-          };
-          proxySocket.on('data', onData);
-          proxySocket.write(connectReq);
-        };
-
-        const onConnError = (err) => {
-          try {
-            log(
-              `Proxy socket error: ${
-                err && err.message ? err.message : String(err)
-              }`
-            );
-          } catch (_) {}
-          callback(err);
-        };
-
-        if (proxyIsHttps) {
-          const socket = tls.connect({
-            host: proxyHost,
-            port: proxyPort,
-            servername: proxyHost,
-          });
-          socket.once('secureConnect', () => onConnected(socket));
-          socket.once('error', onConnError);
-          return;
-        } else {
-          const socket = net.connect({ host: proxyHost, port: proxyPort }, () =>
-            onConnected(socket)
-          );
-          socket.once('error', onConnError);
-          return;
-        }
-      }
-    }
-
-    globalHttpAgent = new HttpsTunnelAgent();
-    log(
-      `Using built-in HTTP CONNECT tunneler for ${proxyUrlStr} (${
-        proxyIsHttps ? 'HTTPS' : 'HTTP'
-      } proxy ${proxyHost}:${proxyPort})`
-    );
-  } catch (e) {
-    // Proceed without proxy but inform the user once
-    try {
-      console.warn(
-        '[proxy] Proxy setup failed:',
-        e && e.message ? e.message : String(e)
-      );
-    } catch (_) {}
-  }
-})();
+// Price Aggregator port now always passed via function arguments (no global mutable state)
 
 // -------------------------------
 // CLI options
@@ -349,8 +23,8 @@ function parseArgs(argv) {
     timeoutMs: 8000,
     out: path.resolve(__dirname, 'data-feeds-map.json'),
     state: path.resolve(__dirname, '.progress', 'data-feeds-progress.json'),
-    cacheDir: path.resolve(__dirname, '.cache'),
     progress: false,
+    priceAggregatorPort: 3000,
   };
 
   for (let i = 2; i < argv.length; i++) {
@@ -363,12 +37,12 @@ function parseArgs(argv) {
       args.out = path.resolve(argv[++i]);
     } else if (a === '--state' && argv[i + 1]) {
       args.state = path.resolve(argv[++i]);
-    } else if (a === '--cache-dir' && argv[i + 1]) {
-      args.cacheDir = path.resolve(argv[++i]);
     } else if (a === '--no-progress') {
       args.progress = false;
     } else if (a === '--progress') {
       args.progress = true;
+    } else if (a === '--price-aggregator-port' && argv[i + 1]) {
+      args.priceAggregatorPort = Number(argv[++i]);
     } else if (a === '--help' || a === '-h') {
       printHelpAndExit();
     }
@@ -385,8 +59,8 @@ Options:
   --timeout <ms>          HTTP timeout per request (default: 8000)
   --out <file>            Output JSON file (default: data-feed-generator/data-feeds-map.json)
   --state <file>          Progress state file (default: data-feed-generator/.progress/data-feeds-progress.json)
-  --cache-dir <dir>       Cache directory (default: data-feed-generator/.cache)
   --[no-]progress         Show a live progress line (default: off)
+  --price-aggregator-port <port>  Port of running Price Aggregator service (default: 3000)
   --help, -h              Show this help
 `;
   console.log(help);
@@ -420,6 +94,21 @@ function writeJsonAtomicSync(filePath, data) {
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Parse price that may come as string or number; returns finite number or NaN
+function parsePrice(value) {
+  if (value == null) return NaN;
+  if (typeof value === 'number') return isFinite(value) ? value : NaN;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed === '') return NaN;
+    // Remove common thousand separators (comma) if any, but keep decimal point
+    const normalized = trimmed.replace(/,/g, '');
+    const num = Number(normalized);
+    return isFinite(num) ? num : NaN;
+  }
+  return NaN;
 }
 
 // -------------------------------
@@ -470,16 +159,46 @@ function isPairName(name) {
 }
 
 // -------------------------------
+// Price aggregator URL generator
+// -------------------------------
+function generatePriceAggregatorUrl(provider, base, quote, port) {
+  const providerMap = {
+    Binance: 'binance',
+    CryptoCompare: 'cryptocompare',
+    CoinGecko: 'coingecko',
+    Coinbase: 'coinbase',
+    Kraken: 'kraken',
+    OKX: 'okx',
+    Frankfurter: 'frankfurter',
+    'exchangerate.host': 'exchangerate-host',
+    AlphaVantage: 'alphavantage',
+    Finnhub: 'finnhub',
+  };
+
+  const providerName = providerMap[provider];
+  if (!providerName) {
+    throw new Error(`Unknown provider: ${provider}`);
+  }
+
+  let targetQuote = quote;
+  if (quote === 'USD' && (provider === 'Binance' || provider === 'OKX')) {
+    targetQuote = 'USDT';
+  }
+
+  const runtimeUrl = `http://127.0.0.1:${port}/quote/${providerName}/${base.toUpperCase()}/${targetQuote.toUpperCase()}`;
+  const outputUrl = `http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/${providerName}/${base.toUpperCase()}/${targetQuote.toUpperCase()}`;
+  return { runtimeUrl, outputUrl };
+}
+
+// -------------------------------
 // HTTP helper with timeout and simple retry
 // -------------------------------
 function httpGetJson(url, timeoutMs) {
   return new Promise((resolve, reject) => {
-    const req = https.get(
+    const req = http.get(
       url,
       {
-        agent: globalHttpAgent,
         headers: {
-          'user-agent': 'data-feeds-builder/1.0 (+https://superprotocol.io)',
           accept: 'application/json',
         },
       },
@@ -552,60 +271,29 @@ async function getJsonWithRetry(
 }
 
 // -------------------------------
-// CoinGecko coins list cache
-// -------------------------------
-async function loadCoinGeckoCoins(cacheDir, timeoutMs, force) {
-  ensureDirSync(cacheDir);
-  const cachePath = path.join(cacheDir, 'coingecko_coins.json');
-  if (!force && fs.existsSync(cachePath)) {
-    return readJsonSafe(cachePath, []);
-  }
-  const url =
-    'https://api.coingecko.com/api/v3/coins/list?include_platform=false';
-  const data = await getJsonWithRetry(url, timeoutMs, 3);
-  if (!Array.isArray(data)) return [];
-  writeJsonAtomicSync(cachePath, data);
-  return data;
-}
-
-function mapSymbolToCoinGeckoId(symbol, coinsList) {
-  if (!symbol) return null;
-  const sym = String(symbol).toLowerCase();
-  // Prefer exact symbol matches
-  const exact = coinsList.find((c) => c && c.symbol === sym);
-  if (exact) return exact.id;
-  // Fallback: startsWith or includes in name
-  const starts = coinsList.find(
-    (c) => c && typeof c.symbol === 'string' && c.symbol.startsWith(sym)
-  );
-  if (starts) return starts.id;
-  const nameMatch = coinsList.find(
-    (c) => c && typeof c.name === 'string' && c.name.toLowerCase() === sym
-  );
-  if (nameMatch) return nameMatch.id;
-  return null;
-}
-
-// -------------------------------
 // Availability checkers
 // -------------------------------
-async function checkBinance(symbol, timeoutMs, verbose) {
-  // Check SYMBOLUSDT spot pair
-  const testSymbol = `${symbol.toUpperCase()}USDT`;
-  const url = `https://api.binance.com/api/v3/ticker/price?symbol=${encodeURIComponent(
-    testSymbol
-  )}`;
+async function checkBinance(symbol, timeoutMs, verbose, port) {
+  const { runtimeUrl, outputUrl } = generatePriceAggregatorUrl(
+    'Binance',
+    symbol,
+    'USD',
+    port
+  );
   try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const has = data && typeof data.price === 'string' && data.price.length > 0;
-    const num = has ? Number(data.price) : NaN;
-    const ok = has && isFinite(num);
-    if (has && !ok)
+    const data = await getJsonWithRetry(runtimeUrl, timeoutMs, 2);
+    const num = data ? parsePrice(data.price) : NaN;
+    const ok = isFinite(num);
+    if (data && !ok)
       console.log(
-        `Binance ${testSymbol}: value at path 'price' is not numeric -> ${data.price} (url: ${url})`
+        `Binance ${symbol}/USDT: value at path 'price' is not numeric -> ${
+          data && data.price
+        } (url: ${runtimeUrl})`
       );
-    console.log(`Binance ${testSymbol}: ${ok ? 'OK' : 'N/A'}`);
-    return ok ? { provider: 'Binance', url, path: 'price', value: num } : null;
+    console.log(`Binance ${symbol}/USDT: ${ok ? 'OK' : 'N/A'}`);
+    return ok
+      ? { provider: 'Binance', url: outputUrl, path: 'price', value: num }
+      : null;
   } catch (_e) {
     const e = _e || {};
     // Treat 429, 404 and 400 (e.g., Invalid symbol) as non-errors
@@ -616,26 +304,35 @@ async function checkBinance(symbol, timeoutMs, verbose) {
       )
     ) {
       console.log(
-        `Binance ${testSymbol} error: ${
+        `Binance ${symbol}/USDT error: ${
           e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
+        } (runtime URL used)`
       );
     }
-    console.log(`Binance ${testSymbol}: N/A`);
+    console.log(`Binance ${symbol}/USDT: N/A`);
     return null;
   }
 }
 
-async function checkCryptoCompare(symbol, timeoutMs, verbose) {
-  const url = `https://min-api.cryptocompare.com/data/price?fsym=${encodeURIComponent(
-    symbol.toUpperCase()
-  )}&tsyms=USD`;
+async function checkCryptoCompare(symbol, timeoutMs, verbose, port) {
+  const { runtimeUrl, outputUrl } = generatePriceAggregatorUrl(
+    'CryptoCompare',
+    symbol,
+    'USD',
+    port
+  );
   try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const ok = data && typeof data.USD === 'number' && isFinite(data.USD);
+    const data = await getJsonWithRetry(runtimeUrl, timeoutMs, 2);
+    const num = data ? parsePrice(data.price) : NaN;
+    const ok = isFinite(num);
     console.log(`CryptoCompare ${symbol}/USD: ${ok ? 'OK' : 'N/A'}`);
     return ok
-      ? { provider: 'CryptoCompare', url, path: 'USD', value: data.USD }
+      ? {
+          provider: 'CryptoCompare',
+          url: outputUrl,
+          path: 'price',
+          value: num,
+        }
       : null;
   } catch (_e) {
     const e = _e || {};
@@ -643,7 +340,7 @@ async function checkCryptoCompare(symbol, timeoutMs, verbose) {
       console.log(
         `CryptoCompare ${symbol}/USD error: ${
           e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
+        } (runtime URL used)`
       );
     }
     console.log(`CryptoCompare ${symbol}/USD: N/A`);
@@ -651,36 +348,36 @@ async function checkCryptoCompare(symbol, timeoutMs, verbose) {
   }
 }
 
-async function checkCoinGecko(symbol, coinsList, timeoutMs, verbose) {
-  const id = mapSymbolToCoinGeckoId(symbol, coinsList);
-  if (!id) {
-    console.log(`CoinGecko ${symbol}: id not found`);
-    return null;
-  }
-  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(
-    id
-  )}&vs_currencies=usd`;
+async function checkCoinGecko(symbol, timeoutMs, verbose, port) {
+  const { runtimeUrl, outputUrl } = generatePriceAggregatorUrl(
+    'CoinGecko',
+    symbol,
+    'USD',
+    port
+  );
   try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const ok =
-      data &&
-      data[id] &&
-      typeof data[id].usd === 'number' &&
-      isFinite(data[id].usd);
-    console.log(`CoinGecko ${id}/usd: ${ok ? 'OK' : 'N/A'}`);
+    const data = await getJsonWithRetry(runtimeUrl, timeoutMs, 2);
+    const num = data ? parsePrice(data.price) : NaN;
+    const ok = isFinite(num);
+    console.log(`CoinGecko ${symbol}/USD: ${ok ? 'OK' : 'N/A'}`);
     return ok
-      ? { provider: 'CoinGecko', url, path: `${id}.usd`, value: data[id].usd }
+      ? {
+          provider: 'CoinGecko',
+          url: outputUrl,
+          path: 'price',
+          value: num,
+        }
       : null;
   } catch (_e) {
     const e = _e || {};
     if (!(e && (e.statusCode === 429 || e.statusCode === 404))) {
       console.log(
-        `CoinGecko ${id}/usd error: ${
+        `CoinGecko ${symbol}/USD error: ${
           e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
+        } (runtime URL used)`
       );
     }
-    console.log(`CoinGecko ${id}/usd: N/A`);
+    console.log(`CoinGecko ${symbol}/USD: N/A`);
     return null;
   }
 }
@@ -688,149 +385,122 @@ async function checkCoinGecko(symbol, coinsList, timeoutMs, verbose) {
 // -------------------------------
 // Additional providers
 // -------------------------------
-async function checkCoinbase(base, quote, timeoutMs) {
-  const pair = `${base.toUpperCase()}-${quote.toUpperCase()}`;
-  const url = `https://api.coinbase.com/v2/prices/${pair}/spot`;
+async function checkCoinbase(base, quote, timeoutMs, port) {
+  const { runtimeUrl, outputUrl } = generatePriceAggregatorUrl(
+    'Coinbase',
+    base,
+    quote,
+    port
+  );
   try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const has =
-      data &&
-      data.data &&
-      typeof data.data.amount === 'string' &&
-      data.data.amount.length > 0;
-    const num = has ? Number(data.data.amount) : NaN;
-    const ok = has && isFinite(num);
-    if (has && !ok)
+    const data = await getJsonWithRetry(runtimeUrl, timeoutMs, 2);
+    const num = data ? parsePrice(data.price) : NaN;
+    const ok = isFinite(num);
+    if (data && !ok)
       console.log(
-        `Coinbase ${pair}: value at path 'data.amount' is not numeric -> ${data.data.amount} (url: ${url})`
+        `Coinbase ${base}-${quote}: value at path 'price' is not numeric -> ${
+          data && data.price
+        } (url: ${runtimeUrl})`
       );
-    console.log(`Coinbase ${pair}: ${ok ? 'OK' : 'N/A'}`);
+    console.log(`Coinbase ${base}-${quote}: ${ok ? 'OK' : 'N/A'}`);
     return ok
-      ? { provider: 'Coinbase', url, path: 'data.amount', value: num }
+      ? { provider: 'Coinbase', url: outputUrl, path: 'price', value: num }
       : null;
   } catch (_e) {
     const e = _e || {};
     if (!(e && (e.statusCode === 429 || e.statusCode === 404))) {
       console.log(
-        `Coinbase ${pair} error: ${
+        `Coinbase ${base}-${quote} error: ${
           e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
+        } (runtime URL used)`
       );
     }
-    console.log(`Coinbase ${pair}: N/A`);
+    console.log(`Coinbase ${base}-${quote}: N/A`);
     return null;
   }
 }
 
-function krakenMapSymbol(sym) {
-  const s = sym.toUpperCase();
-  if (s === 'BTC') return 'XBT';
-  return s;
-}
-
-async function checkKraken(base, quote, timeoutMs) {
-  const b = krakenMapSymbol(base);
-  const q = krakenMapSymbol(quote);
-  const pair = `${b}${q}`;
-  const url = `https://api.kraken.com/0/public/Ticker?pair=${encodeURIComponent(
-    pair
-  )}`;
+async function checkKraken(base, quote, timeoutMs, port) {
+  const { runtimeUrl, outputUrl } = generatePriceAggregatorUrl(
+    'Kraken',
+    base,
+    quote,
+    port
+  );
   try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const hasError = data && Array.isArray(data.error) && data.error.length > 0;
-    if (hasError) {
-      const msg = Array.isArray(data.error) ? data.error.join('; ') : '';
-      if (/Unknown asset pair/i.test(msg)) {
-        console.log(`Kraken ${pair}: N/A (unknown asset pair)`);
-      } else {
-        console.log(
-          `Kraken ${pair} error: ${
-            msg || "API returned 'error' field"
-          } (url: ${url})`
-        );
-        console.log(`Kraken ${pair}: N/A`);
-      }
-      return null;
-    }
-    const result = data && data.result ? data.result : null;
-    const firstKey = result ? Object.keys(result)[0] : null;
-    const ticker = firstKey ? result[firstKey] : null;
-    const price =
-      ticker && ticker.c && Array.isArray(ticker.c) ? ticker.c[0] : null;
-    const has = typeof price === 'string' && price.length > 0;
-    const num = has ? Number(price) : NaN;
-    const ok = has && isFinite(num);
-    if (has && !ok)
+    const data = await getJsonWithRetry(runtimeUrl, timeoutMs, 2);
+    const num = data ? parsePrice(data.price) : NaN;
+    const ok = isFinite(num);
+    if (data && !ok)
       console.log(
-        `Kraken ${pair}: value at path 'result.${firstKey}.c[0]' is not numeric -> ${price} (url: ${url})`
+        `Kraken ${base}${quote}: value at path 'price' is not numeric -> ${
+          data && data.price
+        } (url: ${runtimeUrl})`
       );
-    console.log(`Kraken ${pair}: ${ok ? 'OK' : 'N/A'}`);
+    console.log(`Kraken ${base}${quote}: ${ok ? 'OK' : 'N/A'}`);
     return ok
-      ? { provider: 'Kraken', url, path: `result.${firstKey}.c[0]`, value: num }
+      ? { provider: 'Kraken', url: outputUrl, path: 'price', value: num }
       : null;
   } catch (_e) {
     const e = _e || {};
     if (!(e && (e.statusCode === 429 || e.statusCode === 404))) {
       console.log(
-        `Kraken ${pair} error: ${
+        `Kraken ${base}${quote} error: ${
           e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
+        } (runtime URL used)`
       );
     }
-    console.log(`Kraken ${pair}: N/A`);
+    console.log(`Kraken ${base}${quote}: N/A`);
     return null;
   }
 }
 
-async function checkOKX(base, quote, timeoutMs) {
-  const instId = `${base.toUpperCase()}-${quote.toUpperCase()}`;
-  const url = `https://www.okx.com/api/v5/market/ticker?instId=${encodeURIComponent(
-    instId
-  )}`;
+async function checkOKX(base, quote, timeoutMs, port) {
+  const { runtimeUrl, outputUrl } = generatePriceAggregatorUrl(
+    'OKX',
+    base,
+    quote,
+    port
+  );
   try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const has =
-      data &&
-      data.code === '0' &&
-      Array.isArray(data.data) &&
-      data.data[0] &&
-      typeof data.data[0].last === 'string' &&
-      data.data[0].last.length > 0;
-    const num = has ? Number(data.data[0].last) : NaN;
-    const ok = has && isFinite(num);
-    if (has && !ok)
+    const data = await getJsonWithRetry(runtimeUrl, timeoutMs, 2);
+    const num = data ? parsePrice(data.price) : NaN;
+    const ok = isFinite(num);
+    if (data && !ok)
       console.log(
-        `OKX ${instId}: value at path 'data[0].last' is not numeric -> ${data.data[0].last} (url: ${url})`
+        `OKX ${base}-${quote}: value at path 'price' is not numeric -> ${
+          data && data.price
+        } (url: ${runtimeUrl})`
       );
-    console.log(`OKX ${instId}: ${ok ? 'OK' : 'N/A'}`);
+    console.log(`OKX ${base}-${quote}: ${ok ? 'OK' : 'N/A'}`);
     return ok
-      ? { provider: 'OKX', url, path: 'data[0].last', value: num }
+      ? { provider: 'OKX', url: outputUrl, path: 'price', value: num }
       : null;
   } catch (_e) {
     const e = _e || {};
     if (!(e && (e.statusCode === 429 || e.statusCode === 404))) {
       console.log(
-        `OKX ${instId} error: ${
+        `OKX ${base}-${quote} error: ${
           e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
+        } (runtime URL used)`
       );
     }
-    console.log(`OKX ${instId}: N/A`);
+    console.log(`OKX ${base}-${quote}: N/A`);
     return null;
   }
 }
 
-async function checkFrankfurter(base, quote, timeoutMs) {
-  const url = `https://api.frankfurter.app/latest?from=${encodeURIComponent(
-    base.toUpperCase()
-  )}&to=${encodeURIComponent(quote.toUpperCase())}`;
+async function checkFrankfurter(base, quote, timeoutMs, port) {
+  const { runtimeUrl, outputUrl } = generatePriceAggregatorUrl(
+    'Frankfurter',
+    base,
+    quote,
+    port
+  );
   try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const ok =
-      data &&
-      data.rates &&
-      typeof data.rates[quote.toUpperCase()] === 'number' &&
-      isFinite(data.rates[quote.toUpperCase()]);
+    const data = await getJsonWithRetry(runtimeUrl, timeoutMs, 2);
+    const num = data ? parsePrice(data.price) : NaN;
+    const ok = isFinite(num);
     console.log(
       `Frankfurter ${base.toUpperCase()}/${quote.toUpperCase()}: ${
         ok ? 'OK' : 'N/A'
@@ -839,9 +509,9 @@ async function checkFrankfurter(base, quote, timeoutMs) {
     return ok
       ? {
           provider: 'Frankfurter',
-          url,
-          path: `rates.${quote.toUpperCase()}`,
-          value: data.rates[quote.toUpperCase()],
+          url: outputUrl,
+          path: 'price',
+          value: num,
         }
       : null;
   } catch (_e) {
@@ -850,7 +520,7 @@ async function checkFrankfurter(base, quote, timeoutMs) {
       console.log(
         `Frankfurter ${base.toUpperCase()}/${quote.toUpperCase()} error: ${
           e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
+        } (runtime URL used)`
       );
     }
     console.log(
@@ -860,32 +530,28 @@ async function checkFrankfurter(base, quote, timeoutMs) {
   }
 }
 
-async function checkExchangerateHost(base, quote, timeoutMs) {
-  const key = process.env.EXCHANGERATE_HOST_KEY;
-  const baseUrl = `https://api.exchangerate.host/latest?base=${encodeURIComponent(
-    base.toUpperCase()
-  )}&symbols=${encodeURIComponent(quote.toUpperCase())}`;
-  const url = key
-    ? `${baseUrl}&access_key=${encodeURIComponent(key)}`
-    : baseUrl;
+async function checkExchangerateHost(base, quote, timeoutMs, port) {
+  const { runtimeUrl, outputUrl } = generatePriceAggregatorUrl(
+    'exchangerate.host',
+    base,
+    quote,
+    port
+  );
   try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const ok =
-      data &&
-      data.rates &&
-      typeof data.rates[quote.toUpperCase()] === 'number' &&
-      isFinite(data.rates[quote.toUpperCase()]);
+    const data = await getJsonWithRetry(runtimeUrl, timeoutMs, 2);
+    const num = data ? parsePrice(data.price) : NaN;
+    const ok = isFinite(num);
     console.log(
       `exchangerate.host ${base.toUpperCase()}/${quote.toUpperCase()}: ${
         ok ? 'OK' : 'N/A'
-      }${key ? '' : ' (no key)'}`
+      }`
     );
     return ok
       ? {
           provider: 'exchangerate.host',
-          url,
-          path: `rates.${quote.toUpperCase()}`,
-          value: data.rates[quote.toUpperCase()],
+          url: outputUrl,
+          path: 'price',
+          value: num,
         }
       : null;
   } catch (_e) {
@@ -894,35 +560,27 @@ async function checkExchangerateHost(base, quote, timeoutMs) {
       console.log(
         `exchangerate.host ${base.toUpperCase()}/${quote.toUpperCase()} error: ${
           e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
+        } (runtime URL used)`
       );
     }
     console.log(
-      `exchangerate.host ${base.toUpperCase()}/${quote.toUpperCase()}: N/A${
-        key ? '' : ' (no key)'
-      }`
+      `exchangerate.host ${base.toUpperCase()}/${quote.toUpperCase()}: N/A`
     );
     return null;
   }
 }
 
-async function checkAlphaVantage(base, quote, timeoutMs) {
-  const key = process.env.ALPHAVANTAGE_API_KEY;
-  if (!key) {
-    console.log('AlphaVantage: Skipping (no API key)');
-    return null;
-  }
-  const url = `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${encodeURIComponent(
-    base.toUpperCase()
-  )}&to_currency=${encodeURIComponent(
-    quote.toUpperCase()
-  )}&apikey=${encodeURIComponent(key)}`;
+async function checkAlphaVantage(base, quote, timeoutMs, port) {
+  const { runtimeUrl, outputUrl } = generatePriceAggregatorUrl(
+    'AlphaVantage',
+    base,
+    quote,
+    port
+  );
   try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const obj = data && data['Realtime Currency Exchange Rate'];
-    const rate =
-      obj && obj['5. Exchange Rate'] ? Number(obj['5. Exchange Rate']) : NaN;
-    const ok = isFinite(rate);
+    const data = await getJsonWithRetry(runtimeUrl, timeoutMs, 2);
+    const num = data ? parsePrice(data.price) : NaN;
+    const ok = isFinite(num);
     console.log(
       `AlphaVantage ${base.toUpperCase()}/${quote.toUpperCase()}: ${
         ok ? 'OK' : 'N/A'
@@ -931,9 +589,9 @@ async function checkAlphaVantage(base, quote, timeoutMs) {
     return ok
       ? {
           provider: 'AlphaVantage',
-          url,
-          path: 'Realtime Currency Exchange Rate.5. Exchange Rate',
-          value: rate,
+          url: outputUrl,
+          path: 'price',
+          value: num,
         }
       : null;
   } catch (_e) {
@@ -942,7 +600,7 @@ async function checkAlphaVantage(base, quote, timeoutMs) {
       console.log(
         `AlphaVantage ${base.toUpperCase()}/${quote.toUpperCase()} error: ${
           e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
+        } (runtime URL used)`
       );
     }
     console.log(
@@ -952,31 +610,36 @@ async function checkAlphaVantage(base, quote, timeoutMs) {
   }
 }
 
-async function checkFinnhub(base, timeoutMs) {
-  const token = process.env.FINNHUB_TOKEN;
-  if (!token) {
-    console.log('Finnhub: Skipping (no token)');
-    return null;
-  }
-  const symbol = base.toUpperCase();
-  const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(
-    symbol
-  )}&token=${encodeURIComponent(token)}`;
+async function checkFinnhub(base, timeoutMs, port) {
+  const { runtimeUrl, outputUrl } = generatePriceAggregatorUrl(
+    'Finnhub',
+    base,
+    'USD',
+    port
+  );
   try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const ok = data && typeof data.c === 'number' && isFinite(data.c);
-    console.log(`Finnhub ${symbol}: ${ok ? 'OK' : 'N/A'}`);
-    return ok ? { provider: 'Finnhub', url, path: 'c', value: data.c } : null;
+    const data = await getJsonWithRetry(runtimeUrl, timeoutMs, 2);
+    const num = data ? parsePrice(data.price) : NaN;
+    const ok = isFinite(num);
+    console.log(`Finnhub ${base.toUpperCase()}: ${ok ? 'OK' : 'N/A'}`);
+    return ok
+      ? {
+          provider: 'Finnhub',
+          url: outputUrl,
+          path: 'price',
+          value: num,
+        }
+      : null;
   } catch (_e) {
     const e = _e || {};
     if (!(e && (e.statusCode === 429 || e.statusCode === 404))) {
       console.log(
-        `Finnhub ${symbol} error: ${
+        `Finnhub ${base.toUpperCase()} error: ${
           e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
+        }`
       );
     }
-    console.log(`Finnhub ${symbol}: N/A`);
+    console.log(`Finnhub ${base.toUpperCase()}: N/A`);
     return null;
   }
 }
@@ -986,9 +649,9 @@ async function checkFinnhub(base, timeoutMs) {
 // -------------------------------
 async function main() {
   const args = parseArgs(process.argv);
+  const port = args.priceAggregatorPort;
   ensureDirSync(path.dirname(args.out));
   ensureDirSync(path.dirname(args.state));
-  ensureDirSync(args.cacheDir);
 
   // Load input feeds
   const inputPath = path.resolve(__dirname, '../data-feeds.json');
@@ -1012,13 +675,6 @@ async function main() {
   } else if (fs.existsSync(args.state)) {
     fs.unlinkSync(args.state);
   }
-
-  // Load CoinGecko coins list (cached)
-  const coinsList = await loadCoinGeckoCoins(
-    args.cacheDir,
-    args.timeoutMs,
-    false
-  );
 
   const resultsArray = [];
   let processedCount = 0;
@@ -1064,16 +720,16 @@ async function main() {
     if (shouldCheckApis) {
       const quote = 'USD';
       const checks = await Promise.all([
-        checkBinance(baseSymbol, args.timeoutMs, args.verbose),
-        checkCryptoCompare(baseSymbol, args.timeoutMs, args.verbose),
-        checkCoinGecko(baseSymbol, coinsList, args.timeoutMs, args.verbose),
-        checkCoinbase(baseSymbol, quote, args.timeoutMs),
-        checkKraken(baseSymbol, quote, args.timeoutMs),
-        checkOKX(baseSymbol, quote, args.timeoutMs),
-        checkFrankfurter(baseSymbol, quote, args.timeoutMs),
-        checkExchangerateHost(baseSymbol, quote, args.timeoutMs),
-        checkAlphaVantage(baseSymbol, quote, args.timeoutMs),
-        checkFinnhub(baseSymbol, args.timeoutMs),
+        checkBinance(baseSymbol, args.timeoutMs, args.verbose, port),
+        checkCryptoCompare(baseSymbol, args.timeoutMs, args.verbose, port),
+        checkCoinGecko(baseSymbol, args.timeoutMs, args.verbose, port),
+        checkCoinbase(baseSymbol, quote, args.timeoutMs, port),
+        checkKraken(baseSymbol, quote, args.timeoutMs, port),
+        checkOKX(baseSymbol, quote, args.timeoutMs, port),
+        checkFrankfurter(baseSymbol, quote, args.timeoutMs, port),
+        checkExchangerateHost(baseSymbol, quote, args.timeoutMs, port),
+        checkAlphaVantage(baseSymbol, quote, args.timeoutMs, port),
+        checkFinnhub(baseSymbol, args.timeoutMs, port),
       ]);
       for (const res of checks) {
         if (!res) continue;
