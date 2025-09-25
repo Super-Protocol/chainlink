@@ -185,7 +185,7 @@ let _derivedPkHexGlobal = null;
 let _signerAddressGlobal = null;
 
 async function initConnector(options = {}) {
-  if (_connectorInitialized) return { actionAddress: _actionAddress, rpcUrl: _connectorChainUrl, contractAddress: _connectorContractAddress };
+  if (_connectorInitialized) return;
 
   const rpcUrl = options.rpcUrl || process.env.CHAINLINK_RPC_HTTP_URL;
   if (!rpcUrl) throw new Error('CHAINLINK_RPC_HTTP_URL is required');
@@ -223,8 +223,6 @@ async function initConnector(options = {}) {
 
   try { console.log('Sender:', actionAddress); } catch {}
   try { if (signerAddress) console.log('Signer:', signerAddress); } catch {}
-
-  return { actionAddress, rpcUrl, contractAddress: diamondContractAddress };
 }
 
 function shutdownConnector() {
