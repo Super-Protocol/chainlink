@@ -1,18 +1,7 @@
 import { Type, Static } from '@sinclair/typebox';
 
-const createApiKeySchema = (
-  required: boolean = false,
-  description: string,
-  examples: string[] = [],
-  minLength: number = 1,
-) =>
-  Type.Object({
-    apiKey: required
-      ? Type.String({ description, examples, minLength })
-      : Type.Optional(Type.String({ description, examples, minLength })),
-  });
-
 interface CreateSourceSchemaParams {
+  sourceName: string;
   apiKeyRequired: boolean;
   apiKeyDescription: string;
   apiKeyExamples?: string[];
@@ -49,6 +38,7 @@ const streamOptionsSchema = Type.Object(
 );
 
 const createSourceSchema = ({
+  sourceName,
   apiKeyRequired,
   apiKeyDescription,
   apiKeyExamples = [],
@@ -57,98 +47,114 @@ const createSourceSchema = ({
   maxConcurrentDefault = 10,
   maxBatchSize,
 }: CreateSourceSchemaParams) => {
-  const baseSchema = Type.Object(
-    {
-      enabled: Type.Boolean({
-        description: 'Enable or disable this price source',
-        default: true,
-      }),
-      ttl: Type.Integer({
-        minimum: 1000,
-        description: 'Time to live for cached prices in milliseconds',
-        default: 5000,
-      }),
-      maxConcurrent: Type.Integer({
-        minimum: 1,
-        description: 'Maximum number of concurrent requests',
-        default: maxConcurrentDefault,
-      }),
-      timeoutMs: Type.Integer({
-        minimum: 1000,
-        description: 'Request timeout in milliseconds',
-        default: 10000,
-      }),
-      rps: Type.Union(
-        [
-          Type.Number({
-            minimum: 0.0001,
-            maximum: 1000,
-            description:
-              'Requests per second limit to prevent API rate limiting',
-          }),
-          Type.Null({
-            description: 'Disable RPS limiting',
-          }),
-        ],
-        {
-          default: rpsDefault,
-          description:
-            'Requests per second limit to prevent API rate limiting. Set to null to disable limiting',
-        },
-      ),
-      useProxy: Type.Union(
-        [
-          Type.Boolean({
-            description: 'Use global proxy configuration from config.proxy.url',
-          }),
-          Type.String({
-            description: 'Custom proxy URL for this source',
-            pattern: '^https?://.+',
-          }),
-        ],
-        {
-          description:
-            'Proxy configuration: true/false for global proxy, or URL string for custom proxy',
-          default: false,
-        },
-      ),
-      maxRetries: Type.Integer({
-        minimum: 0,
-        maximum: 10,
-        description: 'Maximum number of retry attempts for failed requests',
-        default: 3,
-      }),
-      refetch: Type.Boolean({
-        description:
-          'Enable automatic refetch of price data when cache expires',
-        default: false,
-      }),
-      stream: Type.Optional(streamOptionsSchema),
-      ...(maxBatchSize && {
-        maxBatchSize: Type.Integer({
-          minimum: 1,
-          maximum: 1000,
-          description: 'Maximum number of pairs in a single batch request',
-          default: maxBatchSize,
+  return Type.Transform(
+    Type.Object(
+      {
+        enabled: Type.Boolean({
+          description: 'Enable or disable this price source',
+          default: true,
         }),
-      }),
-    },
-    {
-      default: {},
-    },
-  );
+        apiKey: Type.Optional(
+          Type.String({
+            description: apiKeyDescription,
+            examples: apiKeyExamples,
+            minLength: apiKeyMinLength,
+          }),
+        ),
+        ttl: Type.Integer({
+          minimum: 1000,
+          description: 'Time to live for cached prices in milliseconds',
+          default: 5000,
+        }),
+        maxConcurrent: Type.Integer({
+          minimum: 1,
+          description: 'Maximum number of concurrent requests',
+          default: maxConcurrentDefault,
+        }),
+        timeoutMs: Type.Integer({
+          minimum: 1000,
+          description: 'Request timeout in milliseconds',
+          default: 10000,
+        }),
+        rps: Type.Union(
+          [
+            Type.Number({
+              minimum: 0.0001,
+              maximum: 1000,
+              description:
+                'Requests per second limit to prevent API rate limiting',
+            }),
+            Type.Null({
+              description: 'Disable RPS limiting',
+            }),
+          ],
+          {
+            default: rpsDefault,
+            description:
+              'Requests per second limit to prevent API rate limiting. Set to null to disable limiting',
+          },
+        ),
+        useProxy: Type.Union(
+          [
+            Type.Boolean({
+              description:
+                'Use global proxy configuration from config.proxy.url',
+            }),
+            Type.String({
+              description: 'Custom proxy URL for this source',
+              pattern: '^https?://.+',
+            }),
+          ],
+          {
+            description:
+              'Proxy configuration: true/false for global proxy, or URL string for custom proxy',
+            default: false,
+          },
+        ),
+        maxRetries: Type.Integer({
+          minimum: 0,
+          maximum: 10,
+          description: 'Maximum number of retry attempts for failed requests',
+          default: 3,
+        }),
+        refetch: Type.Boolean({
+          description:
+            'Enable automatic refetch of price data when cache expires',
+          default: false,
+        }),
+        stream: Type.Optional(streamOptionsSchema),
+        ...(maxBatchSize && {
+          maxBatchSize: Type.Integer({
+            minimum: 1,
+            maximum: 1000,
+            description: 'Maximum number of pairs in a single batch request',
+            default: maxBatchSize,
+          }),
+        }),
+      },
+      {
+        default: {},
+      },
+    ),
+  )
+    .Decode((value) => {
+      if (!value.enabled) {
+        return value;
+      }
 
-  const apiKeySchema = createApiKeySchema(
-    apiKeyRequired,
-    apiKeyDescription,
-    apiKeyExamples,
-    apiKeyMinLength,
-  );
+      if (apiKeyRequired && (!value.apiKey || value.apiKey.trim() === '')) {
+        throw new Error(
+          `API key is required when source is enabled (source: ${sourceName}, path: sources.${sourceName}.apiKey)`,
+        );
+      }
 
-  return Type.Intersect([baseSchema, apiKeySchema]);
+      return value;
+    })
+    .Encode((value) => value);
 };
 
 export const binanceSourceSchema = createSourceSchema({
+  sourceName: 'binance',
   apiKeyRequired: false,
   apiKeyDescription:
     'Optional API key for Binance (not required for public market data)',
@@ -158,6 +164,7 @@ export const binanceSourceSchema = createSourceSchema({
 });
 
 export const okxSourceSchema = createSourceSchema({
+  sourceName: 'okx',
   apiKeyRequired: false,
   apiKeyDescription:
     'Optional API key for OKX (not required for public market data)',
@@ -167,6 +174,7 @@ export const okxSourceSchema = createSourceSchema({
 });
 
 export const finnhubSourceSchema = createSourceSchema({
+  sourceName: 'finnhub',
   apiKeyRequired: true,
   apiKeyDescription: 'Required API key for Finnhub (free: 60 requests/minute)',
   apiKeyExamples: ['your-finnhub-api-key'],
@@ -175,6 +183,7 @@ export const finnhubSourceSchema = createSourceSchema({
 });
 
 export const cryptocompareSourceSchema = createSourceSchema({
+  sourceName: 'cryptocompare',
   apiKeyRequired: true,
   apiKeyDescription:
     'Required API key for CryptoCompare (free: 100,000 requests/month)',
@@ -184,6 +193,7 @@ export const cryptocompareSourceSchema = createSourceSchema({
 });
 
 export const alphavantageSourceSchema = createSourceSchema({
+  sourceName: 'alphavantage',
   apiKeyRequired: true,
   apiKeyDescription:
     'Required API key for Alpha Vantage (free: 25 requests/day)',
@@ -192,6 +202,7 @@ export const alphavantageSourceSchema = createSourceSchema({
 });
 
 export const coingeckoSourceSchema = createSourceSchema({
+  sourceName: 'coingecko',
   apiKeyRequired: false,
   apiKeyDescription:
     'Optional API key for CoinGecko Pro (increases rate limits)',
@@ -201,6 +212,7 @@ export const coingeckoSourceSchema = createSourceSchema({
 });
 
 export const exchangerateSourceSchema = createSourceSchema({
+  sourceName: 'exchangeratehost',
   apiKeyRequired: false,
   apiKeyDescription:
     'Optional API key for ExchangeRate Host (paid plans have higher limits)',
@@ -209,6 +221,7 @@ export const exchangerateSourceSchema = createSourceSchema({
 });
 
 export const krakenSourceSchema = createSourceSchema({
+  sourceName: 'kraken',
   apiKeyRequired: false,
   apiKeyDescription:
     'Optional API key for Kraken (not required for public market data)',
@@ -218,6 +231,7 @@ export const krakenSourceSchema = createSourceSchema({
 });
 
 export const coinbaseSourceSchema = createSourceSchema({
+  sourceName: 'coinbase',
   apiKeyRequired: false,
   apiKeyDescription:
     'Optional API key for Coinbase (not required for public market data)',
@@ -226,6 +240,7 @@ export const coinbaseSourceSchema = createSourceSchema({
 });
 
 export const frankfurterSourceSchema = createSourceSchema({
+  sourceName: 'frankfurter',
   apiKeyRequired: false,
   apiKeyDescription: 'No API key required for Frankfurter (no strict limits)',
   apiKeyExamples: [],

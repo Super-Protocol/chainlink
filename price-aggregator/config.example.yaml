@@ -51,7 +51,7 @@ sources:
     apiKey: optional-api-key # Not required for public market data
     # Proxy configuration options:
     # useProxy: false                                    # Disable proxy (default)
-    # useProxy: true                                     # Use global proxy from config.proxy.url
+    # useProxy: true                                     # Use global proxy from config.proxy
     # useProxy: "https://user:pass@proxy.example.com:8080" # Custom proxy URL for this source only
     useProxy: false
     refetch: true # Enable automatic cache refresh when data expires
