@@ -19,10 +19,10 @@ export class WebSocketClientBuilder {
   constructor(private readonly proxyConfigService: ProxyConfigService) {}
 
   build(params: WebSocketClientParams): WebSocketClient {
-    const proxyUrl = this.proxyConfigService.resolveProxyUrl(params.useProxy);
+    // const proxyUrl = this.proxyConfigService.resolveProxyUrl(params.useProxy);
     const options: WebSocketClientOptions = {
       ...params,
-      proxyUrl,
+      // proxyUrl,
     };
 
     return new WebSocketClient(options);
