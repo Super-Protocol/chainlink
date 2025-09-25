@@ -10,7 +10,7 @@ import { QuoteStreamService } from '../../quote-stream.interface';
 import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
-const BASE_URL = 'https://api.binance.com';
+const BASE_URL = 'https://api.binance.us';
 const API_PATH = '/api/v3/ticker/price';
 const EXCHANGE_INFO_PATH = '/api/v3/exchangeInfo';
 
