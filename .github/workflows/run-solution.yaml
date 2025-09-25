@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: "Target"
+        description: 'Target'
         required: true
-        default: "develop"
+        default: 'develop'
         type: choice
         options:
           - develop
@@ -31,7 +31,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-
       - name: Import secrets from Vault
         id: import-secrets
         uses: hashicorp/vault-action@v2
@@ -39,12 +38,13 @@ jobs:
           url: ${{ secrets.VAULT_ADDR }}
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
-            github/data/${{ env.TARGET }}/chainlink configuration_json  | CONFIGURATION_JSON ;
-            github/data/${{ env.TARGET }}/spctl     offers_config_json  | OFFERS_SPCTL_CONFIG_JSON ;
-            github/data/${{ env.TARGET }}/chainlink solution_offer      | SOLUTION_OFFER ;
-            github/data/${{ env.TARGET }}/chainlink tee_offers          | TEE ;
-            github/data/${{ env.TARGET }}/chainlink spctl_version       | SPCTL_VERSION ;
-            github/data/${{ env.TARGET }}/chainlink spctl_repository    | SPCTL_REPOSITORY
+            github/data/${{ env.TARGET }}/chainlink configuration_json         | CONFIGURATION_JSON ;
+            github/data/${{ env.TARGET }}/spctl     offers_config_json         | OFFERS_SPCTL_CONFIG_JSON ;
+            github/data/${{ env.TARGET }}/chainlink solution_offer             | SOLUTION_OFFER ;
+            github/data/${{ env.TARGET }}/chainlink tee_offers                 | TEE ;
+            github/data/${{ env.TARGET }}/chainlink spctl_version              | SPCTL_VERSION ;
+            github/data/${{ env.TARGET }}/chainlink spctl_repository           | SPCTL_REPOSITORY ;
+            github/data/${{ env.TARGET }}/chainlink config_private_key_base64  | CONFIG_PRIVATE_KEY_BASE64
 
       - name: Display configuration
         shell: bash
@@ -67,6 +67,28 @@ jobs:
         run: |
           printf '%s' '${{ toJSON(steps.import-secrets.outputs.OFFERS_SPCTL_CONFIG_JSON) }}' | jq -r . > "${{ env.SPCTL_CONFIG_FILE }}"
           printf '%s' '${{ toJSON(steps.import-secrets.outputs.CONFIGURATION_JSON) }}' | jq -r . > "${{ env.CONFIGURATION_FILE }}"
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Sign configuration file
+        if: ${{ steps.import-secrets.outputs.CONFIG_PRIVATE_KEY_BASE64 != '' }}
+        shell: bash
+        run: |
+          cd configuration-signer
+          npm ci
+          npm run sign $(realpath ../$CONFIGURATION_FILE) "${{ steps.import-secrets.outputs.CONFIG_PRIVATE_KEY_BASE64 }}"
+
+          # Print signature value from configuration file
+          SIG=$(jq -r '.signature // empty' "../${{ env.CONFIGURATION_FILE }}")
+          if [ -z "$SIG" ]; then
+            echo "🔍 signature key not found in ${{ env.CONFIGURATION_FILE }}"
+            exit 1
+          else
+            echo "CONFIG_SIGNATURE=$SIG"
+          fi
 
       - name: Compute repository variable key
         id: var-key
@@ -98,5 +120,3 @@ jobs:
           gh_token: ${{ secrets.TOKEN_GITHUB_REPO_RW }}
           variable_name: ${{ steps.var-key.outputs.varname }}
           data: ${{ steps.run-solution.outputs.order_ids }}
-
-

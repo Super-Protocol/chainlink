@@ -55,7 +55,7 @@ for i in $(seq 1 "$TOTAL_NODES"); do
   svc_dir="/etc/services.d/chainlink-node-${i}"
   mkdir -p "$svc_dir"
   cat > "$svc_dir/run" <<EOF
-#!/usr/bin/env bash
+#!/command/with-contenv bash
 set -euo pipefail
 mkdir -p /root/node-${i}
 mkdir -p /root/node-${i}/.cache
@@ -69,6 +69,7 @@ export CHAINLINK_WEB_SERVER_HTTP_PORT=${API_PORT}
 export API_PORT=${API_PORT}
 export P2P_PORT=${P2P_PORT}
 export PRICE_AGGREGATOR_PORT=${PRICE_AGGREGATOR_PORT}
+export CONFIGURATION_PUBLIC_KEY="\${CONFIGURATION_PUBLIC_KEY}"
 cd /scripts
 exec node index.js
 EOF
