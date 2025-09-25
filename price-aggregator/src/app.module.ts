@@ -4,7 +4,7 @@ import { LoggerModule } from 'nestjs-pino';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MetricsInterceptor } from './common';
+import { MetricsInterceptor } from './common/interceptors';
 import { AppConfigModule, AppConfigService } from './config';
 import { MetricsModule } from './metrics/metrics.module';
 import { QuotesModule } from './quotes';

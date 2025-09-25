@@ -1,4 +1,5 @@
 import { Pair, Quote } from './source-adapter.interface';
+import { UseProxyConfig } from '../common/proxy';
 
 export type QuoteHandler = (quote: Quote) => void;
 export type ErrorHandler = (error: Error) => void;
@@ -32,4 +33,5 @@ export interface StreamServiceOptions {
   reconnectInterval?: number;
   maxReconnectAttempts?: number;
   heartbeatInterval?: number;
+  useProxy?: UseProxyConfig;
 }

@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { OkxWebSocketMessage, OkxSubscribeRequest } from './okx.types';
-import { WebSocketClient } from '../../../common';
+import { WebSocketClient, WebSocketClientBuilder } from '../../../common';
+import { AppConfigService } from '../../../config';
 import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
-import { StreamServiceOptions } from '../../quote-stream.interface';
 import { Pair, Quote } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
@@ -20,8 +20,13 @@ export class OkxStreamService extends BaseStreamService {
   private pingInterval?: NodeJS.Timeout;
   private lastMessageTime = 0;
 
-  constructor(options?: StreamServiceOptions, metricsService?: MetricsService) {
-    super(options, metricsService);
+  constructor(
+    wsClientBuilder: WebSocketClientBuilder,
+    appConfigService: AppConfigService,
+    metricsService?: MetricsService,
+  ) {
+    const streamConfig = appConfigService.get('sources.okx.stream');
+    super(wsClientBuilder, streamConfig, metricsService);
   }
 
   protected getSourceName(): SourceName {

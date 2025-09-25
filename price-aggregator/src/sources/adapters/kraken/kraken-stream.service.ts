@@ -7,9 +7,10 @@ import {
   KrakenUnsubscribeRequest,
   KrakenWebSocketMessage,
 } from './kraken.types';
+import { WebSocketClientBuilder } from '../../../common';
+import { AppConfigService } from '../../../config';
 import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
-import { StreamServiceOptions } from '../../quote-stream.interface';
 import { Pair } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
@@ -28,8 +29,13 @@ export class KrakenStreamService extends BaseStreamService {
     }
   >();
 
-  constructor(options?: StreamServiceOptions, metricsService?: MetricsService) {
-    super(options, metricsService);
+  constructor(
+    wsClientBuilder: WebSocketClientBuilder,
+    appConfigService: AppConfigService,
+    metricsService?: MetricsService,
+  ) {
+    const streamConfig = appConfigService.get('sources.kraken.stream');
+    super(wsClientBuilder, streamConfig, metricsService);
   }
 
   protected getSourceName(): SourceName {

@@ -35,24 +35,11 @@ pairsTtl:
   - pair: [DOGE, USD]
     ttl: 45000 # 45 seconds for DOGE/USD on ALL sources (source is optional)
 
-proxy:
-  # HTTP proxy configuration - when enabled, host and port are required
-  http:
-    enabled: false
-    # When enabled: true, these fields are required:
-    # host: proxy.example.com
-    # port: 8080
-    # username: optional-username # Only needed if proxy requires authentication
-    # password: optional-password
-
-  # HTTPS proxy configuration - when enabled, host and port are required
-  https:
-    enabled: false
-    # When enabled: true, these fields are required:
-    # host: proxy.example.com
-    # port: 8080
-    # username: optional-username # Only needed if proxy requires authentication
-    # password: optional-password
+# Proxy URL (optional, https recommended)
+# Format: https://[username:password@]host:port
+# Examples:
+# proxy: https://proxy.example.com:8080
+# proxy: https://username:password@proxy.example.com:8080
 
 sources:
   binance:
@@ -62,9 +49,18 @@ sources:
     rps: 100 # 6000/min API limit, null to disable rate limiting
     maxConcurrent: 10
     apiKey: optional-api-key # Not required for public market data
-    useProxy: false # Enable to bypass rate limits or geo-restrictions
+    # Proxy configuration options:
+    # useProxy: false                                    # Disable proxy (default)
+    # useProxy: true                                     # Use global proxy from config.proxy
+    # useProxy: "https://user:pass@proxy.example.com:8080" # Custom proxy URL for this source only
+    useProxy: false
     refetch: true # Enable automatic cache refresh when data expires
     maxBatchSize: 500 # Maximum pairs in single batch request
+    stream:
+      autoReconnect: true # Enable automatic reconnection on disconnect
+      reconnectInterval: 5000 # Interval between reconnection attempts in ms
+      maxReconnectAttempts: 10 # Maximum number of reconnection attempts
+      heartbeatInterval: 30000 # Heartbeat ping interval in ms
 
   okx:
     enabled: true
@@ -75,6 +71,11 @@ sources:
     useProxy: false
     refetch: true
     maxBatchSize: 200 # Maximum pairs in single batch request
+    stream:
+      autoReconnect: true
+      reconnectInterval: 5000
+      maxReconnectAttempts: 10
+      heartbeatInterval: 30000
 
   finnhub:
     enabled: true
@@ -85,6 +86,11 @@ sources:
     apiKey: required-finnhub-api-key # Required even for free tier
     useProxy: false
     refetch: true
+    stream:
+      autoReconnect: true
+      reconnectInterval: 5000
+      maxReconnectAttempts: 10
+      heartbeatInterval: 30000
 
   cryptocompare:
     enabled: true
@@ -96,6 +102,11 @@ sources:
     useProxy: false
     refetch: true
     maxBatchSize: 50 # Maximum pairs in single batch request (API limit)
+    stream:
+      autoReconnect: true
+      reconnectInterval: 5000
+      maxReconnectAttempts: 10
+      heartbeatInterval: 30000
 
   alphavantage:
     enabled: false # Consider disabling for production due to severe rate limits
@@ -137,6 +148,11 @@ sources:
     useProxy: false
     refetch: true
     maxBatchSize: 50 # Maximum pairs in single batch request (API limit)
+    stream:
+      autoReconnect: true
+      reconnectInterval: 5000
+      maxReconnectAttempts: 10
+      heartbeatInterval: 30000
 
   coinbase:
     enabled: true
@@ -147,6 +163,11 @@ sources:
     useProxy: false
     refetch: true
     # Note: Implement token-bucket limiter with exponential backoff for 429 responses
+    stream:
+      autoReconnect: true
+      reconnectInterval: 5000
+      maxReconnectAttempts: 10
+      heartbeatInterval: 30000
 
   frankfurter:
     enabled: true

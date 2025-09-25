@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 
 import { Logger } from '@nestjs/common';
 
-import { WebSocketClient } from '../common';
+import { WebSocketClient, WebSocketClientBuilder } from '../common';
 import {
   ErrorHandler,
   QuoteHandler,
@@ -35,6 +35,7 @@ export abstract class BaseStreamService implements QuoteStreamService {
   protected readonly options: Required<StreamServiceOptions>;
 
   constructor(
+    protected readonly wsClientBuilder: WebSocketClientBuilder,
     options?: StreamServiceOptions,
     protected readonly metricsService?: MetricsService,
   ) {
@@ -43,6 +44,7 @@ export abstract class BaseStreamService implements QuoteStreamService {
       reconnectInterval: options?.reconnectInterval ?? 5000,
       maxReconnectAttempts: options?.maxReconnectAttempts ?? 10,
       heartbeatInterval: options?.heartbeatInterval ?? 30000,
+      useProxy: options?.useProxy ?? false,
     };
   }
 
@@ -170,8 +172,9 @@ export abstract class BaseStreamService implements QuoteStreamService {
 
   protected async establishConnection(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.wsClient = new WebSocketClient({
+      this.wsClient = this.wsClientBuilder!.build({
         url: this.getWsUrl(),
+        useProxy: this.options.useProxy,
         reconnect: this.options.autoReconnect,
         reconnectInterval: this.options.reconnectInterval,
         maxReconnectAttempts: this.options.maxReconnectAttempts,
@@ -296,9 +299,11 @@ export abstract class BaseStreamService implements QuoteStreamService {
     identifiers.forEach((i) => this.subscribedIdentifiers.delete(i));
   }
 
-  protected getWebSocketClientOptions(): Partial<
-    ConstructorParameters<typeof WebSocketClient>[0]
-  > {
+  protected getWebSocketClientOptions(): Partial<{
+    parseJson?: boolean;
+    pingInterval?: number;
+    pongTimeout?: number;
+  }> {
     return {};
   }
 
