@@ -1,10 +1,18 @@
-#!/usr/bin/env node
 /* eslint-disable no-console */
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const nacl = require('tweetnacl'); // X25519 via scalarMult
 const { ethers } = require('ethers');
+const { BlockchainConnector } = require('@super-protocol/sdk-js');
+// Note: Avoid deep imports from @super-protocol/sdk-js to prevent exports errors
+let TxManager;
+try {
+  // Using CJS build explicitly to avoid ESM interop issues
+  TxManager = require('@super-protocol/sdk-js/dist/cjs/utils/TxManager.js').default;
+} catch (_) {
+  TxManager = null;
+}
 const { hexToBuf, keccak256, aes128EcbEncryptBlock, decryptEvmKeystore } = require('./crypto-utils');
 const aggregatorAbi = require('./abis/AccessControlledOffchainAggregator.json').abi;
 
@@ -49,9 +57,68 @@ function writeDonConfigCache(cacheFilePath, data) {
   fs.writeFileSync(cacheFilePath, JSON.stringify(data, null, 2));
 }
 
+// In-memory cache and deferred flush handling
+let _loadedCache = null;
+let _cacheFilePathGlobal = null;
+let _cacheDirty = false;
+let _exitHandlersInstalled = false;
+
+function ensureCacheLoaded(cacheFilePath) {
+  if (!_cacheFilePathGlobal) _cacheFilePathGlobal = cacheFilePath;
+  if (_loadedCache === null) {
+    _loadedCache = readDonConfigCache(cacheFilePath);
+  }
+  if (!_exitHandlersInstalled) {
+    _exitHandlersInstalled = true;
+    const tryFlush = () => {
+      try { flushDonConfigCacheSync(); } catch {}
+    };
+    process.once('beforeExit', tryFlush);
+    process.once('exit', tryFlush);
+    process.once('SIGINT', () => { tryFlush(); process.exit(130); });
+    process.once('SIGTERM', () => { tryFlush(); process.exit(143); });
+    process.on('uncaughtException', (e) => { try { console.error(e); } catch {}; tryFlush(); process.exit(1); });
+    process.on('unhandledRejection', (e) => { try { console.error(e); } catch {}; tryFlush(); process.exit(1); });
+  }
+}
+
+function getLoadedCache(cacheFilePath) {
+  ensureCacheLoaded(cacheFilePath);
+  return _loadedCache;
+}
+
+function markCacheUpdated(addr, comparableConfig, cacheFilePath) {
+  ensureCacheLoaded(cacheFilePath);
+  _loadedCache[addr] = comparableConfig;
+  _cacheDirty = true;
+}
+
+function flushDonConfigCacheSync() {
+  if (!_cacheDirty || !_cacheFilePathGlobal || _loadedCache === null) return;
+  writeDonConfigCache(_cacheFilePathGlobal, _loadedCache);
+  _cacheDirty = false;
+}
+
+async function flushDonConfigCache() {
+  flushDonConfigCacheSync();
+}
+
 function readJSON(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
 }
+
+// Serialize cache writes across concurrent calls within this process
+let _cacheWrite = Promise.resolve();
+async function updateDonConfigCache(cacheFilePath, addr, data) {
+  _cacheWrite = _cacheWrite.then(async () => {
+    const updated = readDonConfigCache(cacheFilePath);
+    updated[addr] = data;
+    writeDonConfigCache(cacheFilePath, updated);
+  });
+  await _cacheWrite;
+}
+
+// SDK manages nonces internally; no local nonce allocator needed when using TxManager
 
 function listWorkers(nodesList, bootstrapSet) {
   const out = [];
@@ -108,9 +175,69 @@ const compareDonConfig = (a, b) => {
   return JSON.stringify(left) === JSON.stringify(right);
 };
 
-async function main() {
+// Global connector state for reuse across multiple calls
+let _conn = null;
+let _connectorInitialized = false;
+let _connectorChainUrl = null;
+let _connectorContractAddress = null;
+let _actionAddress = null;
+let _derivedPkHexGlobal = null;
+let _signerAddressGlobal = null;
+
+async function initConnector(options = {}) {
+  if (_connectorInitialized) return;
+
+  const rpcUrl = options.rpcUrl || process.env.CHAINLINK_RPC_HTTP_URL;
+  if (!rpcUrl) throw new Error('CHAINLINK_RPC_HTTP_URL is required');
+
+  const secretsRoot = process.env.SP_SECRETS_DIR ? `${process.env.SP_SECRETS_DIR}` : '/sp/secrets';
+  const secretsChainlinkRoot = `${secretsRoot}/cl-secrets`;
+
+  // Derive sender key (can be overridden)
+  let derivedPkHex = options.derivedPkHex || null;
+  let signerAddress = null;
+  if (!derivedPkHex) {
+    const nodeNum = String(process.env.NODE_NUMBER || '1');
+    const evmPath = path.join(secretsChainlinkRoot, nodeNum, 'evm_key.json');
+    const ksPassword = process.env.CHAINLINK_KEYSTORE_PASSWORD;
+    if (!ksPassword) throw new Error('CHAINLINK_KEYSTORE_PASSWORD is required for connector initialization');
+    const evmJson = readJSON(evmPath);
+    derivedPkHex = decryptEvmKeystore(evmJson, ksPassword);
+    signerAddress = new ethers.Wallet(derivedPkHex).address;
+  } else {
+    signerAddress = new ethers.Wallet(derivedPkHex).address;
+  }
+
+  const diamondContractAddress = options.contractAddress || process.env.DIAMOND_CONTRACT_ADDRESS || null;
+
+  _conn = BlockchainConnector.getInstance();
+  await _conn.initialize({ contractAddress: diamondContractAddress || undefined, blockchainUrl: rpcUrl });
+  const actionAddress = await _conn.initializeActionAccount(derivedPkHex);
+
+  _connectorInitialized = true;
+  _connectorChainUrl = rpcUrl;
+  _connectorContractAddress = diamondContractAddress || null;
+  _actionAddress = actionAddress;
+  _derivedPkHexGlobal = derivedPkHex;
+  _signerAddressGlobal = signerAddress;
+
+  try { console.log('Sender:', actionAddress); } catch {}
+  try { if (signerAddress) console.log('Signer:', signerAddress); } catch {}
+}
+
+function shutdownConnector() {
+  try { BlockchainConnector.getInstance().shutdown(); } catch {}
+  _conn = null;
+  _connectorInitialized = false;
+  _connectorChainUrl = null;
+  _connectorContractAddress = null;
+  _actionAddress = null;
+  _derivedPkHexGlobal = null;
+  _signerAddressGlobal = null;
+}
+
+async function setConfigForContract(contractAddr) {
   const rpcUrl = process.env.CHAINLINK_RPC_HTTP_URL;
-  const contractAddr = process.argv[2];
   if (!rpcUrl) throw new Error('CHAINLINK_RPC_HTTP_URL is required');
   if (!contractAddr) throw new Error('Missing contract address. Usage: node set-config.js <contractAddress>');
 
@@ -144,9 +271,8 @@ async function main() {
   if (sharedSecret16.length !== 16) throw new Error('SHARED_SECRET_HEX must be 16 bytes');
   const sse = encryptSharedSecret(x25519PubKeys, sharedSecret16);
 
-  const provider = new ethers.JsonRpcProvider(rpcUrl);
-
-  // Using aggregator ABI below; no need for a local iface here
+  // Optional env, not strictly needed when sending via ethers
+  const diamondContractAddress = process.env.DIAMOND_CONTRACT_ADDRESS;
 
   const donConfig = {
     signers,
@@ -161,7 +287,7 @@ async function main() {
   const normalizedAddr = ethers.getAddress(contractAddr);
   const comparableDonConfig = computeComparableDonConfig(donConfig);
 
-  const cache = readDonConfigCache(cacheFile);
+  const cache = getLoadedCache(cacheFile);
   const existing = cache[normalizedAddr] ? normalizeForCompare(cache[normalizedAddr]) : null;
   if (existing && compareDonConfig(existing, comparableDonConfig)) {
     console.log(`Config for ${normalizedAddr} is up-to-date; skipping on-chain update.`);
@@ -170,40 +296,56 @@ async function main() {
 
   console.log('donConfig (to publish)', donConfig);
 
-  // Encode tx data using AccessControlledOffchainAggregator.setConfig(donConfig)
-  const iface = new ethers.Interface(aggregatorAbi);
-  const data = iface.encodeFunctionData('setConfig', [donConfig]);
-
-  // Derive and print sender and signer addresses (from this node's evm_key.json only)
-  let signerAddress = null;
-  let derivedPkHex = null;
-  try {
-    const nodeNum = String(process.env.NODE_NUMBER || '1');
-    const evmPath = path.join(secretsChainlinkRoot, nodeNum, 'evm_key.json');
-    const ksPassword = process.env.CHAINLINK_KEYSTORE_PASSWORD;
-    if (ksPassword) {
-      const evmJson = readJSON(evmPath);
-      derivedPkHex = decryptEvmKeystore(evmJson, ksPassword);
-      signerAddress = new ethers.Wallet(derivedPkHex).address;
-    }
-  } catch {}
-  if (!derivedPkHex) {
-    throw new Error('Unable to decrypt sender key from evm_key.json. Ensure CHAINLINK_KEYSTORE_PASSWORD and file are correct.');
+  // Ensure connector is initialized (backward compatible when called directly)
+  if (!_connectorInitialized) {
+    await initConnector({ rpcUrl, contractAddress: diamondContractAddress || normalizedAddr });
   }
-  const sender = new ethers.Wallet(derivedPkHex, provider);
-  console.log('Sender:', sender.address);
-  if (signerAddress) console.log('Signer:', signerAddress);
 
-  // Send transaction using the node's decrypted key
-  const tx = await sender.sendTransaction({ to: normalizedAddr, data, value: 0 });
-  console.log('Submitted tx', tx.hash);
-  const rcpt = await tx.wait();
-  console.log('Mined', rcpt?.transactionHash);
+  // Encode call data using ethers Interface
+  const iface = new ethers.Interface(aggregatorAbi);
+  const data = iface.encodeFunctionData('setConfig', [{
+    signers,
+    transmitters,
+    threshold,
+    s: sArr,
+    offchainPublicKeys,
+    peerIDs,
+    sharedSecretEncryptions: sse,
+  }]);
 
-  // Persist comparable DON config after successful transaction
-  const updated = readDonConfigCache(cacheFile);
-  updated[normalizedAddr] = comparableDonConfig;
-  writeDonConfigCache(cacheFile, updated);
+  // Execute raw transaction via TxManager when available; fallback to ethers otherwise
+  let receipt;
+  if (TxManager && typeof TxManager.publishTransaction === 'function') {
+    const transactionOptions = { from: _actionAddress };
+    receipt = await TxManager.publishTransaction({ to: normalizedAddr, data }, transactionOptions);
+    console.log('Mined', receipt?.transactionHash);
+  } else {
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    if (!_derivedPkHexGlobal) throw new Error('Connector not initialized with derived private key; cannot fallback to ethers signer');
+    const sender = new ethers.Wallet(_derivedPkHexGlobal, provider);
+    const tx = await sender.sendTransaction({ to: normalizedAddr, data, value: 0 });
+    console.log('Submitted tx', tx.hash);
+    receipt = await tx.wait();
+    console.log('Mined', receipt?.hash || receipt?.transactionHash);
+  }
+
+  // Stage comparable DON config in memory; actual write is deferred
+  markCacheUpdated(normalizedAddr, comparableDonConfig, cacheFile);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+async function main() {
+  const contractAddr = process.argv[2];
+  await initConnector({});
+  try {
+    await setConfigForContract(contractAddr);
+    await flushDonConfigCache();
+  } finally {
+    shutdownConnector();
+  }
+}
+
+if (require.main === module) {
+  main().catch((e) => { console.error(e); process.exit(1); });
+}
+
+module.exports = { setConfigForContract, flushDonConfigCache, initConnector, shutdownConnector };
