@@ -1,16 +1,31 @@
 #!/usr/bin/env bash
 set -eu
 
+STATE_DIR="/run/postgres"
+COUNT_FILE="$STATE_DIR/restart-count"
+MAX_RESTARTS="${MAX_RESTARTS:-3}"
+
+mkdir -p "$STATE_DIR"
+
 exit_code="${1:-0}"
 signal="${2:-0}"
 
-# If Postgres terminated abnormally, terminate the supervision tree to stop the container
+# Only count abnormal terminations
 if [ "$exit_code" -ne 0 ] || [ "$signal" -ne 0 ]; then
-  echo "[postgres] abnormal termination (exit=${exit_code} signal=${signal}), stopping supervision tree"
-  s6-svscanctl -t /run/service || true
+  count=$(cat "$COUNT_FILE" 2>/dev/null || echo 0)
+  count=$((count+1))
+  echo "$count" > "$COUNT_FILE"
 else
   echo "[postgres] clean exit; not counting as crash"
   exit 0
+fi
+
+echo "[postgres] crash count: $count/${MAX_RESTARTS}"
+
+if [ "$count" -ge "$MAX_RESTARTS" ]; then
+  echo "[postgres] too many failures, terminating supervision tree"
+  # Ask s6-svscan to exit; this will stop the container
+  s6-svscanctl -t /run/service || true
 fi
 
 exit 0
