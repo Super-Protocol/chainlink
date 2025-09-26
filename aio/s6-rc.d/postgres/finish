@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eu
+
+exit_code="${1:-0}"
+signal="${2:-0}"
+
+# If Postgres terminated abnormally, terminate the supervision tree to stop the container
+if [ "$exit_code" -ne 0 ] || [ "$signal" -ne 0 ]; then
+  echo "[postgres] abnormal termination (exit=${exit_code} signal=${signal}), stopping supervision tree"
+  s6-svscanctl -t /run/service || true
+else
+  echo "[postgres] clean exit; not counting as crash"
+  exit 0
+fi
+
+exit 0
