@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 
 import { Logger } from '@nestjs/common';
+import Bottleneck from 'bottleneck';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as WebSocket from 'ws';
 
@@ -13,6 +14,8 @@ export interface WebSocketClientOptions {
   pongTimeout?: number;
   parseJson?: boolean;
   proxyUrl?: string;
+  rateLimitPerInterval?: number;
+  rateLimitIntervalMs?: number;
 }
 
 export class WebSocketClient extends EventEmitter {
@@ -22,6 +25,7 @@ export class WebSocketClient extends EventEmitter {
   private isClosing = false;
   private pingTimer?: NodeJS.Timeout;
   private pongTimer?: NodeJS.Timeout;
+  private limiter?: Bottleneck;
 
   constructor(private readonly options: WebSocketClientOptions) {
     super();
@@ -34,6 +38,22 @@ export class WebSocketClient extends EventEmitter {
       parseJson: true,
       ...options,
     };
+
+    if (options.rateLimitPerInterval > 0) {
+      const reservoirRefreshInterval = options.rateLimitIntervalMs ?? 1000;
+      // PONGs also count towards the rate limit, so we reserve one slot for them
+      const limitRequestCount = options.rateLimitPerInterval - 1;
+      this.limiter = new Bottleneck({
+        minTime: 0,
+        maxConcurrent: 1,
+        reservoir: limitRequestCount,
+        reservoirRefreshAmount: limitRequestCount,
+        reservoirRefreshInterval,
+      });
+      this.logger.log(
+        `WS rate limit: ${options.rateLimitPerInterval} per ${reservoirRefreshInterval}ms for url ${options.url}`,
+      );
+    }
   }
 
   private redactUrl(input: string): string {
@@ -216,12 +236,30 @@ export class WebSocketClient extends EventEmitter {
   }
 
   send<T>(data: T): void {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      const message = typeof data === 'string' ? data : JSON.stringify(data);
+    const doSend = () => {
+      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+        this.logger.warn('WebSocket is not open, cannot send message');
+        return;
+      }
+
+      const message =
+        typeof data === 'string'
+          ? data
+          : JSON.stringify(data as unknown as object);
+
       this.ws.send(message);
-    } else {
-      this.logger.warn('WebSocket is not open, cannot send message');
+    };
+
+    if (this.limiter) {
+      this.limiter
+        .schedule(() => Promise.resolve().then(doSend))
+        .catch((err) => {
+          this.logger.error('Failed to send message via rate limiter', err);
+        });
+      return;
     }
+
+    doSend();
   }
 
   close(): void {

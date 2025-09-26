@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { BinanceTickerData, WebSocketCommand } from './binance.types';
-import { WebSocketClientBuilder } from '../../../common';
+import {
+  WebSocketClientBuilder,
+  WebSocketClientOptions,
+} from '../../../common';
 import { AppConfigService } from '../../../config';
 import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
@@ -38,6 +41,8 @@ export class BinanceStreamService extends BaseStreamService {
       maxReconnectAttempts: sourceConfig?.stream?.maxReconnectAttempts ?? 10,
       heartbeatInterval: sourceConfig?.stream?.heartbeatInterval ?? 30000,
       useProxy: sourceConfig?.useProxy ?? false,
+      rateLimitPerInterval: sourceConfig?.stream?.rateLimitPerInterval,
+      rateLimitIntervalMs: sourceConfig?.stream?.rateLimitIntervalMs,
     };
     super(wsClientBuilder, options, metricsService);
   }

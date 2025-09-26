@@ -12,19 +12,13 @@ export interface WebSocketClientParams {
   pingInterval?: number;
   pongTimeout?: number;
   parseJson?: boolean;
+  rateLimitPerInterval?: number;
+  rateLimitIntervalMs?: number;
 }
 
 @Injectable()
 export class WebSocketClientBuilder {
-  constructor(private readonly proxyConfigService: ProxyConfigService) {}
-
   build(params: WebSocketClientParams): WebSocketClient {
-    const proxyUrl = this.proxyConfigService.resolveProxyUrl(params.useProxy);
-    const options: WebSocketClientOptions = {
-      ...params,
-      proxyUrl,
-    };
-
-    return new WebSocketClient(options);
+    return new WebSocketClient(params);
   }
 }

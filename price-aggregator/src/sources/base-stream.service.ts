@@ -13,6 +13,7 @@ import {
 } from './quote-stream.interface';
 import { Pair, Quote } from './source-adapter.interface';
 import { SourceName } from './source-name.enum';
+import { UseProxyConfig } from '../common/proxy';
 import { MetricsService } from '../metrics/metrics.service';
 
 interface Subscription {
@@ -32,7 +33,13 @@ export abstract class BaseStreamService implements QuoteStreamService {
   protected readonly identifierToPairMap = new Map<string, Pair>();
   private readonly lastUpdateTimes = new Map<string, number>();
   private connectionPromise: Promise<void> | null = null;
-  protected readonly options: Required<StreamServiceOptions>;
+  protected readonly options: StreamServiceOptions & {
+    autoReconnect: boolean;
+    reconnectInterval: number;
+    maxReconnectAttempts: number;
+    heartbeatInterval: number;
+    useProxy: UseProxyConfig;
+  };
 
   constructor(
     protected readonly wsClientBuilder: WebSocketClientBuilder,
@@ -45,6 +52,8 @@ export abstract class BaseStreamService implements QuoteStreamService {
       maxReconnectAttempts: options?.maxReconnectAttempts ?? 10,
       heartbeatInterval: options?.heartbeatInterval ?? 30000,
       useProxy: options?.useProxy ?? false,
+      rateLimitPerInterval: options?.rateLimitPerInterval,
+      rateLimitIntervalMs: options?.rateLimitIntervalMs,
     };
   }
 
@@ -180,6 +189,8 @@ export abstract class BaseStreamService implements QuoteStreamService {
         maxReconnectAttempts: this.options.maxReconnectAttempts,
         pingInterval: this.options.heartbeatInterval,
         pongTimeout: 10000,
+        rateLimitPerInterval: this.options.rateLimitPerInterval,
+        rateLimitIntervalMs: this.options.rateLimitIntervalMs,
         ...this.getWebSocketClientOptions(),
       });
 

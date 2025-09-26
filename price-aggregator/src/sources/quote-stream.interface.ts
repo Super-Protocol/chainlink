@@ -34,4 +34,6 @@ export interface StreamServiceOptions {
   maxReconnectAttempts?: number;
   heartbeatInterval?: number;
   useProxy?: UseProxyConfig;
+  rateLimitPerInterval?: number;
+  rateLimitIntervalMs?: number;
 }

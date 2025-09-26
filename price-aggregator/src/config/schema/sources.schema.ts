@@ -33,6 +33,19 @@ const streamOptionsSchema = Type.Object(
       description: 'Heartbeat ping interval in ms',
       default: 30000,
     }),
+    rateLimitPerInterval: Type.Optional(
+      Type.Integer({
+        minimum: 2,
+        description:
+          'Max number of websocket messages (subscribe/unsubscribe/etc) per limiter interval',
+      }),
+    ),
+    rateLimitIntervalMs: Type.Optional(
+      Type.Integer({
+        minimum: 1000,
+        description: 'Duration of the websocket limiter interval in ms',
+      }),
+    ),
   },
   { additionalProperties: false },
 );
