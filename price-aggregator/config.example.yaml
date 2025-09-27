@@ -5,6 +5,27 @@ logger:
   level: info
   isPrettyEnabled: false # Set to true for development to get formatted logs
 
+# Metrics push configuration
+metricsPush:
+  enabled: false # Enable push metrics to external collector (Prometheus Pushgateway, VictoriaMetrics, etc.)
+  # url: "https://push-gateway.example.com/metrics/job"
+  # intervalMs: 30000
+  # jobName: "price-aggregator"
+  # groupingLabels:
+  #   service: "price-aggregator"
+  #   # instance: "node-1"  # Optional, defaults to hostname
+  #   # environment: "production"
+  #   # contract_address: "${CONTRACT_ADDRESS}"
+  #   # provider_hash: "${PROVIDER_HASH}"
+  #   # tee_offer_id: "${TEE_OFFER_ID}"
+  # basicAuth:
+  #   username: "user"
+  #   password: "pass"
+  # headers:
+  #   X-Scope-OrgID: "tenant-1" # Example for multi-tenant setup
+  # timeoutMs: 5000
+  # deleteOnShutdown: false
+
 # Proactive cache refresh configuration
 refetch:
   enabled: true
