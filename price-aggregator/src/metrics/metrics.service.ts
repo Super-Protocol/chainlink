@@ -145,10 +145,20 @@ export class MetricsService {
     labelNames: ['source'],
   });
 
+  private lastUpdateTimes = new Map<string, number>();
+
   updateSourceLastUpdate(source: string, pair: string[]): void {
-    this.sourceLastUpdate.set(
-      { source, pair: pair.join('-') },
-      Date.now() / 1000,
-    );
+    const now = Date.now();
+    const pairKey = pair.join('-');
+    const lastUpdateTime = this.lastUpdateTimes.get(`${source}-${pairKey}`);
+
+    this.sourceLastUpdate.set({ source, pair: pairKey }, now / 1000);
+
+    if (lastUpdateTime) {
+      const timeDiff = (now - lastUpdateTime) / 1000;
+      this.priceUpdateFrequency.observe({ pair: pairKey, source }, timeDiff);
+    }
+
+    this.lastUpdateTimes.set(`${source}-${pairKey}`, now);
   }
 }

@@ -42,6 +42,7 @@ def stat(
                     "steps": thresholds,
                 },
                 "unit": unit,
+                "noValue": "No data",
             },
             "overrides": [],
         },
@@ -137,6 +138,7 @@ def timeseries(
                     ],
                 },
                 "unit": unit,
+                "noValue": "No data",
             },
             "overrides": [],
         },
@@ -147,6 +149,8 @@ def timeseries(
                 "calcs": [],
                 "displayMode": "list",
                 "placement": "bottom",
+                "hideEmpty": True,
+                "hideZero": True,
             },
             "tooltip": {"mode": "multi", "sort": "desc"},
         },
@@ -154,6 +158,136 @@ def timeseries(
         "title": title,
         "description": description,
         "type": "timeseries",
+    }
+
+def stat_grid_with_repeat(
+    panel_id: int,
+    title: str,
+    expr: str,
+    x: int,
+    y: int,
+    w: int = 8,
+    h: int = 8,
+    unit: str = "s",
+    description: str = "",
+) -> dict:
+    return {
+        "datasource": PROM_DS,
+        "fieldConfig": {
+            "defaults": {
+                "color": {"mode": "thresholds"},
+                "custom": {
+                    "align": "center",
+                    "cellOptions": {"type": "color-background"},
+                    "inspect": False,
+                },
+                "mappings": [],
+                "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                        {"color": "green", "value": None},
+                        {"color": "yellow", "value": 30},
+                        {"color": "red", "value": 60},
+                    ],
+                },
+                "unit": unit,
+                "noValue": "No data",
+            },
+            "overrides": [],
+        },
+        "gridPos": {"h": h, "w": w, "x": x, "y": y},
+        "id": panel_id,
+        "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+                "calcs": ["lastNotNull"],
+                "fields": "",
+                "values": False,
+            },
+            "textMode": "value_and_name",
+        },
+        "repeat": "source",
+        "repeatDirection": "h",
+        "maxPerRow": 12,
+        "targets": [
+            {
+                "datasource": PROM_DS,
+                "expr": expr,
+                "instant": True,
+                "interval": "",
+                "legendFormat": "{{pair}}",
+                "refId": "A",
+            }
+        ],
+        "title": title,
+        "description": description,
+        "type": "stat",
+    }
+
+def stat_grid(
+    panel_id: int,
+    title: str,
+    expr: str,
+    x: int,
+    y: int,
+    w: int = 24,
+    h: int = 8,
+    unit: str = "s",
+    description: str = "",
+) -> dict:
+    return {
+        "datasource": PROM_DS,
+        "fieldConfig": {
+            "defaults": {
+                "color": {"mode": "thresholds"},
+                "custom": {
+                    "align": "center",
+                    "cellOptions": {"type": "color-background"},
+                    "inspect": False,
+                },
+                "mappings": [],
+                "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                        {"color": "green", "value": None},
+                        {"color": "yellow", "value": 30},
+                        {"color": "red", "value": 60},
+                    ],
+                },
+                "unit": unit,
+            },
+            "overrides": [],
+        },
+        "gridPos": {"h": h, "w": w, "x": x, "y": y},
+        "id": panel_id,
+        "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+                "calcs": ["lastNotNull"],
+                "fields": "",
+                "values": False,
+            },
+            "textMode": "value_and_name",
+        },
+        "targets": [
+            {
+                "datasource": PROM_DS,
+                "expr": expr,
+                "instant": True,
+                "interval": "",
+                "legendFormat": "{{source}}/{{pair}}",
+                "refId": "A",
+            }
+        ],
+        "title": title,
+        "description": description,
+        "type": "stat",
     }
 
 def table(
@@ -254,46 +388,24 @@ def dashboard_definition() -> dict:
     panels.append(timeseries(15, "Cache Hits vs Misses", [
         {"expr": "sum(rate(cache_hits_total{job=\"$job\", instance=~\"$instance\", source=~\"$source\"}[1m])) by (source)", "legend": "Hits {{source}}"},
         {"expr": "sum(rate(cache_misses_total{job=\"$job\", instance=~\"$instance\", source=~\"$source\"}[1m])) by (source)", "legend": "Misses {{source}}"}
-    ], 0, y, w=12, unit="ops", stacking={"mode": "normal"}, description="Cache hits vs misses per source. More hits = better performance. High misses indicate cache problems."))
+    ], 0, y, w=12, unit="ops", stacking={"mode": "normal"}, description="Cache hits vs misses per source. More hits =d better performance. High misses indicate cache problems."))
     panels.append(timeseries(16, "Cache Size Trend", [{"expr": "sum(cache_size{job=\"$job\", instance=~\"$instance\", source=~\"$source\"}) by (source)", "legend": "{{source}}"}], 12, y, w=12, unit="short", stacking={"mode": "normal"}, description="Number of cached entries over time by source. Should grow initially then stabilize."))
     y += 8
 
     # 3. Update Mechanisms - Are prices updating?
     panels.append(row(20, "Update Mechanisms", y))
     y += 1
-    panels.append(stat(21, "Max Staleness", "max(time() - source_last_successful_update_timestamp{job=\"$job\", instance=~\"$instance\", source=~\"$source\", pair=~\"$pair\"})", "s", 0, y, thresholds=[{"color": "green", "value": None}, {"color": "red", "value": 300}], description="Maximum time since last successful price update. >300s indicates stale data."))
+    panels.append(stat(21, "Max Update Interval", "histogram_quantile(0.95, sum(rate(price_update_frequency_seconds_bucket{job=\"$job\", instance=~\"$instance\", source=~\"$source\", pair=~\"$pair\"}[5m])) by (le))", "s", 0, y, thresholds=[{"color": "green", "value": None}, {"color": "yellow", "value": 30}, {"color": "red", "value": 60}], description="95th percentile of price update intervals. Shows how often prices are updated. >60s indicates slow updates."))
     panels.append(stat(22, "WS Connections", "sum(websocket_connections_total{job=\"$job\", instance=~\"$instance\", source=~\"$source\"})", "short", 6, y, thresholds=[{"color": "green", "value": None}, {"color": "red", "value": 0}], description="Active WebSocket connections to price sources. Should be > 0 for real-time updates."))
     panels.append(stat(23, "WS Messages/s", "sum(rate(websocket_messages_received_total{job=\"$job\", instance=~\"$instance\", source=~\"$source\"}[1m]))", "ops", 12, y, thresholds=[{"color": "green", "value": None}, {"color": "red", "value": 0}], description="WebSocket messages received per second. Indicates real-time data flow."))
     panels.append(stat(24, "Quotes Processed/s", "sum(rate(quotes_processed_total{job=\"$job\", instance=~\"$instance\", source=~\"$source\", status=\"success\"}[1m]))", "ops", 18, y, thresholds=[{"color": "green", "value": None}, {"color": "red", "value": 0}], description="Successfully processed price quotes per second. Should be > 0 for active trading pairs."))
     y += 4
 
     panels.append(timeseries(25, "Update Frequency P95", [{"expr": "histogram_quantile(0.95, sum(rate(price_update_frequency_seconds_bucket{job=\"$job\", instance=~\"$instance\", source=~\"$source\", pair=~\"$pair\"}[1m])) by (le, source))", "legend": "{{source}}"}], 0, y, w=12, unit="s", description="95th percentile of price update intervals by source. Lower is better for real-time data."))
-    panels.append(timeseries(26, "Staleness Trend", [{"expr": "avg(time() - source_last_successful_update_timestamp{job=\"$job\", instance=~\"$instance\", source=~\"$source\", pair=~\"$pair\"}) by (source)", "legend": "{{source}}"}], 12, y, w=12, unit="s", description="Average staleness of price data by source. Should be low and stable."))
+    panels.append(timeseries(26, "Update Interval Trend", [{"expr": "histogram_quantile(0.5, sum(rate(price_update_frequency_seconds_bucket{job=\"$job\", instance=~\"$instance\", source=~\"$source\", pair=~\"$pair\"}[1m])) by (le, source))", "legend": "{{source}}"}], 12, y, w=12, unit="s", description="Median price update intervals by source. Shows how frequently prices are updated."))
     y += 8
 
-    staleness_field_overrides = [
-        {
-            "matcher": {"id": "byName", "options": "Staleness (s)"},
-            "properties": [
-                {
-                    "id": "thresholds",
-                    "value": {
-                        "mode": "absolute",
-                        "steps": [
-                            {"color": "green", "value": None},
-                            {"color": "yellow", "value": 10},
-                            {"color": "red", "value": 60}
-                        ]
-                    }
-                },
-                {
-                    "id": "custom.cellOptions",
-                    "value": {"type": "color-background"}
-                }
-            ]
-        }
-    ]
-    panels.append(table(27, "Staleness by Pair", [{"expr": "time() - source_last_successful_update_timestamp{job=\"$job\", instance=~\"$instance\", source=~\"$source\", pair=~\"$pair\"}"}], 0, y, h=8, rename={"Value": "Staleness (s)", "source": "Source", "pair": "Pair"}, description="Staleness of each trading pair by source. Green <10s, Yellow 10-60s, Red >60s.", exclude_columns=["instance", "job"], field_overrides=staleness_field_overrides))
+    panels.append(stat_grid_with_repeat(27, "$source", "histogram_quantile(0.5, sum(rate(price_update_frequency_seconds_bucket{job=\"$job\", instance=~\"$instance\", source=\"$source\", pair=~\"$pair\"}[5m])) by (le, pair))", 0, y, h=8, unit="s", description="Median update intervals for trading pairs by source. Green <30s, Yellow 30-60s, Red >60s."))
     y += 9
 
     # 4. Source Reliability - Why might cache be stale?
@@ -337,7 +449,7 @@ def dashboard_definition() -> dict:
         "links": [],
         "liveNow": False,
         "panels": panels,
-        "refresh": "15s",
+        "refresh": "5s",
         "schemaVersion": 37,
         "style": "dark",
         "tags": ["price-aggregator", "cache-health", "v3"],
@@ -350,7 +462,7 @@ def dashboard_definition() -> dict:
             ]
         },
         "time": {"from": "now-30m", "to": "now"},
-        "timepicker": {"refresh_intervals": ["10s", "30s", "1m", "5m"]},
+        "timepicker": {"refresh_intervals": ["5s", "10s", "30s", "1m", "5m"]},
         "timezone": "browser",
         "title": f"Price Aggregator Observability ({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})",
         "uid": f"price-agg-{str(uuid.uuid4())[:8]}",
