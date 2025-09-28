@@ -44,10 +44,7 @@ export class SourcesManagerService {
         source: sourceName,
         status: 'success',
       });
-      this.metricsService.sourceLastUpdate.set(
-        { source: sourceName, pair: pair.join('-') },
-        Date.now() / 1000,
-      );
+      this.metricsService.updateSourceLastUpdate(sourceName, pair);
       return quote;
     } catch (error) {
       this.metricsService.quoteThroughput.inc({

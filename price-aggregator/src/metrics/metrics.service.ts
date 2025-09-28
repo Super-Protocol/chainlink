@@ -144,4 +144,11 @@ export class MetricsService {
     help: 'Rate of dropped messages from websocket streams',
     labelNames: ['source'],
   });
+
+  updateSourceLastUpdate(source: string, pair: string[]): void {
+    this.sourceLastUpdate.set(
+      { source, pair: pair.join('-') },
+      Date.now() / 1000,
+    );
+  }
 }

@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CacheService, CachedQuote } from './cache';
 import { QuoteResponseDto } from './dto';
 import { PairService } from './pair.service';
+import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import { PriceNotFoundException } from '../sources/exceptions';
 import { Pair, Quote } from '../sources/source-adapter.interface';
@@ -16,6 +17,7 @@ export class BatchQuotesService {
     private readonly sourcesManager: SourcesManagerService,
     private readonly pairService: PairService,
     private readonly cacheService: CacheService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   private createCachedQuote(source: SourceName, quote: Quote): CachedQuote {
@@ -36,6 +38,7 @@ export class BatchQuotesService {
     await this.cacheService.set(this.createCachedQuote(source, quote));
     this.pairService.trackSuccessfulFetch(quote.pair, source);
     this.pairService.trackResponse(quote.pair, source);
+    this.metricsService.updateSourceLastUpdate(source, quote.pair);
   }
 
   private async processBatchQuotes(
