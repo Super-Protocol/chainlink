@@ -9,7 +9,7 @@ import { StreamServiceOptions } from '../../quote-stream.interface';
 import { Pair } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
-const WS_BASE_URL = 'wss://stream.binance.us:9443';
+const DEFAULT_WS_URL = 'wss://stream.binance.us/ws';
 const SUBSCRIBE_METHOD = 'SUBSCRIBE';
 const UNSUBSCRIBE_METHOD = 'UNSUBSCRIBE';
 
@@ -17,6 +17,7 @@ const UNSUBSCRIBE_METHOD = 'UNSUBSCRIBE';
 export class BinanceStreamService extends BaseStreamService {
   protected readonly logger = new Logger(BinanceStreamService.name);
   private commandId = 1;
+  private readonly wsUrl: string;
   private pendingCommands = new Map<
     number,
     {
@@ -40,6 +41,7 @@ export class BinanceStreamService extends BaseStreamService {
       useProxy: sourceConfig?.useProxy ?? false,
     };
     super(wsClientBuilder, options, metricsService);
+    this.wsUrl = sourceConfig?.stream?.wsUrl ?? DEFAULT_WS_URL;
   }
 
   protected getSourceName(): SourceName {
@@ -47,7 +49,7 @@ export class BinanceStreamService extends BaseStreamService {
   }
 
   protected getWsUrl(): string {
-    return `${WS_BASE_URL}/ws`;
+    return this.wsUrl;
   }
 
   protected pairToIdentifier(pair: Pair): string {
@@ -61,6 +63,12 @@ export class BinanceStreamService extends BaseStreamService {
       params: streams,
       id: commandId,
     };
+
+    this.logger.debug('Sending subscribe command', {
+      commandId,
+      streams,
+      command,
+    });
 
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
@@ -132,6 +140,9 @@ export class BinanceStreamService extends BaseStreamService {
           if (message.result === null || message.result === undefined) {
             pending.resolve();
           } else if (message.error) {
+            this.logger.error(`Command ${message.id} failed`, {
+              error: message.error,
+            });
             pending.reject(new Error(String(message.error)));
           } else {
             pending.resolve();
@@ -148,6 +159,9 @@ export class BinanceStreamService extends BaseStreamService {
         const tickerData = message.data as BinanceTickerData;
         const stream = message.stream;
         if (typeof tickerData.c === 'string') {
+          this.logger.debug(`Received ticker data for ${stream}`, {
+            price: tickerData.c,
+          });
           this.emitQuote(stream, {
             price: String(tickerData.c),
             receivedAt: new Date(
@@ -161,12 +175,17 @@ export class BinanceStreamService extends BaseStreamService {
         typeof message.c === 'string'
       ) {
         const stream = `${message.s.toLowerCase()}@miniTicker`;
+        this.logger.debug(`Received mini ticker for ${message.s}`, {
+          price: message.c,
+        });
         this.emitQuote(stream, {
           price: String(message.c),
           receivedAt: new Date(
             typeof message.E === 'number' ? message.E : Date.now(),
           ),
         });
+      } else {
+        this.logger.debug('Unhandled message format', { message });
       }
     } catch (error) {
       this.logger.error('Error handling message', error);
