@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cd $(dirname $0)
+
 json_escape() {
   # Escapes input for safe embedding as a JSON string
   sed -e 's/\\/\\\\/g' \
@@ -234,9 +236,8 @@ render_jobs() {
   # Render all templates
   shopt -s nullglob
   # Load feed-cas.json once (relative path from this script)
-  local script_dir feed_cas_path
-  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  feed_cas_path="${script_dir}/../../data-feed-generator/data-feeds-builder/feed-cas.json"
+  local feed_cas_path
+  feed_cas_path="./data/feed-cas.chainid-${evm_chain_id}.json"
   if [[ ! -f "${feed_cas_path}" ]]; then
     echo "[error] feed-cas.json not found at ${feed_cas_path}" >&2
     return 1
