@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events';
+import { readFile } from 'node:fs/promises';
+import { isAbsolute, resolve } from 'node:path';
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 
 import { AppConfigService } from '../config';
 import { MetricsService } from '../metrics/metrics.service';
@@ -22,7 +24,7 @@ interface PairSourceRegistration {
 }
 
 @Injectable()
-export class PairService {
+export class PairService implements OnApplicationBootstrap {
   private readonly logger = new Logger(PairService.name);
   private readonly registrations = new Map<string, PairSourceRegistration>();
   private readonly pairsBySource = new Map<SourceName, Set<string>>();
@@ -33,6 +35,16 @@ export class PairService {
     private readonly configService: AppConfigService,
     private readonly metricsService: MetricsService,
   ) {}
+
+  async onApplicationBootstrap(): Promise<void> {
+    const pairsFilePath = this.configService.get('pairsFilePath');
+
+    if (!pairsFilePath) {
+      return;
+    }
+
+    await this.preloadPairsFromFile(pairsFilePath);
+  }
 
   trackQuoteRequest(pair: Pair, source: SourceName): void {
     const key = this.getPairSourceKey(pair, source);
@@ -178,6 +190,125 @@ export class PairService {
 
   private getPairSourceKey(pair: Pair, source: SourceName): string {
     return `${this.getPairKey(pair)}:${source}`;
+  }
+
+  private async preloadPairsFromFile(filePath: string): Promise<void> {
+    try {
+      const resolvedPath = isAbsolute(filePath)
+        ? filePath
+        : resolve(process.cwd(), filePath);
+      const fileContent = await readFile(resolvedPath, 'utf8');
+
+      if (!fileContent.trim()) {
+        this.logger.warn({ filePath: resolvedPath }, 'Pairs file is empty');
+        return;
+      }
+
+      const rawData = JSON.parse(fileContent);
+      const loadedPairs = this.loadPairs(rawData);
+
+      if (loadedPairs === 0) {
+        this.logger.debug(
+          { filePath: resolvedPath },
+          'No new pairs were preloaded from file',
+        );
+        return;
+      }
+
+      this.logger.log(
+        { filePath: resolvedPath, count: loadedPairs },
+        'Preloaded pairs from file',
+      );
+    } catch (error) {
+      this.logger.error(
+        { filePath },
+        'Failed to preload pairs from file',
+        error as Error,
+      );
+    }
+  }
+
+  private loadPairs(rawData: unknown): number {
+    if (!rawData || typeof rawData !== 'object') {
+      this.logger.warn({}, 'Pairs file must contain an object at root');
+      return 0;
+    }
+
+    let loadedCount = 0;
+
+    for (const [sourceKey, values] of Object.entries(rawData)) {
+      if (!this.isSupportedSource(sourceKey)) {
+        this.logger.warn({ source: sourceKey }, 'Skipping unknown source');
+        continue;
+      }
+
+      if (!Array.isArray(values)) {
+        this.logger.warn(
+          { source: sourceKey },
+          'Pairs list must be an array of strings',
+        );
+        continue;
+      }
+
+      const sourceName = sourceKey as SourceName;
+
+      for (const value of values) {
+        const pair = this.parsePair(value);
+
+        if (!pair) {
+          this.logger.warn({ source: sourceKey, value }, 'Invalid pair value');
+          continue;
+        }
+
+        loadedCount += this.registerPreloadedPair(pair, sourceName) ? 1 : 0;
+      }
+    }
+
+    return loadedCount;
+  }
+
+  private isSupportedSource(sourceKey: string): sourceKey is SourceName {
+    return Object.values(SourceName).includes(sourceKey as SourceName);
+  }
+
+  private parsePair(value: unknown): Pair | undefined {
+    if (typeof value !== 'string') {
+      return undefined;
+    }
+
+    const [base, quote, ...rest] = value.split('/').map((part) => part.trim());
+
+    if (!base || !quote || rest.length > 0) {
+      return undefined;
+    }
+
+    return [base, quote];
+  }
+
+  private registerPreloadedPair(pair: Pair, source: SourceName): boolean {
+    const key = this.getPairSourceKey(pair, source);
+
+    if (this.registrations.has(key)) {
+      return false;
+    }
+
+    const now = new Date();
+
+    this.createRegistration(pair, source, {
+      registeredAt: now,
+      lastFetchAt: new Date(0),
+      lastResponseAt: new Date(0),
+      lastRequestAt: now,
+    });
+
+    this.logger.debug(
+      { source, pair: pair.join('/') },
+      'Preloaded pair registration created',
+    );
+
+    this.eventEmitter.emit('pair-added', { pair, source });
+
+    return true;
   }
 
   private createRegistration(

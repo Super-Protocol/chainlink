@@ -25,6 +25,11 @@ export const yamlValidationSchema = Type.Object(
         description: 'Application environment mode',
       }),
     ),
+    pairsFilePath: Type.Optional(
+      Type.String({
+        description: 'Path to pairs configuration file',
+      }),
+    ),
     logger: loggerSchema,
     sources: sourcesSchema,
     proxy: Type.Optional(proxySchema),
