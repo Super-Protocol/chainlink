@@ -43,6 +43,8 @@ autovacuum = on
 # Disable streaming/slots for cache-only use
 max_wal_senders = 0
 max_replication_slots = 0
+# Connections
+max_connections = 1000
 # END chainlink-ephemeral-config
 EOF"
   fi
