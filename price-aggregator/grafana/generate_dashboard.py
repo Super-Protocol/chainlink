@@ -1,6 +1,4 @@
 import json
-import uuid
-import datetime
 from copy import deepcopy
 
 PROM_DS = {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}
@@ -388,7 +386,7 @@ def dashboard_definition() -> dict:
     panels.append(timeseries(15, "Cache Hits vs Misses", [
         {"expr": "sum(rate(cache_hits_total{job=\"$job\", instance=~\"$instance\", source=~\"$source\"}[1m])) by (source)", "legend": "Hits {{source}}"},
         {"expr": "sum(rate(cache_misses_total{job=\"$job\", instance=~\"$instance\", source=~\"$source\"}[1m])) by (source)", "legend": "Misses {{source}}"}
-    ], 0, y, w=12, unit="ops", stacking={"mode": "normal"}, description="Cache hits vs misses per source. More hits =d better performance. High misses indicate cache problems."))
+    ], 0, y, w=12, unit="ops", stacking={"mode": "normal"}, description="Cache hits vs misses per source. More hits = better performance. High misses indicate cache problems."))
     panels.append(timeseries(16, "Cache Size Trend", [{"expr": "sum(cache_size{job=\"$job\", instance=~\"$instance\", source=~\"$source\"}) by (source)", "legend": "{{source}}"}], 12, y, w=12, unit="short", stacking={"mode": "normal"}, description="Number of cached entries over time by source. Should grow initially then stabilize."))
     y += 8
 
@@ -422,12 +420,12 @@ def dashboard_definition() -> dict:
     # 5. Runtime Metrics - Basic resource usage
     panels.append(row(40, "Runtime Metrics", y))
     y += 1
-    panels.append(timeseries(41, "CPU Usage", [{"expr": "rate(nodejs_process_cpu_seconds_total{job=\"$job\", instance=~\"$instance\"}[1m]) * 100", "legend": "CPU %"}], 0, y, w=12, unit="percent", description="CPU usage percentage. High sustained values may indicate performance bottlenecks."))
-    panels.append(timeseries(42, "Memory Usage", [{"expr": "nodejs_process_resident_memory_bytes{job=\"$job\", instance=~\"$instance\"}", "legend": "RSS"}], 12, y, w=12, unit="bytes", description="Resident memory usage. Steady growth may indicate memory leaks."))
+    panels.append(timeseries(41, "CPU Usage", [{"expr": "rate(process_cpu_seconds_total{job=\"$job\", instance=~\"$instance\"}[1m]) * 100", "legend": "CPU %"}], 0, y, w=12, unit="percent", description="CPU usage percentage. High sustained values may indicate performance bottlenecks."))
+    panels.append(timeseries(42, "Memory Usage", [{"expr": "process_resident_memory_bytes{job=\"$job\", instance=~\"$instance\"}", "legend": "RSS"}], 12, y, w=12, unit="bytes", description="Resident memory usage. Steady growth may indicate memory leaks."))
     y += 8
 
-    panels.append(timeseries(43, "Event Loop Lag P99", [{"expr": "nodejs_nodejs_eventloop_lag_p99_seconds{job=\"$job\", instance=~\"$instance\"}", "legend": "Lag P99"}], 0, y, w=12, unit="s", description="99th percentile of event loop lag. High values indicate blocking operations affecting responsiveness."))
-    panels.append(timeseries(44, "GC Duration P95", [{"expr": "histogram_quantile(0.95, sum(rate(nodejs_nodejs_gc_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[1m])) by (le))", "legend": "GC P95"}], 12, y, w=12, unit="s", description="95th percentile of garbage collection duration. Long GC pauses can affect performance."))
+    panels.append(timeseries(43, "Event Loop Lag P99", [{"expr": "histogram_quantile(0.99, sum(rate(nodejs_eventloop_lag_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[5m])) by (le))", "legend": "Lag P99"}], 0, y, w=12, unit="s", description="99th percentile of event loop lag. High values indicate blocking operations affecting responsiveness."))
+    panels.append(timeseries(44, "GC Duration P95", [{"expr": "histogram_quantile(0.95, sum(rate(nodejs_gc_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[1m])) by (le))", "legend": "GC P95"}], 12, y, w=12, unit="s", description="95th percentile of garbage collection duration. Long GC pauses can affect performance."))
     y += 8
 
     dashboard = {
@@ -464,8 +462,8 @@ def dashboard_definition() -> dict:
         "time": {"from": "now-30m", "to": "now"},
         "timepicker": {"refresh_intervals": ["5s", "10s", "30s", "1m", "5m"]},
         "timezone": "browser",
-        "title": f"Price Aggregator Observability ({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})",
-        "uid": f"price-agg-{str(uuid.uuid4())[:8]}",
+        "title": "Price Aggregator Observability",
+        "uid": "price-aggregator",
         "version": 1,
         "weekStart": "",
     }

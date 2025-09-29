@@ -44,7 +44,6 @@ export class SourcesManagerService {
         source: sourceName,
         status: 'success',
       });
-      this.metricsService.updateSourceLastUpdate(sourceName, pair);
       return quote;
     } catch (error) {
       this.metricsService.quoteThroughput.inc({

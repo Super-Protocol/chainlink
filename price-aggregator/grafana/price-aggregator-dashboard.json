@@ -766,7 +766,7 @@
         }
       ],
       "title": "Cache Hits vs Misses",
-      "description": "Cache hits vs misses per source. More hits =d better performance. High misses indicate cache problems.",
+      "description": "Cache hits vs misses per source. More hits = better performance. High misses indicate cache problems.",
       "type": "timeseries"
     },
     {
@@ -1882,7 +1882,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "rate(nodejs_process_cpu_seconds_total{job=\"$job\", instance=~\"$instance\"}[1m]) * 100",
+          "expr": "rate(process_cpu_seconds_total{job=\"$job\", instance=~\"$instance\"}[1m]) * 100",
           "interval": "",
           "legendFormat": "CPU %",
           "refId": "A"
@@ -1975,7 +1975,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "nodejs_process_resident_memory_bytes{job=\"$job\", instance=~\"$instance\"}",
+          "expr": "process_resident_memory_bytes{job=\"$job\", instance=~\"$instance\"}",
           "interval": "",
           "legendFormat": "RSS",
           "refId": "A"
@@ -2068,7 +2068,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "nodejs_nodejs_eventloop_lag_p99_seconds{job=\"$job\", instance=~\"$instance\"}",
+          "expr": "histogram_quantile(0.99, sum(rate(nodejs_eventloop_lag_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[5m])) by (le))",
           "interval": "",
           "legendFormat": "Lag P99",
           "refId": "A"
@@ -2161,7 +2161,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(nodejs_nodejs_gc_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[1m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(nodejs_gc_duration_seconds_bucket{job=\"$job\", instance=~\"$instance\"}[1m])) by (le))",
           "interval": "",
           "legendFormat": "GC P95",
           "refId": "A"
@@ -2298,8 +2298,8 @@
     ]
   },
   "timezone": "browser",
-  "title": "Price Aggregator Observability (2025-09-28 23:29:17)",
-  "uid": "price-agg-bc8a8fbf",
+  "title": "Price Aggregator Observability",
+  "uid": "price-aggregator",
   "version": 1,
   "weekStart": ""
 }

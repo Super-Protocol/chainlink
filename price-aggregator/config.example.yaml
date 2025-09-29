@@ -8,7 +8,8 @@ logger:
 # Metrics push configuration
 metricsPush:
   enabled: false # Enable push metrics to external collector (Prometheus Pushgateway, VictoriaMetrics, etc.)
-  # url: "https://push-gateway.example.com/metrics/job"
+  # url: "https://push-gateway.example.com"
+  # url: "http://pushgateway:9091" # if running Pushgateway in docker-compose
   # intervalMs: 30000
   # jobName: "price-aggregator"
   # groupingLabels:

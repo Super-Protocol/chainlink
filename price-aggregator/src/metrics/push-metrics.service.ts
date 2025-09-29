@@ -82,7 +82,10 @@ export class PushMetricsService implements OnModuleInit, OnModuleDestroy {
         await this.deleteMetrics();
         this.logger.log('Metrics deleted from push gateway on shutdown');
       } catch (error) {
-        this.logger.warn('Failed to delete metrics on shutdown', error);
+        this.logger.warn(
+          { err: error instanceof Error ? error : new Error(String(error)) },
+          'Failed to delete metrics on shutdown',
+        );
       }
     }
 

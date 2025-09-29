@@ -8,7 +8,6 @@ export class MetricsService {
   constructor() {
     if (!MetricsService.defaultMetricsRegistered) {
       collectDefaultMetrics({
-        prefix: 'nodejs_',
         gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
         eventLoopMonitoringPrecision: 10,
       });
@@ -154,7 +153,7 @@ export class MetricsService {
 
     this.sourceLastUpdate.set({ source, pair: pairKey }, now / 1000);
 
-    if (lastUpdateTime) {
+    if (lastUpdateTime !== undefined && lastUpdateTime > 0) {
       const timeDiff = (now - lastUpdateTime) / 1000;
       this.priceUpdateFrequency.observe({ pair: pairKey, source }, timeDiff);
     }
