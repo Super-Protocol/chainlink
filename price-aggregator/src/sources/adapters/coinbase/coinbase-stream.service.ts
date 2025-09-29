@@ -27,10 +27,10 @@ export class CoinbaseStreamService extends BaseStreamService {
     appConfigService: AppConfigService,
     metricsService?: MetricsService,
   ) {
-    const sourceConfig = appConfigService.get('sources')?.coinbase;
+    const { stream, useProxy } = appConfigService.get('sources.coinbase');
     const streamConfig = {
-      ...sourceConfig?.stream,
-      useProxy: sourceConfig?.useProxy,
+      ...stream,
+      useProxy,
     };
     super(wsClientBuilder, streamConfig, metricsService);
   }

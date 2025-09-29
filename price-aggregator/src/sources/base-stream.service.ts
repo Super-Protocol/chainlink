@@ -49,7 +49,7 @@ export abstract class BaseStreamService implements QuoteStreamService {
       heartbeatInterval: options?.heartbeatInterval ?? 30000,
       useProxy: options?.useProxy ?? false,
       batchSize: options?.batchSize ?? 0,
-      rateLimit: options?.rateLimit ?? 100,
+      rateLimit: options?.rateLimit ?? 0,
     };
 
     if (this.options.rateLimit > 0) {
