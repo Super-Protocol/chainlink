@@ -66,7 +66,8 @@
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "reqps",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -129,7 +130,8 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "s",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -192,7 +194,8 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -255,7 +258,8 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -349,7 +353,8 @@
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "reqps",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -364,7 +369,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -421,7 +428,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -488,7 +496,8 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -551,7 +560,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -614,7 +624,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -707,7 +718,8 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -722,7 +734,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -752,7 +766,7 @@
         }
       ],
       "title": "Cache Hits vs Misses",
-      "description": "Cache hits vs misses per source. More hits = better performance. High misses indicate cache problems.",
+      "description": "Cache hits vs misses per source. More hits =d better performance. High misses indicate cache problems.",
       "type": "timeseries"
     },
     {
@@ -806,7 +820,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -821,7 +836,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -873,12 +890,17 @@
                 "value": null
               },
               {
+                "color": "yellow",
+                "value": 30
+              },
+              {
                 "color": "red",
-                "value": 300
+                "value": 60
               }
             ]
           },
-          "unit": "s"
+          "unit": "s",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -909,15 +931,15 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "max(time() - source_last_successful_update_timestamp{job=\"$job\", instance=~\"$instance\", source=~\"$source\", pair=~\"$pair\"})",
+          "expr": "histogram_quantile(0.95, sum(rate(price_update_frequency_seconds_bucket{job=\"$job\", instance=~\"$instance\", source=~\"$source\", pair=~\"$pair\"}[5m])) by (le))",
           "instant": true,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
         }
       ],
-      "title": "Max Staleness",
-      "description": "Maximum time since last successful price update. >300s indicates stale data.",
+      "title": "Max Update Interval",
+      "description": "95th percentile of price update intervals. Shows how often prices are updated. >60s indicates slow updates.",
       "type": "stat"
     },
     {
@@ -941,7 +963,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -1004,7 +1027,8 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -1067,7 +1091,8 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -1161,7 +1186,8 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "s",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -1176,7 +1202,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -1251,7 +1279,8 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "s",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -1266,7 +1295,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -1279,14 +1310,14 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "avg(time() - source_last_successful_update_timestamp{job=\"$job\", instance=~\"$instance\", source=~\"$source\", pair=~\"$pair\"}) by (source)",
+          "expr": "histogram_quantile(0.5, sum(rate(price_update_frequency_seconds_bucket{job=\"$job\", instance=~\"$instance\", source=~\"$source\", pair=~\"$pair\"}[1m])) by (le, source))",
           "interval": "",
           "legendFormat": "{{source}}",
           "refId": "A"
         }
       ],
-      "title": "Staleness Trend",
-      "description": "Average staleness of price data by source. Should be low and stable.",
+      "title": "Update Interval Trend",
+      "description": "Median price update intervals by source. Shows how frequently prices are updated.",
       "type": "timeseries"
     },
     {
@@ -1296,9 +1327,15 @@
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "custom": {
-            "align": "auto",
-            "displayMode": "auto"
+            "align": "center",
+            "cellOptions": {
+              "type": "color-background"
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -1307,103 +1344,62 @@
               {
                 "color": "green",
                 "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Staleness (s)"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 10
-                    },
-                    {
-                      "color": "red",
-                      "value": 60
-                    }
-                  ]
-                }
               },
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 60
               }
             ]
-          }
-        ]
+          },
+          "unit": "s",
+          "noValue": "No data"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 8,
         "x": 0,
         "y": 39
       },
       "id": 27,
       "options": {
-        "footer": {
-          "enable": false,
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
-          "reducer": [
-            "sum"
-          ]
+          "values": false
         },
-        "showHeader": true
+        "textMode": "value_and_name"
       },
-      "pluginVersion": "10.0.0",
+      "repeat": "source",
+      "repeatDirection": "h",
+      "maxPerRow": 12,
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "time() - source_last_successful_update_timestamp{job=\"$job\", instance=~\"$instance\", source=~\"$source\", pair=~\"$pair\"}",
-          "format": "table",
+          "expr": "histogram_quantile(0.5, sum(rate(price_update_frequency_seconds_bucket{job=\"$job\", instance=~\"$instance\", source=\"$source\", pair=~\"$pair\"}[5m])) by (le, pair))",
           "instant": true,
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "{{pair}}",
           "refId": "A"
         }
       ],
-      "title": "Staleness by Pair",
-      "description": "Staleness of each trading pair by source. Green <10s, Yellow 10-60s, Red >60s.",
-      "transformations": [
-        {
-          "id": "merge",
-          "options": {}
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "instance": true,
-              "job": true
-            },
-            "renameByName": {
-              "Value": "Staleness (s)",
-              "source": "Source",
-              "pair": "Pair"
-            }
-          }
-        }
-      ],
-      "type": "table"
+      "title": "$source",
+      "description": "Median update intervals for trading pairs by source. Green <30s, Yellow 30-60s, Red >60s.",
+      "type": "stat"
     },
     {
       "collapsed": false,
@@ -1470,7 +1466,8 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -1485,7 +1482,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -1560,7 +1559,8 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -1575,7 +1575,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -1650,7 +1652,8 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "s",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -1665,7 +1668,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -1740,7 +1745,8 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -1755,7 +1761,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -1843,7 +1851,8 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percent",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -1858,7 +1867,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -1933,7 +1944,8 @@
               }
             ]
           },
-          "unit": "bytes"
+          "unit": "bytes",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -1948,7 +1960,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -2023,7 +2037,8 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "s",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -2038,7 +2053,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -2113,7 +2130,8 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "s",
+          "noValue": "No data"
         },
         "overrides": []
       },
@@ -2128,7 +2146,9 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "hideEmpty": true,
+          "hideZero": true
         },
         "tooltip": {
           "mode": "multi",
@@ -2152,7 +2172,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "15s",
+  "refresh": "5s",
   "schemaVersion": 37,
   "style": "dark",
   "tags": [
@@ -2270,6 +2290,7 @@
   },
   "timepicker": {
     "refresh_intervals": [
+      "5s",
       "10s",
       "30s",
       "1m",
@@ -2277,8 +2298,8 @@
     ]
   },
   "timezone": "browser",
-  "title": "Price Aggregator Observability (2025-09-28 17:26:19)",
-  "uid": "price-agg-46436398",
+  "title": "Price Aggregator Observability (2025-09-28 23:29:17)",
+  "uid": "price-agg-bc8a8fbf",
   "version": 1,
   "weekStart": ""
 }
