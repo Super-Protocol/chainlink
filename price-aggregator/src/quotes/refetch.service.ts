@@ -92,7 +92,7 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
       .map(([source, pairs]) => `${source}:${pairs.length}`)
       .join(', ');
 
-    this.logger.log(
+    this.logger.debug(
       `Processing stale batch: ${validItems.length} items across ${grouped.size} sources [${sourceStats}]`,
     );
 
@@ -109,7 +109,7 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
     );
 
     const duration = Date.now() - startTime;
-    this.logger.log(
+    this.logger.debug(
       `Completed stale batch processing: ${validItems.length} items in ${duration}ms`,
     );
   }
@@ -151,7 +151,7 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
       await Promise.all(quotes.map((quote) => this.cacheQuote(source, quote)));
 
       const duration = Date.now() - startTime;
-      this.logger.log(
+      this.logger.debug(
         `Successfully refreshed ${quotes.length}/${pairs.length} pairs for ${source} in ${duration}ms`,
       );
     } catch (error) {
@@ -259,7 +259,7 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
       throw new Error('Refetch service is disabled');
     }
 
-    this.logger.log(
+    this.logger.debug(
       `Manual refresh triggered for ${pairs.length} pairs from ${source}`,
     );
 
