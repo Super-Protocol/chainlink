@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: SGD / USD Price Feed"
+name = "SGD / USD"
 externalJobID = "82903620-ee79-5470-98e0-e8b08388b251"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xC90E3143a524F006f8D99615693813F96F8b8d5E"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -26,12 +26,17 @@ observationSource = """
     ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/frankfurter/SGD/USD"];
     ds3_parse [type=jsonparse path="price"];
     ds3_multiply [type=multiply times=100000000];
+    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/alphavantage/SGD/USD"];
+    ds4_parse [type=jsonparse path="price"];
+    ds4_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
     ds3 -> ds3_parse -> ds3_multiply;
+    ds4 -> ds4_parse -> ds4_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
+    ds4_multiply -> median;
 """

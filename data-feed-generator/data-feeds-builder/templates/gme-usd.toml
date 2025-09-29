@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: GME / USD Price Feed"
+name = "GME / USD"
 externalJobID = "026430b8-0933-5b10-b0ff-f57393dc7409"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x56cf7005C4218F485F9516ac89026380617071f0"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

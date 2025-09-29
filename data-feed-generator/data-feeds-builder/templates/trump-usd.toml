@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: TRUMP / USD Price Feed"
+name = "TRUMP / USD"
 externalJobID = "fc5fc842-8574-593a-b015-93e44d3c8f6a"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x73b88119D9F66E33098Eb99BfE51E0763aF3EE1a"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -23,15 +23,18 @@ observationSource = """
     ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/TRUMP/USD"];
     ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/TRUMP/USD"];
+    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/TRUMP/USD"];
     ds3_parse [type=jsonparse path="price"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/TRUMP/USD"];
+    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/TRUMP/USD"];
     ds4_parse [type=jsonparse path="price"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/TRUMP/USDT"];
+    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/provider/TRUMP/USD"];
     ds5_parse [type=jsonparse path="price"];
     ds5_multiply [type=multiply times=100000000];
+    ds6 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/TRUMP/USD"];
+    ds6_parse [type=jsonparse path="price"];
+    ds6_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
@@ -39,9 +42,11 @@ observationSource = """
     ds3 -> ds3_parse -> ds3_multiply;
     ds4 -> ds4_parse -> ds4_multiply;
     ds5 -> ds5_parse -> ds5_multiply;
+    ds6 -> ds6_parse -> ds6_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
     ds4_multiply -> median;
     ds5_multiply -> median;
+    ds6_multiply -> median;
 """

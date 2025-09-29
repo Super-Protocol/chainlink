@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: OM / USD Price Feed"
+name = "OM / USD"
 externalJobID = "b0de26b3-0028-52de-ad41-1176e3dd19c5"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x573D8907A3c8229A09ad14Ad26c01D9e4dd4AB4a"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,19 +17,19 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/OM/USDT"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/OM/USD"];
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/OM/USD"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/OM/USD"];
     ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/OM/USD"];
     ds3_parse [type=jsonparse path="price"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/OM/USD"];
+    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/provider/OM/USD"];
     ds4_parse [type=jsonparse path="price"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/OM/USDT"];
+    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/OM/USD"];
     ds5_parse [type=jsonparse path="price"];
     ds5_multiply [type=multiply times=100000000];
     median [type=median];

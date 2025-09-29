@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: DPI / USD Price Feed"
+name = "DPI / USD"
 externalJobID = "d35d8f87-6f9c-5759-ad08-e8a280e56ad9"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xF2Be01b754b0229f4E1ccb9519b264600Af987a9"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

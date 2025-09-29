@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: COP / USD Price Feed"
+name = "COP / USD"
 externalJobID = "f93714c4-186b-52f2-bc4e-d9938e6d3dd3"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xd713dC5b49291C8CB2c93dAa81BD4f224A3eb504"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -20,13 +20,18 @@ observationSource = """
     ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/COP/USD"];
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/COP/USD"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/COP/USD"];
     ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
+    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/COP/USD"];
+    ds3_parse [type=jsonparse path="price"];
+    ds3_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
+    ds3 -> ds3_parse -> ds3_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
+    ds3_multiply -> median;
 """

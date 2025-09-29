@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: COMP / USD Price Feed"
+name = "COMP / USD"
 externalJobID = "f7fcc511-ab80-567f-be1e-1ad422ba443a"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x0079855FF7fBB633BE33a4733400C0369c1183c5"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -23,18 +23,21 @@ observationSource = """
     ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/COMP/USD"];
     ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/COMP/USD"];
+    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/COMP/USD"];
     ds3_parse [type=jsonparse path="price"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/COMP/USD"];
+    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/COMP/USD"];
     ds4_parse [type=jsonparse path="price"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/COMP/USDT"];
+    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/provider/COMP/USD"];
     ds5_parse [type=jsonparse path="price"];
     ds5_multiply [type=multiply times=100000000];
-    ds6 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/alphavantage/COMP/USD"];
+    ds6 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/COMP/USD"];
     ds6_parse [type=jsonparse path="price"];
     ds6_multiply [type=multiply times=100000000];
+    ds7 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/alphavantage/COMP/USD"];
+    ds7_parse [type=jsonparse path="price"];
+    ds7_multiply [type=multiply times=100000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
@@ -43,10 +46,12 @@ observationSource = """
     ds4 -> ds4_parse -> ds4_multiply;
     ds5 -> ds5_parse -> ds5_multiply;
     ds6 -> ds6_parse -> ds6_multiply;
+    ds7 -> ds7_parse -> ds7_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
     ds3_multiply -> median;
     ds4_multiply -> median;
     ds5_multiply -> median;
     ds6_multiply -> median;
+    ds7_multiply -> median;
 """

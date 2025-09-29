@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: ADA / USD Price Feed"
+name = "ADA / USD"
 externalJobID = "d8583cdc-f206-5ed6-ae18-c7e4a0ae4a30"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x49d9d67FdAEDb947B28D860514031806DF335a0D"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -29,10 +29,10 @@ observationSource = """
     ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ADA/USD"];
     ds4_parse [type=jsonparse path="price"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ADA/USD"];
+    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/provider/ADA/USD"];
     ds5_parse [type=jsonparse path="price"];
     ds5_multiply [type=multiply times=100000000];
-    ds6 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ADA/USDT"];
+    ds6 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ADA/USD"];
     ds6_parse [type=jsonparse path="price"];
     ds6_multiply [type=multiply times=100000000];
     median [type=median];

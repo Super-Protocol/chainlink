@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: ETH / USD Price Feed"
+name = "ETH / USD"
 externalJobID = "da63f3ac-7b91-56ca-bc4d-2cc53417210f"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x00065950Ad9f3c876b266eCCeD5Cb0DA36E29F37"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -29,10 +29,10 @@ observationSource = """
     ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD"];
     ds4_parse [type=jsonparse path="price"];
     ds4_multiply [type=multiply times=100000000];
-    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD"];
+    ds5 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/provider/ETH/USD"];
     ds5_parse [type=jsonparse path="price"];
     ds5_multiply [type=multiply times=100000000];
-    ds6 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USDT"];
+    ds6 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD"];
     ds6_parse [type=jsonparse path="price"];
     ds6_multiply [type=multiply times=100000000];
     ds7 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/alphavantage/ETH/USD"];

@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: BR / USD Price Feed"
+name = "BR / USD"
 externalJobID = "4616500a-2399-5e49-8a9b-d3e670bc7035"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x8E748b03B8A9e52a8652e34c1d8Ded3A6fAbb1eD"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -20,8 +20,13 @@ observationSource = """
     ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/BR/USD"];
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=1000000000000000000];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BR/USD"];
+    ds2_parse [type=jsonparse path="price"];
+    ds2_multiply [type=multiply times=1000000000000000000];
     median [type=median];
     
     ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
     ds1_multiply -> median;
+    ds2_multiply -> median;
 """

@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: XAG / USD Price Feed"
+name = "XAG / USD"
 externalJobID = "b9e318c8-ae2d-5884-86f9-71f11cded77f"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x28Fb370A2289eDBF554e7927e05d8075bAac7380"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

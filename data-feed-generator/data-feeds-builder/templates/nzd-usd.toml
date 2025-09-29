@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: NZD / USD Price Feed"
+name = "NZD / USD"
 externalJobID = "d3d33609-9840-5d50-a37d-f77583a97fb7"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x9C88Fb7EcC0F8D8b02073BadaD7D96fA4B16C266"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"

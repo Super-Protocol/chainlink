@@ -10,6 +10,10 @@ const MAP_PATH = path.join(ROOT, 'data-feeds-map.json');
 const CAS_PATH = path.join(ROOT, 'feed-cas.json');
 const TEMPLATE_PATH = path.join(ROOT, 'job-template.toml');
 const OUTPUT_DIR = path.join(ROOT, 'templates');
+const PAIRS_OUTPUT_PATH = path.resolve(
+  ROOT,
+  '../../price-aggregator/pairs.json'
+);
 
 function readJson(filePath) {
   const raw = fs.readFileSync(filePath, 'utf8');
@@ -126,7 +130,7 @@ function buildObservationSource(dataSources, decimalsRaw) {
       }
     }
 
-    if (!url) return; // skip invalid
+    if (!url) return;
 
     lines.push(`${ds} [type=http method=GET url="${url}"];`);
 
@@ -173,10 +177,7 @@ function buildObservationSource(dataSources, decimalsRaw) {
   return all.join('\n');
 }
 
-function replacePlaceholders(
-  template,
-  { jobName, jobId, jobCa, observationSource }
-) {
+function replacePlaceholders(template, { jobName, jobId, observationSource }) {
   function indentBlock(text, spaces = 4) {
     const pad = ' '.repeat(spaces);
     return text
@@ -187,8 +188,7 @@ function replacePlaceholders(
 
   let out = template
     .replace(/\$JOB_NAME/g, jobName)
-    .replace(/\$JOB_ID/g, jobId)
-    .replace(/\$JOB_CA/g, jobCa);
+    .replace(/\$JOB_ID/g, jobId);
 
   out = out.replace(/observationSource\s*=\s*"""[\s\S]*?"""/m, () => {
     return `observationSource = """
@@ -197,6 +197,73 @@ ${indentBlock(observationSource)}
   });
 
   return out;
+}
+
+// Pair aggregation now prefers explicit ds.pair attribute; URL parsing retained only as fallback for legacy entries.
+function extractPairFromUrl(url) {
+  if (!url || typeof url !== 'string') return null;
+  try {
+    const noQuery = url.split('?')[0];
+    const parts = noQuery.split('/').filter(Boolean);
+    const quoteIndex = parts.findIndex((p) => p === 'quote');
+    if (quoteIndex !== -1 && parts.length >= quoteIndex + 4) {
+      // expect /quote/{provider}/{BASE}/{QUOTE}
+      const base = parts[quoteIndex + 2];
+      const quote = parts[quoteIndex + 3];
+      if (base && quote) return `${base}/${quote}`;
+    }
+    if (parts.length >= 2) {
+      const last = parts[parts.length - 1];
+      const prev = parts[parts.length - 2];
+      if (/^[A-Za-z0-9._-]+$/.test(prev) && /^[A-Za-z0-9._-]+$/.test(last)) {
+        return prev + '/' + last;
+      }
+    }
+  } catch (_e) {
+    return null;
+  }
+  return null;
+}
+
+function generatePairsByProvider(feeds) {
+  const grouped = {};
+  for (const feed of feeds) {
+    if (!feed || !Array.isArray(feed.dataSources)) continue;
+    for (const ds of feed.dataSources) {
+      if (!ds || typeof ds !== 'object') continue;
+      const provider = ds.provider;
+      if (!provider) continue;
+      let pair = ds.pair; // primary source
+      if (!pair) {
+        // attempt fallback only if url provided (legacy)
+        pair = extractPairFromUrl(ds.url);
+      }
+      if (!pair) continue;
+      const key = String(provider).toLowerCase();
+      if (!grouped[key]) grouped[key] = new Set();
+      grouped[key].add(pair);
+    }
+  }
+  return Object.fromEntries(
+    Object.keys(grouped)
+      .sort()
+      .map((p) => [p, Array.from(grouped[p]).sort()])
+  );
+}
+
+function writePairsForPriceAggregator(feeds) {
+  try {
+    const pairs = generatePairsByProvider(feeds);
+    ensureDir(path.dirname(PAIRS_OUTPUT_PATH));
+    fs.writeFileSync(
+      PAIRS_OUTPUT_PATH,
+      JSON.stringify(pairs, null, 2) + '\n',
+      'utf8'
+    );
+    console.log(`pairs.json written to ${PAIRS_OUTPUT_PATH}`);
+  } catch (e) {
+    console.error('Failed to write pairs.json:', e.message);
+  }
 }
 
 function main() {
@@ -217,7 +284,7 @@ function main() {
       continue;
     }
 
-    const jobName = `OCR Oracle: ${feed.name} Price Feed`;
+    const jobName = feed.name;
     const jobId = generateDeterministicJobId(feed.name, ca);
     const observationSource = buildObservationSource(
       feed.dataSources,
@@ -237,6 +304,8 @@ function main() {
     generated++;
     console.log(`Generated: ${dest}`);
   }
+
+  writePairsForPriceAggregator(feeds);
 
   console.log(`Done. Generated ${generated} templates in ${OUTPUT_DIR}`);
 }
