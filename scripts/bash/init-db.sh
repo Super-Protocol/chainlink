@@ -40,6 +40,9 @@ checkpoint_timeout = 5min
 checkpoint_completion_target = 0.9
 shared_buffers = 128MB
 autovacuum = on
+# Disable streaming/slots for cache-only use
+max_wal_senders = 0
+max_replication_slots = 0
 # END chainlink-ephemeral-config
 EOF"
   fi
