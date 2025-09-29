@@ -10,6 +10,10 @@ const MAP_PATH = path.join(ROOT, 'data-feeds-map.json');
 const CAS_PATH = path.join(ROOT, 'feed-cas.json');
 const TEMPLATE_PATH = path.join(ROOT, 'job-template.toml');
 const OUTPUT_DIR = path.join(ROOT, 'templates');
+const PAIRS_OUTPUT_PATH = path.resolve(
+  ROOT,
+  '../../price-aggregator/pairs.json'
+);
 
 function readJson(filePath) {
   const raw = fs.readFileSync(filePath, 'utf8');
@@ -199,6 +203,77 @@ ${indentBlock(observationSource)}
   return out;
 }
 
+function extractPairFromUrl(url) {
+  if (!url || typeof url !== 'string') return null;
+  try {
+    const noQuery = url.split('?')[0];
+    const parts = noQuery.split('/').filter(Boolean);
+    const quoteIndex = parts.findIndex((p) => p === 'quote');
+    if (quoteIndex !== -1 && parts.length >= quoteIndex + 3) {
+      const afterProvider = parts.slice(quoteIndex + 2);
+      if (afterProvider.length >= 2) {
+        return afterProvider[0] + '/' + afterProvider[1];
+      }
+    }
+    if (parts.length >= 2) {
+      const last = parts[parts.length - 1];
+      const prev = parts[parts.length - 2];
+      if (/^[A-Za-z0-9._-]+$/.test(prev) && /^[A-Za-z0-9._-]+$/.test(last)) {
+        return prev + '/' + last;
+      }
+    }
+  } catch (_e) {
+    return null;
+  }
+  return null;
+}
+
+function generatePairsByProvider(feeds) {
+  const grouped = {};
+  for (const feed of feeds) {
+    if (!feed || !Array.isArray(feed.dataSources)) continue;
+    for (const ds of feed.dataSources) {
+      let provider, url;
+      if (typeof ds === 'string') {
+        url = ds;
+        if (url.includes('binance')) provider = 'binance';
+        else if (url.includes('cryptocompare')) provider = 'cryptocompare';
+        else if (url.includes('coingecko')) provider = 'coingecko';
+        else if (url.includes('coinbase')) provider = 'coinbase';
+      } else if (ds && typeof ds === 'object') {
+        provider = ds.provider;
+        url = ds.url;
+      }
+      if (!provider || !url) continue;
+      const pair = extractPairFromUrl(url);
+      if (!pair) continue;
+      const key = String(provider).toLowerCase();
+      if (!grouped[key]) grouped[key] = new Set();
+      grouped[key].add(pair);
+    }
+  }
+  return Object.fromEntries(
+    Object.keys(grouped)
+      .sort()
+      .map((p) => [p, Array.from(grouped[p]).sort()])
+  );
+}
+
+function writePairsForPriceAggregator(feeds) {
+  try {
+    const pairs = generatePairsByProvider(feeds);
+    ensureDir(path.dirname(PAIRS_OUTPUT_PATH));
+    fs.writeFileSync(
+      PAIRS_OUTPUT_PATH,
+      JSON.stringify(pairs, null, 2) + '\n',
+      'utf8'
+    );
+    console.log(`pairs.json written to ${PAIRS_OUTPUT_PATH}`);
+  } catch (e) {
+    console.error('Failed to write pairs.json:', e.message);
+  }
+}
+
 function main() {
   const feeds = readJson(MAP_PATH);
   const cas = readJson(CAS_PATH);
@@ -237,6 +312,8 @@ function main() {
     generated++;
     console.log(`Generated: ${dest}`);
   }
+
+  writePairsForPriceAggregator(feeds);
 
   console.log(`Done. Generated ${generated} templates in ${OUTPUT_DIR}`);
 }
