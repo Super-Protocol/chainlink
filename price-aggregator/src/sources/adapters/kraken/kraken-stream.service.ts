@@ -34,10 +34,10 @@ export class KrakenStreamService extends BaseStreamService {
     appConfigService: AppConfigService,
     metricsService?: MetricsService,
   ) {
-    const sourceConfig = appConfigService.get('sources')?.kraken;
+    const { stream, useProxy } = appConfigService.get('sources.kraken');
     const streamConfig = {
-      ...sourceConfig?.stream,
-      useProxy: sourceConfig?.useProxy,
+      ...stream,
+      useProxy,
     };
     super(wsClientBuilder, streamConfig, metricsService);
   }
