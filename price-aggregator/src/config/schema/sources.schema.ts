@@ -33,6 +33,22 @@ const streamOptionsSchema = Type.Object(
       description: 'Heartbeat ping interval in ms',
       default: 30000,
     }),
+    batchSize: Type.Optional(
+      Type.Integer({
+        minimum: 1,
+        maximum: 500,
+        description:
+          'Maximum number of pairs sent in one streaming subscribe/unsubscribe request to avoid rate limiting',
+      }),
+    ),
+    rateLimit: Type.Optional(
+      Type.Integer({
+        minimum: 10,
+        maximum: 10000,
+        description:
+          'Minimum milliseconds between WebSocket messages to avoid rate limiting (lower = faster)',
+      }),
+    ),
   },
   { additionalProperties: false },
 );

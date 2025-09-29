@@ -26,7 +26,11 @@ export class FinnhubStreamService extends BaseStreamService {
     appConfigService: AppConfigService,
     metricsService?: MetricsService,
   ) {
-    const streamConfig = appConfigService.get('sources.finnhub.stream');
+    const sourceConfig = appConfigService.get('sources')?.finnhub;
+    const streamConfig = {
+      ...sourceConfig?.stream,
+      useProxy: sourceConfig?.useProxy,
+    };
     super(wsClientBuilder, streamConfig, metricsService);
     this.apiKey = appConfigService.get('sources.finnhub.apiKey');
   }

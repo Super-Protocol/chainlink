@@ -8,6 +8,7 @@ import {
 import { CacheService, CachedQuote } from './cache';
 import { PairService } from './pair.service';
 import { SingleFlight } from '../common';
+import { AppConfigService } from '../config';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import {
@@ -30,6 +31,9 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
   >();
   private readonly initializedSources = new Set<SourceName>();
 
+  private readonly pendingSubscriptions = new Map<SourceName, Set<string>>();
+  private readonly subscriptionTimers = new Map<SourceName, NodeJS.Timeout>();
+
   private handlePairAddedRef?: (event: {
     pair: Pair;
     source: SourceName;
@@ -44,6 +48,7 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
     private readonly pairService: PairService,
     private readonly cacheService: CacheService,
     private readonly metricsService: MetricsService,
+    private readonly configService: AppConfigService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -72,9 +77,7 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
             );
           }
 
-          for (const pair of existingPairs) {
-            await this.subscribePair(source, pair);
-          }
+          await this.subscribePairs(source, existingPairs);
 
           this.initializedSources.add(source);
         }
@@ -86,7 +89,7 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
     }
 
     this.handlePairAddedRef = async ({ pair, source }) => {
-      await this.subscribePair(source, pair);
+      await this.queuePairSubscription(source, pair);
     };
     this.handlePairRemovedRef = async ({ pair, source }) => {
       await this.unsubscribePair(source, pair);
@@ -101,6 +104,12 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
       this.pairService.off('pair-added', this.handlePairAddedRef);
     if (this.handlePairRemovedRef)
       this.pairService.off('pair-removed', this.handlePairRemovedRef);
+
+    for (const timer of this.subscriptionTimers.values()) {
+      clearTimeout(timer);
+    }
+    this.subscriptionTimers.clear();
+    this.pendingSubscriptions.clear();
 
     for (const [source, streamService] of this.streamServiceBySource) {
       try {
@@ -121,40 +130,7 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
       `${source}:${encodeURIComponent(pair[0])}|${encodeURIComponent(pair[1])}`,
   )
   private async subscribePair(source: SourceName, pair: Pair): Promise<void> {
-    const streamService = this.streamServiceBySource.get(source);
-    if (!streamService) return;
-
-    const pairKey = this.getPairKey(pair);
-    const subs = this.ensureSubsMap(source);
-    if (subs.has(pairKey)) {
-      this.logger.verbose(
-        `Already have subscription for ${source}:${pairKey}, skipping`,
-      );
-      return;
-    }
-
-    this.logger.debug(`Creating new subscription for ${source}:${pairKey}`);
-
-    try {
-      if (!streamService.isConnected) {
-        await streamService.connect();
-      }
-      const subscription = await streamService.subscribe(
-        pair,
-        (quote) => this.handleQuote(source, quote),
-        (error) => this.handleStreamError(source, pair, error),
-      );
-      subs.set(pairKey, subscription);
-      if (!this.initializedSources.has(source)) {
-        this.initializedSources.add(source);
-      }
-      this.logger.log(`Subscribed to ${source}:${pairKey}`);
-    } catch (error) {
-      this.logger.error(
-        `Failed to subscribe ${source}:${pairKey}`,
-        error as Error,
-      );
-    }
+    await this.subscribePairs(source, [pair]);
   }
 
   private async unsubscribePair(source: SourceName, pair: Pair): Promise<void> {
@@ -244,19 +220,120 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
 
     subs.clear();
 
-    for (const pair of existingPairs) {
-      try {
-        await this.subscribePair(source, pair);
-      } catch (error) {
-        this.logger.error(
-          `Failed to resubscribe ${source}:${this.getPairKey(pair)} after reconnect`,
-          error as Error,
-        );
-      }
-    }
+    await this.subscribePairs(source, existingPairs);
   }
 
   private getPairKey(pair: Pair): string {
     return pair.join('/');
+  }
+
+  private async subscribePairs(
+    source: SourceName,
+    pairs: Pair[],
+  ): Promise<void> {
+    const streamService = this.streamServiceBySource.get(source);
+    if (!streamService || pairs.length === 0) return;
+
+    const subs = this.ensureSubsMap(source);
+
+    const pairsToSubscribe: Pair[] = [];
+    for (const pair of pairs) {
+      const pairKey = this.getPairKey(pair);
+      if (subs.has(pairKey)) {
+        this.logger.verbose(
+          `Already have subscription for ${source}:${pairKey}, skipping`,
+        );
+        continue;
+      }
+      pairsToSubscribe.push(pair);
+    }
+
+    if (pairsToSubscribe.length === 0) return;
+
+    const pairKeys = pairsToSubscribe.map((pair) => this.getPairKey(pair));
+    this.logger.debug(
+      `Subscribing to ${source}: ${pairKeys.length} pair(s) [${pairKeys.join(', ')}]`,
+    );
+
+    try {
+      const subscriptions = await streamService.subscribeMany(
+        pairsToSubscribe,
+        (quote) => this.handleQuote(source, quote),
+        (pair) => (error) => this.handleStreamError(source, pair, error),
+      );
+
+      subscriptions.forEach((subscription) => {
+        const key = this.getPairKey(subscription.pair);
+        subs.set(key, subscription);
+      });
+
+      this.initializedSources.add(source);
+      this.logger.log(
+        `Subscribed to ${source}: ${pairKeys.length} pair(s) [${pairKeys.join(', ')}]`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to subscribe to ${source}: ${pairKeys.join(', ')}`,
+        error as Error,
+      );
+    }
+  }
+
+  private async queuePairSubscription(
+    source: SourceName,
+    pair: Pair,
+  ): Promise<void> {
+    const pairKey = this.getPairKey(pair);
+
+    const subs = this.subscriptionsBySource.get(source);
+    if (subs?.has(pairKey)) {
+      this.logger.verbose(`Already subscribed to ${source}:${pairKey}`);
+      return;
+    }
+
+    if (!this.pendingSubscriptions.has(source)) {
+      this.pendingSubscriptions.set(source, new Set());
+    }
+    const pending = this.pendingSubscriptions.get(source)!;
+    pending.add(pairKey);
+
+    this.logger.debug(
+      `Queued subscription for ${source}:${pairKey} (${pending.size} pending)`,
+    );
+
+    const existingTimer = this.subscriptionTimers.get(source);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+    }
+
+    const timer = setTimeout(async () => {
+      await this.processPendingSubscriptions(source);
+    }, 100);
+
+    this.subscriptionTimers.set(source, timer);
+  }
+
+  private async processPendingSubscriptions(source: SourceName): Promise<void> {
+    const pending = this.pendingSubscriptions.get(source);
+    if (!pending || pending.size === 0) return;
+
+    const pairKeys = Array.from(pending);
+    const pairs: Pair[] = pairKeys.map((key) => key.split('/') as Pair);
+
+    pending.clear();
+    this.subscriptionTimers.delete(source);
+
+    this.logger.debug(
+      `Processing ${pairs.length} pending subscriptions for ${source}`,
+    );
+
+    try {
+      await this.subscribePairs(source, pairs);
+    } catch (error) {
+      this.logger.error(
+        `Failed to process pending subscriptions for ${source}`,
+        error as Error,
+      );
+    }
   }
 }
