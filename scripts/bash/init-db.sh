@@ -5,7 +5,7 @@ log() { echo "[init-db] $*"; }
 
 # Variables from env, can be overridden
 POSTGRES_USER="${POSTGRES_USER:-postgres}"
-PGDATA="${PGDATA:-/var/lib/postgresql/data}"
+PGDATA="${PGDATA:-/sp/postgresql/data}"
 APP_DB_USER="${PGUSER:-chainlink}"
 APP_DB_PASS="${PGPASSWORD:-chainlinkchainlink}"
 TOTAL_NODES="${TOTAL_NODES:-5}"
@@ -31,7 +31,7 @@ bootstrap() {
 fsync = on
 full_page_writes = on
 synchronous_commit = on
-wal_level = minimal
+wal_level = replica
 archive_mode = off
 wal_keep_size = 0
 max_wal_size = 256MB

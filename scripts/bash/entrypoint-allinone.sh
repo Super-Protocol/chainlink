@@ -24,7 +24,7 @@ log "Found 'totalNodes': $TOTAL_NODES. Generating s6 services..."
 
 # Export for downstream init scripts/services
 export TOTAL_NODES
-export PGDATA=/var/lib/postgresql/data
+export PGDATA=/sp/postgresql/data
 export POSTGRES_USER=postgres
 export PRICE_AGGREGATOR_PORT=$(jq -r '.solution.priceAggregatorConfig.port' "$CONFIG_JSON_PATH")
 

@@ -1,2 +1,2 @@
 #!/bin/sh
-exec su -s /bin/bash -c "postgres -D ${PGDATA:-/var/lib/postgresql/data}" postgres
+exec su -s /bin/bash -c "postgres -D ${PGDATA:-/sp/postgresql/data}" postgres 2>&1 | tee /var/log/postgresql.log
