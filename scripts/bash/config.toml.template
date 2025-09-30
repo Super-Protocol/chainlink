@@ -1,5 +1,5 @@
 [Log]
-Level = 'info'
+Level = 'warn'
 
 [WebServer]
 AllowOrigins = '*'
@@ -15,6 +15,12 @@ LogPoller = false
 UICSAKeys = false
 CCIP = false
 MultiFeedsManagers = false
+
+[JobPipeline]
+MaxSuccessfulRuns = 10
+MaxErroredRuns    = 10
+ReaperInterval    = "10m"
+ReaperThreshold   = "24h"
 
 [[EVM]]
 ChainID = '$CHAINLINK_CHAIN_ID'
