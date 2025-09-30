@@ -37,7 +37,6 @@ refetch:
   staleTriggerBeforeExpiry: 3000 # Prevents cache misses by refreshing before expiry
   batchInterval: 1000 # Batches multiple stale items to reduce API calls
   minTimeBetweenRefreshes: 2000 # Prevents excessive API calls for same item
-  maxConcurrentRefreshes: 10 # Limits concurrent operations to prevent resource exhaustion
 
 # Pair tracking and cleanup configuration
 pairCleanup:

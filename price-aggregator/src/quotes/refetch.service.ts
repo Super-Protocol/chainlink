@@ -4,7 +4,6 @@ import {
   OnModuleInit,
   OnModuleDestroy,
 } from '@nestjs/common';
-import PQueue from 'p-queue';
 
 import { CacheService, StaleBatch } from './cache';
 import { SourceName } from '../sources';
@@ -19,13 +18,11 @@ export interface RefetchConfig {
   staleTriggerBeforeExpiry: number;
   batchInterval: number;
   minTimeBetweenRefreshes: number;
-  maxConcurrentRefreshes: number;
 }
 
 @Injectable()
 export class RefetchService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RefetchService.name);
-  private refreshQueue: PQueue;
   private inProgressKeys = new Set<string>();
   private config: RefetchConfig;
   private readonly staleBatchHandler = (batch: StaleBatch) =>
@@ -39,9 +36,6 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
     private readonly metricsService: MetricsService,
   ) {
     this.config = this.configService.get('refetch');
-    this.refreshQueue = new PQueue({
-      concurrency: this.config.maxConcurrentRefreshes,
-    });
   }
 
   onModuleInit(): void {
@@ -100,13 +94,11 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
 
     await Promise.all(
       Array.from(grouped.entries()).map(([source, pairs]) =>
-        this.refreshQueue
-          .add(() => this.refreshSourcePairs(source, pairs))
-          .finally(() => {
-            pairs.forEach((pair) => {
-              this.inProgressKeys.delete(this.getRefreshKey(source, pair));
-            });
-          }),
+        this.refreshSourcePairs(source, pairs).finally(() => {
+          pairs.forEach((pair) => {
+            this.inProgressKeys.delete(this.getRefreshKey(source, pair));
+          });
+        }),
       ),
     );
 
@@ -238,21 +230,11 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
   getRefreshStatus(): {
     enabled: boolean;
     config: RefetchConfig;
-    queue: {
-      size: number;
-      pending: number;
-      isPaused: boolean;
-    };
     inProgress: string[];
   } {
     return {
       enabled: this.config.enabled,
       config: this.config,
-      queue: {
-        size: this.refreshQueue.size,
-        pending: this.refreshQueue.pending,
-        isPaused: this.refreshQueue.isPaused,
-      },
       inProgress: Array.from(this.inProgressKeys),
     };
   }
@@ -266,6 +248,6 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
       `Manual refresh triggered for ${pairs.length} pairs from ${source}`,
     );
 
-    await this.refreshQueue.add(() => this.refreshSourcePairs(source, pairs));
+    await this.refreshSourcePairs(source, pairs);
   }
 }
