@@ -10,6 +10,7 @@ import { CacheService, StaleBatch } from './cache';
 import { SourceName } from '../sources';
 import { PairService } from './pair.service';
 import { AppConfigService } from '../config/config.service';
+import { MetricsService } from '../metrics/metrics.service';
 import { Pair, Quote } from '../sources/source-adapter.interface';
 import { SourcesManagerService } from '../sources/sources-manager.service';
 
@@ -35,6 +36,7 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
     private readonly cacheService: CacheService,
     private readonly sourcesManager: SourcesManagerService,
     private readonly pairService: PairService,
+    private readonly metricsService: MetricsService,
   ) {
     this.config = this.configService.get('refetch');
     this.refreshQueue = new PQueue({
@@ -230,6 +232,7 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
     });
     this.pairService.trackSuccessfulFetch(quote.pair, source);
     this.pairService.trackResponse(quote.pair, source);
+    this.metricsService.updateSourceLastUpdate(source, quote.pair);
   }
 
   getRefreshStatus(): {

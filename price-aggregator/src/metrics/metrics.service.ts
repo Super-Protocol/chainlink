@@ -8,7 +8,6 @@ export class MetricsService {
   constructor() {
     if (!MetricsService.defaultMetricsRegistered) {
       collectDefaultMetrics({
-        prefix: 'nodejs_',
         gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
         eventLoopMonitoringPrecision: 10,
       });
@@ -144,4 +143,21 @@ export class MetricsService {
     help: 'Rate of dropped messages from websocket streams',
     labelNames: ['source'],
   });
+
+  private lastUpdateTimes = new Map<string, number>();
+
+  updateSourceLastUpdate(source: string, pair: string[]): void {
+    const now = Date.now();
+    const pairKey = pair.join('-');
+    const lastUpdateTime = this.lastUpdateTimes.get(`${source}-${pairKey}`);
+
+    this.sourceLastUpdate.set({ source, pair: pairKey }, now / 1000);
+
+    if (lastUpdateTime !== undefined && lastUpdateTime > 0) {
+      const timeDiff = (now - lastUpdateTime) / 1000;
+      this.priceUpdateFrequency.observe({ pair: pairKey, source }, timeDiff);
+    }
+
+    this.lastUpdateTimes.set(`${source}-${pairKey}`, now);
+  }
 }

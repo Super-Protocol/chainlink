@@ -67,7 +67,6 @@ export class KrakenStreamService extends BaseStreamService {
         channel: 'ticker',
         symbol: symbols,
         event_trigger: 'trades',
-        snapshot: true,
       },
       req_id: requestId,
     };

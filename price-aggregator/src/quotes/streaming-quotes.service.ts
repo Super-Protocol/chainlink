@@ -187,6 +187,7 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
       await this.cacheService.set(cached);
       this.pairService.trackSuccessfulFetch(quote.pair, source);
       this.metricsService.quoteThroughput.inc({ source, status: 'success' });
+      this.metricsService.updateSourceLastUpdate(source, quote.pair);
     } catch (error) {
       this.metricsService.quoteThroughput.inc({ source, status: 'error' });
       this.logger.error(
