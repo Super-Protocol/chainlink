@@ -587,7 +587,7 @@ function mapSymbolToCoinGeckoId(symbol, coinsList) {
 }
 
 function buildPriceAggregatorUrl(source, baseQuote, targetQuote) {
-  return `http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/${source}/${baseQuote.toUpperCase()}/${targetQuote.toUpperCase()}`;
+  return `http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/${source}/${baseQuote}/${targetQuote.toUpperCase()}`;
 }
 
 // -------------------------------
@@ -610,7 +610,11 @@ async function checkBinance(symbol, timeoutMs, verbose) {
         `Binance ${testSymbol}: value at path 'price' is not numeric -> ${data.price} (url: ${url})`
       );
     console.log(`Binance ${testSymbol}: ${ok ? 'OK' : 'N/A'}`);
-    const targetUrl = buildPriceAggregatorUrl(provider, symbol, 'USDT');
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      symbol.toUpperCase(),
+      'USDT'
+    );
     return ok
       ? {
           provider,
@@ -649,7 +653,11 @@ async function checkCryptoCompare(symbol, timeoutMs) {
     const data = await getJsonWithRetry(url, timeoutMs, 2);
     const ok = data && typeof data.USD === 'number' && isFinite(data.USD);
     console.log(`CryptoCompare ${symbol}/USD: ${ok ? 'OK' : 'N/A'}`);
-    const targetUrl = buildPriceAggregatorUrl(provider, symbol, 'USD');
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      symbol.toUpperCase(),
+      'USD'
+    );
     return ok
       ? {
           provider,
@@ -698,7 +706,7 @@ async function checkCoinGecko(symbol, coinsList, timeoutMs) {
           url: targetUrl,
           path: `price`,
           value: data[id].usd,
-          pair: `${symbol.toUpperCase()}/USD`,
+          pair: `${id}/USD`,
         }
       : null;
   } catch (_e) {
@@ -736,7 +744,11 @@ async function checkCoinbase(base, quote, timeoutMs) {
         `Coinbase ${pair}: value at path 'data.amount' is not numeric -> ${data.data.amount} (url: ${url})`
       );
     console.log(`Coinbase ${pair}: ${ok ? 'OK' : 'N/A'}`);
-    const targetUrl = buildPriceAggregatorUrl(provider, base, quote);
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      base.toUpperCase(),
+      quote.toUpperCase()
+    );
     return ok
       ? {
           provider,
@@ -811,7 +823,7 @@ async function checkKraken(base, quote, timeoutMs) {
           url: targetUrl,
           path: `price`,
           value: num,
-          pair: `${base.toUpperCase()}/${quote.toUpperCase()}`,
+          pair: `${b}/${q}`,
         }
       : null;
   } catch (_e) {
@@ -850,7 +862,11 @@ async function checkOKX(base, quote, timeoutMs) {
         `OKX ${instId}: value at path 'data[0].last' is not numeric -> ${data.data[0].last} (url: ${url})`
       );
     console.log(`OKX ${instId}: ${ok ? 'OK' : 'N/A'}`);
-    const targetUrl = buildPriceAggregatorUrl(provider, base, quote);
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      base.toUpperCase(),
+      quote.toUpperCase()
+    );
     return ok
       ? {
           provider,
@@ -891,7 +907,11 @@ async function checkFrankfurter(base, quote, timeoutMs) {
         ok ? 'OK' : 'N/A'
       }`
     );
-    const targetUrl = buildPriceAggregatorUrl(provider, base, quote);
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      base.toUpperCase(),
+      quote.toUpperCase()
+    );
     return ok
       ? {
           provider,
@@ -938,7 +958,11 @@ async function checkExchangerateHost(base, quote, timeoutMs) {
         ok ? 'OK' : 'N/A'
       }${key ? '' : ' (no key)'}`
     );
-    const targetUrl = buildPriceAggregatorUrl(provider, base, quote);
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      base.toUpperCase(),
+      quote.toUpperCase()
+    );
     return ok
       ? {
           provider,
@@ -989,7 +1013,11 @@ async function checkAlphaVantage(base, quote, timeoutMs) {
         ok ? 'OK' : 'N/A'
       }`
     );
-    const targetUrl = buildPriceAggregatorUrl(provider, base, quote);
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      base.toUpperCase(),
+      quote.toUpperCase()
+    );
     return ok
       ? {
           provider,
