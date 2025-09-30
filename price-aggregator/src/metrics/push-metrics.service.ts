@@ -38,7 +38,6 @@ export class PushMetricsService implements OnModuleInit, OnModuleDestroy {
 
     this.labels = {
       job: this.config.jobName,
-      service: 'price-aggregator',
       instance: os.hostname(),
       ...this.config.groupingLabels,
     };

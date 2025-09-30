@@ -129,7 +129,7 @@ export class MetricsService {
     name: 'price_update_frequency_seconds',
     help: 'Time between price updates for each pair',
     labelNames: ['pair', 'source'],
-    buckets: [1, 5, 10, 30, 60, 300, 600],
+    buckets: [5, 10, 30, 60],
   });
 
   public readonly websocketReconnects = new Counter({
