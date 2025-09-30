@@ -27,4 +27,8 @@ if [ ! -d "dist" ]; then
   npm run build
 fi
 
+# Configure logging: send stdout/stderr through s6-log with simple rotation
+mkdir -p /var/log/price-aggregator
+exec > >(s6-log n10 s10485760 /var/log/price-aggregator) 2>&1
+
 exec node dist/main

@@ -18,9 +18,9 @@ MultiFeedsManagers = false
 
 [JobPipeline]
 MaxSuccessfulRuns = 10
-MaxErroredRuns    = 10
-ReaperInterval    = "10m"
-ReaperThreshold   = "24h"
+MaxErroredRuns = 10
+ReaperInterval = "10m"
+ReaperThreshold = "24h"
 
 [[EVM]]
 ChainID = '$CHAINLINK_CHAIN_ID'
