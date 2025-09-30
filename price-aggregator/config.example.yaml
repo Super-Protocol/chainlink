@@ -9,10 +9,12 @@ logger:
   isPrettyEnabled: false # Set to true for development to get formatted logs
 
 # Metrics push configuration
+# Supports VictoriaMetrics import endpoint (/api/v1/import/prometheus)
+# Metrics are sent in Prometheus text format
 metricsPush:
-  enabled: false # Enable push metrics to external collector (Prometheus Pushgateway, VictoriaMetrics, etc.)
-  # url: "https://push-gateway.example.com"
-  # url: "http://pushgateway:9091" # if running Pushgateway in docker-compose
+  enabled: false # Enable push metrics to external collector
+  # url: "https://victoria-metrics.example.com/api/v1/import/prometheus" # VictoriaMetrics import endpoint
+  # url: "http://victoria-metrics:8428/api/v1/import/prometheus" # if running VictoriaMetrics in docker-compose
   # intervalMs: 30000
   # jobName: "price-aggregator"
   # groupingLabels:
@@ -28,7 +30,6 @@ metricsPush:
   # headers:
   #   X-Scope-OrgID: "tenant-1" # Example for multi-tenant setup
   # timeoutMs: 5000
-  # deleteOnShutdown: false
 
 # Proactive cache refresh configuration
 refetch:

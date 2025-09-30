@@ -44,10 +44,6 @@ export const metricsPushSchema = Type.Object(
       default: 5000,
       description: 'Request timeout in milliseconds',
     }),
-    deleteOnShutdown: Type.Boolean({
-      default: false,
-      description: 'Delete metrics from gateway on shutdown',
-    }),
   },
   {
     description: 'Push metrics configuration',
