@@ -7,7 +7,12 @@ const crypto = require('crypto');
 
 const ROOT = path.resolve(__dirname);
 const MAP_PATH = path.join(ROOT, 'data-feeds-map.json');
-const CAS_PATH = path.join(ROOT, 'feed-cas.json');
+const CAS_PATH = path.join(
+  ROOT,
+  '..',
+  '..',
+  'scripts/bash/data/feed-cas.chainid-5611.json'
+);
 const TEMPLATE_PATH = path.join(ROOT, 'job-template.toml');
 const OUTPUT_DIR = path.join(ROOT, 'templates');
 const PAIRS_OUTPUT_PATH = path.resolve(

@@ -691,7 +691,7 @@ async function checkCoinGecko(symbol, coinsList, timeoutMs) {
       typeof data[id].usd === 'number' &&
       isFinite(data[id].usd);
     console.log(`CoinGecko ${id}/usd: ${ok ? 'OK' : 'N/A'}`);
-    const targetUrl = buildPriceAggregatorUrl(provider, symbol, 'USD');
+    const targetUrl = buildPriceAggregatorUrl(provider, id, 'USD');
     return ok
       ? {
           provider,
@@ -804,7 +804,7 @@ async function checkKraken(base, quote, timeoutMs) {
         `Kraken ${pair}: value at path 'result.${firstKey}.c[0]' is not numeric -> ${price} (url: ${url})`
       );
     console.log(`Kraken ${pair}: ${ok ? 'OK' : 'N/A'}`);
-    const targetUrl = buildPriceAggregatorUrl('provider', base, quote);
+    const targetUrl = buildPriceAggregatorUrl(provider, b, q);
     return ok
       ? {
           provider,
@@ -1015,45 +1015,6 @@ async function checkAlphaVantage(base, quote, timeoutMs) {
   }
 }
 
-async function checkFinnhub(base, timeoutMs) {
-  const provider = 'finnhub';
-  const token = process.env.FINNHUB_TOKEN;
-  if (!token) {
-    console.log('Finnhub: Skipping (no token)');
-    return null;
-  }
-  const symbol = base.toUpperCase();
-  const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(
-    symbol
-  )}&token=${encodeURIComponent(token)}`;
-  try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const ok = data && typeof data.c === 'number' && isFinite(data.c);
-    console.log(`Finnhub ${symbol}: ${ok ? 'OK' : 'N/A'}`);
-    const targetUrl = buildPriceAggregatorUrl(provider, base, 'USD');
-    return ok
-      ? {
-          provider,
-          url: targetUrl,
-          path: 'price',
-          value: data.c,
-          pair: `${base.toUpperCase()}/${quote.toUpperCase()}`,
-        }
-      : null;
-  } catch (_e) {
-    const e = _e || {};
-    if (!(e && (e.statusCode === 429 || e.statusCode === 404))) {
-      console.log(
-        `Finnhub ${symbol} error: ${
-          e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
-      );
-    }
-    console.log(`Finnhub ${symbol}: N/A`);
-    return null;
-  }
-}
-
 // -------------------------------
 // Main
 // -------------------------------
@@ -1146,7 +1107,6 @@ async function main() {
         checkFrankfurter(baseSymbol, quote, args.timeoutMs),
         checkExchangerateHost(baseSymbol, quote, args.timeoutMs),
         checkAlphaVantage(baseSymbol, quote, args.timeoutMs),
-        checkFinnhub(baseSymbol, args.timeoutMs),
       ]);
       for (const res of checks) {
         if (!res) continue;
