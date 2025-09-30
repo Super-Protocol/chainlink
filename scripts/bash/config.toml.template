@@ -18,7 +18,6 @@ MultiFeedsManagers = false
 
 [JobPipeline]
 MaxSuccessfulRuns = 10
-MaxErroredRuns = 10
 ReaperInterval = "10m"
 ReaperThreshold = "24h"
 
