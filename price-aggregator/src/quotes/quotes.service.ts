@@ -69,6 +69,7 @@ export class QuotesService {
     await this.cacheService.set(cachedQuoteData);
     this.pairService.trackSuccessfulFetch(quote.pair, source);
     this.pairService.trackResponse(quote.pair, source);
+    this.metricsService.updateSourceLastUpdate(source, quote.pair);
   }
 
   private handlePriceNotFound(pair: Pair, source: SourceName): void {

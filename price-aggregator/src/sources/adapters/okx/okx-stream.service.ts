@@ -25,7 +25,11 @@ export class OkxStreamService extends BaseStreamService {
     appConfigService: AppConfigService,
     metricsService?: MetricsService,
   ) {
-    const streamConfig = appConfigService.get('sources.okx.stream');
+    const { stream, useProxy } = appConfigService.get('sources.okx');
+    const streamConfig = {
+      ...stream,
+      useProxy,
+    };
     super(wsClientBuilder, streamConfig, metricsService);
   }
 

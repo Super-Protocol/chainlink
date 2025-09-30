@@ -29,13 +29,15 @@ export class MetricsInterceptor implements NestInterceptor {
         const method = request.method;
         const status = response.statusCode.toString();
 
-        this.metricsService.requestLatency
-          .labels({ route, method, status })
-          .observe(duration);
+        if (route != '/metrics') {
+          this.metricsService.requestLatency
+            .labels({ route, method, status })
+            .observe(duration);
 
-        this.metricsService.requestCount
-          .labels({ route, method, status })
-          .inc();
+          this.metricsService.requestCount
+            .labels({ route, method, status })
+            .inc();
+        }
       }),
     );
   }

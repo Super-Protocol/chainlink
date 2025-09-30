@@ -1,9 +1,34 @@
 port: 3000
 environment: development
 
+# Path to pairs configuration file (optional, defaults to ./pairs.json)
+pairsFilePath: ./pairs.json
+
 logger:
   level: info
   isPrettyEnabled: false # Set to true for development to get formatted logs
+
+# Metrics push configuration
+metricsPush:
+  enabled: false # Enable push metrics to external collector (Prometheus Pushgateway, VictoriaMetrics, etc.)
+  # url: "https://push-gateway.example.com"
+  # url: "http://pushgateway:9091" # if running Pushgateway in docker-compose
+  # intervalMs: 30000
+  # jobName: "price-aggregator"
+  # groupingLabels:
+  #   service: "price-aggregator"
+  #   # instance: "node-1"  # Optional, defaults to hostname
+  #   # environment: "production"
+  #   # contract_address: "${CONTRACT_ADDRESS}"
+  #   # provider_hash: "${PROVIDER_HASH}"
+  #   # tee_offer_id: "${TEE_OFFER_ID}"
+  # basicAuth:
+  #   username: "user"
+  #   password: "pass"
+  # headers:
+  #   X-Scope-OrgID: "tenant-1" # Example for multi-tenant setup
+  # timeoutMs: 5000
+  # deleteOnShutdown: false
 
 # Proactive cache refresh configuration
 refetch:
@@ -63,6 +88,8 @@ sources:
       maxReconnectAttempts: 10 # Maximum number of reconnection attempts
       heartbeatInterval: 30000 # Heartbeat ping interval in ms
       wsUrl: wss://stream.binance.us/ws # WebSocket URL for streaming data (default: US)
+      batchSize: 50 # Maximum pairs per subscription batch to avoid rate limits
+      rateLimit: 50 # 50ms between messages = max 20 messages/sec
 
   okx:
     enabled: true
@@ -78,6 +105,8 @@ sources:
       reconnectInterval: 5000
       maxReconnectAttempts: 10
       heartbeatInterval: 30000
+      batchSize: 20 # Conservative batch size for OKX
+      rateLimit: 100 # 100ms between messages = max 10 messages/sec
 
   finnhub:
     enabled: true
@@ -93,6 +122,8 @@ sources:
       reconnectInterval: 5000
       maxReconnectAttempts: 10
       heartbeatInterval: 30000
+      batchSize: 10 # Small batches for Finnhub rate limits
+      rateLimit: 1000 # 1s between messages = max 1 message/sec (very conservative)
 
   cryptocompare:
     enabled: true
@@ -109,6 +140,8 @@ sources:
       reconnectInterval: 5000
       maxReconnectAttempts: 10
       heartbeatInterval: 30000
+      batchSize: 25 # Moderate batch size for CryptoCompare
+      rateLimit: 200 # 200ms between messages = max 5 messages/sec
 
   alphavantage:
     enabled: false # Consider disabling for production due to severe rate limits
@@ -155,6 +188,8 @@ sources:
       reconnectInterval: 5000
       maxReconnectAttempts: 10
       heartbeatInterval: 30000
+      batchSize: 30 # Moderate batch size for Kraken
+      rateLimit: 200 # 200ms between messages = max 5 messages/sec (conservative for Kraken)
 
   coinbase:
     enabled: true
@@ -170,6 +205,8 @@ sources:
       reconnectInterval: 5000
       maxReconnectAttempts: 10
       heartbeatInterval: 30000
+      batchSize: 40 # Good batch size for Coinbase
+      rateLimit: 100 # 100ms between messages = max 10 messages/sec (conservative for Coinbase)
 
   frankfurter:
     enabled: true

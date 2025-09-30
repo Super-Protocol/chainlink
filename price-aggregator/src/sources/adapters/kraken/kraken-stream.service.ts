@@ -34,7 +34,11 @@ export class KrakenStreamService extends BaseStreamService {
     appConfigService: AppConfigService,
     metricsService?: MetricsService,
   ) {
-    const streamConfig = appConfigService.get('sources.kraken.stream');
+    const { stream, useProxy } = appConfigService.get('sources.kraken');
+    const streamConfig = {
+      ...stream,
+      useProxy,
+    };
     super(wsClientBuilder, streamConfig, metricsService);
   }
 
@@ -67,7 +71,6 @@ export class KrakenStreamService extends BaseStreamService {
         channel: 'ticker',
         symbol: symbols,
         event_trigger: 'trades',
-        snapshot: true,
       },
       req_id: requestId,
     };
@@ -180,7 +183,7 @@ export class KrakenStreamService extends BaseStreamService {
             }
           }
         } else {
-          this.logger.warn(
+          this.logger.debug(
             `No pending request found for req_id: ${message.req_id}`,
           );
         }
@@ -215,6 +218,10 @@ export class KrakenStreamService extends BaseStreamService {
     } else {
       this.logger.warn(`No pair mapping found for symbol: ${symbol}`);
     }
+  }
+
+  protected onConnect(): void {
+    this.requestId = 1;
   }
 
   protected onDisconnect(): void {

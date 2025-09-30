@@ -32,13 +32,10 @@ export class BinanceStreamService extends BaseStreamService {
     appConfigService: AppConfigService,
     metricsService?: MetricsService,
   ) {
-    const sourceConfig = appConfigService.get('sources')?.binance;
+    const sourceConfig = appConfigService.get('sources.binance');
     const options: StreamServiceOptions = {
-      autoReconnect: sourceConfig?.stream?.autoReconnect ?? true,
-      reconnectInterval: sourceConfig?.stream?.reconnectInterval ?? 5000,
-      maxReconnectAttempts: sourceConfig?.stream?.maxReconnectAttempts ?? 10,
-      heartbeatInterval: sourceConfig?.stream?.heartbeatInterval ?? 30000,
-      useProxy: sourceConfig?.useProxy ?? false,
+      ...sourceConfig.stream,
+      useProxy: sourceConfig.useProxy ?? false,
     };
     super(wsClientBuilder, options, metricsService);
     this.wsUrl = sourceConfig?.stream?.wsUrl ?? DEFAULT_WS_URL;

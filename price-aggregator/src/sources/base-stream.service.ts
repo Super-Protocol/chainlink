@@ -2,10 +2,12 @@ import { randomUUID } from 'crypto';
 import { EventEmitter } from 'events';
 
 import { Logger } from '@nestjs/common';
+import Bottleneck from 'bottleneck';
 
 import { WebSocketClient, WebSocketClientBuilder } from '../common';
 import {
   ErrorHandler,
+  ErrorHandlerFactory,
   QuoteHandler,
   QuoteStreamService,
   StreamServiceOptions,
@@ -33,6 +35,7 @@ export abstract class BaseStreamService implements QuoteStreamService {
   private readonly lastUpdateTimes = new Map<string, number>();
   private connectionPromise: Promise<void> | null = null;
   protected readonly options: Required<StreamServiceOptions>;
+  private rateLimiter: Bottleneck | null = null;
 
   constructor(
     protected readonly wsClientBuilder: WebSocketClientBuilder,
@@ -45,7 +48,16 @@ export abstract class BaseStreamService implements QuoteStreamService {
       maxReconnectAttempts: options?.maxReconnectAttempts ?? 10,
       heartbeatInterval: options?.heartbeatInterval ?? 30000,
       useProxy: options?.useProxy ?? false,
+      batchSize: options?.batchSize ?? 0,
+      rateLimit: options?.rateLimit ?? 0,
     };
+
+    if (this.options.rateLimit > 0) {
+      this.rateLimiter = new Bottleneck({
+        minTime: this.options.rateLimit,
+        maxConcurrent: 1,
+      });
+    }
   }
 
   protected abstract getSourceName(): SourceName;
@@ -128,6 +140,86 @@ export abstract class BaseStreamService implements QuoteStreamService {
     if (!isIdentifierUsedByOthers) {
       this.identifierToPairMap.delete(subscription.identifier);
       await this.unsubscribeFromIdentifiers([subscription.identifier]);
+    }
+  }
+
+  async subscribeMany(
+    pairs: Pair[],
+    onQuote: QuoteHandler,
+    onErrorFactory?: ErrorHandlerFactory,
+  ): Promise<StreamSubscription[]> {
+    const subscriptions: StreamSubscription[] = [];
+    const identifiersToSubscribe = new Set<string>();
+
+    for (const pair of pairs) {
+      const subscriptionId = randomUUID();
+      const identifier = this.pairToIdentifier(pair);
+      const shouldSubscribeIdentifier =
+        !this.subscribedIdentifiers.has(identifier) &&
+        !identifiersToSubscribe.has(identifier);
+
+      if (
+        shouldSubscribeIdentifier ||
+        !this.identifierToPairMap.has(identifier)
+      ) {
+        this.identifierToPairMap.set(identifier, pair);
+      }
+
+      const onError = onErrorFactory?.(pair);
+
+      this.subscriptions.set(subscriptionId, {
+        id: subscriptionId,
+        pair,
+        identifier,
+        onQuote,
+        onError,
+      });
+
+      subscriptions.push({
+        id: subscriptionId,
+        pair,
+        unsubscribe: async () => {
+          await this.unsubscribe(subscriptionId);
+        },
+      });
+
+      if (shouldSubscribeIdentifier) {
+        identifiersToSubscribe.add(identifier);
+      }
+    }
+
+    if (identifiersToSubscribe.size > 0) {
+      await this.subscribeToIdentifiers([...identifiersToSubscribe]);
+    }
+
+    return subscriptions;
+  }
+
+  async unsubscribeMany(subscriptionIds: string[]): Promise<void> {
+    const identifiersToUnsubscribe = new Set<string>();
+
+    for (const subscriptionId of subscriptionIds) {
+      const subscription = this.subscriptions.get(subscriptionId);
+      if (!subscription) continue;
+
+      this.subscriptions.delete(subscriptionId);
+
+      let isIdentifierUsedByOthers = false;
+      for (const sub of this.subscriptions.values()) {
+        if (sub.identifier === subscription.identifier) {
+          isIdentifierUsedByOthers = true;
+          break;
+        }
+      }
+
+      if (!isIdentifierUsedByOthers) {
+        identifiersToUnsubscribe.add(subscription.identifier);
+        this.identifierToPairMap.delete(subscription.identifier);
+      }
+    }
+
+    if (identifiersToUnsubscribe.size > 0) {
+      await this.unsubscribeFromIdentifiers([...identifiersToUnsubscribe]);
     }
   }
 
@@ -280,9 +372,10 @@ export abstract class BaseStreamService implements QuoteStreamService {
     );
     if (newIdentifiers.length === 0) return;
 
-    await this.sendSubscribeMessage(newIdentifiers);
-
-    newIdentifiers.forEach((i) => this.subscribedIdentifiers.add(i));
+    for (const batch of this.splitIdentifiers(newIdentifiers)) {
+      await this.enforceRateLimit(() => this.sendSubscribeMessage(batch));
+      batch.forEach((i) => this.subscribedIdentifiers.add(i));
+    }
   }
 
   protected async unsubscribeFromIdentifiers(
@@ -294,9 +387,10 @@ export abstract class BaseStreamService implements QuoteStreamService {
       return;
     }
 
-    await this.sendUnsubscribeMessage(identifiers);
-
-    identifiers.forEach((i) => this.subscribedIdentifiers.delete(i));
+    for (const batch of this.splitIdentifiers(identifiers)) {
+      await this.enforceRateLimit(() => this.sendUnsubscribeMessage(batch));
+      batch.forEach((i) => this.subscribedIdentifiers.delete(i));
+    }
   }
 
   protected getWebSocketClientOptions(): Partial<{
@@ -357,5 +451,30 @@ export abstract class BaseStreamService implements QuoteStreamService {
         sub.onQuote(fullQuote);
       }
     });
+  }
+
+  private splitIdentifiers(identifiers: string[]): string[][] {
+    const batchSize = this.options.batchSize;
+
+    if (identifiers.length === 0) {
+      return [];
+    }
+
+    if (!batchSize || batchSize <= 0 || identifiers.length <= batchSize) {
+      return [identifiers];
+    }
+
+    const batches: string[][] = [];
+    for (let i = 0; i < identifiers.length; i += batchSize) {
+      batches.push(identifiers.slice(i, i + batchSize));
+    }
+    return batches;
+  }
+
+  private async enforceRateLimit<T>(fn: () => Promise<T>): Promise<T> {
+    if (this.rateLimiter) {
+      return this.rateLimiter.schedule(fn);
+    }
+    return fn();
   }
 }

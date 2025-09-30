@@ -2,6 +2,7 @@ import { Type } from '@sinclair/typebox';
 
 import { NODE_ENVIRONMENTS } from '../constants';
 import { loggerSchema } from './logger.schema';
+import { metricsPushSchema } from './metrics-push.schema';
 import { pairCleanupSchema } from './pair-cleanup.schema';
 import { pairsTtlSchema } from './pairs-ttl.schema';
 import { proxySchema } from './proxy.schema';
@@ -25,7 +26,13 @@ export const yamlValidationSchema = Type.Object(
         description: 'Application environment mode',
       }),
     ),
+    pairsFilePath: Type.Optional(
+      Type.String({
+        description: 'Path to pairs configuration file',
+      }),
+    ),
     logger: loggerSchema,
+    metricsPush: metricsPushSchema,
     sources: sourcesSchema,
     proxy: Type.Optional(proxySchema),
     refetch: refetchSchema,

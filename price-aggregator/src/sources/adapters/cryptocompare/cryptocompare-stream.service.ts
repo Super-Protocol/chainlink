@@ -26,8 +26,15 @@ export class CryptoCompareStreamService extends BaseStreamService {
     appConfigService: AppConfigService,
     metricsService?: MetricsService,
   ) {
-    const streamConfig = appConfigService.get('sources.cryptocompare.stream');
+    const { stream, useProxy, apiKey } = appConfigService.get(
+      'sources.cryptocompare',
+    );
+    const streamConfig = {
+      ...stream,
+      useProxy,
+    };
     super(wsClientBuilder, streamConfig, metricsService);
+    this.apiKey = apiKey;
   }
   protected getSourceName(): SourceName {
     return SourceName.CRYPTOCOMPARE;

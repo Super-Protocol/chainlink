@@ -3,6 +3,7 @@ import { UseProxyConfig } from '../common/proxy';
 
 export type QuoteHandler = (quote: Quote) => void;
 export type ErrorHandler = (error: Error) => void;
+export type ErrorHandlerFactory = (pair: Pair) => ErrorHandler | undefined;
 
 export interface StreamSubscription {
   readonly id: string;
@@ -19,7 +20,13 @@ export interface QuoteStreamService {
     onQuote: QuoteHandler,
     onError?: ErrorHandler,
   ): Promise<StreamSubscription>;
+  subscribeMany(
+    pairs: Pair[],
+    onQuote: QuoteHandler,
+    onErrorFactory?: ErrorHandlerFactory,
+  ): Promise<StreamSubscription[]>;
   unsubscribe(subscriptionId: string): Promise<void>;
+  unsubscribeMany(subscriptionIds: string[]): Promise<void>;
   unsubscribeAll(): Promise<void>;
   addPair(pair: Pair): Promise<void>;
   removePair(pair: Pair): Promise<void>;
@@ -34,4 +41,6 @@ export interface StreamServiceOptions {
   maxReconnectAttempts?: number;
   heartbeatInterval?: number;
   useProxy?: UseProxyConfig;
+  batchSize?: number;
+  rateLimit?: number;
 }
