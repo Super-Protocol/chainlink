@@ -69,6 +69,7 @@ pairsTtl:
 sources:
   binance:
     enabled: true
+    baseUrl: https://api.binance.us # Base URL for Binance API
     ttl: 60000 # Cache duration in ms
     timeoutMs: 10000
     rps: 100 # 6000/min API limit, null to disable rate limiting
@@ -86,6 +87,7 @@ sources:
       reconnectInterval: 5000 # Interval between reconnection attempts in ms
       maxReconnectAttempts: 10 # Maximum number of reconnection attempts
       heartbeatInterval: 30000 # Heartbeat ping interval in ms
+      wsUrl: wss://stream.binance.us/ws # WebSocket URL for streaming data (default: US)
       batchSize: 50 # Maximum pairs per subscription batch to avoid rate limits
       rateLimit: 50 # 50ms between messages = max 20 messages/sec
 

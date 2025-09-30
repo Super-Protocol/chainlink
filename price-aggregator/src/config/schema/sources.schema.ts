@@ -9,6 +9,7 @@ interface CreateSourceSchemaParams {
   rpsDefault: number;
   maxConcurrentDefault?: number;
   maxBatchSize?: number;
+  baseUrlDefault?: string;
 }
 
 const streamOptionsSchema = Type.Object(
@@ -33,6 +34,12 @@ const streamOptionsSchema = Type.Object(
       description: 'Heartbeat ping interval in ms',
       default: 30000,
     }),
+    wsUrl: Type.Optional(
+      Type.String({
+        description: 'WebSocket URL for streaming data',
+        pattern: '^wss?://.+',
+      }),
+    ),
     batchSize: Type.Optional(
       Type.Integer({
         minimum: 1,
@@ -62,6 +69,7 @@ const createSourceSchema = ({
   rpsDefault,
   maxConcurrentDefault = 10,
   maxBatchSize,
+  baseUrlDefault,
 }: CreateSourceSchemaParams) => {
   return Type.Transform(
     Type.Object(
@@ -139,6 +147,13 @@ const createSourceSchema = ({
           default: false,
         }),
         stream: Type.Optional(streamOptionsSchema),
+        ...(baseUrlDefault && {
+          baseUrl: Type.String({
+            description: 'Base URL for API requests',
+            pattern: '^https?://.+',
+            default: baseUrlDefault,
+          }),
+        }),
         ...(maxBatchSize && {
           maxBatchSize: Type.Integer({
             minimum: 1,
@@ -177,6 +192,7 @@ export const binanceSourceSchema = createSourceSchema({
   apiKeyExamples: ['your-binance-api-key'],
   rpsDefault: 100,
   maxBatchSize: 500,
+  baseUrlDefault: 'https://api.binance.us',
 });
 
 export const okxSourceSchema = createSourceSchema({
