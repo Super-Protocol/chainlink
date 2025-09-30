@@ -9,7 +9,7 @@ import { StreamServiceOptions } from '../../quote-stream.interface';
 import { Pair } from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
-const DEFAULT_WS_URL = 'wss://stream.binance.us/ws';
+const DEFAULT_WS_URL = 'wss://stream.binance.us:9443/ws';
 const SUBSCRIBE_METHOD = 'SUBSCRIBE';
 const UNSUBSCRIBE_METHOD = 'UNSUBSCRIBE';
 
