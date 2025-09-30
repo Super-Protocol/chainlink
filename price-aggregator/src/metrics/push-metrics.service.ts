@@ -86,7 +86,6 @@ export class PushMetricsService implements OnModuleInit, OnModuleDestroy {
         {
           err,
           url: this.config.url,
-          labels: this.labels,
           message: err.message,
         },
         'Failed to push metrics',
