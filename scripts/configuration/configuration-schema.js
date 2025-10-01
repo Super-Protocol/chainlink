@@ -29,10 +29,6 @@ const solutionConfigurationSchema = Type.Object({
   chainlinkGasPrice: Type.Number({
     minimum: 0,
   }),
-  chainlinkNodeScAddress: Type.String({
-    pattern: '^0x[0-9a-fA-F]{40}$',
-    description: 'Node smart contract address (EVM checksummed or lower/uppercase)',
-  }),
 
   spSecretsDir: Type.String({
     minLength: 1,
@@ -66,21 +62,35 @@ const solutionConfigurationSchema = Type.Object({
     description: 'Diamond contract address',
   }),
   chainlinkFeedTemplatesDir: Type.String({ minLength: 1 }),
-  faucetPrivateKey: Type.Optional(Type.String({
-    minLength: 64,
-    description: 'Faucet EVM account private key (hex with or without 0x)',
-  })),
+  faucetPrivateKey: Type.Optional(
+    Type.String({
+      minLength: 64,
+      description: 'Faucet EVM account private key (hex with or without 0x)',
+    })
+  ),
   balanceTopupCheckIntervalMs: Type.Optional(
-    Type.Number({ minimum: 5000, description: 'Interval in milliseconds for periodic balance top-up checks' })
+    Type.Number({
+      minimum: 5000,
+      description:
+        'Interval in milliseconds for periodic balance top-up checks',
+    })
   ),
   faucetMinWei: Type.Optional(
-    Type.Number({ minimum: 1, description: 'Minimum balance threshold in wei before triggering top-up' })
+    Type.Number({
+      minimum: 1,
+      description: 'Minimum balance threshold in wei before triggering top-up',
+    })
   ),
   faucetTopupWei: Type.Optional(
-    Type.Number({ minimum: 1, description: 'Top-up amount in wei to transfer when below threshold' })
+    Type.Number({
+      minimum: 1,
+      description: 'Top-up amount in wei to transfer when below threshold',
+    })
   ),
   balanceTopupRequired: Type.Optional(
-    Type.Boolean({ description: 'If true, fail-fast on top-up or schedule failures' })
+    Type.Boolean({
+      description: 'If true, fail-fast on top-up or schedule failures',
+    })
   ),
 });
 
