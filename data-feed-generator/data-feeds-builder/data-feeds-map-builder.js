@@ -772,17 +772,9 @@ async function checkCoinbase(base, quote, timeoutMs) {
   }
 }
 
-function krakenMapSymbol(sym) {
-  const s = sym.toUpperCase();
-  if (s === 'BTC') return 'XBT';
-  return s;
-}
-
 async function checkKraken(base, quote, timeoutMs) {
   const provider = 'kraken';
-  const b = krakenMapSymbol(base);
-  const q = krakenMapSymbol(quote);
-  const pair = `${b}${q}`;
+  const pair = `${base.toUpperCase()}${quote.toUpperCase()}`;
   const url = `https://api.kraken.com/0/public/Ticker?pair=${encodeURIComponent(
     pair
   )}`;
@@ -816,14 +808,18 @@ async function checkKraken(base, quote, timeoutMs) {
         `Kraken ${pair}: value at path 'result.${firstKey}.c[0]' is not numeric -> ${price} (url: ${url})`
       );
     console.log(`Kraken ${pair}: ${ok ? 'OK' : 'N/A'}`);
-    const targetUrl = buildPriceAggregatorUrl(provider, b, q);
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      base.toUpperCase(),
+      quote.toUpperCase()
+    );
     return ok
       ? {
           provider,
           url: targetUrl,
           path: `price`,
           value: num,
-          pair: `${b}/${q}`,
+          pair: `${base.toUpperCase()}/${quote.toUpperCase()}`,
         }
       : null;
   } catch (_e) {
