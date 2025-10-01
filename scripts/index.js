@@ -1,6 +1,7 @@
 const path = require('path');
 const { spawn } = require('child_process');
 const { readConfiguration } = require('./configuration/read-configuration');
+const { ensureFunds } = require('./secrets/balance-top-up');
 
 const mapConfigToEnv = (cfg) => {
   const toStr = (value) => value && String(value);
@@ -56,42 +57,25 @@ async function run() {
 
   const topupRequired = String(process.env.BALANCE_TOPUP_REQUIRED ?? 'true').toLowerCase() !== 'false';
 
-  let ensureFundsFn;
   let faucetInterval = null;
-  try {
-    ({ ensureFunds: ensureFundsFn } = require('./secrets/balance-top-up'));
-    console.log('Attempting balance top-up...');
-    await ensureFundsFn();
-  } catch (e) {
-    console.error('Failed balance top-up step:', e?.message || e);
-    if (topupRequired) {
-      console.error('BALANCE_TOPUP_REQUIRED is enabled; exiting.');
-      process.exit(1);
-    } else {
-      console.error('BALANCE_TOPUP_REQUIRED is disabled; continuing without top-up.');
-    }
-  }
 
   // Schedule periodic balance top-up checks (default every 1 hour)
   try {
-    let intervalMs = parseInt(process.env.BALANCE_TOPUP_CHECK_INTERVAL_MS || '3600000', 10);
-    if (!Number.isFinite(intervalMs) || intervalMs <= 0) intervalMs = 3600000;
-    console.log(`Scheduling periodic balance top-up every ${intervalMs} ms`);
-
     let ensuring = false;
     const periodicEnsure = async () => {
       if (ensuring) return;
       ensuring = true;
       try {
-        const fn = ensureFundsFn || require('./secrets/balance-top-up').ensureFunds;
-        await fn();
+        await ensureFunds();
       } catch (e) {
         console.error('Failed balance top-up (continuing):', e?.message || e);
       } finally {
         ensuring = false;
       }
     };
-
+    let intervalMs = parseInt(process.env.BALANCE_TOPUP_CHECK_INTERVAL_MS || '3600000', 10);
+    if (!Number.isFinite(intervalMs) || intervalMs <= 0) intervalMs = 3600000;
+    console.log(`Scheduling periodic balance top-up every ${intervalMs} ms`);
     faucetInterval = setInterval(periodicEnsure, intervalMs);
   } catch (e) {
     console.error('Failed to schedule periodic balance top-up:', e?.message || e);
