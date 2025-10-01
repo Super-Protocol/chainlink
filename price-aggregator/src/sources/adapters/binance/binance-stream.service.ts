@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { BinanceTickerData, WebSocketCommand } from './binance.types';
-import { WebSocketClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
@@ -28,16 +27,14 @@ export class BinanceStreamService extends BaseStreamService {
   >();
 
   constructor(
-    wsClientBuilder: WebSocketClientBuilder,
     appConfigService: AppConfigService,
     metricsService?: MetricsService,
   ) {
     const sourceConfig = appConfigService.get('sources.binance');
     const options: StreamServiceOptions = {
       ...sourceConfig.stream,
-      useProxy: sourceConfig.useProxy ?? false,
     };
-    super(wsClientBuilder, options, metricsService);
+    super(options, metricsService);
     this.wsUrl = sourceConfig?.stream?.wsUrl ?? DEFAULT_WS_URL;
   }
 
