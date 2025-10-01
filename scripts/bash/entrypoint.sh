@@ -175,7 +175,6 @@ if [ "${MANAGE_POSTGRES:-true}" != "false" ]; then
   wait_postgres
   ensure_app_db
   generate_secrets
-  node /scripts/secrets/balance-top-up.js
   start_chainlink
 
   # Monitor both processes; if any exits, stop the other and exit non-zero
@@ -208,7 +207,6 @@ if [ "${MANAGE_POSTGRES:-true}" != "false" ]; then
 else
   log "Postgres management is DISABLED. Assuming external Postgres."
   generate_secrets
-  node /scripts/secrets/balance-top-up.js
   start_chainlink
   log "Monitoring Chainlink process (PID: ${CL_PID}) for node ${NODE_NUMBER}..."
   while true; do

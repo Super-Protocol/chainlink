@@ -90,12 +90,17 @@ if [ "$NODE_NUMBER" = "$leader" ]; then
       if [ -n "$pid" ]; then printf '%s\n' "$pid" > "${SP_SECRETS_DIR}/bootstrap-${b}.peerid"; fi
     fi
   done
+else
+  log "skip generate-secrets: node=$NODE_NUMBER, leader=$leader"
+fi
+
+node /scripts/secrets/balance-top-up.js
+
+if [ "$NODE_NUMBER" = "$leader" ]; then
   (
     node /scripts/secrets/register-admin.js
     /scripts/bash/set-config-for-all-feeds.sh
   ) >/proc/1/fd/1 2>/proc/1/fd/2 &
-else
-  log "skip generate-secrets: node=$NODE_NUMBER, leader=$leader"
 fi
 
 # Workers: wait until ALL bootstrap nodes are ready (API /readyz responds)
