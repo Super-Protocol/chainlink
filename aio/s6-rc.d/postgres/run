@@ -1,2 +1,8 @@
-#!/bin/sh
-exec su -s /bin/bash -c "postgres -D ${PGDATA:-/sp/postgresql/data}" postgres 2>&1 | tee /var/log/postgresql.log
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Route stdout/stderr through s6-log with rotation (10MB, keep last 10)
+mkdir -p /var/log/postgresql
+exec > >(s6-log n10 s10485760 /var/log/postgresql) 2>&1
+
+exec su -s /bin/bash -c "postgres -D ${PGDATA:-/sp/postgresql/data}" postgres
