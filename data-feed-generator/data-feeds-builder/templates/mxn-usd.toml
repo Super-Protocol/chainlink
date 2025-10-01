@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: MXN / USD Price Feed"
+name = "MXN / USD"
 externalJobID = "83247719-ca19-519e-9bcc-d40933bd3c07"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x750cC7936B921b2165905AC0112B1c28B3D3d392"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,17 +17,17 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=MXN&tsyms=USD"];
-    ds1_parse [type=jsonparse path="USD"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/MXN/USD"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=machina&vs_currencies=usd"];
-    ds2_parse [type=jsonparse path="machina,usd"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/machina/USD"];
+    ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/MXN-USD/spot"];
-    ds3_parse [type=jsonparse path="data,amount"];
+    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/MXN/USD"];
+    ds3_parse [type=jsonparse path="price"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://api.frankfurter.app/latest?from=MXN&to=USD"];
-    ds4_parse [type=jsonparse path="rates,USD"];
+    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/frankfurter/MXN/USD"];
+    ds4_parse [type=jsonparse path="price"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

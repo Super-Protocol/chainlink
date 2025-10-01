@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: CFX / USD Price Feed"
+name = "CFX / USD"
 externalJobID = "c13b250e-828b-52c5-8b6b-f818a758dbd1"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xfcfdeb70f8841F042aDa2da5D688c1b58226C794"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,17 +17,17 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=CFX&tsyms=USD"];
-    ds1_parse [type=jsonparse path="USD"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/CFX/USD"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=conflux-token&vs_currencies=usd"];
-    ds2_parse [type=jsonparse path="conflux-token,usd"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/conflux-token/USD"];
+    ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="https://api.coinbase.com/v2/prices/CFX-USD/spot"];
-    ds3_parse [type=jsonparse path="data,amount"];
+    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/CFX/USD"];
+    ds3_parse [type=jsonparse path="price"];
     ds3_multiply [type=multiply times=100000000];
-    ds4 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=CFX-USD"];
-    ds4_parse [type=jsonparse path="data,0,last"];
+    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/CFX/USD"];
+    ds4_parse [type=jsonparse path="price"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
     

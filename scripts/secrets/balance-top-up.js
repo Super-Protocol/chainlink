@@ -3,26 +3,29 @@ const fs = require('fs');
 const { BlockchainConnector } = require('@super-protocol/sdk-js');
 
 function getTransmitterAddress() {
-  const secretsRoot = process.env.SP_SECRETS_DIR ? `${process.env.SP_SECRETS_DIR}` : '/sp/secrets';
-  const secretsChainlinkRoot = `${secretsRoot}/cl-secrets`;
-  const nodeNum = String(process.env.NODE_NUMBER || '1');
-  const evmPath = path.join(secretsChainlinkRoot, nodeNum, 'evm_key.json');
-  const evmJson = JSON.parse(fs.readFileSync(evmPath, 'utf8'));
+  try {
+    const secretsRoot = process.env.SP_SECRETS_DIR ? `${process.env.SP_SECRETS_DIR}` : '/sp/secrets';
+    const secretsChainlinkRoot = `${secretsRoot}/cl-secrets`;
+    const nodeNum = String(process.env.NODE_NUMBER || '1');
+    const evmPath = path.join(secretsChainlinkRoot, nodeNum, 'evm_key.json');
+    const evmJson = JSON.parse(fs.readFileSync(evmPath, 'utf8'));
 
-  return `0x${evmJson.address}`; // set-config.js treats evm.address as the transmitter address
+    return `0x${evmJson.address}`; // set-config.js treats evm.address as the transmitter address
+  } catch (e) {
+    console.error('Failed to read transmitter address:', e?.message || e);
+    throw e;
+  }
 }
 
 async function ensureFunds() {
   const faucetPrivateKey = process.env.FAUCET_PRIVATE_KEY;
   if (!faucetPrivateKey) {
-    console.log('FAUCET_PRIVATE_KEY is not set; skipping top-up');
-    return;
+    throw new Error('FAUCET_PRIVATE_KEY is not set; skipping top-up');
   }
   const rpcUrl = process.env.CHAINLINK_RPC_HTTP_URL;
   const diamondContractAddress = process.env.DIAMOND_CONTRACT_ADDRESS;
   if (!rpcUrl || !diamondContractAddress) {
-    console.log('RPC or DIAMOND_CONTRACT_ADDRESS missing; skipping top-up');
-    return;
+    throw new Error('RPC or DIAMOND_CONTRACT_ADDRESS missing; skipping top-up');
   }
 
   const targetAddress = getTransmitterAddress();

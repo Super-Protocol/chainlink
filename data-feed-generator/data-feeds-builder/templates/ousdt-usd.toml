@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: OUSDT / USD Price Feed"
+name = "OUSDT / USD"
 externalJobID = "e2112552-7aed-5901-8aee-a97547adf9e1"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0x47A3aA625ac7D34C36F11efb038dE0D6e80b84E8"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,8 +17,8 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=openusdt&vs_currencies=usd"];
-    ds1_parse [type=jsonparse path="openusdt,usd"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/openusdt/USD"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
     median [type=median];
     

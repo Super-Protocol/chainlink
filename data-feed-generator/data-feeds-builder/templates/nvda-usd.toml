@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: NVDA / USD Price Feed"
+name = "NVDA / USD"
 externalJobID = "298939ee-982e-5b32-8906-ee8ec69062ce"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xAFF8E9F553a9DA9c9aA02C83D42bBfceeDB00602"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,8 +17,8 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=twin-asset-token-nvda-long&vs_currencies=usd"];
-    ds1_parse [type=jsonparse path="twin-asset-token-nvda-long,usd"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/twin-asset-token-nvda-long/USD"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
     median [type=median];
     

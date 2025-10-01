@@ -5,7 +5,7 @@ log() { echo "[init-db] $*"; }
 
 # Variables from env, can be overridden
 POSTGRES_USER="${POSTGRES_USER:-postgres}"
-PGDATA="${PGDATA:-/var/lib/postgresql/data}"
+PGDATA="${PGDATA:-/sp/postgresql/data}"
 APP_DB_USER="${PGUSER:-chainlink}"
 APP_DB_PASS="${PGPASSWORD:-chainlinkchainlink}"
 TOTAL_NODES="${TOTAL_NODES:-5}"
@@ -18,7 +18,35 @@ bootstrap() {
   # Initialize the database cluster if empty
   if [ -z "$(ls -A "$PGDATA" 2>/dev/null || true)" ]; then
     log "Initializing PostgreSQL database as user 'postgres'..."
-    su - postgres -c "initdb -D \"$PGDATA\" --username=\"$POSTGRES_USER\""
+    # Enable data checksums for early corruption detection on ephemeral storage
+    su - postgres -c "initdb -D \"$PGDATA\" --username=\"$POSTGRES_USER\" --data-checksums"
+  fi
+
+  # Apply recommended config for ephemeral, cache-only usage (idempotent)
+  if ! grep -q "^# BEGIN chainlink-ephemeral-config$" "$PGDATA/postgresql.conf" 2>/dev/null; then
+    log "Applying recommended PostgreSQL config for ephemeral cache..."
+    su - postgres -c "cat >> \"$PGDATA/postgresql.conf\" <<'EOF'
+# BEGIN chainlink-ephemeral-config
+# Crash-safety and bounded WAL growth on ephemeral/overlay storage
+fsync = on
+full_page_writes = on
+synchronous_commit = on
+wal_level = replica
+archive_mode = off
+wal_keep_size = 0
+max_wal_size = 256MB
+min_wal_size = 64MB
+checkpoint_timeout = 5min
+checkpoint_completion_target = 0.9
+shared_buffers = 128MB
+autovacuum = on
+# Disable streaming/slots for cache-only use
+max_wal_senders = 0
+max_replication_slots = 0
+# Connections
+max_connections = 1000
+# END chainlink-ephemeral-config
+EOF"
   fi
 }
 

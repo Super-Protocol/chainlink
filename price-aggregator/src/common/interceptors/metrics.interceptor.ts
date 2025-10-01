@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 
 import { MetricsService } from '../../metrics/metrics.service';
 
@@ -23,13 +23,13 @@ export class MetricsInterceptor implements NestInterceptor {
     const response = context.switchToHttp().getResponse();
 
     return next.handle().pipe(
-      tap(() => {
+      finalize(() => {
         const duration = (Date.now() - startTime) / 1000;
         const route = this.getRoutePattern(context);
         const method = request.method;
         const status = response.statusCode.toString();
 
-        if (route != '/metrics') {
+        if (route !== '/metrics') {
           this.metricsService.requestLatency
             .labels({ route, method, status })
             .observe(duration);

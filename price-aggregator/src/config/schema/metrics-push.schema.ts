@@ -44,9 +44,10 @@ export const metricsPushSchema = Type.Object(
       default: 5000,
       description: 'Request timeout in milliseconds',
     }),
-    deleteOnShutdown: Type.Boolean({
-      default: false,
-      description: 'Delete metrics from gateway on shutdown',
+    batchSize: Type.Integer({
+      minimum: 1,
+      default: 100,
+      description: 'Number of metrics per batch when pushing',
     }),
   },
   {

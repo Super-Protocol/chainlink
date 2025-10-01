@@ -1,11 +1,11 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "OCR Oracle: WIN / USD Price Feed"
+name = "WIN / USD"
 externalJobID = "7b423214-d173-5dfe-9226-e12b492d3007"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
-contractAddress = "0xa7cCB6B859d61CdAe0D600160D65871EB8678e5c"
+contractAddress = "$JOB_CA"
 contractConfigConfirmations = 3
 contractConfigTrackerPollInterval = "1m0s"
 evmChainID = "$EVM_CHAIN_ID"
@@ -17,17 +17,17 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=WIN&tsyms=USD"];
-    ds1_parse [type=jsonparse path="USD"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/WIN/USD"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=1000000000000000000];
-    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=win-2&vs_currencies=usd"];
-    ds2_parse [type=jsonparse path="win-2,usd"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/win-2/USD"];
+    ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=1000000000000000000];
-    ds3 [type=http method=GET url="https://api.kraken.com/0/public/Ticker?pair=WINUSD"];
-    ds3_parse [type=jsonparse path="result,WINUSD,c,0"];
+    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/WIN/USD"];
+    ds3_parse [type=jsonparse path="price"];
     ds3_multiply [type=multiply times=1000000000000000000];
-    ds4 [type=http method=GET url="https://www.okx.com/api/v5/market/ticker?instId=WIN-USD"];
-    ds4_parse [type=jsonparse path="data,0,last"];
+    ds4 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/WIN/USD"];
+    ds4_parse [type=jsonparse path="price"];
     ds4_multiply [type=multiply times=1000000000000000000];
     median [type=median];
     

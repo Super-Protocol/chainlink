@@ -24,12 +24,6 @@ export const refetchSchema = Type.Object(
       default: 2000,
       description: 'Minimum milliseconds between refreshes for same item',
     }),
-    maxConcurrentRefreshes: Type.Integer({
-      minimum: 1,
-      maximum: 50,
-      default: 10,
-      description: 'Maximum number of concurrent refresh operations',
-    }),
   },
   {
     default: {},

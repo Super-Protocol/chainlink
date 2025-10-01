@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Counter, Histogram, Gauge, collectDefaultMetrics } from 'prom-client';
+
+import type { SourceName } from '../sources';
+import type { Pair } from '../sources/source-adapter.interface';
 
 @Injectable()
 export class MetricsService {
+  private readonly logger = new Logger(MetricsService.name);
   private static defaultMetricsRegistered = false;
 
   constructor() {
@@ -19,7 +23,10 @@ export class MetricsService {
     name: 'http_request_duration_seconds',
     help: 'Duration of HTTP requests in seconds',
     labelNames: ['route', 'method', 'status'],
-    buckets: [0.1, 0.5, 1, 2, 5],
+    buckets: [
+      0.01, 0.1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8,
+      8.5, 9, 9.5, 10, 15, 20, 30, 45, 60,
+    ],
   });
 
   public readonly requestCount = new Counter({
@@ -50,7 +57,7 @@ export class MetricsService {
     name: 'source_fetch_duration_seconds',
     help: 'Duration of source fetches in seconds',
     labelNames: ['source'],
-    buckets: [0.1, 0.5, 1, 2, 5],
+    buckets: [0.1, 0.5, 1, 2, 5, 10, 15, 20, 30, 45, 60],
   });
 
   public readonly cacheSize = new Gauge({
@@ -129,7 +136,7 @@ export class MetricsService {
     name: 'price_update_frequency_seconds',
     help: 'Time between price updates for each pair',
     labelNames: ['pair', 'source'],
-    buckets: [1, 5, 10, 30, 60, 300, 600],
+    buckets: [1, 5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 300],
   });
 
   public readonly websocketReconnects = new Counter({
@@ -159,5 +166,17 @@ export class MetricsService {
     }
 
     this.lastUpdateTimes.set(`${source}-${pairKey}`, now);
+  }
+
+  removePairMetrics(pair: Pair, source: SourceName): void {
+    const pairKey = pair.join('-');
+
+    this.sourceLastUpdate.remove({ source, pair: pairKey });
+    this.priceNotFoundCount.remove({ source, pair: pairKey });
+    this.priceUpdateFrequency.remove({ pair: pairKey, source });
+
+    this.lastUpdateTimes.delete(`${source}-${pairKey}`);
+
+    this.logger.debug({ source, pair: pairKey }, 'Removed metrics for pair');
   }
 }

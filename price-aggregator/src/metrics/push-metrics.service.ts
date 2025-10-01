@@ -6,18 +6,17 @@ import {
   OnModuleInit,
   OnModuleDestroy,
 } from '@nestjs/common';
-import { Pushgateway, register, RegistryContentType } from 'prom-client';
 
 import { AppConfigService } from '../config';
+import { RemoteWriteClient } from './remote-write.client';
 import { MetricsPushConfig } from '../config/schema/metrics-push.schema';
 
 @Injectable()
 export class PushMetricsService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PushMetricsService.name);
   private pushInterval?: NodeJS.Timeout;
-  private gateway?: Pushgateway<RegistryContentType>;
-  private jobName: string;
-  private groupingLabels: Record<string, string>;
+  private remoteWriteClient?: RemoteWriteClient;
+  private labels: Record<string, string>;
   private readonly config: MetricsPushConfig;
 
   constructor(private readonly configService: AppConfigService) {
@@ -37,37 +36,32 @@ export class PushMetricsService implements OnModuleInit, OnModuleDestroy {
 
     this.logger.log('Initializing push metrics service');
 
-    this.jobName = this.config.jobName;
-    this.groupingLabels = {
-      service: 'price-aggregator',
+    this.labels = {
+      job: this.config.jobName,
       instance: os.hostname(),
       ...this.config.groupingLabels,
     };
 
-    const headers: Record<string, string> = { ...this.config.headers };
-
-    if (this.config.basicAuth) {
-      const { username, password } = this.config.basicAuth;
-      const credentials = Buffer.from(`${username}:${password}`).toString(
-        'base64',
-      );
-      headers.Authorization = `Basic ${credentials}`;
-    }
-    this.gateway = new Pushgateway(
-      this.config.url,
-      {
-        timeout: this.config.timeoutMs,
-        headers,
-      },
-      register,
-    );
+    this.remoteWriteClient = new RemoteWriteClient({
+      url: this.config.url,
+      timeoutMs: this.config.timeoutMs,
+      headers: this.config.headers,
+      basicAuth: this.config.basicAuth,
+      batchSize: this.config.batchSize,
+    });
 
     this.pushInterval = setInterval(() => {
       this.pushMetrics();
     }, this.config.intervalMs);
 
     this.logger.log(
-      `Push metrics initialized: job=${this.jobName}, interval=${this.config.intervalMs}ms, url=${this.config.url}`,
+      {
+        labels: this.labels,
+        interval: this.config.intervalMs,
+        url: this.config.url,
+        batchSize: this.config.batchSize,
+      },
+      'Push metrics initialized',
     );
   }
 
@@ -77,49 +71,27 @@ export class PushMetricsService implements OnModuleInit, OnModuleDestroy {
       this.pushInterval = undefined;
     }
 
-    if (this.config.deleteOnShutdown && this.gateway) {
-      try {
-        await this.deleteMetrics();
-        this.logger.log('Metrics deleted from push gateway on shutdown');
-      } catch (error) {
-        this.logger.warn(
-          { err: error instanceof Error ? error : new Error(String(error)) },
-          'Failed to delete metrics on shutdown',
-        );
-      }
-    }
-
     this.logger.log('Push metrics service destroyed');
   }
 
   private async pushMetrics(): Promise<void> {
-    if (!this.gateway) {
+    if (!this.remoteWriteClient) {
       return;
     }
 
     try {
-      await this.gateway.push({
-        jobName: this.jobName,
-        groupings: this.groupingLabels,
-      });
-
+      await this.remoteWriteClient.push(this.labels);
       this.logger.debug('Metrics pushed successfully');
     } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
       this.logger.warn(
-        { err: error instanceof Error ? error : new Error(String(error)) },
+        {
+          err,
+          url: this.config.url,
+          message: err.message,
+        },
         'Failed to push metrics',
       );
     }
-  }
-
-  private async deleteMetrics(): Promise<void> {
-    if (!this.gateway) {
-      return;
-    }
-
-    await this.gateway.delete({
-      jobName: this.jobName,
-      groupings: this.groupingLabels,
-    });
   }
 }

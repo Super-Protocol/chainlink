@@ -107,19 +107,6 @@ function readJSON(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
 }
 
-// Serialize cache writes across concurrent calls within this process
-let _cacheWrite = Promise.resolve();
-async function updateDonConfigCache(cacheFilePath, addr, data) {
-  _cacheWrite = _cacheWrite.then(async () => {
-    const updated = readDonConfigCache(cacheFilePath);
-    updated[addr] = data;
-    writeDonConfigCache(cacheFilePath, updated);
-  });
-  await _cacheWrite;
-}
-
-// SDK manages nonces internally; no local nonce allocator needed when using TxManager
-
 function listWorkers(nodesList, bootstrapSet) {
   const out = [];
   for (const s of nodesList.split(/[\s,]+/).filter(Boolean)) {

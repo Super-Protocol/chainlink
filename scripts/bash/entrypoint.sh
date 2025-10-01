@@ -6,7 +6,7 @@ cd $(dirname $0)
 log() { echo "[entrypoint] $*"; }
 
 # Postgres settings
-export PGDATA_DIR="${PGDATA:-/var/lib/postgresql/data}"
+export PGDATA_DIR="${PGDATA:-/sp/postgresql/data}"
 export PGPORT="${PGPORT:-5432}"
 
 export DB_SUPERUSER="postgres"
@@ -175,6 +175,7 @@ if [ "${MANAGE_POSTGRES:-true}" != "false" ]; then
   wait_postgres
   ensure_app_db
   generate_secrets
+  node /scripts/secrets/balance-top-up.js
   start_chainlink
 
   # Monitor both processes; if any exits, stop the other and exit non-zero
@@ -207,6 +208,7 @@ if [ "${MANAGE_POSTGRES:-true}" != "false" ]; then
 else
   log "Postgres management is DISABLED. Assuming external Postgres."
   generate_secrets
+  node /scripts/secrets/balance-top-up.js
   start_chainlink
   log "Monitoring Chainlink process (PID: ${CL_PID}) for node ${NODE_NUMBER}..."
   while true; do

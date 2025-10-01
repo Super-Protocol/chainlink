@@ -586,13 +586,18 @@ function mapSymbolToCoinGeckoId(symbol, coinsList) {
   return null;
 }
 
+function buildPriceAggregatorUrl(source, baseQuote, targetQuote) {
+  return `http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/${source}/${baseQuote}/${targetQuote.toUpperCase()}`;
+}
+
 // -------------------------------
 // Availability checkers
 // -------------------------------
 async function checkBinance(symbol, timeoutMs, verbose) {
+  const provider = 'binance';
   // Check SYMBOLUSDT spot pair
   const testSymbol = `${symbol.toUpperCase()}USDT`;
-  const url = `https://api.binance.com/api/v3/ticker/price?symbol=${encodeURIComponent(
+  const url = `https://api.binance.us/api/v3/ticker/price?symbol=${encodeURIComponent(
     testSymbol
   )}`;
   try {
@@ -605,7 +610,20 @@ async function checkBinance(symbol, timeoutMs, verbose) {
         `Binance ${testSymbol}: value at path 'price' is not numeric -> ${data.price} (url: ${url})`
       );
     console.log(`Binance ${testSymbol}: ${ok ? 'OK' : 'N/A'}`);
-    return ok ? { provider: 'Binance', url, path: 'price', value: num } : null;
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      symbol.toUpperCase(),
+      'USDT'
+    );
+    return ok
+      ? {
+          provider,
+          url: targetUrl,
+          path: 'price',
+          value: num,
+          pair: `${symbol.toUpperCase()}/USDT`,
+        }
+      : null;
   } catch (_e) {
     const e = _e || {};
     // Treat 429, 404 and 400 (e.g., Invalid symbol) as non-errors
@@ -626,7 +644,8 @@ async function checkBinance(symbol, timeoutMs, verbose) {
   }
 }
 
-async function checkCryptoCompare(symbol, timeoutMs, verbose) {
+async function checkCryptoCompare(symbol, timeoutMs) {
+  const provider = 'cryptocompare';
   const url = `https://min-api.cryptocompare.com/data/price?fsym=${encodeURIComponent(
     symbol.toUpperCase()
   )}&tsyms=USD`;
@@ -634,8 +653,19 @@ async function checkCryptoCompare(symbol, timeoutMs, verbose) {
     const data = await getJsonWithRetry(url, timeoutMs, 2);
     const ok = data && typeof data.USD === 'number' && isFinite(data.USD);
     console.log(`CryptoCompare ${symbol}/USD: ${ok ? 'OK' : 'N/A'}`);
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      symbol.toUpperCase(),
+      'USD'
+    );
     return ok
-      ? { provider: 'CryptoCompare', url, path: 'USD', value: data.USD }
+      ? {
+          provider,
+          url: targetUrl,
+          path: 'price',
+          value: data.USD,
+          pair: `${symbol.toUpperCase()}/USD`,
+        }
       : null;
   } catch (_e) {
     const e = _e || {};
@@ -651,7 +681,8 @@ async function checkCryptoCompare(symbol, timeoutMs, verbose) {
   }
 }
 
-async function checkCoinGecko(symbol, coinsList, timeoutMs, verbose) {
+async function checkCoinGecko(symbol, coinsList, timeoutMs) {
+  const provider = 'coingecko';
   const id = mapSymbolToCoinGeckoId(symbol, coinsList);
   if (!id) {
     console.log(`CoinGecko ${symbol}: id not found`);
@@ -668,8 +699,15 @@ async function checkCoinGecko(symbol, coinsList, timeoutMs, verbose) {
       typeof data[id].usd === 'number' &&
       isFinite(data[id].usd);
     console.log(`CoinGecko ${id}/usd: ${ok ? 'OK' : 'N/A'}`);
+    const targetUrl = buildPriceAggregatorUrl(provider, id, 'USD');
     return ok
-      ? { provider: 'CoinGecko', url, path: `${id}.usd`, value: data[id].usd }
+      ? {
+          provider,
+          url: targetUrl,
+          path: `price`,
+          value: data[id].usd,
+          pair: `${id}/USD`,
+        }
       : null;
   } catch (_e) {
     const e = _e || {};
@@ -689,6 +727,7 @@ async function checkCoinGecko(symbol, coinsList, timeoutMs, verbose) {
 // Additional providers
 // -------------------------------
 async function checkCoinbase(base, quote, timeoutMs) {
+  const provider = 'coinbase';
   const pair = `${base.toUpperCase()}-${quote.toUpperCase()}`;
   const url = `https://api.coinbase.com/v2/prices/${pair}/spot`;
   try {
@@ -705,8 +744,19 @@ async function checkCoinbase(base, quote, timeoutMs) {
         `Coinbase ${pair}: value at path 'data.amount' is not numeric -> ${data.data.amount} (url: ${url})`
       );
     console.log(`Coinbase ${pair}: ${ok ? 'OK' : 'N/A'}`);
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      base.toUpperCase(),
+      quote.toUpperCase()
+    );
     return ok
-      ? { provider: 'Coinbase', url, path: 'data.amount', value: num }
+      ? {
+          provider,
+          url: targetUrl,
+          path: 'price',
+          value: num,
+          pair: `${base.toUpperCase()}/${quote.toUpperCase()}`,
+        }
       : null;
   } catch (_e) {
     const e = _e || {};
@@ -729,6 +779,7 @@ function krakenMapSymbol(sym) {
 }
 
 async function checkKraken(base, quote, timeoutMs) {
+  const provider = 'kraken';
   const b = krakenMapSymbol(base);
   const q = krakenMapSymbol(quote);
   const pair = `${b}${q}`;
@@ -765,8 +816,15 @@ async function checkKraken(base, quote, timeoutMs) {
         `Kraken ${pair}: value at path 'result.${firstKey}.c[0]' is not numeric -> ${price} (url: ${url})`
       );
     console.log(`Kraken ${pair}: ${ok ? 'OK' : 'N/A'}`);
+    const targetUrl = buildPriceAggregatorUrl(provider, b, q);
     return ok
-      ? { provider: 'Kraken', url, path: `result.${firstKey}.c[0]`, value: num }
+      ? {
+          provider,
+          url: targetUrl,
+          path: `price`,
+          value: num,
+          pair: `${b}/${q}`,
+        }
       : null;
   } catch (_e) {
     const e = _e || {};
@@ -783,6 +841,7 @@ async function checkKraken(base, quote, timeoutMs) {
 }
 
 async function checkOKX(base, quote, timeoutMs) {
+  const provider = 'okx';
   const instId = `${base.toUpperCase()}-${quote.toUpperCase()}`;
   const url = `https://www.okx.com/api/v5/market/ticker?instId=${encodeURIComponent(
     instId
@@ -803,8 +862,19 @@ async function checkOKX(base, quote, timeoutMs) {
         `OKX ${instId}: value at path 'data[0].last' is not numeric -> ${data.data[0].last} (url: ${url})`
       );
     console.log(`OKX ${instId}: ${ok ? 'OK' : 'N/A'}`);
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      base.toUpperCase(),
+      quote.toUpperCase()
+    );
     return ok
-      ? { provider: 'OKX', url, path: 'data[0].last', value: num }
+      ? {
+          provider,
+          url: targetUrl,
+          path: 'price',
+          value: num,
+          pair: `${base.toUpperCase()}/${quote.toUpperCase()}`,
+        }
       : null;
   } catch (_e) {
     const e = _e || {};
@@ -821,6 +891,7 @@ async function checkOKX(base, quote, timeoutMs) {
 }
 
 async function checkFrankfurter(base, quote, timeoutMs) {
+  const provider = 'frankfurter';
   const url = `https://api.frankfurter.app/latest?from=${encodeURIComponent(
     base.toUpperCase()
   )}&to=${encodeURIComponent(quote.toUpperCase())}`;
@@ -836,12 +907,18 @@ async function checkFrankfurter(base, quote, timeoutMs) {
         ok ? 'OK' : 'N/A'
       }`
     );
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      base.toUpperCase(),
+      quote.toUpperCase()
+    );
     return ok
       ? {
-          provider: 'Frankfurter',
-          url,
-          path: `rates.${quote.toUpperCase()}`,
+          provider,
+          url: targetUrl,
+          path: `price`,
           value: data.rates[quote.toUpperCase()],
+          pair: `${base.toUpperCase()}/${quote.toUpperCase()}`,
         }
       : null;
   } catch (_e) {
@@ -861,6 +938,7 @@ async function checkFrankfurter(base, quote, timeoutMs) {
 }
 
 async function checkExchangerateHost(base, quote, timeoutMs) {
+  const provider = 'exchangerate-host';
   const key = process.env.EXCHANGERATE_HOST_KEY;
   const baseUrl = `https://api.exchangerate.host/latest?base=${encodeURIComponent(
     base.toUpperCase()
@@ -880,12 +958,18 @@ async function checkExchangerateHost(base, quote, timeoutMs) {
         ok ? 'OK' : 'N/A'
       }${key ? '' : ' (no key)'}`
     );
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      base.toUpperCase(),
+      quote.toUpperCase()
+    );
     return ok
       ? {
-          provider: 'exchangerate.host',
-          url,
-          path: `rates.${quote.toUpperCase()}`,
+          provider,
+          url: targetUrl,
+          path: `price`,
           value: data.rates[quote.toUpperCase()],
+          pair: `${base.toUpperCase()}/${quote.toUpperCase()}`,
         }
       : null;
   } catch (_e) {
@@ -907,6 +991,7 @@ async function checkExchangerateHost(base, quote, timeoutMs) {
 }
 
 async function checkAlphaVantage(base, quote, timeoutMs) {
+  const provider = 'alphavantage';
   const key = process.env.ALPHAVANTAGE_API_KEY;
   if (!key) {
     console.log('AlphaVantage: Skipping (no API key)');
@@ -928,12 +1013,18 @@ async function checkAlphaVantage(base, quote, timeoutMs) {
         ok ? 'OK' : 'N/A'
       }`
     );
+    const targetUrl = buildPriceAggregatorUrl(
+      provider,
+      base.toUpperCase(),
+      quote.toUpperCase()
+    );
     return ok
       ? {
-          provider: 'AlphaVantage',
-          url,
-          path: 'Realtime Currency Exchange Rate.5. Exchange Rate',
+          provider,
+          url: targetUrl,
+          path: 'price',
           value: rate,
+          pair: `${base.toUpperCase()}/${quote.toUpperCase()}`,
         }
       : null;
   } catch (_e) {
@@ -948,35 +1039,6 @@ async function checkAlphaVantage(base, quote, timeoutMs) {
     console.log(
       `AlphaVantage ${base.toUpperCase()}/${quote.toUpperCase()}: N/A`
     );
-    return null;
-  }
-}
-
-async function checkFinnhub(base, timeoutMs) {
-  const token = process.env.FINNHUB_TOKEN;
-  if (!token) {
-    console.log('Finnhub: Skipping (no token)');
-    return null;
-  }
-  const symbol = base.toUpperCase();
-  const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(
-    symbol
-  )}&token=${encodeURIComponent(token)}`;
-  try {
-    const data = await getJsonWithRetry(url, timeoutMs, 2);
-    const ok = data && typeof data.c === 'number' && isFinite(data.c);
-    console.log(`Finnhub ${symbol}: ${ok ? 'OK' : 'N/A'}`);
-    return ok ? { provider: 'Finnhub', url, path: 'c', value: data.c } : null;
-  } catch (_e) {
-    const e = _e || {};
-    if (!(e && (e.statusCode === 429 || e.statusCode === 404))) {
-      console.log(
-        `Finnhub ${symbol} error: ${
-          e && (e.stack || e.message) ? e.message || e.stack : String(e)
-        } (url: ${url})`
-      );
-    }
-    console.log(`Finnhub ${symbol}: N/A`);
     return null;
   }
 }
@@ -1073,7 +1135,6 @@ async function main() {
         checkFrankfurter(baseSymbol, quote, args.timeoutMs),
         checkExchangerateHost(baseSymbol, quote, args.timeoutMs),
         checkAlphaVantage(baseSymbol, quote, args.timeoutMs),
-        checkFinnhub(baseSymbol, args.timeoutMs),
       ]);
       for (const res of checks) {
         if (!res) continue;
@@ -1091,11 +1152,12 @@ async function main() {
               : 'unknown';
           const url = typeof res.url === 'string' ? res.url : '';
           const path = typeof res.path === 'string' ? res.path : null;
+          const pair = typeof res.pair === 'string' ? res.pair : null;
           const value =
             typeof res.value === 'number' && isFinite(res.value)
               ? res.value
               : null;
-          if (url) dataSources.push({ provider, url, path, value });
+          if (url) dataSources.push({ provider, url, path, value, pair });
         }
       }
 
@@ -1150,7 +1212,7 @@ async function main() {
 function parseName(name) {
   // Expect format: "SYMBOL / USD" (with spaces around slash)
   if (typeof name !== 'string') return { baseSymbol: null, isUsdQuote: false };
-  const parts = name.split('/');
+  const parts = name.replace(/(Exchange Rate|Calculated)/g, '').split('/');
   if (parts.length !== 2) return { baseSymbol: null, isUsdQuote: false };
   const base = parts[0].trim();
   const quote = parts[1].trim();

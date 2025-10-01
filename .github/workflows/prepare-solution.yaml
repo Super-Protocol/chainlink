@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: "Target"
+        description: 'Target'
         required: true
-        default: "develop"
+        default: 'develop'
         type: choice
         options:
           - develop
@@ -14,9 +14,9 @@ on:
           - testnet
           - mainnet
       argo_commit_type:
-        description: "Argo commit type"
+        description: 'Argo commit type'
         required: true
-        default: "pull-request"
+        default: 'pull-request'
         type: choice
         options:
           - pull-request
@@ -24,8 +24,8 @@ on:
 
 env:
   SOLUTION: chainlink-all-in-one-image-${{ inputs.target }}
-  IMAGE_FILE: ""
-  IMAGE_RESOURCE: ""
+  IMAGE_FILE: ''
+  IMAGE_RESOURCE: ''
   PR_REPO_ARGO: super-protocol/argocd-clusters
   DOCKERFILE: dockerfile.allinone
   TARGET: ${{ inputs.target }}
@@ -43,6 +43,17 @@ jobs:
             echo "Error: when target=mainnet, argo_commit_type=direct-commit is not allowed."
             exit 1
           fi
+
+      - name: Import secrets from Vault
+        id: import-secrets
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          token: ${{ secrets.VAULT_TOKEN }}
+          secrets: |
+            github/data/${{ env.TARGET }}/spctl offers_config_json  | OFFERS_SPCTL_CONFIG_JSON ;
+            github/data/${{ env.TARGET }}/chainlink config_public_key_base64  | CONFIG_PUBLIC_KEY_BASE64
+
       - name: Display Run Information
         run: |
           echo "### Workflow Run Details (STUB)" >> $GITHUB_STEP_SUMMARY
@@ -64,7 +75,7 @@ jobs:
       - name: Build Docker image and save to file
         run: |
           IMAGE_FILE="$SOLUTION-b${{ github.run_id }}.tar.gz"
-          docker build -t chainlink-all-in-one:latest -f $DOCKERFILE .
+          docker build -t chainlink-all-in-one:latest -f $DOCKERFILE --build-arg CONFIGURATION_PUBLIC_KEY=${{ toJSON(steps.import-secrets.outputs.CONFIG_PUBLIC_KEY_BASE64) }} .
           docker save chainlink-all-in-one:latest | gzip > $IMAGE_FILE
 
           echo "IMAGE_FILE=$IMAGE_FILE" >> $GITHUB_ENV
@@ -72,15 +83,6 @@ jobs:
       - name: Set SPCTL repository type
         run: |
           echo "SPCTL_REPOSITORY_TYPE=${{ (inputs.target == 'testnet' || inputs.target == 'mainnet') && 'public' || 'private' }}" >> $GITHUB_ENV
-
-      - name: Import offers SPCTL config from Vault
-        id: import-secrets
-        uses: hashicorp/vault-action@v2
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          token: ${{ secrets.VAULT_TOKEN }}
-          secrets: |
-            github/data/${{ env.TARGET }}/spctl offers_config_json  | OFFERS_SPCTL_CONFIG_JSON
 
       - name: Prepare SPCTL config
         run: |

@@ -148,6 +148,7 @@ export class PairService implements OnApplicationBootstrap {
 
     if (removed) {
       this.removeFromIndices(pair, source);
+      this.metricsService.removePairMetrics(pair, source);
       this.logger.debug(`Removed pair ${pair.join('/')} for source ${source}`);
       this.eventEmitter.emit('pair-removed', { pair, source });
     }

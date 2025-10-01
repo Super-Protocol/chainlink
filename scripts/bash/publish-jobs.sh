@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cd $(dirname $0)
+
 json_escape() {
   # Escapes input for safe embedding as a JSON string
   sed -e 's/\\/\\\\/g' \
@@ -233,10 +235,27 @@ render_jobs() {
 
   # Render all templates
   shopt -s nullglob
+  # Load feed-cas.json once (relative path from this script)
+  local feed_cas_path
+  feed_cas_path="./data/feed-cas.chainid-${evm_chain_id}.json"
+  if [[ ! -f "${feed_cas_path}" ]]; then
+    echo "[error] feed-cas.json not found at ${feed_cas_path}" >&2
+    return 1
+  fi
+  local FEED_CAS_JSON_CONTENT
+  FEED_CAS_JSON_CONTENT="$(cat "${feed_cas_path}")"
+
   for tpl in "${CL_FEED_TEMPLATES_DIR}"/*.toml; do
     local base out
     base=$(basename "$tpl" .toml)
     out="${JOB_RENDERS_DIR}/${base}.toml"
+    # Determine job name: prefer explicit name="..." in template, else filename
+    local job_name job_ca
+    job_name=$(sed -n 's/^name\s*=\s*"\(.*\)".*/\1/p' "$tpl" | head -n1 || true)
+    [[ -n "$job_name" ]] || job_name="$base"
+    # Lookup contract address by exact key match (job_name) in JSON
+    job_ca=$(printf '%s' "$FEED_CAS_JSON_CONTENT" | jq -r --arg k "$job_name" '.[$k] // empty') || job_ca=""
+    export JOB_CA="$job_ca"
     envsubst < "$tpl" > "$out"
     # For bootstrap node, mirror generate.sh behavior: drop fields not allowed
     if [[ "$IS_BOOTSTRAP" == "true" ]]; then
