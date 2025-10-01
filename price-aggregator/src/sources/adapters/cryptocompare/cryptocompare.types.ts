@@ -66,4 +66,6 @@ export const MESSAGE_TYPES = {
   CURRENT: '2',
   CURRENTAGG: '5',
   HEARTBEAT: '999',
+  ERROR: '500',
+  TOO_MANY_SUBSCRIPTIONS: '429',
 } as const;

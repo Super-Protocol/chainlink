@@ -20,6 +20,7 @@ interface SubscriptionMessage {
 export class CryptoCompareStreamService extends BaseStreamService {
   protected readonly logger = new Logger(CryptoCompareStreamService.name);
   private readonly apiKey?: string;
+  private readonly unsupportedIdentifiers = new Set<string>();
 
   constructor(
     appConfigService: AppConfigService,
@@ -86,6 +87,8 @@ export class CryptoCompareStreamService extends BaseStreamService {
         this.handleCurrentMessage(parts);
       } else if (messageType === MESSAGE_TYPES.HEARTBEAT) {
         this.logger.debug('Received heartbeat');
+      } else if (messageType === MESSAGE_TYPES.ERROR) {
+        this.handleErrorMessage(parts);
       } else {
         this.logger.debug(
           `Unknown message type: ${messageType}, full message: ${message}`,
@@ -128,5 +131,55 @@ export class CryptoCompareStreamService extends BaseStreamService {
 
   private buildChannel(base: string, quote: string): string {
     return `5~${AGGREGATE_INDEX}~${base}~${quote}`;
+  }
+
+  private handleErrorMessage(parts: string[]): void {
+    if (parts.length < 6) {
+      this.logger.warn(`Invalid error message format: ${parts.join('~')}`);
+      return;
+    }
+
+    const [, errorType, errorMessage, , exchange, fromSymbol, toSymbol] = parts;
+
+    if (errorType === 'SUBSCRIPTION_UNRECOGNIZED') {
+      const identifier = this.buildChannel(fromSymbol, toSymbol);
+      this.unsupportedIdentifiers.add(identifier);
+
+      const pair = this.getPairByIdentifier(identifier);
+      const pairStr = pair ? pair.join('/') : `${fromSymbol}/${toSymbol}`;
+
+      this.logger.warn(
+        { pair: pairStr, exchange, errorType, errorMessage },
+        `Pair ${pairStr} is not supported by CryptoCompare. Adding to blacklist.`,
+      );
+
+      this.subscribedIdentifiers.delete(identifier);
+    } else {
+      this.logger.warn(
+        { errorType, errorMessage, exchange, fromSymbol, toSymbol },
+        `CryptoCompare error: ${errorType} - ${errorMessage}`,
+      );
+    }
+  }
+
+  protected async subscribeToIdentifiers(identifiers: string[]): Promise<void> {
+    const supportedIdentifiers = identifiers.filter((identifier) => {
+      if (this.unsupportedIdentifiers.has(identifier)) {
+        const pair = this.getPairByIdentifier(identifier);
+        const pairStr = pair ? pair.join('/') : identifier;
+        this.logger.debug(
+          { pair: pairStr },
+          `Skipping subscription to unsupported pair: ${pairStr}`,
+        );
+        return false;
+      }
+      return true;
+    });
+
+    if (supportedIdentifiers.length === 0) {
+      return;
+    }
+
+    await super.subscribeToIdentifiers(supportedIdentifiers);
   }
 }

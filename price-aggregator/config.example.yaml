@@ -138,7 +138,7 @@ sources:
     maxBatchSize: 50 # Maximum pairs in single batch request (API limit)
     stream:
       autoReconnect: true
-      reconnectInterval: 5000
+      reconnectInterval: 30000 # CryptoCompare allows only 1 socket per client, longer interval prevents TOO_MANY_SOCKETS error
       maxReconnectAttempts: 10
       heartbeatInterval: 30000
       batchSize: 25 # Moderate batch size for CryptoCompare
