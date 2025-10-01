@@ -2,12 +2,13 @@ import { EventEmitter } from 'events';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, resolve } from 'node:path';
 
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 
 import { AppConfigService } from '../config';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import { Pair } from '../sources/source-adapter.interface';
+import { SourcesManagerService } from '../sources/sources-manager.service';
 
 type PairServiceEvents = {
   'pair-added': { pair: Pair; source: SourceName };
@@ -24,7 +25,7 @@ interface PairSourceRegistration {
 }
 
 @Injectable()
-export class PairService implements OnApplicationBootstrap {
+export class PairService implements OnModuleInit {
   private readonly logger = new Logger(PairService.name);
   private readonly registrations = new Map<string, PairSourceRegistration>();
   private readonly pairsBySource = new Map<SourceName, Set<string>>();
@@ -34,9 +35,10 @@ export class PairService implements OnApplicationBootstrap {
   constructor(
     private readonly configService: AppConfigService,
     private readonly metricsService: MetricsService,
+    private readonly sourcesManager: SourcesManagerService,
   ) {}
 
-  async onApplicationBootstrap(): Promise<void> {
+  async onModuleInit(): Promise<void> {
     const pairsFilePath = this.configService.get('pairsFilePath');
 
     if (!pairsFilePath) {
@@ -240,6 +242,11 @@ export class PairService implements OnApplicationBootstrap {
     for (const [sourceKey, values] of Object.entries(rawData)) {
       if (!this.isSupportedSource(sourceKey)) {
         this.logger.warn({ source: sourceKey }, 'Skipping unknown source');
+        continue;
+      }
+
+      if (!this.sourcesManager.isEnabled(sourceKey)) {
+        this.logger.debug({ source: sourceKey }, 'Skipping disabled source');
         continue;
       }
 

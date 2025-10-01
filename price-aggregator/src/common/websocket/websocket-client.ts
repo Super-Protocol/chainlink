@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 
 import { Logger } from '@nestjs/common';
-import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as WebSocket from 'ws';
 
 export interface WebSocketClientOptions {
@@ -12,7 +11,6 @@ export interface WebSocketClientOptions {
   pingInterval?: number;
   pongTimeout?: number;
   parseJson?: boolean;
-  proxyUrl?: string;
 }
 
 export class WebSocketClient extends EventEmitter {
@@ -69,16 +67,7 @@ export class WebSocketClient extends EventEmitter {
     }
 
     try {
-      const wsOptions: WebSocket.ClientOptions = {};
-
-      if (this.options.proxyUrl) {
-        wsOptions.agent = new HttpsProxyAgent(this.options.proxyUrl);
-        this.logger.log(
-          `Using proxy: ${this.redactUrl(this.options.proxyUrl)}`,
-        );
-      }
-
-      this.ws = new WebSocket(this.options.url, wsOptions);
+      this.ws = new WebSocket(this.options.url);
 
       this.ws.on('open', () => {
         this.logger.log(
@@ -96,7 +85,6 @@ export class WebSocketClient extends EventEmitter {
       this.ws.on('message', (data: WebSocket.Data) => {
         try {
           const rawString = data.toString();
-          // this.logger.verbose(`Raw WebSocket data received: "${rawString}"`);
 
           if (!rawString || rawString.trim() === '') {
             this.logger.warn('Received empty WebSocket message');
@@ -111,9 +99,10 @@ export class WebSocketClient extends EventEmitter {
           }
         } catch (error) {
           if (this.options.parseJson) {
-            this.logger.error('Failed to parse WebSocket message', error, {
-              rawData: data.toString(),
-            });
+            this.logger.error(
+              { rawData: data.toString(), error },
+              'Failed to parse WebSocket message',
+            );
           } else {
             this.emit('message', data.toString());
           }
@@ -121,7 +110,25 @@ export class WebSocketClient extends EventEmitter {
       });
 
       this.ws.on('error', (error: Error) => {
-        this.logger.error(`WebSocket error: ${error.message}`, error.stack);
+        this.logger.error(
+          { error: error.message, code: (error as NodeJS.ErrnoException).code },
+          `WebSocket error: ${error.message}`,
+        );
+        this.safeEmitError(error);
+      });
+
+      this.ws.on('unexpected-response', (request, response) => {
+        this.logger.error(
+          {
+            statusCode: response.statusCode,
+            statusMessage: response.statusMessage,
+          },
+          'Unexpected response from server',
+        );
+        response.resume();
+        const error = new Error(
+          `Unexpected server response: ${response.statusCode} ${response.statusMessage}`,
+        );
         this.safeEmitError(error);
       });
 

@@ -3,6 +3,7 @@ import {
   Logger,
   OnModuleInit,
   OnModuleDestroy,
+  OnApplicationBootstrap,
 } from '@nestjs/common';
 
 import { CacheService, StaleBatch } from './cache';
@@ -21,7 +22,9 @@ export interface RefetchConfig {
 }
 
 @Injectable()
-export class RefetchService implements OnModuleInit, OnModuleDestroy {
+export class RefetchService
+  implements OnModuleInit, OnModuleDestroy, OnApplicationBootstrap
+{
   private readonly logger = new Logger(RefetchService.name);
   private inProgressKeys = new Set<string>();
   private config: RefetchConfig;
@@ -49,6 +52,14 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
     this.logger.log('Refetch service initialized with config:', this.config);
   }
 
+  async onApplicationBootstrap(): Promise<void> {
+    if (!this.config.enabled) {
+      return;
+    }
+
+    await this.loadInitialQuotes();
+  }
+
   onModuleDestroy(): void {
     if (!this.config.enabled) {
       return;
@@ -56,6 +67,53 @@ export class RefetchService implements OnModuleInit, OnModuleDestroy {
 
     this.cacheService.offStaleBatch(this.staleBatchHandler);
     this.logger.log('Refetch service destroyed');
+  }
+
+  private async loadInitialQuotes(): Promise<void> {
+    const startTime = Date.now();
+    const registrations = this.pairService.getAllRegistrations();
+
+    if (registrations.length === 0) {
+      this.logger.debug('No registered pairs found for initial load');
+      return;
+    }
+
+    const pairsBySource = new Map<SourceName, Pair[]>();
+
+    for (const registration of registrations) {
+      if (!this.sourcesManager.isRefetchEnabled(registration.source)) {
+        continue;
+      }
+
+      const pairs = pairsBySource.get(registration.source) || [];
+      pairs.push(registration.pair);
+      pairsBySource.set(registration.source, pairs);
+    }
+
+    const totalPairs = Array.from(pairsBySource.values()).reduce(
+      (sum, pairs) => sum + pairs.length,
+      0,
+    );
+
+    this.logger.log(
+      {
+        totalPairs,
+        sources: Array.from(pairsBySource.keys()),
+        breakdown: Array.from(pairsBySource.entries()).map(
+          ([source, pairs]) => `${source}:${pairs.length}`,
+        ),
+      },
+      'Starting initial quotes load',
+    );
+
+    await Promise.all(
+      Array.from(pairsBySource.entries()).map(([source, pairs]) =>
+        this.refreshSourcePairs(source, pairs),
+      ),
+    );
+
+    const duration = Date.now() - startTime;
+    this.logger.log({ totalPairs, duration }, 'Completed initial quotes load');
   }
 
   private async handleStaleBatch(batch: StaleBatch): Promise<void> {
