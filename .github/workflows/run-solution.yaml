@@ -46,6 +46,11 @@ jobs:
             github/data/${{ env.TARGET }}/chainlink spctl_repository           | SPCTL_REPOSITORY ;
             github/data/${{ env.TARGET }}/chainlink config_private_key_base64  | CONFIG_PRIVATE_KEY_BASE64
 
+      - name: Mask private key
+        if: ${{ steps.import-secrets.outputs.CONFIG_PRIVATE_KEY_BASE64 != '' }}
+        run: |
+          echo "::add-mask::${{ steps.import-secrets.outputs.CONFIG_PRIVATE_KEY_BASE64 }}"
+
       - name: Display configuration
         shell: bash
         run: |
