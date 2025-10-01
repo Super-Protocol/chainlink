@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Counter, Histogram, Gauge, collectDefaultMetrics } from 'prom-client';
+
+import type { SourceName } from '../sources';
+import type { Pair } from '../sources/source-adapter.interface';
 
 @Injectable()
 export class MetricsService {
+  private readonly logger = new Logger(MetricsService.name);
   private static defaultMetricsRegistered = false;
 
   constructor() {
@@ -162,5 +166,17 @@ export class MetricsService {
     }
 
     this.lastUpdateTimes.set(`${source}-${pairKey}`, now);
+  }
+
+  removePairMetrics(pair: Pair, source: SourceName): void {
+    const pairKey = pair.join('-');
+
+    this.sourceLastUpdate.remove({ source, pair: pairKey });
+    this.priceNotFoundCount.remove({ source, pair: pairKey });
+    this.priceUpdateFrequency.remove({ pair: pairKey, source });
+
+    this.lastUpdateTimes.delete(`${source}-${pairKey}`);
+
+    this.logger.debug({ source, pair: pairKey }, 'Removed metrics for pair');
   }
 }
