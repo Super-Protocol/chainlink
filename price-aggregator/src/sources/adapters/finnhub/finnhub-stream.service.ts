@@ -6,7 +6,7 @@ import {
   FinnhubSubscribeCommand,
 } from './finnhub.types';
 import { pairToSymbol } from './finnhub.utils';
-import { WebSocketClient, WebSocketClientBuilder } from '../../../common';
+import { WebSocketClient } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
@@ -22,17 +22,11 @@ export class FinnhubStreamService extends BaseStreamService {
   private pingInterval?: NodeJS.Timeout;
 
   constructor(
-    wsClientBuilder: WebSocketClientBuilder,
     appConfigService: AppConfigService,
     metricsService?: MetricsService,
   ) {
-    const { stream, useProxy, apiKey } =
-      appConfigService.get('sources.finnhub');
-    const streamConfig = {
-      ...stream,
-      useProxy,
-    };
-    super(wsClientBuilder, streamConfig, metricsService);
+    const { stream, apiKey } = appConfigService.get('sources.finnhub');
+    super(stream, metricsService);
     this.apiKey = apiKey;
   }
 

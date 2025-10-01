@@ -4,7 +4,7 @@ import { EventEmitter } from 'events';
 import { Logger } from '@nestjs/common';
 import Bottleneck from 'bottleneck';
 
-import { WebSocketClient, WebSocketClientBuilder } from '../common';
+import { WebSocketClient } from '../common';
 import {
   ErrorHandler,
   ErrorHandlerFactory,
@@ -38,7 +38,6 @@ export abstract class BaseStreamService implements QuoteStreamService {
   private rateLimiter: Bottleneck | null = null;
 
   constructor(
-    protected readonly wsClientBuilder: WebSocketClientBuilder,
     options?: StreamServiceOptions,
     protected readonly metricsService?: MetricsService,
   ) {
@@ -47,7 +46,6 @@ export abstract class BaseStreamService implements QuoteStreamService {
       reconnectInterval: options?.reconnectInterval ?? 5000,
       maxReconnectAttempts: options?.maxReconnectAttempts ?? 10,
       heartbeatInterval: options?.heartbeatInterval ?? 30000,
-      useProxy: options?.useProxy ?? false,
       batchSize: options?.batchSize ?? 0,
       rateLimit: options?.rateLimit ?? 0,
     };
@@ -264,9 +262,8 @@ export abstract class BaseStreamService implements QuoteStreamService {
 
   protected async establishConnection(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.wsClient = this.wsClientBuilder!.build({
+      this.wsClient = new WebSocketClient({
         url: this.getWsUrl(),
-        useProxy: this.options.useProxy,
         reconnect: this.options.autoReconnect,
         reconnectInterval: this.options.reconnectInterval,
         maxReconnectAttempts: this.options.maxReconnectAttempts,

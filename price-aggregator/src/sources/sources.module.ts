@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 
 import { HttpClientModule, ProxyModule } from '../common';
-import { WebSocketClientBuilder } from '../common';
 import { AppConfigModule } from '../config';
 import { SourcesExceptionFilter } from './filters';
 import { SourcesManagerService } from './sources-manager.service';
@@ -23,7 +22,6 @@ import { MetricsModule } from '../metrics/metrics.module';
   providers: [
     SourcesManagerService,
     ...SOURCES_PROVIDERS,
-    WebSocketClientBuilder,
     {
       provide: APP_FILTER,
       useClass: SourcesExceptionFilter,
