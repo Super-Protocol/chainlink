@@ -10,6 +10,7 @@ export interface RemoteWriteConfig {
     username: string;
     password: string;
   };
+  batchSize?: number;
 }
 
 @Injectable()
@@ -45,16 +46,64 @@ export class RemoteWriteClient {
       metricsWithLabels = this.addLabelsToMetrics(metrics, labels);
     }
 
+    const batchSize = this.config.batchSize ?? 100;
+    const batches = this.splitMetricsIntoBatches(metricsWithLabels, batchSize);
+
     this.logger.debug(
       {
         url: this.config.url,
-        metricsSize: metricsWithLabels.length,
+        totalMetrics: this.countMetrics(metricsWithLabels),
+        batches: batches.length,
+        batchSize,
         labels,
       },
       'Pushing metrics to remote write endpoint',
     );
 
-    await this.httpClient.post(this.config.url, metricsWithLabels);
+    const promises = batches.map((batch) =>
+      this.httpClient.post(this.config.url, batch),
+    );
+
+    await Promise.all(promises);
+  }
+
+  private splitMetricsIntoBatches(
+    metrics: string,
+    batchSize: number,
+  ): string[] {
+    const lines = metrics.split('\n');
+    const batches: string[] = [];
+    const comments: string[] = [];
+    let currentBatch: string[] = [];
+    let metricCount = 0;
+
+    for (const line of lines) {
+      if (line.startsWith('#') || line.trim() === '') {
+        comments.push(line);
+        continue;
+      }
+
+      if (metricCount >= batchSize) {
+        batches.push([...comments, ...currentBatch].join('\n'));
+        currentBatch = [];
+        metricCount = 0;
+      }
+
+      currentBatch.push(line);
+      metricCount++;
+    }
+
+    if (currentBatch.length > 0) {
+      batches.push([...comments, ...currentBatch].join('\n'));
+    }
+
+    return batches.length > 0 ? batches : [metrics];
+  }
+
+  private countMetrics(metrics: string): number {
+    return metrics
+      .split('\n')
+      .filter((line) => !line.startsWith('#') && line.trim() !== '').length;
   }
 
   private addLabelsToMetrics(

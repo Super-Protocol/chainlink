@@ -25,7 +25,7 @@ export class MetricsService {
     labelNames: ['route', 'method', 'status'],
     buckets: [
       0.01, 0.1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8,
-      8.5, 9, 9.5, 10,
+      8.5, 9, 9.5, 10, 15, 20, 30, 45, 60,
     ],
   });
 
@@ -57,7 +57,7 @@ export class MetricsService {
     name: 'source_fetch_duration_seconds',
     help: 'Duration of source fetches in seconds',
     labelNames: ['source'],
-    buckets: [0.1, 0.5, 1, 2, 5],
+    buckets: [0.1, 0.5, 1, 2, 5, 10, 15, 20, 30, 45, 60],
   });
 
   public readonly cacheSize = new Gauge({
@@ -136,7 +136,7 @@ export class MetricsService {
     name: 'price_update_frequency_seconds',
     help: 'Time between price updates for each pair',
     labelNames: ['pair', 'source'],
-    buckets: [5, 10, 30, 60],
+    buckets: [1, 5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 300],
   });
 
   public readonly websocketReconnects = new Counter({

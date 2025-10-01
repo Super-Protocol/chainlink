@@ -30,6 +30,7 @@ metricsPush:
   # headers:
   #   X-Scope-OrgID: "tenant-1" # Example for multi-tenant setup
   # timeoutMs: 5000
+  # batchSize: 100 # Number of metrics per batch when pushing
 
 # Proactive cache refresh configuration
 refetch:

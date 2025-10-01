@@ -47,6 +47,7 @@ export class PushMetricsService implements OnModuleInit, OnModuleDestroy {
       timeoutMs: this.config.timeoutMs,
       headers: this.config.headers,
       basicAuth: this.config.basicAuth,
+      batchSize: this.config.batchSize,
     });
 
     this.pushInterval = setInterval(() => {
@@ -58,6 +59,7 @@ export class PushMetricsService implements OnModuleInit, OnModuleDestroy {
         labels: this.labels,
         interval: this.config.intervalMs,
         url: this.config.url,
+        batchSize: this.config.batchSize,
       },
       'Push metrics initialized',
     );

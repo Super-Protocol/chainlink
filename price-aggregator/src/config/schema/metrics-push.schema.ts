@@ -44,6 +44,11 @@ export const metricsPushSchema = Type.Object(
       default: 5000,
       description: 'Request timeout in milliseconds',
     }),
+    batchSize: Type.Integer({
+      minimum: 1,
+      default: 100,
+      description: 'Number of metrics per batch when pushing',
+    }),
   },
   {
     description: 'Push metrics configuration',
