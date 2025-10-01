@@ -1,0 +1,219 @@
+port: 3000
+environment: development
+
+# Path to pairs configuration file (optional, defaults to ./pairs.json)
+pairsFilePath: ./pairs.json
+
+logger:
+  level: info
+  isPrettyEnabled: false # Set to true for development to get formatted logs
+
+# Metrics push configuration
+# Supports VictoriaMetrics import endpoint (/api/v1/import/prometheus)
+# Metrics are sent in Prometheus text format
+metricsPush:
+  enabled: false # Enable push metrics to external collector
+  # url: "https://victoria-metrics.example.com/api/v1/import/prometheus" # VictoriaMetrics import endpoint
+  # url: "http://victoria-metrics:8428/api/v1/import/prometheus" # if running VictoriaMetrics in docker-compose
+  # intervalMs: 30000
+  # jobName: "price-aggregator"
+  # groupingLabels:
+  #   service: "price-aggregator"
+  #   # instance: "node-1"  # Optional, defaults to hostname
+  #   # environment: "production"
+  #   # contract_address: "${CONTRACT_ADDRESS}"
+  #   # provider_hash: "${PROVIDER_HASH}"
+  #   # tee_offer_id: "${TEE_OFFER_ID}"
+  # basicAuth:
+  #   username: "user"
+  #   password: "pass"
+  # headers:
+  #   X-Scope-OrgID: "tenant-1" # Example for multi-tenant setup
+  # timeoutMs: 5000
+  # batchSize: 100 # Number of metrics per batch when pushing
+
+# Proactive cache refresh configuration
+refetch:
+  enabled: true
+  staleTriggerBeforeExpiry: 3000 # Prevents cache misses by refreshing before expiry
+  batchInterval: 1000 # Batches multiple stale items to reduce API calls
+  minTimeBetweenRefreshes: 2000 # Prevents excessive API calls for same item
+
+# Pair tracking and cleanup configuration
+pairCleanup:
+  enabled: true # Enable automatic cleanup of inactive pairs
+  inactiveTimeoutMs: 600000 # 10 minutes - remove pairs not requested for this duration
+  cleanupIntervalMs: 20000 # 20 seconds - how often to run cleanup process
+
+# Pair-specific TTL configuration overrides
+# These settings override the default TTL from source configuration for specific pairs
+# The 'source' field is optional - if omitted, the TTL applies to all sources for that pair
+pairsTtl:
+  - pair: [BTC, USDT]
+    source: binance
+    ttl: 15000 # 15 seconds for BTC/USDT on Binance specifically
+  - pair: [ETH, USD]
+    source: coinbase
+    ttl: 30000 # 30 seconds for ETH/USD on Coinbase specifically
+  - pair: [EUR, USD]
+    source: frankfurter
+    ttl: 300000 # 5 minutes for EUR/USD on Frankfurter (forex rates change less frequently)
+  - pair: [DOGE, USD]
+    ttl: 45000 # 45 seconds for DOGE/USD on ALL sources (source is optional)
+
+# Proxy URL (optional, https recommended)
+# Format: https://[username:password@]host:port
+# Examples:
+# proxy: https://proxy.example.com:8080
+# proxy: https://username:password@proxy.example.com:8080
+
+sources:
+  binance:
+    enabled: true
+    baseUrl: https://api.binance.us # Base URL for Binance API
+    ttl: 10000 # Cache duration in ms
+    timeoutMs: 10000
+    rps: 100 # 6000/min API limit, null to disable rate limiting
+    maxConcurrent: 10
+    apiKey: optional-api-key # Not required for public market data
+    # Proxy configuration options:
+    # useProxy: false                                    # Disable proxy (default)
+    # useProxy: true                                     # Use global proxy from config.proxy
+    # useProxy: "https://user:pass@proxy.example.com:8080" # Custom proxy URL for this source only
+    useProxy: false
+    refetch: true # Enable automatic cache refresh when data expires
+    maxBatchSize: 500 # Maximum pairs in single batch request
+    stream:
+      autoReconnect: true # Enable automatic reconnection on disconnect
+      reconnectInterval: 5000 # Interval between reconnection attempts in ms
+      maxReconnectAttempts: 10 # Maximum number of reconnection attempts
+      heartbeatInterval: 30000 # Heartbeat ping interval in ms
+      wsUrl: wss://stream.binance.us:9443/ws # WebSocket URL for streaming data (default: US)
+      batchSize: 50 # Maximum pairs per subscription batch to avoid rate limits
+      rateLimit: 50 # 50ms between messages = max 20 messages/sec
+
+  okx:
+    enabled: true
+    ttl: 10000
+    timeoutMs: 10000
+    rps: 10 # 20/2sec API limit, conservative setting
+    maxConcurrent: 10
+    useProxy: false
+    refetch: true
+    maxBatchSize: 200 # Maximum pairs in single batch request
+    stream:
+      autoReconnect: true
+      reconnectInterval: 5000
+      maxReconnectAttempts: 10
+      heartbeatInterval: 30000
+      batchSize: 20 # Conservative batch size for OKX
+      rateLimit: 100 # 100ms between messages = max 10 messages/sec
+
+  finnhub:
+    enabled: true
+    ttl: 10000
+    timeoutMs: 10000
+    rps: 1 # Free tier: 60/min limit, paid plans have higher limits
+    maxConcurrent: 10
+    apiKey: required-finnhub-api-key # Required even for free tier
+    useProxy: false
+    refetch: true
+    stream:
+      autoReconnect: true
+      reconnectInterval: 5000
+      maxReconnectAttempts: 10
+      heartbeatInterval: 30000
+      batchSize: 10 # Small batches for Finnhub rate limits
+      rateLimit: 1000 # 1s between messages = max 1 message/sec (very conservative)
+
+  cryptocompare:
+    enabled: true
+    ttl: 10000
+    timeoutMs: 10000
+    rps: 1 # ~60/min; adjust per paid plan to avoid exhausting monthly quota
+    maxConcurrent: 10
+    apiKey: required-cryptocompare-api-key
+    useProxy: false
+    refetch: true
+    maxBatchSize: 50 # Maximum pairs in single batch request (API limit)
+    stream:
+      autoReconnect: true
+      reconnectInterval: 5000
+      maxReconnectAttempts: 10
+      heartbeatInterval: 30000
+      batchSize: 25 # Moderate batch size for CryptoCompare
+      rateLimit: 200 # 200ms between messages = max 5 messages/sec
+
+  alphavantage:
+    enabled: false # Consider disabling for production due to severe rate limits
+    ttl: 3600000 # 1 hour cache for free tier (25 requests/day limit)
+    timeoutMs: 15000
+    rps: 1 # Free tier: only 25/day, extremely limited
+    maxConcurrent: 10
+    apiKey: DEMO_KEY # Use DEMO_KEY for testing
+    useProxy: false
+    refetch: true
+
+  coingecko:
+    enabled: true
+    ttl: 30000 # Moderate cache duration
+    timeoutMs: 10000
+    rps: 1 # Free tier: 30/min, Pro API has higher limits
+    maxConcurrent: 10
+    apiKey: optional-coingecko-pro-api-key # Optional, for higher rate limits
+    useProxy: false
+    refetch: true
+    maxBatchSize: 100 # Maximum pairs in single batch request (API limit)
+
+  exchangeratehost:
+    enabled: true
+    ttl: 60000 # Forex rates change less frequently
+    timeoutMs: 10000
+    rps: 1 # Free tier: 1000/day limit
+    maxConcurrent: 10
+    apiKey: optional-exchangerate-host-api-key # Optional, for higher rate limits
+    useProxy: false
+    refetch: true
+
+  kraken:
+    enabled: true
+    ttl: 10000
+    timeoutMs: 10000
+    rps: 1 # Conservative rate to avoid hitting limits
+    maxConcurrent: 10
+    useProxy: false
+    refetch: true
+    maxBatchSize: 50 # Maximum pairs in single batch request (API limit)
+    stream:
+      autoReconnect: true
+      reconnectInterval: 5000
+      maxReconnectAttempts: 10
+      heartbeatInterval: 30000
+      batchSize: 30 # Moderate batch size for Kraken
+      rateLimit: 200 # 200ms between messages = max 5 messages/sec (conservative for Kraken)
+
+  coinbase:
+    enabled: true
+    ttl: 15000
+    timeoutMs: 10000
+    rps: 9 # Conservative rate for public endpoints (10 req/sec limit, burst to 15)
+    maxConcurrent: 10
+    useProxy: false
+    refetch: true
+    # Note: Implement token-bucket limiter with exponential backoff for 429 responses
+    stream:
+      autoReconnect: true
+      reconnectInterval: 5000
+      maxReconnectAttempts: 10
+      heartbeatInterval: 30000
+      batchSize: 40 # Good batch size for Coinbase
+      rateLimit: 100 # 100ms between messages = max 10 messages/sec (conservative for Coinbase)
+
+  frankfurter:
+    enabled: true
+    ttl: 60000 # ECB data updates once daily
+    timeoutMs: 10000
+    rps: null # No strict limits, but be respectful
+    maxConcurrent: 10
+    useProxy: false
+    refetch: true # Useful for keeping forex rates fresh

@@ -1,0 +1,88 @@
+[Log]
+Level = 'warn'
+
+[WebServer]
+AllowOrigins = '*'
+SecureCookies = false
+HTTPPort = $CHAINLINK_WEB_SERVER_HTTP_PORT
+
+[WebServer.TLS]
+HTTPSPort = 0
+
+[Feature]
+FeedsManager = true
+LogPoller = false
+UICSAKeys = false
+CCIP = false
+MultiFeedsManagers = false
+
+[JobPipeline]
+MaxSuccessfulRuns = 10
+ReaperInterval = "10m"
+ReaperThreshold = "24h"
+
+[[EVM]]
+ChainID = '$CHAINLINK_CHAIN_ID'
+LogBackfillBatchSize = 500
+LinkContractAddress = '$LINK_CA'
+
+[[EVM.Nodes]]
+Name = '$CHAINLINK_NODE_NAME'
+WSURL = '$CHAINLINK_RPC_WS_URL'
+HTTPURL = '$CHAINLINK_RPC_HTTP_URL'
+SendOnly = false
+
+[EVM.GasEstimator]
+Mode = 'FixedPrice'
+PriceDefault = '1 wei'
+PriceMax = '1000 gwei'
+PriceMin = '1 wei'
+LimitDefault = 500000
+LimitMax = 500000
+LimitMultiplier = '1'
+LimitTransfer = 21000
+EstimateLimit = false
+BumpMin = '100 wei'
+BumpPercent = 20
+BumpThreshold = 3
+EIP1559DynamicFees = false
+FeeCapDefault = '5 gwei'
+TipCapDefault = '1000 wei'
+TipCapMin = '1 wei'
+
+[EVM.GasEstimator.BlockHistory]
+BatchSize = 25
+BlockHistorySize = 24
+CheckInclusionBlocks = 12
+CheckInclusionPercentile = 90
+TransactionPercentile = 60
+
+[EVM.GasEstimator.FeeHistory]
+CacheTimeout = '10s'
+
+[OCR]
+Enabled = true
+ObservationTimeout = '5s'
+BlockchainTimeout = '20s'
+ContractPollInterval = '1m0s'
+ContractSubscribeInterval = '2m0s'
+DefaultTransactionQueueDepth = 1
+KeyBundleID = '$OCR_KEY_BUNDLE_ID'
+SimulateTransactions = false
+TransmitterAddress = '$TRANSMITTER_ADDRESS'
+CaptureEATelemetry = false
+TraceLogging = false
+ConfigLogValidation = false
+
+[P2P]
+IncomingMessageBufferSize = 10
+OutgoingMessageBufferSize = 10
+TraceLogging = true
+
+[P2P.V2]
+Enabled = true
+AnnounceAddresses = $ANNOUNCE_ADDRESSES
+DefaultBootstrappers = $DEFAULT_BOOTSTRAPPERS
+DeltaDial = '15s'
+DeltaReconcile = '1m'
+ListenAddresses = ['0.0.0.0:$P2P_PORT']

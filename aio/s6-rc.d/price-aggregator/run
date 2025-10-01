@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[price-aggregator] Starting..."
+
+GLOBAL_CONFIG_JSON_PATH="/sp/configurations/configuration.json"
+mkdir -p /etc/price-aggregator
+
+# Ensure config file exists; default to example if none provided
+CONFIG_FILE_PATH=${CONFIG_FILE:-/etc/price-aggregator/config.yaml}
+if [ -f "$GLOBAL_CONFIG_JSON_PATH" ]; then
+  if ! jq -r '.solution.priceAggregatorConfig' "$GLOBAL_CONFIG_JSON_PATH" > "$CONFIG_FILE_PATH" 2>/dev/null; then
+    echo "[price-aggregator] WARN: failed to extract priceAggregatorConfig from $GLOBAL_CONFIG_JSON_PATH" >&2
+  fi
+else
+  echo "[price-aggregator] WARN: global config not found at $GLOBAL_CONFIG_JSON_PATH; using existing $CONFIG_FILE_PATH if present" >&2
+fi
+
+export CONFIG_FILE="$CONFIG_FILE_PATH"
+export NODE_ENV=${NODE_ENV:-production}
+
+cd /price-aggregator
+
+# Build once if dist is missing
+if [ ! -d "dist" ]; then
+  echo "[price-aggregator] Building application..."
+  npm run build
+fi
+
+# Configure logging: send stdout/stderr through s6-log with simple rotation
+mkdir -p /var/log/price-aggregator
+exec > >(s6-log n10 s10485760 /var/log/price-aggregator) 2>&1
+
+exec node dist/main

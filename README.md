@@ -1,5 +1,23 @@
 # Chainlink Multi-Node Setup Guide
 
+## ALL IN ONE
+```bash
+docker build --platform linux/amd64 -f dockerfile.allinone -t sp-chainlink-all-in-one .
+docker run -d --name chainlink-stack \
+  --platform linux/amd64 \
+  -p 6601:6601 \
+  -p 6602:6602 \
+  -p 6603:6603 \
+  -p 6604:6604 \
+  -p 6605:6605 \
+  -v "$(pwd)/temp/certs:/sp/certs:ro" \
+  -v "$(pwd)/temp/configurations:/sp/configurations:ro" \
+  -v "$(pwd)/sp-secrets:/sp/secrets:rw" \
+  -v "$(pwd)/scripts:/scripts" \
+  --env-file .env \
+  sp-chainlink-all-in-one
+```
+
 ## Overview
 This guide walks through setting up multiple Chainlink Oracle Nodes with Docker Compose for testing purposes, including shared PostgreSQL database and automated configuration. The setup supports dynamic scaling with additional nodes.
 
@@ -14,7 +32,7 @@ This guide walks through setting up multiple Chainlink Oracle Nodes with Docker 
 ├── .env.example                       # Environment variables example
 ├── scripts/
 │   ├── init-database.sql      # Database initialization script
-│   └── chainlink-universal.entrypoint.sh # Universal node startup script
+│   └── entrypoint.sh # Universal node startup script
 └── README.md
 ```
 
@@ -49,8 +67,8 @@ nano .env   # or vim .env, or any editor of your choice
 | **Chainlink Configuration** ||||
 | `CHAINLINK_KEYSTORE_PASSWORD` | Password to encrypt Chainlink keys (min 16 chars) | `yourkeystorepassword` | Yes |
 | `CHAINLINK_CHAIN_ID` | Blockchain network chain ID | `5611` (opBNB Testnet) | Yes |
-| `CHAINLINK_WS_URL` | WebSocket RPC endpoint | `wss://opbnb-testnet.g.alchemy.com/v2/YOUR_API_KEY` | Yes |
-| `CHAINLINK_HTTP_URL` | HTTP RPC endpoint | `https://opbnb-testnet.g.alchemy.com/v2/YOUR_API_KEY` | Yes |
+| `CHAINLINK_RPC_WS_URL` | WebSocket RPC endpoint | `wss://opbnb-testnet.g.alchemy.com/v2/YOUR_API_KEY` | Yes |
+| `CHAINLINK_RPC_HTTP_URL` | HTTP RPC endpoint | `https://opbnb-testnet.g.alchemy.com/v2/YOUR_API_KEY` | Yes |
 | `CHAINLINK_GAS_PRICE` | Default gas price in wei | `10000000000` (10 Gwei) | Yes |
 
 **Important Notes:**
@@ -254,11 +272,11 @@ docker volume ls | grep chainlink
 - Check database connection: `docker-compose exec chainlink-node-1 cat /chainlink/secrets.toml`
 - View node logs: `docker-compose logs -f chainlink-node-1 | grep -i error`
 
+
 ## Next Steps
 - Deploy Oracle contracts
 - Fund nodes with LINK tokens
 - Create consumer contracts
 - Test end-to-end oracle functionality
 - Configure a load balancer for high availability
-
 **Happy Oracle Building! 🚀**

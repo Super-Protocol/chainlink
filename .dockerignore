@@ -1,0 +1,14 @@
+# ignore node_modules under scripts
+scripts/**/node_modules
+
+# exclude secrets and sensitive files
+sp-secrets/**
+.env
+
+# exclude VCS metadata
+.git
+.github
+
+# exclude local Chainlink node data and logs
+chainlink-node-*-data/**
+logs/**
