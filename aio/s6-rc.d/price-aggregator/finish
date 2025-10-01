@@ -8,20 +8,18 @@ MAX_RESTARTS="${MAX_RESTARTS:-3}"
 mkdir -p "$STATE_DIR"
 exit_code="${1:-0}"
 signal="${2:-0}"
-# Only count abnormal terminations
-if [ "$exit_code" -ne 0 ] || [ "$signal" -ne 0 ]; then
-  count=$(cat "$COUNT_FILE" 2>/dev/null || echo 0)
-  count=$((count+1))
-  echo "$count" > "$COUNT_FILE"
-else
-  echo "[price-aggregator] clean exit; not counting as crash"
-  exit 0
-fi
+
+# Count every restart (normal or abnormal)
+count=$(cat "$COUNT_FILE" 2>/dev/null || echo 0)
+count=$((count+1))
+echo "$count" > "$COUNT_FILE"
+
 echo "[price-aggregator] crash count: $count/${MAX_RESTARTS}"
 
 if [ "$count" -ge "$MAX_RESTARTS" ]; then
   echo "[price-aggregator] too many failures, terminating supervision tree"
   # Ask s6-svscan to exit; this will stop the container
+  s6-svc -wd .
   s6-svscanctl -t /run/service || true
 fi
 
