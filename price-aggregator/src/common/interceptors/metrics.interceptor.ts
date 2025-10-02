@@ -5,8 +5,9 @@ import {
   CallHandler,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { Request, Response } from 'express';
+import { Observable, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 
 import { MetricsService } from '../../metrics/metrics.service';
 
@@ -19,27 +20,40 @@ export class MetricsInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const startTime = Date.now();
-    const request = context.switchToHttp().getRequest();
-    const response = context.switchToHttp().getResponse();
+    const request = context.switchToHttp().getRequest<Request>();
+    const response = context.switchToHttp().getResponse<Response>();
 
     return next.handle().pipe(
-      finalize(() => {
-        const duration = (Date.now() - startTime) / 1000;
-        const route = this.getRoutePattern(context);
-        const method = request.method;
-        const status = response.statusCode.toString();
-
-        if (route !== '/metrics') {
-          this.metricsService.requestLatency
-            .labels({ route, method, status })
-            .observe(duration);
-
-          this.metricsService.requestCount
-            .labels({ route, method, status })
-            .inc();
-        }
+      tap(() => {
+        this.recordMetrics(startTime, context, request, response);
+      }),
+      catchError((error) => {
+        setImmediate(() => {
+          this.recordMetrics(startTime, context, request, response);
+        });
+        return throwError(() => error);
       }),
     );
+  }
+
+  private recordMetrics(
+    startTime: number,
+    context: ExecutionContext,
+    request: Request,
+    response: Response,
+  ): void {
+    const duration = (Date.now() - startTime) / 1000;
+    const route = this.getRoutePattern(context);
+    const method = request.method;
+    const status = response.statusCode.toString();
+
+    if (route !== '/metrics') {
+      this.metricsService.requestLatency
+        .labels({ route, method, status })
+        .observe(duration);
+
+      this.metricsService.requestCount.labels({ route, method, status }).inc();
+    }
   }
 
   private getRoutePattern(context: ExecutionContext): string {

@@ -51,7 +51,6 @@ process.on('unhandledRejection', (reason, promise) => {
 process.on('uncaughtException', (error) => {
   const logger = new Logger('UncaughtException');
   logger.error({ err: error }, 'Uncaught exception detected');
-  process.exit(1);
 });
 
 bootstrap().catch((error) => {
