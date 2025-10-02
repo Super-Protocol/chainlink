@@ -6,6 +6,9 @@ const nacl = require('tweetnacl'); // X25519 via scalarMult
 const { ethers } = require('ethers');
 const { BlockchainConnector } = require('@super-protocol/sdk-js');
 // Note: Avoid deep imports from @super-protocol/sdk-js to prevent exports errors
+
+const { singleFlight } = require('../utils/single-flight');
+
 let TxManager;
 try {
   // Using CJS build explicitly to avoid ESM interop issues
@@ -296,7 +299,7 @@ async function setConfigForContract(contractAddr) {
 
   // Ensure connector is initialized (backward compatible when called directly)
   if (!_connectorInitialized) {
-    await initConnector({ rpcUrl, contractAddress: diamondContractAddress || normalizedAddr });
+    await singleFlight(() => initConnector({ rpcUrl, contractAddress: diamondContractAddress || normalizedAddr }), `initConnector`);
   }
 
   // Encode call data using ethers Interface
