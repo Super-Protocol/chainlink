@@ -75,15 +75,15 @@ async function main() {
                   current.addr
                 }`
               );
-      try {
-        await setConfigForContract(current.addr);
-      } catch (e) {
+              try {
+               await setConfigForContract(current.addr);
+              } catch (e) {
                 console.error(
                   `[fail] ${path.basename(current.file)}:`,
                   e?.message || e
                 );
                 throw e;
-      }
+              }
             },
             checkError: () => ({ retryable: true }),
             retryMax: 3,
