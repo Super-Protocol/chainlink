@@ -6,6 +6,9 @@ const nacl = require('tweetnacl'); // X25519 via scalarMult
 const { ethers } = require('ethers');
 const { BlockchainConnector } = require('@super-protocol/sdk-js');
 // Note: Avoid deep imports from @super-protocol/sdk-js to prevent exports errors
+
+const { singleFlight } = require('../utils/single-flight');
+
 let TxManager;
 try {
   // Using CJS build explicitly to avoid ESM interop issues
@@ -116,11 +119,22 @@ function listWorkers(nodesList, bootstrapSet) {
   return out;
 }
 
+const jsonCache = new Map();
+
+function insureCachedValue(key) {
+  let value = jsonCache.get(key);
+  if (!value) {
+    value = readJSON(key);
+    jsonCache.set(key, value);
+  }
+  return value;
+}
+
 function loadNodeSecrets(rootDir, nodeNum) {
   const dir = path.join(rootDir, String(nodeNum));
-  const ocr = readJSON(path.join(dir, 'ocr_key.json'));
-  const evm = readJSON(path.join(dir, 'evm_key.json'));
-  const p2p = readJSON(path.join(dir, 'p2p_key.json'));
+  const ocr = insureCachedValue(path.join(dir, 'ocr_key.json'));
+  const evm = insureCachedValue(path.join(dir, 'evm_key.json'));
+  const p2p = insureCachedValue(path.join(dir, 'p2p_key.json'));
 
   const signer = ethers.getAddress((ocr.onChainSigningAddress || '').replace(/^ocrsad_/, ''));
   const transmitter = ethers.getAddress(evm.address);
@@ -285,7 +299,7 @@ async function setConfigForContract(contractAddr) {
 
   // Ensure connector is initialized (backward compatible when called directly)
   if (!_connectorInitialized) {
-    await initConnector({ rpcUrl, contractAddress: diamondContractAddress || normalizedAddr });
+    await singleFlight(() => initConnector({ rpcUrl, contractAddress: diamondContractAddress || normalizedAddr }), `initConnector`);
   }
 
   // Encode call data using ethers Interface

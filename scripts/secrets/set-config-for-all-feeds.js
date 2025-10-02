@@ -1,7 +1,13 @@
 /* eslint-disable no-console */
 const fs = require('fs');
 const path = require('path');
-const { setConfigForContract, flushDonConfigCache, initConnector, shutdownConnector } = require('./set-config');
+const {
+  setConfigForContract,
+  flushDonConfigCache,
+  initConnector,
+  shutdownConnector,
+} = require('./set-config');
+const { helpers } = require('@super-protocol/sdk-js');
 
 function findTomlFiles(dir) {
   const files = fs.readdirSync(dir, { withFileTypes: true })
@@ -28,8 +34,8 @@ function isValidAddress(addr) {
 }
 
 async function main() {
-  const templatesDir = process.env.CL_FEED_TEMPLATES_DIR;
-  if (!templatesDir) throw new Error('CL_FEED_TEMPLATES_DIR is required');
+  const templatesDir = process.env.JOB_RENDERS_DIR;
+  if (!templatesDir) throw new Error('JOB_RENDERS_DIR is required');
   if (!fs.existsSync(templatesDir) || !fs.statSync(templatesDir).isDirectory()) {
     throw new Error(`Directory not found: ${templatesDir}`);
   }
@@ -51,22 +57,41 @@ async function main() {
       return true;
     });
 
-    const concurrency = Number(process.env.CONCURRENCY || '10');
-    let idx = 0;
-    const runNext = async () => {
-      if (idx >= valid.length) return;
-      const current = valid[idx++];
-      console.log(`[run ] ${path.basename(current.file)}: contractAddress=${current.addr}`);
-      try {
-        await setConfigForContract(current.addr);
-      } catch (e) {
-        console.error(`[fail] ${path.basename(current.file)}:`, e?.message || e);
-      } finally {
-        await runNext();
-      }
-    };
-
-    await Promise.all(Array.from({ length: Math.min(concurrency, valid.length) }, () => runNext()));
+    const batchSize = Number(process.env.SET_CONFIG_BATCH_SIZE || '10');
+    for (let start = 0; start < valid.length; start += batchSize) {
+      const batch = valid.slice(start, start + batchSize);
+      console.log(
+        `\n[batch] Processing items ${start + 1}-${Math.min(
+          start + batch.length,
+          valid.length
+        )} of ${valid.length}`
+      );
+      await Promise.all(
+        batch.map(async (current) =>
+          helpers.tryWithInterval({
+            handler: async () => {
+              console.log(
+                `[run ] ${path.basename(current.file)}: contractAddress=${
+                  current.addr
+                }`
+              );
+              try {
+               await setConfigForContract(current.addr);
+              } catch (e) {
+                console.error(
+                  `[fail] ${path.basename(current.file)}:`,
+                  e?.message || e
+                );
+                throw e;
+              }
+            },
+            checkError: () => ({ retryable: true }),
+            retryMax: 3,
+            retryIntervalMs: 2000,
+          })
+        )
+      );
+    }
     await flushDonConfigCache();
   } finally {
     shutdownConnector();

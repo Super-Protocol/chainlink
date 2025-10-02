@@ -27,6 +27,8 @@ const mapConfigToEnv = (cfg) => {
 
     LINK_CA: toStr(cfg.linkCa),
 
+    MAX_RESTARTS: toStr(cfg.maxRestarts),
+
     SP_SECRETS_DIR: toStr(cfg.spSecretsDir),
     TOTAL_NODES: toStr(cfg.totalNodes),
     BOOTSTRAP_NODES: toStr(cfg.bootstrapNodes),
