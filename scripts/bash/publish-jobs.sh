@@ -14,7 +14,6 @@ json_escape() {
 API_PORT="${API_PORT:-6688}"
 API_URL="http://127.0.0.1:${API_PORT}"
 CL_FEED_TEMPLATES_DIR="${CL_FEED_TEMPLATES_DIR:-/templates}"
-JOB_RENDERS_DIR="${JOB_RENDERS_DIR:-/tmp/node-${NODE_NUMBER}/job-renders}"
 COOKIE_FILE="$(cd /tmp && mktemp -t cl_cookie_import.XXXXXX)"
 SP_SECRETS_DIR="/sp/secrets"
 EVM_EXPORT_PASSWORD="${EVM_EXPORT_PASSWORD:-${CHAINLINK_KEYSTORE_PASSWORD:-export}}"

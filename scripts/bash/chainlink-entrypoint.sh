@@ -96,12 +96,6 @@ fi
 
 node /scripts/secrets/balance-top-up.js
 
-if [ "$NODE_NUMBER" = "$leader" ]; then
-  (
-    node /scripts/secrets/register-admin.js
-    /scripts/bash/set-config-for-all-feeds.sh
-  ) >/proc/1/fd/1 2>/proc/1/fd/2 &
-fi
 
 # Workers: wait until ALL bootstrap nodes are ready (API /readyz responds)
 is_bootstrap=false
@@ -169,7 +163,12 @@ nohup bash -c '
     sleep 5
     /scripts/bash/wait-node.sh
   fi
+  export JOB_RENDERS_DIR="'"${JOB_RENDERS_DIR:-/tmp/node-${NODE_NUMBER}/job-renders}"'"
   /scripts/bash/publish-jobs.sh
+  if [ "'"${NODE_NUMBER}"'" = "'"${leader}"'" ]; then
+    node /scripts/secrets/register-admin.js
+    /scripts/bash/set-config-for-all-feeds.sh
+  fi
 ' >/proc/1/fd/1 2>/proc/1/fd/2 &
 echo $! > "$HELPER_PID_FILE"
 
