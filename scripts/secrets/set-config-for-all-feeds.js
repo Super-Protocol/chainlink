@@ -28,8 +28,8 @@ function isValidAddress(addr) {
 }
 
 async function main() {
-  const templatesDir = process.env.CL_FEED_TEMPLATES_DIR;
-  if (!templatesDir) throw new Error('CL_FEED_TEMPLATES_DIR is required');
+  const templatesDir = process.env.JOB_RENDERS_DIR;
+  if (!templatesDir) throw new Error('JOB_RENDERS_DIR is required');
   if (!fs.existsSync(templatesDir) || !fs.statSync(templatesDir).isDirectory()) {
     throw new Error(`Directory not found: ${templatesDir}`);
   }
