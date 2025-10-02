@@ -7,7 +7,7 @@ ARG CONFIGURATION_PUBLIC_KEY
 ENV NVM_DIR=/root/.nvm
 ENV SP_SECRETS_DIR=/sp/secrets
 ENV PATH=$PATH:/root/.nvm/versions/node/v$NODE_VERSION/bin/
-ENV PGDATA=/var/lib/postgresql/data
+ENV PGDATA=/sp/postgresql/data
 ENV HOME=/root
 ENV XDG_CACHE_HOME=/root/.cache
 ENV CONFIGURATION_PUBLIC_KEY=$CONFIGURATION_PUBLIC_KEY
