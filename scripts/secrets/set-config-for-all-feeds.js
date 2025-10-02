@@ -1,7 +1,13 @@
 /* eslint-disable no-console */
 const fs = require('fs');
 const path = require('path');
-const { setConfigForContract, flushDonConfigCache, initConnector, shutdownConnector } = require('./set-config');
+const {
+  setConfigForContract,
+  flushDonConfigCache,
+  initConnector,
+  shutdownConnector,
+} = require('./set-config');
+const { helpers } = require('@super-protocol/sdk-js');
 
 function findTomlFiles(dir) {
   const files = fs.readdirSync(dir, { withFileTypes: true })
