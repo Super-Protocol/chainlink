@@ -97,7 +97,7 @@ echo "[\${SERVICE_NAME}] crash count: \$count/\${MAX_RESTARTS}"
 if [ "\$count" -ge "\$MAX_RESTARTS" ]; then
   echo "[\${SERVICE_NAME}] too many failures, terminating supervision tree"
   # Ask s6-svscan (PID 1) to exit; this will stop the container
-  exec s6-svscanctl -t /run/service
+  exec /command/s6-svscanctl -t /run/service
 fi
 
 exit 0
