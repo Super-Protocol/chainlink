@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/command/with-contenv bash
 set -euo pipefail
 
 # Route stdout/stderr through s6-log with rotation (10MB, keep last 10)

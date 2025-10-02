@@ -1,2 +1,2 @@
-#!/bin/sh
+#!/command/with-contenv bash
 exec /scripts/bash/init-db.sh bootstrap
