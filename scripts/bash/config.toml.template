@@ -1,5 +1,5 @@
 [Log]
-Level = 'debug'
+Level = 'warn'
 
 [WebServer]
 AllowOrigins = '*'
