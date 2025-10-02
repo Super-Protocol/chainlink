@@ -10,6 +10,7 @@
   "license": "BSL-1.1",
   "description": "",
   "dependencies": {
-    "@super-protocol/sdk-js": "^3.16.0-beta.2"
+    "@super-protocol/sdk-js": "^3.16.0-beta.2",
+    "js-yaml": "^4.1.0"
   }
 }
