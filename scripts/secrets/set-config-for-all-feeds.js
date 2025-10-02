@@ -51,22 +51,41 @@ async function main() {
       return true;
     });
 
-    const concurrency = Number(process.env.CONCURRENCY || '10');
-    let idx = 0;
-    const runNext = async () => {
-      if (idx >= valid.length) return;
-      const current = valid[idx++];
-      console.log(`[run ] ${path.basename(current.file)}: contractAddress=${current.addr}`);
+    const batchSize = Number(process.env.SET_CONFIG_BATCH_SIZE || '10');
+    for (let start = 0; start < valid.length; start += batchSize) {
+      const batch = valid.slice(start, start + batchSize);
+      console.log(
+        `\n[batch] Processing items ${start + 1}-${Math.min(
+          start + batch.length,
+          valid.length
+        )} of ${valid.length}`
+      );
+      await Promise.all(
+        batch.map(async (current) =>
+          helpers.tryWithInterval({
+            handler: async () => {
+              console.log(
+                `[run ] ${path.basename(current.file)}: contractAddress=${
+                  current.addr
+                }`
+              );
       try {
         await setConfigForContract(current.addr);
       } catch (e) {
-        console.error(`[fail] ${path.basename(current.file)}:`, e?.message || e);
-      } finally {
-        await runNext();
+                console.error(
+                  `[fail] ${path.basename(current.file)}:`,
+                  e?.message || e
+                );
+                throw e;
       }
-    };
-
-    await Promise.all(Array.from({ length: Math.min(concurrency, valid.length) }, () => runNext()));
+            },
+            checkError: () => ({ retryable: true }),
+            retryMax: 3,
+            retryIntervalMs: 2000,
+          })
+        )
+      );
+    }
     await flushDonConfigCache();
   } finally {
     shutdownConnector();

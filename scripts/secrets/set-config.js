@@ -116,11 +116,22 @@ function listWorkers(nodesList, bootstrapSet) {
   return out;
 }
 
+const jsonCache = new Map();
+
+function insureCachedValue(key) {
+  let value = jsonCache.get(key);
+  if (!value) {
+    value = readJSON(key);
+    jsonCache.set(key, value);
+  }
+  return value;
+}
+
 function loadNodeSecrets(rootDir, nodeNum) {
   const dir = path.join(rootDir, String(nodeNum));
-  const ocr = readJSON(path.join(dir, 'ocr_key.json'));
-  const evm = readJSON(path.join(dir, 'evm_key.json'));
-  const p2p = readJSON(path.join(dir, 'p2p_key.json'));
+  const ocr = insureCachedValue(path.join(dir, 'ocr_key.json'));
+  const evm = insureCachedValue(path.join(dir, 'evm_key.json'));
+  const p2p = insureCachedValue(path.join(dir, 'p2p_key.json'));
 
   const signer = ethers.getAddress((ocr.onChainSigningAddress || '').replace(/^ocrsad_/, ''));
   const transmitter = ethers.getAddress(evm.address);
