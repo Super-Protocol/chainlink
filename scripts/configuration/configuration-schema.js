@@ -12,6 +12,8 @@ const solutionConfigurationSchema = Type.Object({
     description: 'Chainlink API password (>15 chars)',
   }),
 
+  maxRestarts: Type.Number({ minimum: 1, default: 3 }),
+
   chainlinkKeystorePassword: Type.String({
     minLength: 16,
     description: 'Chainlink keystore password (>15 chars)',
