@@ -14,6 +14,8 @@ const solutionConfigurationSchema = Type.Object({
 
   maxRestarts: Type.Number({ minimum: 1, default: 3 }),
 
+  setConfigBatchSize: Type.Number({ minimum: 1, default: 10 }),
+
   chainlinkKeystorePassword: Type.String({
     minLength: 16,
     description: 'Chainlink keystore password (>15 chars)',
