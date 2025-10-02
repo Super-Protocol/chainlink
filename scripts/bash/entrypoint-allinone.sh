@@ -87,13 +87,6 @@ STATE_DIR="/run/\${SERVICE_NAME}"
 COUNT_FILE="\${STATE_DIR}/restart-count"
 MAX_RESTARTS="\${MAX_RESTARTS:-3}"
 
-exit_code="\${1:-0}"
-signal="\${2:-0}"
-if [ "\$exit_code" -eq 0 ] && [ "\$signal" -eq 0 ]; then
-  echo "[\${SERVICE_NAME}] clean exit; not counting as crash"
-  exit 0
-fi
-
 mkdir -p "\$STATE_DIR"
 count=\$(cat "\$COUNT_FILE" 2>/dev/null || echo 0)
 count=\$((count+1))
@@ -104,7 +97,7 @@ echo "[\${SERVICE_NAME}] crash count: \$count/\${MAX_RESTARTS}"
 if [ "\$count" -ge "\$MAX_RESTARTS" ]; then
   echo "[\${SERVICE_NAME}] too many failures, terminating supervision tree"
   # Ask s6-svscan (PID 1) to exit; this will stop the container
-  s6-svscanctl -t /run/service || true
+  exec s6-svscanctl -t /run/service || true
 fi
 
 exit 0
