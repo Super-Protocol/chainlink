@@ -1,0 +1,48 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "Calculated XSUSHI / ETH"
+externalJobID = "1e85ec03-81e4-5353-bb6c-afb11c2f7e34"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        coinbase_calculated_xsushi_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/XSUSHI/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_calculated_xsushi_usd_parse    [type="jsonparse" path="price"]
+        coinbase_calculated_xsushi_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+        coinbase_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_calculated_xsushi_eth_divide    [type="divide" input="$(coinbase_calculated_xsushi_usd_multiply)" divisor="$(coinbase_eth_usd_multiply)" times=1000000000000000000]
+    
+        coingecko_calculated_xsushi_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/xsushi/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_calculated_xsushi_usd_parse    [type="jsonparse" path="price"]
+        coingecko_calculated_xsushi_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+        coingecko_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_calculated_xsushi_eth_divide    [type="divide" input="$(coingecko_calculated_xsushi_usd_multiply)" divisor="$(coingecko_eth_usd_multiply)" times=1000000000000000000]
+    
+        median [type=median];
+    
+    coinbase_calculated_xsushi_usd -> coinbase_calculated_xsushi_usd_parse -> coinbase_calculated_xsushi_usd_multiply -> coinbase_calculated_xsushi_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_eth_usd_multiply -> coinbase_calculated_xsushi_eth_divide
+    coingecko_calculated_xsushi_usd -> coingecko_calculated_xsushi_usd_parse -> coingecko_calculated_xsushi_usd_multiply -> coingecko_calculated_xsushi_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_eth_usd_multiply -> coingecko_calculated_xsushi_eth_divide
+    coinbase_calculated_xsushi_eth_divide -> median;
+    coingecko_calculated_xsushi_eth_divide -> median;
+"""

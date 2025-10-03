@@ -1,0 +1,87 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "MLN / ETH"
+externalJobID = "eed8ff39-68dd-5d04-aa8a-853e1c92bb01"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        coinbase_mln_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/MLN/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_mln_usd_parse    [type="jsonparse" path="price"]
+        coinbase_mln_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+        coinbase_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_mln_eth_divide    [type="divide" input="$(coinbase_mln_usd_multiply)" divisor="$(coinbase_eth_usd_multiply)" times=1000000000000000000]
+    
+        coingecko_mln_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/melon/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_mln_usd_parse    [type="jsonparse" path="price"]
+        coingecko_mln_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+        coingecko_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_mln_eth_divide    [type="divide" input="$(coingecko_mln_usd_multiply)" divisor="$(coingecko_eth_usd_multiply)" times=1000000000000000000]
+    
+        cryptocompare_mln_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/MLN/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_mln_usd_parse    [type="jsonparse" path="price"]
+        cryptocompare_mln_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+        cryptocompare_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_mln_eth_divide    [type="divide" input="$(cryptocompare_mln_usd_multiply)" divisor="$(cryptocompare_eth_usd_multiply)" times=1000000000000000000]
+    
+        kraken_mln_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/MLN/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_mln_usd_parse    [type="jsonparse" path="price"]
+        kraken_mln_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_eth_usd_parse    [type="jsonparse" path="price"]
+        kraken_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_mln_eth_divide    [type="divide" input="$(kraken_mln_usd_multiply)" divisor="$(kraken_eth_usd_multiply)" times=1000000000000000000]
+    
+        okx_mln_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/MLN/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_mln_usd_parse    [type="jsonparse" path="price"]
+        okx_mln_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_eth_usd_parse    [type="jsonparse" path="price"]
+        okx_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        okx_mln_eth_divide    [type="divide" input="$(okx_mln_usd_multiply)" divisor="$(okx_eth_usd_multiply)" times=1000000000000000000]
+    
+        median [type=median];
+    
+    coinbase_mln_usd -> coinbase_mln_usd_parse -> coinbase_mln_usd_multiply -> coinbase_mln_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_eth_usd_multiply -> coinbase_mln_eth_divide
+    coingecko_mln_usd -> coingecko_mln_usd_parse -> coingecko_mln_usd_multiply -> coingecko_mln_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_eth_usd_multiply -> coingecko_mln_eth_divide
+    cryptocompare_mln_usd -> cryptocompare_mln_usd_parse -> cryptocompare_mln_usd_multiply -> cryptocompare_mln_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_eth_usd_multiply -> cryptocompare_mln_eth_divide
+    kraken_mln_usd -> kraken_mln_usd_parse -> kraken_mln_usd_multiply -> kraken_mln_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_eth_usd_multiply -> kraken_mln_eth_divide
+    okx_mln_usd -> okx_mln_usd_parse -> okx_mln_usd_multiply -> okx_mln_eth_divide
+    okx_eth_usd -> okx_eth_usd_parse -> okx_eth_usd_multiply -> okx_mln_eth_divide
+    coinbase_mln_eth_divide -> median;
+    coingecko_mln_eth_divide -> median;
+    cryptocompare_mln_eth_divide -> median;
+    kraken_mln_eth_divide -> median;
+    okx_mln_eth_divide -> median;
+"""

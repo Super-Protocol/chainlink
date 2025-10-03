@@ -1,0 +1,74 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "TUSD / ETH"
+externalJobID = "fd9a0e95-621e-5f06-b4f3-64fee05d3ebf"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        binance_tusd_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/TUSD/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_tusd_usdt_parse    [type="jsonparse" path="price"]
+        binance_tusd_usdt_multiply [type="multiply" times=1000000000000000000]
+    
+        binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_eth_usdt_parse    [type="jsonparse" path="price"]
+        binance_eth_usdt_multiply [type="multiply" times=1000000000000000000]
+    
+        binance_tusd_eth_divide    [type="divide" input="$(binance_tusd_usdt_multiply)" divisor="$(binance_eth_usdt_multiply)" times=1000000000000000000]
+    
+        coingecko_tusd_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bridged-trueusd/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_tusd_usd_parse    [type="jsonparse" path="price"]
+        coingecko_tusd_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+        coingecko_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_tusd_eth_divide    [type="divide" input="$(coingecko_tusd_usd_multiply)" divisor="$(coingecko_eth_usd_multiply)" times=1000000000000000000]
+    
+        cryptocompare_tusd_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/TUSD/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_tusd_usd_parse    [type="jsonparse" path="price"]
+        cryptocompare_tusd_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+        cryptocompare_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_tusd_eth_divide    [type="divide" input="$(cryptocompare_tusd_usd_multiply)" divisor="$(cryptocompare_eth_usd_multiply)" times=1000000000000000000]
+    
+        kraken_tusd_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/TUSD/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_tusd_usd_parse    [type="jsonparse" path="price"]
+        kraken_tusd_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_eth_usd_parse    [type="jsonparse" path="price"]
+        kraken_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_tusd_eth_divide    [type="divide" input="$(kraken_tusd_usd_multiply)" divisor="$(kraken_eth_usd_multiply)" times=1000000000000000000]
+    
+        median [type=median];
+    
+    binance_tusd_usdt -> binance_tusd_usdt_parse -> binance_tusd_usdt_multiply -> binance_tusd_eth_divide
+    binance_eth_usdt -> binance_eth_usdt_parse -> binance_eth_usdt_multiply -> binance_tusd_eth_divide
+    coingecko_tusd_usd -> coingecko_tusd_usd_parse -> coingecko_tusd_usd_multiply -> coingecko_tusd_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_eth_usd_multiply -> coingecko_tusd_eth_divide
+    cryptocompare_tusd_usd -> cryptocompare_tusd_usd_parse -> cryptocompare_tusd_usd_multiply -> cryptocompare_tusd_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_eth_usd_multiply -> cryptocompare_tusd_eth_divide
+    kraken_tusd_usd -> kraken_tusd_usd_parse -> kraken_tusd_usd_multiply -> kraken_tusd_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_eth_usd_multiply -> kraken_tusd_eth_divide
+    binance_tusd_eth_divide -> median;
+    coingecko_tusd_eth_divide -> median;
+    cryptocompare_tusd_eth_divide -> median;
+    kraken_tusd_eth_divide -> median;
+"""

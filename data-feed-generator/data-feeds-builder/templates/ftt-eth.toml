@@ -1,0 +1,61 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "FTT / ETH"
+externalJobID = "1d062e37-baa6-51b8-9d81-8bb3dd38c3e8"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        coinbase_ftt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/FTT/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_ftt_usd_parse    [type="jsonparse" path="price"]
+        coinbase_ftt_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+        coinbase_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_ftt_eth_divide    [type="divide" input="$(coinbase_ftt_usd_multiply)" divisor="$(coinbase_eth_usd_multiply)" times=1000000000000000000]
+    
+        coingecko_ftt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ftx-token/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_ftt_usd_parse    [type="jsonparse" path="price"]
+        coingecko_ftt_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+        coingecko_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_ftt_eth_divide    [type="divide" input="$(coingecko_ftt_usd_multiply)" divisor="$(coingecko_eth_usd_multiply)" times=1000000000000000000]
+    
+        cryptocompare_ftt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/FTT/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_ftt_usd_parse    [type="jsonparse" path="price"]
+        cryptocompare_ftt_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+        cryptocompare_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_ftt_eth_divide    [type="divide" input="$(cryptocompare_ftt_usd_multiply)" divisor="$(cryptocompare_eth_usd_multiply)" times=1000000000000000000]
+    
+        median [type=median];
+    
+    coinbase_ftt_usd -> coinbase_ftt_usd_parse -> coinbase_ftt_usd_multiply -> coinbase_ftt_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_eth_usd_multiply -> coinbase_ftt_eth_divide
+    coingecko_ftt_usd -> coingecko_ftt_usd_parse -> coingecko_ftt_usd_multiply -> coingecko_ftt_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_eth_usd_multiply -> coingecko_ftt_eth_divide
+    cryptocompare_ftt_usd -> cryptocompare_ftt_usd_parse -> cryptocompare_ftt_usd_multiply -> cryptocompare_ftt_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_eth_usd_multiply -> cryptocompare_ftt_eth_divide
+    coinbase_ftt_eth_divide -> median;
+    coingecko_ftt_eth_divide -> median;
+    cryptocompare_ftt_eth_divide -> median;
+"""

@@ -1,0 +1,113 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "BTC / ETH"
+externalJobID = "a7e607fd-0927-580b-9d71-42a375caedae"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        alphavantage_btc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/alphavantage/BTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        alphavantage_btc_usd_parse    [type="jsonparse" path="price"]
+        alphavantage_btc_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        alphavantage_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/alphavantage/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        alphavantage_eth_usd_parse    [type="jsonparse" path="price"]
+        alphavantage_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        alphavantage_btc_eth_divide    [type="divide" input="$(alphavantage_btc_usd_multiply)" divisor="$(alphavantage_eth_usd_multiply)" times=1000000000000000000]
+    
+        binance_btc_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/BTC/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_btc_usdt_parse    [type="jsonparse" path="price"]
+        binance_btc_usdt_multiply [type="multiply" times=1000000000000000000]
+    
+        binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_eth_usdt_parse    [type="jsonparse" path="price"]
+        binance_eth_usdt_multiply [type="multiply" times=1000000000000000000]
+    
+        binance_btc_eth_divide    [type="divide" input="$(binance_btc_usdt_multiply)" divisor="$(binance_eth_usdt_multiply)" times=1000000000000000000]
+    
+        coinbase_btc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/BTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_btc_usd_parse    [type="jsonparse" path="price"]
+        coinbase_btc_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+        coinbase_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_btc_eth_divide    [type="divide" input="$(coinbase_btc_usd_multiply)" divisor="$(coinbase_eth_usd_multiply)" times=1000000000000000000]
+    
+        coingecko_btc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/batcat/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_btc_usd_parse    [type="jsonparse" path="price"]
+        coingecko_btc_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+        coingecko_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_btc_eth_divide    [type="divide" input="$(coingecko_btc_usd_multiply)" divisor="$(coingecko_eth_usd_multiply)" times=1000000000000000000]
+    
+        cryptocompare_btc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/BTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_btc_usd_parse    [type="jsonparse" path="price"]
+        cryptocompare_btc_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+        cryptocompare_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_btc_eth_divide    [type="divide" input="$(cryptocompare_btc_usd_multiply)" divisor="$(cryptocompare_eth_usd_multiply)" times=1000000000000000000]
+    
+        kraken_btc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/XBT/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_btc_usd_parse    [type="jsonparse" path="price"]
+        kraken_btc_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_eth_usd_parse    [type="jsonparse" path="price"]
+        kraken_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_btc_eth_divide    [type="divide" input="$(kraken_btc_usd_multiply)" divisor="$(kraken_eth_usd_multiply)" times=1000000000000000000]
+    
+        okx_btc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/BTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_btc_usd_parse    [type="jsonparse" path="price"]
+        okx_btc_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_eth_usd_parse    [type="jsonparse" path="price"]
+        okx_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        okx_btc_eth_divide    [type="divide" input="$(okx_btc_usd_multiply)" divisor="$(okx_eth_usd_multiply)" times=1000000000000000000]
+    
+        median [type=median];
+    
+    alphavantage_btc_usd -> alphavantage_btc_usd_parse -> alphavantage_btc_usd_multiply -> alphavantage_btc_eth_divide
+    alphavantage_eth_usd -> alphavantage_eth_usd_parse -> alphavantage_eth_usd_multiply -> alphavantage_btc_eth_divide
+    binance_btc_usdt -> binance_btc_usdt_parse -> binance_btc_usdt_multiply -> binance_btc_eth_divide
+    binance_eth_usdt -> binance_eth_usdt_parse -> binance_eth_usdt_multiply -> binance_btc_eth_divide
+    coinbase_btc_usd -> coinbase_btc_usd_parse -> coinbase_btc_usd_multiply -> coinbase_btc_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_eth_usd_multiply -> coinbase_btc_eth_divide
+    coingecko_btc_usd -> coingecko_btc_usd_parse -> coingecko_btc_usd_multiply -> coingecko_btc_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_eth_usd_multiply -> coingecko_btc_eth_divide
+    cryptocompare_btc_usd -> cryptocompare_btc_usd_parse -> cryptocompare_btc_usd_multiply -> cryptocompare_btc_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_eth_usd_multiply -> cryptocompare_btc_eth_divide
+    kraken_btc_usd -> kraken_btc_usd_parse -> kraken_btc_usd_multiply -> kraken_btc_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_eth_usd_multiply -> kraken_btc_eth_divide
+    okx_btc_usd -> okx_btc_usd_parse -> okx_btc_usd_multiply -> okx_btc_eth_divide
+    okx_eth_usd -> okx_eth_usd_parse -> okx_eth_usd_multiply -> okx_btc_eth_divide
+    alphavantage_btc_eth_divide -> median;
+    binance_btc_eth_divide -> median;
+    coinbase_btc_eth_divide -> median;
+    coingecko_btc_eth_divide -> median;
+    cryptocompare_btc_eth_divide -> median;
+    kraken_btc_eth_divide -> median;
+    okx_btc_eth_divide -> median;
+"""

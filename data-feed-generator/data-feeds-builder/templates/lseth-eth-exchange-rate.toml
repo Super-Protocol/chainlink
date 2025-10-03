@@ -1,0 +1,35 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "LsETH / ETH Exchange Rate"
+externalJobID = "80ac6042-8a09-5d99-8b42-296be608304c"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        coingecko_lseth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_lseth_usd_parse    [type="jsonparse" path="price"]
+        coingecko_lseth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_eth_exchange_rate_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/liquid-staked-ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_exchange_rate_usd_parse    [type="jsonparse" path="price"]
+        coingecko_eth_exchange_rate_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_lseth_eth_exchange_rate_divide    [type="divide" input="$(coingecko_lseth_usd_multiply)" divisor="$(coingecko_eth_exchange_rate_usd_multiply)" times=1000000000000000000]
+    
+        median [type=median];
+    
+    coingecko_lseth_usd -> coingecko_lseth_usd_parse -> coingecko_lseth_usd_multiply -> coingecko_lseth_eth_exchange_rate_divide
+    coingecko_eth_exchange_rate_usd -> coingecko_eth_exchange_rate_usd_parse -> coingecko_eth_exchange_rate_usd_multiply -> coingecko_lseth_eth_exchange_rate_divide
+    coingecko_lseth_eth_exchange_rate_divide -> median;
+"""

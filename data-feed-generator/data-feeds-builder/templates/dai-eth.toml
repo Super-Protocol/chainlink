@@ -1,0 +1,100 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "DAI / ETH"
+externalJobID = "dee219f9-b53a-59ac-8e98-58e77686d245"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        binance_dai_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/DAI/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_dai_usdt_parse    [type="jsonparse" path="price"]
+        binance_dai_usdt_multiply [type="multiply" times=1000000000000000000]
+    
+        binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_eth_usdt_parse    [type="jsonparse" path="price"]
+        binance_eth_usdt_multiply [type="multiply" times=1000000000000000000]
+    
+        binance_dai_eth_divide    [type="divide" input="$(binance_dai_usdt_multiply)" divisor="$(binance_eth_usdt_multiply)" times=1000000000000000000]
+    
+        coinbase_dai_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/DAI/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_dai_usd_parse    [type="jsonparse" path="price"]
+        coinbase_dai_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+        coinbase_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_dai_eth_divide    [type="divide" input="$(coinbase_dai_usd_multiply)" divisor="$(coinbase_eth_usd_multiply)" times=1000000000000000000]
+    
+        coingecko_dai_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/avalanche-bridged-dai-avalanche/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_dai_usd_parse    [type="jsonparse" path="price"]
+        coingecko_dai_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+        coingecko_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_dai_eth_divide    [type="divide" input="$(coingecko_dai_usd_multiply)" divisor="$(coingecko_eth_usd_multiply)" times=1000000000000000000]
+    
+        cryptocompare_dai_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/DAI/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_dai_usd_parse    [type="jsonparse" path="price"]
+        cryptocompare_dai_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+        cryptocompare_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_dai_eth_divide    [type="divide" input="$(cryptocompare_dai_usd_multiply)" divisor="$(cryptocompare_eth_usd_multiply)" times=1000000000000000000]
+    
+        kraken_dai_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/DAI/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_dai_usd_parse    [type="jsonparse" path="price"]
+        kraken_dai_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_eth_usd_parse    [type="jsonparse" path="price"]
+        kraken_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_dai_eth_divide    [type="divide" input="$(kraken_dai_usd_multiply)" divisor="$(kraken_eth_usd_multiply)" times=1000000000000000000]
+    
+        okx_dai_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/DAI/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_dai_usd_parse    [type="jsonparse" path="price"]
+        okx_dai_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_eth_usd_parse    [type="jsonparse" path="price"]
+        okx_eth_usd_multiply [type="multiply" times=1000000000000000000]
+    
+        okx_dai_eth_divide    [type="divide" input="$(okx_dai_usd_multiply)" divisor="$(okx_eth_usd_multiply)" times=1000000000000000000]
+    
+        median [type=median];
+    
+    binance_dai_usdt -> binance_dai_usdt_parse -> binance_dai_usdt_multiply -> binance_dai_eth_divide
+    binance_eth_usdt -> binance_eth_usdt_parse -> binance_eth_usdt_multiply -> binance_dai_eth_divide
+    coinbase_dai_usd -> coinbase_dai_usd_parse -> coinbase_dai_usd_multiply -> coinbase_dai_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_eth_usd_multiply -> coinbase_dai_eth_divide
+    coingecko_dai_usd -> coingecko_dai_usd_parse -> coingecko_dai_usd_multiply -> coingecko_dai_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_eth_usd_multiply -> coingecko_dai_eth_divide
+    cryptocompare_dai_usd -> cryptocompare_dai_usd_parse -> cryptocompare_dai_usd_multiply -> cryptocompare_dai_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_eth_usd_multiply -> cryptocompare_dai_eth_divide
+    kraken_dai_usd -> kraken_dai_usd_parse -> kraken_dai_usd_multiply -> kraken_dai_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_eth_usd_multiply -> kraken_dai_eth_divide
+    okx_dai_usd -> okx_dai_usd_parse -> okx_dai_usd_multiply -> okx_dai_eth_divide
+    okx_eth_usd -> okx_eth_usd_parse -> okx_eth_usd_multiply -> okx_dai_eth_divide
+    binance_dai_eth_divide -> median;
+    coinbase_dai_eth_divide -> median;
+    coingecko_dai_eth_divide -> median;
+    cryptocompare_dai_eth_divide -> median;
+    kraken_dai_eth_divide -> median;
+    okx_dai_eth_divide -> median;
+"""

@@ -204,6 +204,155 @@ ${indentBlock(observationSource)}
   return out;
 }
 
+// Build observationSource for cross-course feeds (e.g. TOKEN / ETH) by
+// grouping dataSources per provider and dividing TOKEN/USD(X) by ETH/USD(X)
+// (or other denominator asset) within the same provider, then taking median.
+function normalizeSymbol(sym) {
+  return String(sym || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '');
+}
+
+function identifyBaseAndDenom(feedName) {
+  const parts = String(feedName).split('/');
+  if (parts.length < 2) return { base: null, denom: null };
+  const base = parts[0].trim();
+  const denom = parts[1].trim();
+  return { base, denom };
+}
+
+function buildCrossCourseObservationSource(feed, contractAddress) {
+  const { base, denom } = identifyBaseAndDenom(feed.name || '');
+  if (!base || !denom) {
+    return buildObservationSource(feed.dataSources || [], feed.decimals); // fallback generic
+  }
+  const baseLc = base.trim().toLowerCase();
+  const denomLc = denom.trim().toLowerCase();
+  const timesStr = decimalsToTimesString(feed.decimals);
+
+  // Group by provider
+  const byProvider = {};
+  for (const ds of feed.dataSources || []) {
+    if (!ds || !ds.provider) continue;
+    const p = String(ds.provider).toLowerCase();
+    if (!byProvider[p]) byProvider[p] = [];
+    byProvider[p].push(ds);
+  }
+
+  const lines = [];
+  const edges = [];
+  const divideNodes = [];
+
+  for (const provider of Object.keys(byProvider).sort()) {
+    const group = byProvider[provider];
+    if (group.length < 2) continue; // need at least two entries per provider
+
+    // Heuristics to pick denom entry (contains denom symbol substring in pair) and base entry
+    let denomEntry = group.find((g) =>
+      String(g.pair || g.url || '').toLowerCase().includes(denomLc)
+    );
+    let baseEntry = group.find((g) =>
+      String(g.pair || g.url || '').toLowerCase().includes(baseLc)
+    );
+
+    // Fallbacks if heuristics failed
+    if (!denomEntry) {
+      // choose entry with larger price maybe (common for denom = ETH/BTC etc.)
+      denomEntry = [...group].sort(
+        (a, b) => Number(b.value || 0) - Number(a.value || 0)
+      )[0];
+    }
+    if (!baseEntry) {
+      baseEntry = group.find((g) => g !== denomEntry) || group[0];
+    }
+    if (baseEntry === denomEntry) continue; // cannot proceed
+
+    function buildNodePrefix(entry, symbolDesired) {
+      // Try to get quote currency (USD / USDT) from pair
+      let quoteCur = '';
+      if (entry.pair) {
+        const parts = String(entry.pair).split('/');
+        if (parts.length === 2) quoteCur = parts[1].toLowerCase();
+      }
+      if (!quoteCur) {
+        // Extract from URL maybe
+        const m = String(entry.url || '').match(/\/quote\/[^/]+\/[A-Za-z0-9_-]+\/([A-Za-z0-9_-]+)/);
+        if (m) quoteCur = m[1].toLowerCase();
+      }
+      if (!quoteCur) quoteCur = 'usd';
+      return `${provider}_${normalizeSymbol(symbolDesired)}_${quoteCur}`;
+    }
+
+    const baseNode = buildNodePrefix(baseEntry, base);
+    const denomNode = buildNodePrefix(denomEntry, denom);
+    const baseParse = `${baseNode}_parse`;
+    const baseMultiply = `${baseNode}_multiply`;
+    const denomParse = `${denomNode}_parse`;
+    const denomMultiply = `${denomNode}_multiply`;
+    const divideNode = `${provider}_${normalizeSymbol(base)}_${normalizeSymbol(
+      denom
+    )}_divide`;
+
+    // Base (comments removed per requirement)
+    lines.push(
+      `    ${baseNode}          [type="http" method=GET url="${baseEntry.url}" allowUnrestrictedNetworkAccess=true retries=3]`
+    );
+    lines.push(
+      `    ${baseParse}    [type="jsonparse" path="${baseEntry.path || 'price'}"]`
+    );
+    lines.push(
+      `    ${baseMultiply} [type="multiply" times=${timesStr}]`
+    );
+
+    // Denom
+    lines.push('');
+    lines.push(
+      `    ${denomNode}          [type="http" method=GET url="${denomEntry.url}" allowUnrestrictedNetworkAccess=true retries=3]`
+    );
+    lines.push(
+      `    ${denomParse}    [type="jsonparse" path="${denomEntry.path || 'price'}"]`
+    );
+    lines.push(
+      `    ${denomMultiply} [type="multiply" times=${timesStr}]`
+    );
+
+    // Divide
+    lines.push('');
+    lines.push(
+      `    ${divideNode}    [type="divide" input="$(${baseMultiply})" divisor="$(${denomMultiply})" times=${timesStr}]`
+    );
+
+    // Edges
+    edges.push(
+      `    ${baseNode} -> ${baseParse} -> ${baseMultiply} -> ${divideNode}`
+    );
+    edges.push(
+      `    ${denomNode} -> ${denomParse} -> ${denomMultiply} -> ${divideNode}`
+    );
+    divideNodes.push(divideNode);
+    lines.push('');
+  }
+
+  if (divideNodes.length === 0) {
+    // fallback to generic median
+    return buildObservationSource(feed.dataSources || [], feed.decimals);
+  }
+
+  const medianName = 'median';
+  // Median node (no allowedFaults attribute per updated requirement)
+  lines.push(`    ${medianName} [type=median];`);
+  lines.push('');
+  // provider pipelines (single indent already added in statements above; remove leading spaces from stored edges)
+  edges.forEach((e) => lines.push(e.replace(/^\s+/, '')));
+  // aggregation edges to median
+  divideNodes.forEach((n) => lines.push(`${n} -> ${medianName};`));
+
+  return lines.join('\n');
+}
+
 // Pair aggregation now prefers explicit ds.pair attribute; URL parsing retained only as fallback for legacy entries.
 function extractPairFromUrl(url) {
   if (!url || typeof url !== 'string') return null;
@@ -291,10 +440,10 @@ function main() {
 
     const jobName = feed.name;
     const jobId = generateDeterministicJobId(feed.name, ca);
-    const observationSource = buildObservationSource(
-      feed.dataSources,
-      feed.decimals
-    );
+    const observationSource =
+      feed.type === 'cross-course'
+        ? buildCrossCourseObservationSource(feed, ca)
+        : buildObservationSource(feed.dataSources, feed.decimals);
 
     const rendered = replacePlaceholders(template, {
       jobName,
