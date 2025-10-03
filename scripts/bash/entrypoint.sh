@@ -139,24 +139,59 @@ EOF
 }
 
 start_chainlink() {
-  log "starting Chainlink entrypoint"
-  /scripts/bash/chainlink-entrypoint.sh &
-  CL_PID=$!
+  log "starting Chainlink entrypoint ($1)"
+  if [ "${1:-fg}" = "fg" ]; then
+    /scripts/bash/chainlink-entrypoint.sh
+    CL_PID=
+  else
+    /scripts/bash/chainlink-entrypoint.sh &
+    CL_PID=$!
+  fi
 }
 
+is_pid_alive() {
+  local pid="$1"
+  [ -n "$pid" ] && [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null
+}
+
+kill_if_alive() {
+  local pid="$1"
+  if is_pid_alive "$pid"; then
+    kill "$pid" || true
+  fi
+}
+
+kill9_if_alive() {
+  local pid="$1"
+  if is_pid_alive "$pid"; then
+    kill -9 "$pid" 2>/dev/null || true
+  fi
+}
+
+SHUTDOWN_CALLED=false
+
 shutdown_all() {
+  if [ "$SHUTDOWN_CALLED" = true ]; then
+    log "shutdown already called, skipping"
+    return 0
+  fi
+  SHUTDOWN_CALLED=true
+
   log "shutting down (signal caught)"
-  # Try to stop chainlink first, then postgres
-  if kill -0 ${CL_PID:-0} 2>/dev/null; then
-    kill ${CL_PID} || true
-  fi
-  if kill -0 ${PG_PID:-0} 2>/dev/null; then
-    kill ${PG_PID} || true
-  fi
+  # Try to stop chainlink first, then postgres (only if PIDs are valid)
+  kill_if_alive "${CL_PID:-}"
+  kill_if_alive "${PG_PID:-}"
+
   # Give a moment and force kill if needed
-  sleep 2
-  kill -9 ${CL_PID:-0} 2>/dev/null || true
-  kill -9 ${PG_PID:-0} 2>/dev/null || true
+  for _ in $(seq 1 20); do
+    if ! is_pid_alive "${CL_PID:-}" && ! is_pid_alive "${PG_PID:-}"; then
+      break
+    fi
+    sleep 1
+  done
+
+  kill9_if_alive "${CL_PID:-}"
+  kill9_if_alive "${PG_PID:-}"
 }
 
 # Boot sequence
@@ -167,7 +202,7 @@ if [ "${MANAGE_POSTGRES:-true}" != "false" ]; then
   mkdir -p "$PGDATA_DIR"
   chown -R postgres:postgres "${PGDATA_DIR}" /var/lib/postgresql || true
 
-  trap shutdown_all SIGINT SIGTERM
+  trap shutdown_all INT TERM QUIT HUP EXIT
 
   # Boot sequence
   init_db_if_needed
@@ -175,7 +210,7 @@ if [ "${MANAGE_POSTGRES:-true}" != "false" ]; then
   wait_postgres
   ensure_app_db
   generate_secrets
-  start_chainlink
+  start_chainlink bg
 
   # Monitor both processes; if any exits, stop the other and exit non-zero
   while true; do
@@ -187,7 +222,7 @@ if [ "${MANAGE_POSTGRES:-true}" != "false" ]; then
         kill ${CL_PID} || true
         wait ${CL_PID} 2>/dev/null || true
       fi
-      start_chainlink
+      start_chainlink bg
     fi
     if ! kill -0 ${PG_PID} 2>/dev/null; then
       log "postgres exited"
@@ -206,8 +241,9 @@ if [ "${MANAGE_POSTGRES:-true}" != "false" ]; then
 
 else
   log "Postgres management is DISABLED. Assuming external Postgres."
+  trap shutdown_all INT TERM QUIT HUP EXIT
   generate_secrets
-  start_chainlink
+  start_chainlink bg
   log "Monitoring Chainlink process (PID: ${CL_PID}) for node ${NODE_NUMBER}..."
   while true; do
     if [ -f $TMP_DIR/restart-chainlink ]; then
@@ -217,7 +253,7 @@ else
         kill ${CL_PID} || true
         wait ${CL_PID} 2>/dev/null || true
       fi
-      start_chainlink
+      start_chainlink bg
       log "Chainlink process for node ${NODE_NUMBER} restarted. New PID: ${CL_PID}"
     fi
     if ! kill -0 ${CL_PID} 2>/dev/null; then

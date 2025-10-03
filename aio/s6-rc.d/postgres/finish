@@ -7,9 +7,6 @@ MAX_RESTARTS="${MAX_RESTARTS:-3}"
 
 mkdir -p "$STATE_DIR"
 
-exit_code="${1:-0}"
-signal="${2:-0}"
-
 # Count every restart (normal or abnormal)
 count=$(cat "$COUNT_FILE" 2>/dev/null || echo 0)
 count=$((count+1))
