@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 
 import { AppConfigService } from '../config';
+import { MetricsService } from './metrics.service';
 import { RemoteWriteClient } from './remote-write.client';
 import { MetricsPushConfig } from '../config/schema/metrics-push.schema';
 
@@ -19,7 +20,10 @@ export class PushMetricsService implements OnModuleInit, OnModuleDestroy {
   private labels: Record<string, string>;
   private readonly config: MetricsPushConfig;
 
-  constructor(private readonly configService: AppConfigService) {
+  constructor(
+    private readonly configService: AppConfigService,
+    private readonly metricsService: MetricsService,
+  ) {
     this.config = this.configService.get('metricsPush');
   }
 
@@ -80,6 +84,7 @@ export class PushMetricsService implements OnModuleInit, OnModuleDestroy {
     }
 
     try {
+      this.metricsService.updateAllSourceAgeMetrics();
       await this.remoteWriteClient.push(this.labels);
       this.logger.debug('Metrics pushed successfully');
     } catch (error) {

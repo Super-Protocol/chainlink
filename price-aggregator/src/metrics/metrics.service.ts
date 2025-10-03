@@ -114,9 +114,9 @@ export class MetricsService {
     labelNames: ['source', 'status'],
   });
 
-  public readonly sourceLastUpdate = new Gauge({
-    name: 'source_last_successful_update_timestamp',
-    help: 'Timestamp of last successful update from source',
+  public readonly sourceLastUpdateAge = new Gauge({
+    name: 'source_last_update_age_seconds',
+    help: 'Seconds since last successful update from source',
     labelNames: ['source', 'pair'],
   });
 
@@ -164,8 +164,6 @@ export class MetricsService {
     const pairKey = pair.join('-');
     const lastUpdateTime = this.lastUpdateTimes.get(`${source}-${pairKey}`);
 
-    this.sourceLastUpdate.set({ source, pair: pairKey }, now / 1000);
-
     if (lastUpdateTime !== undefined && lastUpdateTime > 0) {
       const timeDiff = (now - lastUpdateTime) / 1000;
       this.priceUpdateFrequency.observe({ pair: pairKey, source }, timeDiff);
@@ -177,12 +175,24 @@ export class MetricsService {
   removePairMetrics(pair: Pair, source: SourceName): void {
     const pairKey = pair.join('-');
 
-    this.sourceLastUpdate.remove({ source, pair: pairKey });
+    this.sourceLastUpdateAge.remove({ source, pair: pairKey });
     this.priceNotFoundCount.remove({ source, pair: pairKey });
     this.priceUpdateFrequency.remove({ pair: pairKey, source });
 
     this.lastUpdateTimes.delete(`${source}-${pairKey}`);
 
     this.logger.debug({ source, pair: pairKey }, 'Removed metrics for pair');
+  }
+
+  updateAllSourceAgeMetrics(): void {
+    const now = Date.now();
+
+    for (const [key, lastUpdateTime] of this.lastUpdateTimes.entries()) {
+      const ageSeconds = (now - lastUpdateTime) / 1000;
+      const [source, ...pairParts] = key.split('-');
+      const pairKey = pairParts.join('-');
+
+      this.sourceLastUpdateAge.set({ source, pair: pairKey }, ageSeconds);
+    }
   }
 }
