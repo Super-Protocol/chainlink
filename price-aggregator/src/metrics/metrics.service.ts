@@ -108,6 +108,12 @@ export class MetricsService {
     labelNames: ['source', 'status_code', 'error_type'],
   });
 
+  public readonly restRequests = new Counter({
+    name: 'source_rest_requests_total',
+    help: 'Total number of REST requests sent to external sources',
+    labelNames: ['source', 'status'],
+  });
+
   public readonly sourceLastUpdate = new Gauge({
     name: 'source_last_successful_update_timestamp',
     help: 'Timestamp of last successful update from source',
