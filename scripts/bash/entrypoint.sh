@@ -207,7 +207,7 @@ if [ "${MANAGE_POSTGRES:-true}" != "false" ]; then
         kill ${CL_PID} || true
         wait ${CL_PID} 2>/dev/null || true
       fi
-      start_chainlink
+      start_chainlink bg
     fi
     if ! kill -0 ${PG_PID} 2>/dev/null; then
       log "postgres exited"
