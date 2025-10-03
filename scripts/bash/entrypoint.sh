@@ -192,9 +192,6 @@ shutdown_all() {
 
   kill9_if_alive "${CL_PID:-}"
   kill9_if_alive "${PG_PID:-}"
-
-  [ -n "${CL_PID:-}" ] && wait "${CL_PID}" 2>/dev/null || true
-  [ -n "${PG_PID:-}" ] && wait "${PG_PID}" 2>/dev/null || true
 }
 
 # Boot sequence
