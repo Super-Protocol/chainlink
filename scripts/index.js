@@ -97,6 +97,15 @@ async function run() {
     stdio: 'inherit',
   });
 
+  // Forward termination-related signals to the child
+  const forward = (sig) => () => {
+    try { child.kill(sig); } catch {}
+  };
+  process.on('SIGINT',  forward('SIGINT'));
+  process.on('SIGTERM', forward('SIGTERM'));
+  process.on('SIGHUP',  forward('SIGHUP'));
+  process.on('SIGQUIT', forward('SIGQUIT'));
+
   child.on('exit', (code, signal) => {
     if (typeof faucetInterval !== 'undefined' && faucetInterval) {
       clearInterval(faucetInterval);
