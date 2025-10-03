@@ -168,15 +168,30 @@ kill9_if_alive() {
   fi
 }
 
+SHUTDOWN_CALLED=false
+
 shutdown_all() {
+  if [ "$SHUTDOWN_CALLED" = true ]; then
+    log "shutdown already called, skipping"
+    return 0
+  fi
+  SHUTDOWN_CALLED=true
+
   log "shutting down (signal caught)"
   # Try to stop chainlink first, then postgres (only if PIDs are valid)
   kill_if_alive "${CL_PID:-}"
   kill_if_alive "${PG_PID:-}"
+
+  [ -n "${CL_PID:-}" ] && wait "${CL_PID}" 2>/dev/null || true
+  [ -n "${PG_PID:-}" ] && wait "${PG_PID}" 2>/dev/null || true
+
   # Give a moment and force kill if needed
   sleep 20
   kill9_if_alive "${CL_PID:-}"
   kill9_if_alive "${PG_PID:-}"
+
+  [ -n "${CL_PID:-}" ] && wait "${CL_PID}" 2>/dev/null || true
+  [ -n "${PG_PID:-}" ] && wait "${PG_PID}" 2>/dev/null || true
 }
 
 # Boot sequence
