@@ -4,6 +4,24 @@ set -euo pipefail
 # Logger should be defined before any usage
 log() { echo "[entrypoint] $*"; }
 
+# Helpers for auxiliary process management
+is_pid_alive() {
+  local pid="$1"
+  [ -n "$pid" ] && [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null
+}
+
+kill_if_alive() {
+  local pid="$1"
+  if is_pid_alive "$pid"; then
+    kill "$pid" || true
+  fi
+}
+
+shutdown_all() {
+  kill_if_alive "${SET_CONFIG_PID:-}"
+  kill_if_alive "${PUBLISH_JOBS_PID:-}"
+}
+
 # Required environment
 if [ -z "${TOTAL_NODES:-}" ]; then
   log "TOTAL_NODES env var is required" >&2
@@ -41,6 +59,8 @@ ROOT_DIR="${CHAINLINK_ROOT:-/chainlink}/node-${NODE_NUMBER}"
 SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
 CL_SHARED_DIR="$SP_SECRETS_DIR/cl-secrets"
 TMP_DIR="/tmp/node-${NODE_NUMBER}"
+PUBLISH_JOBS_PID=
+SET_CONFIG_PID=
 
 mkdir -p "$TMP_DIR"
 
@@ -96,6 +116,10 @@ fi
 
 node /scripts/secrets/balance-top-up.js
 
+if [ "$NODE_NUMBER" = "$leader" ]; then
+  bash -c 'node /scripts/secrets/register-admin.js; /scripts/bash/set-config-for-all-feeds.sh' 2>&1 &
+  SET_CONFIG_PID=$!
+fi
 
 # Workers: wait until ALL bootstrap nodes are ready (API /readyz responds)
 is_bootstrap=false
@@ -142,19 +166,7 @@ fi
 
 wait_for_node_payload $NODE_NUMBER
 
-HELPER_PID_FILE="$TMP_DIR/helper.pid"
-# Stop previous helper if running
-if [ -f "$HELPER_PID_FILE" ]; then
-  oldpid=$(cat "$HELPER_PID_FILE" || true)
-  if [ -n "$oldpid" ] && kill -0 "$oldpid" 2>/dev/null; then
-    log "stopping previous helper pid=$oldpid"
-    kill "$oldpid" 2>/dev/null || true
-    sleep 1
-    kill -9 "$oldpid" 2>/dev/null || true
-  fi
-fi
-
-nohup bash -c '
+bash -c '
   /scripts/bash/wait-node.sh
   if [ "'"${FIRST_START}"'" = "'"true"'" ]; then
     /scripts/bash/import-keys.sh
@@ -169,11 +181,13 @@ nohup bash -c '
     node /scripts/secrets/register-admin.js
     /scripts/bash/set-config-for-all-feeds.sh
   fi
-' >/proc/1/fd/1 2>/proc/1/fd/2 &
-echo $! > "$HELPER_PID_FILE"
+' 2>&1 &
+PUBLISH_JOBS_PID=$!
 
 log "Changing working directory to ${ROOT_DIR} for node ${NODE_NUMBER}"
 cd "$ROOT_DIR" || exit 1
+
+trap 'shutdown_all' INT TERM QUIT HUP EXIT
 
 log "Executing chainlink node for node ${NODE_NUMBER} from within ${ROOT_DIR}"
 cat "${NODE_ROOT_DIR}/config.toml"
