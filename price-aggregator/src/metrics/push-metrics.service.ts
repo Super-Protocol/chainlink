@@ -91,9 +91,13 @@ export class PushMetricsService implements OnModuleInit, OnModuleDestroy {
       const err = error instanceof Error ? error : new Error(String(error));
       this.logger.warn(
         {
-          err,
           url: this.config.url,
-          message: err.message,
+          error: err.message,
+          errorName: err.name,
+          errorCode:
+            typeof error === 'object' && error && 'code' in error
+              ? error.code
+              : undefined,
         },
         'Failed to push metrics',
       );
