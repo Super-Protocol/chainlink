@@ -40,12 +40,21 @@ export class SourcesManagerService {
     try {
       const adapter = this.getAdapterByName(sourceName);
       const quote = await adapter.fetchQuote(pair);
+
+      this.metricsService.restRequests.inc({
+        source: sourceName,
+        status: 'success',
+      });
       this.metricsService.quoteThroughput.inc({
         source: sourceName,
         status: 'success',
       });
       return quote;
     } catch (error) {
+      this.metricsService.restRequests.inc({
+        source: sourceName,
+        status: 'error',
+      });
       this.metricsService.quoteThroughput.inc({
         source: sourceName,
         status: 'error',
@@ -97,6 +106,11 @@ export class SourcesManagerService {
       }
 
       const quotes = await adapter.fetchQuotes(pairs);
+
+      this.metricsService.restRequests.inc({
+        source: sourceName,
+        status: 'success',
+      });
       this.metricsService.quoteThroughput.inc(
         {
           source: sourceName,
@@ -106,6 +120,10 @@ export class SourcesManagerService {
       );
       return quotes;
     } catch (error) {
+      this.metricsService.restRequests.inc({
+        source: sourceName,
+        status: 'error',
+      });
       this.metricsService.quoteThroughput.inc({
         source: sourceName,
         status: 'error',
