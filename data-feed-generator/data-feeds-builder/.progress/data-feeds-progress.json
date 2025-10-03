@@ -22,10 +22,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/1INCH/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/1inch/USD",
         "path": "price",
         "value": 0.245997,
-        "pair": "1INCH/USD"
+        "pair": "1inch/USD"
       },
       {
         "provider": "coinbase",
@@ -66,10 +66,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/TWIN-ASSET-TOKEN-AAPL/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/twin-asset-token-aapl/USD",
         "path": "price",
         "value": 201.91,
-        "pair": "AAPL/USD"
+        "pair": "twin-asset-token-aapl/USD"
       }
     ]
   },
@@ -96,10 +96,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AAVE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/aave/USD",
         "path": "price",
         "value": 269.33,
-        "pair": "AAVE/USD"
+        "pair": "aave/USD"
       },
       {
         "provider": "coinbase",
@@ -162,10 +162,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BIFROST-BRIDGED-ETH-BIFROST/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
         "path": "price",
         "value": 4136,
-        "pair": "ETH/USD"
+        "pair": "bifrost-bridged-eth-bifrost/USD"
       },
       {
         "provider": "coinbase",
@@ -206,10 +206,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AMAZON-ONDO-TOKENIZED-STOCK/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/amazon-ondo-tokenized-stock/USD",
         "path": "price",
         "value": 219.1,
-        "pair": "AMZN/USD"
+        "pair": "amazon-ondo-tokenized-stock/USD"
       }
     ]
   },
@@ -236,10 +236,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/COSMOS/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/cosmos/USD",
         "path": "price",
         "value": 4.02,
-        "pair": "ATOM/USD"
+        "pair": "cosmos/USD"
       },
       {
         "provider": "coinbase",
@@ -287,10 +287,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AUDIT/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/audit/USD",
         "path": "price",
         "value": 0.01138784,
-        "pair": "AUD/USD"
+        "pair": "audit/USD"
       },
       {
         "provider": "coinbase",
@@ -345,10 +345,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AVALANCHE-2/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/avalanche-2/USD",
         "path": "price",
         "value": 29.19,
-        "pair": "AVAX/USD"
+        "pair": "avalanche-2/USD"
       },
       {
         "provider": "coinbase",
@@ -403,10 +403,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AXIE-INFINITY/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/axie-infinity/USD",
         "path": "price",
         "value": 2.06,
-        "pair": "AXS/USD"
+        "pair": "axie-infinity/USD"
       },
       {
         "provider": "coinbase",
@@ -469,10 +469,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BAND-PROTOCOL/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/band-protocol/USD",
         "path": "price",
         "value": 0.62189,
-        "pair": "BAND/USD"
+        "pair": "band-protocol/USD"
       },
       {
         "provider": "coinbase",
@@ -535,10 +535,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BINANCE-PEG-BITCOIN-CASH/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-bitcoin-cash/USD",
         "path": "price",
         "value": 552.03,
-        "pair": "BCH/USD"
+        "pair": "binance-peg-bitcoin-cash/USD"
       },
       {
         "provider": "coinbase",
@@ -593,10 +593,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BIFROST-BRIDGED-BNB-BIFROST/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "BNB/USD"
+        "pair": "bifrost-bridged-bnb-bifrost/USD"
       },
       {
         "provider": "coinbase",
@@ -637,10 +637,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BEDROCK-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bedrock-token/USD",
         "path": "price",
         "value": 0.066484,
-        "pair": "BR/USD"
+        "pair": "bedrock-token/USD"
       }
     ]
   },
@@ -660,10 +660,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BOREALIS/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/borealis/USD",
         "path": "price",
         "value": 0.00706692,
-        "pair": "BRL/USD"
+        "pair": "borealis/USD"
       },
       {
         "provider": "coinbase",
@@ -704,10 +704,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BASEDSWAP/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/basedswap/USD",
         "path": "price",
         "value": 0.00029063,
-        "pair": "BSW/USD"
+        "pair": "basedswap/USD"
       }
     ]
   },
@@ -750,10 +750,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BATCAT/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/batcat/USD",
         "path": "price",
         "value": 0.00005278,
-        "pair": "BTC/USD"
+        "pair": "batcat/USD"
       },
       {
         "provider": "coinbase",
@@ -801,10 +801,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/COIN98/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/coin98/USD",
         "path": "price",
         "value": 0.04517282,
-        "pair": "C98/USD"
+        "pair": "coin98/USD"
       },
       {
         "provider": "coinbase",
@@ -853,10 +853,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/PANCAKESWAP-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/pancakeswap-token/USD",
         "path": "price",
         "value": 2.5,
-        "pair": "CAKE/USD"
+        "pair": "pancakeswap-token/USD"
       },
       {
         "provider": "coinbase",
@@ -890,10 +890,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/CONFLUX-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/conflux-token/USD",
         "path": "price",
         "value": 0.141299,
-        "pair": "CFX/USD"
+        "pair": "conflux-token/USD"
       },
       {
         "provider": "coinbase",
@@ -964,10 +964,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/CHROMAWAY/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/chromaway/USD",
         "path": "price",
         "value": 0.080361,
-        "pair": "CHR/USD"
+        "pair": "chromaway/USD"
       },
       {
         "provider": "coinbase",
@@ -994,10 +994,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/8-BIT-COIN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/8-bit-coin/USD",
         "path": "price",
         "value": 0.00004013,
-        "pair": "COIN/USD"
+        "pair": "8-bit-coin/USD"
       }
     ]
   },
@@ -1024,10 +1024,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/COMPOUND-GOVERNANCE-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/compound-governance-token/USD",
         "path": "price",
         "value": 40.82,
-        "pair": "COMP/USD"
+        "pair": "compound-governance-token/USD"
       },
       {
         "provider": "coinbase",
@@ -1105,10 +1105,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/STADER-BNBX/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/stader-bnbx/USD",
         "path": "price",
         "value": 1109.96,
-        "pair": "BNBX/USD"
+        "pair": "stader-bnbx/USD"
       }
     ]
   },
@@ -1121,10 +1121,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BENQI-LIQUID-STAKED-AVAX/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/benqi-liquid-staked-avax/USD",
         "path": "price",
         "value": 35.78,
-        "pair": "SAVAX/USD"
+        "pair": "benqi-liquid-staked-avax/USD"
       }
     ]
   },
@@ -1159,10 +1159,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AVALANCHE-BRIDGED-DAI-AVALANCHE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/avalanche-bridged-dai-avalanche/USD",
         "path": "price",
         "value": 0.999766,
-        "pair": "DAI/USD"
+        "pair": "avalanche-bridged-dai-avalanche/USD"
       },
       {
         "provider": "coinbase",
@@ -1203,10 +1203,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DODO/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/dodo/USD",
         "path": "price",
         "value": 0.04250296,
-        "pair": "DODO/USD"
+        "pair": "dodo/USD"
       },
       {
         "provider": "coinbase",
@@ -1240,10 +1240,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BINANCE-PEG-DOGECOIN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-dogecoin/USD",
         "path": "price",
         "value": 0.227916,
-        "pair": "DOGE/USD"
+        "pair": "binance-peg-dogecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -1299,10 +1299,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BINANCE-PEG-POLKADOT/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-polkadot/USD",
         "path": "price",
         "value": 3.86,
-        "pair": "DOT/USD"
+        "pair": "binance-peg-polkadot/USD"
       },
       {
         "provider": "coinbase",
@@ -1351,10 +1351,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AGEUR/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ageur/USD",
         "path": "price",
         "value": 1.16,
-        "pair": "EUR/USD"
+        "pair": "ageur/USD"
       },
       {
         "provider": "coinbase",
@@ -1395,10 +1395,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/FIRST-DIGITAL-USD/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/first-digital-usd/USD",
         "path": "price",
         "value": 0.996703,
-        "pair": "FDUSD/USD"
+        "pair": "first-digital-usd/USD"
       }
     ]
   },
@@ -1425,10 +1425,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/FETCH-AI/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/fetch-ai/USD",
         "path": "price",
         "value": 0.557039,
-        "pair": "FET/USD"
+        "pair": "fetch-ai/USD"
       },
       {
         "provider": "coinbase",
@@ -1469,10 +1469,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BINANCE-PEG-FILECOIN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-filecoin/USD",
         "path": "price",
         "value": 2.16,
-        "pair": "FIL/USD"
+        "pair": "binance-peg-filecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -1513,10 +1513,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/FRAX/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/frax/USD",
         "path": "price",
         "value": 0.998278,
-        "pair": "FRAX/USD"
+        "pair": "frax/USD"
       }
     ]
   },
@@ -1529,10 +1529,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/FX-USD-SAVING/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/fx-usd-saving/USD",
         "path": "price",
         "value": 1.053,
-        "pair": "FXS/USD"
+        "pair": "fx-usd-saving/USD"
       },
       {
         "provider": "kraken",
@@ -1559,10 +1559,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/MONERIUM-GBP-EMONEY/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/monerium-gbp-emoney/USD",
         "path": "price",
         "value": 1.34,
-        "pair": "GBP/USD"
+        "pair": "monerium-gbp-emoney/USD"
       },
       {
         "provider": "coinbase",
@@ -1603,10 +1603,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DUMBMONEY/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/dumbmoney/USD",
         "path": "price",
         "value": 0.00125039,
-        "pair": "GME/USD"
+        "pair": "dumbmoney/USD"
       }
     ]
   },
@@ -1626,10 +1626,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/GAMEM-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/gamem-token/USD",
         "path": "price",
         "value": 0.00024089,
-        "pair": "GMT/USD"
+        "pair": "gamem-token/USD"
       },
       {
         "provider": "coinbase",
@@ -1663,10 +1663,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ALPHABET-CLASS-A-ONDO-TOKENIZED-STOCK/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/alphabet-class-a-ondo-tokenized-stock/USD",
         "path": "price",
         "value": 240.75,
-        "pair": "GOOGL/USD"
+        "pair": "alphabet-class-a-ondo-tokenized-stock/USD"
       }
     ]
   },
@@ -1686,10 +1686,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/HIGH/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/high/USD",
         "path": "price",
         "value": 0.00008905,
-        "pair": "HIGH/USD"
+        "pair": "high/USD"
       },
       {
         "provider": "coinbase",
@@ -1723,10 +1723,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/INTERNET-COMPUTER/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/internet-computer/USD",
         "path": "price",
         "value": 4.15,
-        "pair": "ICP/USD"
+        "pair": "internet-computer/USD"
       },
       {
         "provider": "coinbase",
@@ -1767,10 +1767,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/INJECTIVE-PROTOCOL/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/injective-protocol/USD",
         "path": "price",
         "value": 11.7,
-        "pair": "INJ/USD"
+        "pair": "injective-protocol/USD"
       },
       {
         "provider": "coinbase",
@@ -1842,10 +1842,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DEPHASER-JPY/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/dephaser-jpy/USD",
         "path": "price",
         "value": 0.00663979,
-        "pair": "JPY/USD"
+        "pair": "dephaser-jpy/USD"
       },
       {
         "provider": "coinbase",
@@ -1886,10 +1886,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/KAVA/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/kava/USD",
         "path": "price",
         "value": 0.316292,
-        "pair": "KAVA/USD"
+        "pair": "kava/USD"
       },
       {
         "provider": "coinbase",
@@ -1930,10 +1930,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/KYBER-NETWORK-CRYSTAL/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/kyber-network-crystal/USD",
         "path": "price",
         "value": 0.3191,
-        "pair": "KNC/USD"
+        "pair": "kyber-network-crystal/USD"
       },
       {
         "provider": "coinbase",
@@ -1997,10 +1997,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/CHAINLINK/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/chainlink/USD",
         "path": "price",
         "value": 21.26,
-        "pair": "LINK/USD"
+        "pair": "chainlink/USD"
       },
       {
         "provider": "coinbase",
@@ -2041,10 +2041,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/LISTA/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/lista/USD",
         "path": "price",
         "value": 0.26439,
-        "pair": "LISTA/USD"
+        "pair": "lista/USD"
       }
     ]
   },
@@ -2079,10 +2079,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BINANCE-PEG-LITECOIN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-litecoin/USD",
         "path": "price",
         "value": 105.06,
-        "pair": "LTC/USD"
+        "pair": "binance-peg-litecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -2130,10 +2130,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/CATWIFMASK/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/catwifmask/USD",
         "path": "price",
         "value": 0.00497675,
-        "pair": "MASK/USD"
+        "pair": "catwifmask/USD"
       },
       {
         "provider": "coinbase",
@@ -2167,10 +2167,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/META-2/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/meta-2/USD",
         "path": "price",
         "value": 1776.61,
-        "pair": "META/USD"
+        "pair": "meta-2/USD"
       }
     ]
   },
@@ -2191,10 +2191,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/MIRRORSTAGE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/mirrorstage/USD",
         "path": "price",
         "value": 0.00040844,
-        "pair": "MS/USD"
+        "pair": "mirrorstage/USD"
       }
     ]
   },
@@ -2207,10 +2207,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DINARI-MSFT-DSHARES/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/dinari-msft-dshares/USD",
         "path": "price",
         "value": 5.1357e-10,
-        "pair": "MSFT/USD"
+        "pair": "dinari-msft-dshares/USD"
       }
     ]
   },
@@ -2230,10 +2230,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/MACHINA/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/machina/USD",
         "path": "price",
         "value": 0.00930934,
-        "pair": "MXN/USD"
+        "pair": "machina/USD"
       },
       {
         "provider": "coinbase",
@@ -2274,10 +2274,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BINANCE-PEG-NEAR-PROTOCOL/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-near-protocol/USD",
         "path": "price",
         "value": 2.58,
-        "pair": "NEAR/USD"
+        "pair": "binance-peg-near-protocol/USD"
       },
       {
         "provider": "coinbase",
@@ -2311,10 +2311,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DINARI-NFLX-DSHARES/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/dinari-nflx-dshares/USD",
         "path": "price",
         "value": 1.243e-9,
-        "pair": "NFLX/USD"
+        "pair": "dinari-nflx-dshares/USD"
       }
     ]
   },
@@ -2327,10 +2327,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/TWIN-ASSET-TOKEN-NVDA-LONG/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/twin-asset-token-nvda-long/USD",
         "path": "price",
         "value": 137.9,
-        "pair": "NVDA/USD"
+        "pair": "twin-asset-token-nvda-long/USD"
       }
     ]
   },
@@ -2350,10 +2350,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ONG/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ong/USD",
         "path": "price",
         "value": 0.147382,
-        "pair": "ONG/USD"
+        "pair": "ong/USD"
       },
       {
         "provider": "coinbase",
@@ -2387,10 +2387,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BINANCE-PEG-ONTOLOGY/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-ontology/USD",
         "path": "price",
         "value": 0.116725,
-        "pair": "ONT/USD"
+        "pair": "binance-peg-ontology/USD"
       },
       {
         "provider": "coinbase",
@@ -2431,10 +2431,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/PAX-GOLD/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/pax-gold/USD",
         "path": "price",
         "value": 3859.76,
-        "pair": "PAXG/USD"
+        "pair": "pax-gold/USD"
       },
       {
         "provider": "coinbase",
@@ -2513,10 +2513,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/KATANA-BRIDGED-POL-KATANA/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/katana-bridged-pol-katana/USD",
         "path": "price",
         "value": 0.222817,
-        "pair": "POL/USD"
+        "pair": "katana-bridged-pol-katana/USD"
       },
       {
         "provider": "coinbase",
@@ -2550,10 +2550,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/INVESCO-QQQ-ETF-ONDO-TOKENIZED-ETF/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/invesco-qqq-etf-ondo-tokenized-etf/USD",
         "path": "price",
         "value": 598.98,
-        "pair": "QQQ/USD"
+        "pair": "invesco-qqq-etf-ondo-tokenized-etf/USD"
       }
     ]
   },
@@ -2573,10 +2573,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/RADIANT-CAPITAL/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/radiant-capital/USD",
         "path": "price",
         "value": 0.01899113,
-        "pair": "RDNT/USD"
+        "pair": "radiant-capital/USD"
       },
       {
         "provider": "coinbase",
@@ -2647,10 +2647,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BINANCE-PEG-SHIB/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-shib/USD",
         "path": "price",
         "value": 0.00001165,
-        "pair": "SHIB/USD"
+        "pair": "binance-peg-shib/USD"
       },
       {
         "provider": "coinbase",
@@ -2698,10 +2698,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ALLBRIDGE-BRIDGED-SOL-NEAR-PROTOCOL/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/allbridge-bridged-sol-near-protocol/USD",
         "path": "price",
         "value": 203.97,
-        "pair": "SOL/USD"
+        "pair": "allbridge-bridged-sol-near-protocol/USD"
       },
       {
         "provider": "coinbase",
@@ -2749,10 +2749,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/SPELL-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/spell-token/USD",
         "path": "price",
         "value": 0.00042958,
-        "pair": "SPELL/USD"
+        "pair": "spell-token/USD"
       },
       {
         "provider": "coinbase",
@@ -2786,10 +2786,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/SMARTY-PAY/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/smarty-pay/USD",
         "path": "price",
         "value": 0.00031515,
-        "pair": "SPY/USD"
+        "pair": "smarty-pay/USD"
       }
     ]
   },
@@ -2809,10 +2809,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/LAYERZERO/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/layerzero/USD",
         "path": "price",
         "value": 2,
-        "pair": "ZRO/USD"
+        "pair": "layerzero/USD"
       },
       {
         "provider": "coinbase",
@@ -2868,10 +2868,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/SUSHI/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/sushi/USD",
         "path": "price",
         "value": 0.656714,
-        "pair": "SUSHI/USD"
+        "pair": "sushi/USD"
       },
       {
         "provider": "coinbase",
@@ -2912,10 +2912,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/SWIPE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/swipe/USD",
         "path": "price",
         "value": 0.153204,
-        "pair": "SXP/USD"
+        "pair": "swipe/USD"
       }
     ]
   },
@@ -2950,10 +2950,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/SOLANA-BRIDGED-TRX-SOLANA/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/solana-bridged-trx-solana/USD",
         "path": "price",
         "value": 0.333894,
-        "pair": "TRX/USD"
+        "pair": "solana-bridged-trx-solana/USD"
       },
       {
         "provider": "coinbase",
@@ -2987,10 +2987,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/TSLA6900/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/tsla6900/USD",
         "path": "price",
         "value": 8.7147e-8,
-        "pair": "TSLA/USD"
+        "pair": "tsla6900/USD"
       }
     ]
   },
@@ -3017,10 +3017,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BRIDGED-TRUEUSD/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bridged-trueusd/USD",
         "path": "price",
         "value": 0.998135,
-        "pair": "TUSD/USD"
+        "pair": "bridged-trueusd/USD"
       },
       {
         "provider": "kraken",
@@ -3070,10 +3070,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/LINEA-BRIDGED-UNI-LINEA/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/linea-bridged-uni-linea/USD",
         "path": "price",
         "value": 7.3,
-        "pair": "UNI/USD"
+        "pair": "linea-bridged-uni-linea/USD"
       },
       {
         "provider": "coinbase",
@@ -3114,10 +3114,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/USD1/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/usd1/USD",
         "path": "price",
         "value": 1.052,
-        "pair": "USD1/USD"
+        "pair": "usd1/USD"
       },
       {
         "provider": "coinbase",
@@ -3166,10 +3166,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AIRDAO-BRIDGED-USDC-AIRDAO/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/airdao-bridged-usdc-airdao/USD",
         "path": "price",
         "value": 0.999602,
-        "pair": "USDC/USD"
+        "pair": "airdao-bridged-usdc-airdao/USD"
       },
       {
         "provider": "coinbase",
@@ -3203,10 +3203,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ENERGI-DOLLAR/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/energi-dollar/USD",
         "path": "price",
         "value": 1.007,
-        "pair": "USDE/USD"
+        "pair": "energi-dollar/USD"
       },
       {
         "provider": "coinbase",
@@ -3248,10 +3248,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ABSTRACT-BRIDGED-USDT-ABSTRACT/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/abstract-bridged-usdt-abstract/USD",
         "path": "price",
         "value": 1.006,
-        "pair": "USDT/USD"
+        "pair": "abstract-bridged-usdt-abstract/USD"
       },
       {
         "provider": "coinbase",
@@ -3292,10 +3292,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ASTHERUS-USDF/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/astherus-usdf/USD",
         "path": "price",
         "value": 0.997846,
-        "pair": "USDF/USD"
+        "pair": "astherus-usdf/USD"
       }
     ]
   },
@@ -3315,10 +3315,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/RESOLV-USR/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/resolv-usr/USD",
         "path": "price",
         "value": 0.999818,
-        "pair": "USR/USD"
+        "pair": "resolv-usr/USD"
       }
     ]
   },
@@ -3345,10 +3345,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/VECHAIN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/vechain/USD",
         "path": "price",
         "value": 0.02163528,
-        "pair": "VET/USD"
+        "pair": "vechain/USD"
       },
       {
         "provider": "coinbase",
@@ -3375,10 +3375,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/WIN-2/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/win-2/USD",
         "path": "price",
         "value": 0.00001176,
-        "pair": "WIN/USD"
+        "pair": "win-2/USD"
       },
       {
         "provider": "kraken",
@@ -3412,10 +3412,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/WOO-NETWORK/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/woo-network/USD",
         "path": "price",
         "value": 0.066528,
-        "pair": "WOO/USD"
+        "pair": "woo-network/USD"
       },
       {
         "provider": "coinbase",
@@ -3442,10 +3442,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ARBITRUM-BRIDGED-WSTETH-ARBITRUM/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/arbitrum-bridged-wsteth-arbitrum/USD",
         "path": "price",
         "value": 5033.37,
-        "pair": "WSTETH/USD"
+        "pair": "arbitrum-bridged-wsteth-arbitrum/USD"
       },
       {
         "provider": "coinbase",
@@ -3465,10 +3465,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/WRAPPED-CLUB-TIGRES-UANL-KAYEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/wrapped-club-tigres-uanl-kayen/USD",
         "path": "price",
         "value": 0.130953,
-        "pair": "WTI/USD"
+        "pair": "wrapped-club-tigres-uanl-kayen/USD"
       }
     ]
   },
@@ -3497,10 +3497,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/XAU9999/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/xau9999/USD",
         "path": "price",
         "value": 3.4377e-11,
-        "pair": "XAU/USD"
+        "pair": "xau9999/USD"
       },
       {
         "provider": "coinbase",
@@ -3534,10 +3534,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/STELLAR/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/stellar/USD",
         "path": "price",
         "value": 0.362466,
-        "pair": "XLM/USD"
+        "pair": "stellar/USD"
       },
       {
         "provider": "coinbase",
@@ -3593,10 +3593,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BINANCE-PEG-XRP/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-xrp/USD",
         "path": "price",
         "value": 2.84,
-        "pair": "XRP/USD"
+        "pair": "binance-peg-xrp/USD"
       },
       {
         "provider": "coinbase",
@@ -3652,10 +3652,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BINANCE-PEG-TEZOS-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-tezos-token/USD",
         "path": "price",
         "value": 0.653615,
-        "pair": "XTZ/USD"
+        "pair": "binance-peg-tezos-token/USD"
       },
       {
         "provider": "coinbase",
@@ -3704,10 +3704,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/VENUS/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/venus/USD",
         "path": "price",
         "value": 5.8,
-        "pair": "XVS/USD"
+        "pair": "venus/USD"
       }
     ]
   },
@@ -3742,10 +3742,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/YEARN-FINANCE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/yearn-finance/USD",
         "path": "price",
         "value": 5337.29,
-        "pair": "YFI/USD"
+        "pair": "yearn-finance/USD"
       },
       {
         "provider": "coinbase",
@@ -3786,10 +3786,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ZARA-AI/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/zara-ai/USD",
         "path": "price",
         "value": 0.00060172,
-        "pair": "ZAR/USD"
+        "pair": "zara-ai/USD"
       },
       {
         "provider": "coinbase",
@@ -3823,10 +3823,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ZEEBU/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/zeebu/USD",
         "path": "price",
         "value": 1.75,
-        "pair": "ZBU/USD"
+        "pair": "zeebu/USD"
       },
       {
         "provider": "coinbase",
@@ -3925,10 +3925,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AMPLEFORTH/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ampleforth/USD",
         "path": "price",
         "value": 1.24,
-        "pair": "AMPL/USD"
+        "pair": "ampleforth/USD"
       }
     ]
   },
@@ -3963,10 +3963,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/APE-3/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ape-3/USD",
         "path": "price",
         "value": 1.07481e-7,
-        "pair": "APE/USD"
+        "pair": "ape-3/USD"
       },
       {
         "provider": "coinbase",
@@ -4014,10 +4014,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ARBITRAGE-LOOP/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/arbitrage-loop/USD",
         "path": "price",
         "value": 0.00041307,
-        "pair": "ARB/USD"
+        "pair": "arbitrage-loop/USD"
       },
       {
         "provider": "coinbase",
@@ -4058,10 +4058,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AVAIL/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/avail/USD",
         "path": "price",
         "value": 0.01270114,
-        "pair": "AVAIL/USD"
+        "pair": "avail/USD"
       }
     ]
   },
@@ -4104,10 +4104,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BALANCER/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/balancer/USD",
         "path": "price",
         "value": 1.11,
-        "pair": "BAL/USD"
+        "pair": "balancer/USD"
       },
       {
         "provider": "coinbase",
@@ -4241,10 +4241,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/CRVUSD/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/crvusd/USD",
         "path": "price",
         "value": 0.999636,
-        "pair": "CRVUSD/USD"
+        "pair": "crvusd/USD"
       }
     ]
   },
@@ -4280,10 +4280,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/CONVEX-FINANCE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/convex-finance/USD",
         "path": "price",
         "value": 3.07,
-        "pair": "CVX/USD"
+        "pair": "convex-finance/USD"
       },
       {
         "provider": "coinbase",
@@ -4340,10 +4340,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DOLOMITE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/dolomite/USD",
         "path": "price",
         "value": 0.098739,
-        "pair": "DOLO/USD"
+        "pair": "dolomite/USD"
       },
       {
         "provider": "coinbase",
@@ -4385,10 +4385,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DEFIPULSE-INDEX/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/defipulse-index/USD",
         "path": "price",
         "value": 98.28,
-        "pair": "DPI/USD"
+        "pair": "defipulse-index/USD"
       },
       {
         "provider": "coinbase",
@@ -4422,10 +4422,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/EIGENLAYER/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/eigenlayer/USD",
         "path": "price",
         "value": 1.46,
-        "pair": "EIGEN/USD"
+        "pair": "eigenlayer/USD"
       },
       {
         "provider": "coinbase",
@@ -4481,10 +4481,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ETHEREUM-NAME-SERVICE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum-name-service/USD",
         "path": "price",
         "value": 19.68,
-        "pair": "ENS/USD"
+        "pair": "ethereum-name-service/USD"
       },
       {
         "provider": "coinbase",
@@ -4533,10 +4533,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ETHER-FI/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ether-fi/USD",
         "path": "price",
         "value": 1.41,
-        "pair": "ETHFI/USD"
+        "pair": "ether-fi/USD"
       },
       {
         "provider": "coinbase",
@@ -4577,10 +4577,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/EURO-COIN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/euro-coin/USD",
         "path": "price",
         "value": 1.17,
-        "pair": "EURC/USD"
+        "pair": "euro-coin/USD"
       },
       {
         "provider": "coinbase",
@@ -4629,10 +4629,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/COPIOSA/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/copiosa/USD",
         "path": "price",
         "value": 0.00012284,
-        "pair": "COP/USD"
+        "pair": "copiosa/USD"
       },
       {
         "provider": "coinbase",
@@ -4683,10 +4683,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AVALANCHE-BRIDGED-GHO-AVALANCHE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/avalanche-bridged-gho-avalanche/USD",
         "path": "price",
         "value": 0.997972,
-        "pair": "GHO/USD"
+        "pair": "avalanche-bridged-gho-avalanche/USD"
       }
     ]
   },
@@ -4721,10 +4721,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/THE-GRAPH/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/the-graph/USD",
         "path": "price",
         "value": 0.079331,
-        "pair": "GRT/USD"
+        "pair": "the-graph/USD"
       },
       {
         "provider": "coinbase",
@@ -4788,10 +4788,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/IMMUTABLE-X/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/immutable-x/USD",
         "path": "price",
         "value": 0.681345,
-        "pair": "IMX/USD"
+        "pair": "immutable-x/USD"
       },
       {
         "provider": "coinbase",
@@ -4840,10 +4840,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/KROWN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/krown/USD",
         "path": "price",
         "value": 0.00000499,
-        "pair": "KRW/USD"
+        "pair": "krown/USD"
       },
       {
         "provider": "coinbase",
@@ -4901,10 +4901,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/LIQUITY-USD/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/liquity-usd/USD",
         "path": "price",
         "value": 0.999669,
-        "pair": "LUSD/USD"
+        "pair": "liquity-usd/USD"
       }
     ]
   },
@@ -4940,10 +4940,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/HEROES-OF-MAVIA/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/heroes-of-mavia/USD",
         "path": "price",
         "value": 0.114901,
-        "pair": "MAVIA/USD"
+        "pair": "heroes-of-mavia/USD"
       }
     ]
   },
@@ -4978,10 +4978,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/MAKER/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/maker/USD",
         "path": "price",
         "value": 1569.92,
-        "pair": "MKR/USD"
+        "pair": "maker/USD"
       },
       {
         "provider": "coinbase",
@@ -5023,10 +5023,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/NEIRO/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/neiro/USD",
         "path": "price",
         "value": 0.00065345,
-        "pair": "NEIRO/USD"
+        "pair": "neiro/USD"
       },
       {
         "provider": "coinbase",
@@ -5098,10 +5098,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/OPENUSDT/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/openusdt/USD",
         "path": "price",
         "value": 1,
-        "pair": "OUSDT/USD"
+        "pair": "openusdt/USD"
       }
     ]
   },
@@ -5153,10 +5153,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/RIPPLE-USD/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ripple-usd/USD",
         "path": "price",
         "value": 0.999512,
-        "pair": "RLUSD/USD"
+        "pair": "ripple-usd/USD"
       },
       {
         "provider": "kraken",
@@ -5183,10 +5183,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ROCKET-POOL/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/rocket-pool/USD",
         "path": "price",
         "value": 4.59,
-        "pair": "RPL/USD"
+        "pair": "rocket-pool/USD"
       },
       {
         "provider": "coinbase",
@@ -5227,10 +5227,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/RESERVE-RIGHTS-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/reserve-rights-token/USD",
         "path": "price",
         "value": 0.00549461,
-        "pair": "RSR/USD"
+        "pair": "reserve-rights-token/USD"
       },
       {
         "provider": "coinbase",
@@ -5278,10 +5278,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/THE-SANDBOX/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/the-sandbox/USD",
         "path": "price",
         "value": 0.259566,
-        "pair": "SAND/USD"
+        "pair": "the-sandbox/USD"
       },
       {
         "provider": "coinbase",
@@ -5345,10 +5345,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DARKCRYPTO-SHARE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/darkcrypto-share/USD",
         "path": "price",
         "value": 0.186263,
-        "pair": "SKY/USD"
+        "pair": "darkcrypto-share/USD"
       },
       {
         "provider": "coinbase",
@@ -5404,10 +5404,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/HAVVEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/havven/USD",
         "path": "price",
         "value": 1.11,
-        "pair": "SNX/USD"
+        "pair": "havven/USD"
       },
       {
         "provider": "coinbase",
@@ -5456,10 +5456,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/STAKED-ETHER/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/staked-ether/USD",
         "path": "price",
         "value": 4117.99,
-        "pair": "STETH/USD"
+        "pair": "staked-ether/USD"
       },
       {
         "provider": "okx",
@@ -5493,10 +5493,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/STARGATE-FINANCE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/stargate-finance/USD",
         "path": "price",
         "value": 0.173806,
-        "pair": "STG/USD"
+        "pair": "stargate-finance/USD"
       },
       {
         "provider": "coinbase",
@@ -5546,10 +5546,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/SPACE-AND-TIME/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/space-and-time/USD",
         "path": "price",
         "value": 0.063807,
-        "pair": "SXT/USD"
+        "pair": "space-and-time/USD"
       },
       {
         "provider": "coinbase",
@@ -5583,10 +5583,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BITTENSOR/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bittensor/USD",
         "path": "price",
         "value": 300.27,
-        "pair": "TAO/USD"
+        "pair": "bittensor/USD"
       },
       {
         "provider": "coinbase",
@@ -5620,10 +5620,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/TBTC/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/tbtc/USD",
         "path": "price",
         "value": 112711,
-        "pair": "TBTC/USD"
+        "pair": "tbtc/USD"
       },
       {
         "provider": "coinbase",
@@ -5664,10 +5664,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BRIDGED-MAGA-WORMHOLE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bridged-maga-wormhole/USD",
         "path": "price",
         "value": 0.120129,
-        "pair": "TRUMP/USD"
+        "pair": "bridged-maga-wormhole/USD"
       },
       {
         "provider": "coinbase",
@@ -5708,10 +5708,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BILIRA/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bilira/USD",
         "path": "price",
         "value": 0.02403954,
-        "pair": "TRY/USD"
+        "pair": "bilira/USD"
       },
       {
         "provider": "coinbase",
@@ -5762,10 +5762,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/USUAL-USD/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/usual-usd/USD",
         "path": "price",
         "value": 0.997966,
-        "pair": "USD0/USD"
+        "pair": "usual-usd/USD"
       }
     ]
   },
@@ -5778,10 +5778,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/USD0-LIQUID-BOND/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/usd0-liquid-bond/USD",
         "path": "price",
         "value": 0.923363,
-        "pair": "USD0++/USD"
+        "pair": "usd0-liquid-bond/USD"
       }
     ]
   },
@@ -5802,10 +5802,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/LIFT-DOLLAR/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/lift-dollar/USD",
         "path": "price",
         "value": 0.998872,
-        "pair": "USDL/USD"
+        "pair": "lift-dollar/USD"
       }
     ]
   },
@@ -5825,10 +5825,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/PAXOS-STANDARD/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/paxos-standard/USD",
         "path": "price",
         "value": 0.999493,
-        "pair": "USDP/USD"
+        "pair": "paxos-standard/USD"
       }
     ]
   },
@@ -5848,10 +5848,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/SPERAX-USD/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/sperax-usd/USD",
         "path": "price",
         "value": 0.998489,
-        "pair": "USDS/USD"
+        "pair": "sperax-usd/USD"
       },
       {
         "provider": "coinbase",
@@ -5893,10 +5893,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ENERGI-DOLLAR/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/energi-dollar/USD",
         "path": "price",
         "value": 1.007,
-        "pair": "USDE/USD"
+        "pair": "energi-dollar/USD"
       },
       {
         "provider": "coinbase",
@@ -5930,10 +5930,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/USDTB/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/usdtb/USD",
         "path": "price",
         "value": 0.99917,
-        "pair": "USDTB/USD"
+        "pair": "usdtb/USD"
       }
     ]
   },
@@ -5953,10 +5953,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/WRAPPED-AMPLEFORTH/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/wrapped-ampleforth/USD",
         "path": "price",
         "value": 2.39,
-        "pair": "WAMPL/USD"
+        "pair": "wrapped-ampleforth/USD"
       },
       {
         "provider": "coinbase",
@@ -5991,10 +5991,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/CHAIN-2/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/chain-2/USD",
         "path": "price",
         "value": 0.01029246,
-        "pair": "XCN/USD"
+        "pair": "chain-2/USD"
       },
       {
         "provider": "coinbase",
@@ -6051,10 +6051,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/0X/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/0x/USD",
         "path": "price",
         "value": 0.231889,
-        "pair": "ZRX/USD"
+        "pair": "0x/USD"
       },
       {
         "provider": "coinbase",
@@ -6088,10 +6088,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/COINBASE-WRAPPED-BTC/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/coinbase-wrapped-btc/USD",
         "path": "price",
         "value": 113160,
-        "pair": "CBBTC/USD"
+        "pair": "coinbase-wrapped-btc/USD"
       }
     ]
   },
@@ -6111,10 +6111,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ELIXIR-DEUSD/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/elixir-deusd/USD",
         "path": "price",
         "value": 0.998896,
-        "pair": "DEUSD/USD"
+        "pair": "elixir-deusd/USD"
       }
     ]
   },
@@ -6127,10 +6127,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/FRAX-USD/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/frax-usd/USD",
         "path": "price",
         "value": 0.99955,
-        "pair": "FRXUSD/USD"
+        "pair": "frax-usd/USD"
       }
     ]
   },
@@ -6167,10 +6167,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ETHENA-STAKED-USDE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethena-staked-usde/USD",
         "path": "price",
         "value": 1.2,
-        "pair": "SUSDE/USD"
+        "pair": "ethena-staked-usde/USD"
       },
       {
         "provider": "coinbase",
@@ -6228,10 +6228,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BINANCE-PEG-CARDANO/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-cardano/USD",
         "path": "price",
         "value": 0.781062,
-        "pair": "ADA/USD"
+        "pair": "binance-peg-cardano/USD"
       },
       {
         "provider": "coinbase",
@@ -6279,10 +6279,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ALGORAND/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/algorand/USD",
         "path": "price",
         "value": 0.202283,
-        "pair": "ALGO/USD"
+        "pair": "algorand/USD"
       },
       {
         "provider": "coinbase",
@@ -6323,10 +6323,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BADGER-BADGER-BADGER/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/badger-badger-badger/USD",
         "path": "price",
         "value": 0.00001884,
-        "pair": "BADGER/USD"
+        "pair": "badger-badger-badger/USD"
       },
       {
         "provider": "coinbase",
@@ -6374,10 +6374,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BASIC-ATTENTION-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/basic-attention-token/USD",
         "path": "price",
         "value": 0.136986,
-        "pair": "BAT/USD"
+        "pair": "basic-attention-token/USD"
       },
       {
         "provider": "coinbase",
@@ -6425,10 +6425,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/CHILIZ/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/chiliz/USD",
         "path": "price",
         "value": 0.03885868,
-        "pair": "CHZ/USD"
+        "pair": "chiliz/USD"
       },
       {
         "provider": "coinbase",
@@ -6462,10 +6462,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/STADER-MATICX/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/stader-maticx/USD",
         "path": "price",
         "value": 0.261894,
-        "pair": "MATICX/USD"
+        "pair": "stader-maticx/USD"
       },
       {
         "provider": "coinbase",
@@ -6485,10 +6485,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/LIDO-STAKED-MATIC/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/lido-staked-matic/USD",
         "path": "price",
         "value": 0.256534,
-        "pair": "STMATIC/USD"
+        "pair": "lido-staked-matic/USD"
       }
     ]
   },
@@ -6515,10 +6515,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DASH/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/dash/USD",
         "path": "price",
         "value": 22.06,
-        "pair": "DASH/USD"
+        "pair": "dash/USD"
       },
       {
         "provider": "coinbase",
@@ -6559,10 +6559,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DIGIBYTE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/digibyte/USD",
         "path": "price",
         "value": 0.00717984,
-        "pair": "DGB/USD"
+        "pair": "digibyte/USD"
       },
       {
         "provider": "okx",
@@ -6596,10 +6596,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ETHEREUM-CLASSIC/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum-classic/USD",
         "path": "price",
         "value": 18.14,
-        "pair": "ETC/USD"
+        "pair": "ethereum-classic/USD"
       },
       {
         "provider": "coinbase",
@@ -6640,10 +6640,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/FENERBAHCE-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/fenerbahce-token/USD",
         "path": "price",
         "value": 0.375383,
-        "pair": "FB/USD"
+        "pair": "fenerbahce-token/USD"
       }
     ]
   },
@@ -6663,10 +6663,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/FTX-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ftx-token/USD",
         "path": "price",
         "value": 0.908756,
-        "pair": "FTT/USD"
+        "pair": "ftx-token/USD"
       },
       {
         "provider": "coinbase",
@@ -6701,10 +6701,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/AAVEGOTCHI/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/aavegotchi/USD",
         "path": "price",
         "value": 0.388305,
-        "pair": "GHST/USD"
+        "pair": "aavegotchi/USD"
       },
       {
         "provider": "coinbase",
@@ -6745,10 +6745,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/GAINS-NETWORK/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/gains-network/USD",
         "path": "price",
         "value": 1.79,
-        "pair": "GNS/USD"
+        "pair": "gains-network/USD"
       }
     ]
   },
@@ -6775,10 +6775,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/HEDERA-HASHGRAPH/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/hedera-hashgraph/USD",
         "path": "price",
         "value": 0.210653,
-        "pair": "HBAR/USD"
+        "pair": "hedera-hashgraph/USD"
       },
       {
         "provider": "coinbase",
@@ -6872,10 +6872,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DECENTRALAND/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/decentraland/USD",
         "path": "price",
         "value": 0.280431,
-        "pair": "MANA/USD"
+        "pair": "decentraland/USD"
       },
       {
         "provider": "coinbase",
@@ -6923,10 +6923,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ORIGIN-PROTOCOL/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/origin-protocol/USD",
         "path": "price",
         "value": 0.056449,
-        "pair": "OGN/USD"
+        "pair": "origin-protocol/USD"
       },
       {
         "provider": "coinbase",
@@ -6960,10 +6960,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/MANTRA-DAO/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/mantra-dao/USD",
         "path": "price",
         "value": 0.158336,
-        "pair": "OM/USD"
+        "pair": "mantra-dao/USD"
       },
       {
         "provider": "coinbase",
@@ -7004,10 +7004,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/PLEARN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/plearn/USD",
         "path": "price",
         "value": 0.01539946,
-        "pair": "PLN/USD"
+        "pair": "plearn/USD"
       },
       {
         "provider": "coinbase",
@@ -7048,10 +7048,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/QUANT-NETWORK/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/quant-network/USD",
         "path": "price",
         "value": 101.09,
-        "pair": "QNT/USD"
+        "pair": "quant-network/USD"
       },
       {
         "provider": "coinbase",
@@ -7085,10 +7085,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/QUICK/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/quick/USD",
         "path": "price",
         "value": 21.58,
-        "pair": "QUICK/USD"
+        "pair": "quick/USD"
       },
       {
         "provider": "coinbase",
@@ -7115,10 +7115,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/SEKA/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/seka/USD",
         "path": "price",
         "value": 0.00020836,
-        "pair": "SEK/USD"
+        "pair": "seka/USD"
       },
       {
         "provider": "coinbase",
@@ -7159,10 +7159,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/SLP/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/slp/USD",
         "path": "price",
         "value": 3.61,
-        "pair": "SLP/USD"
+        "pair": "slp/USD"
       },
       {
         "provider": "okx",
@@ -7196,10 +7196,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/STORJ/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/storj/USD",
         "path": "price",
         "value": 0.224358,
-        "pair": "STORJ/USD"
+        "pair": "storj/USD"
       },
       {
         "provider": "coinbase",
@@ -7240,10 +7240,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/THEO-SHORT-DURATION-US-TREASURY-FUND/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/theo-short-duration-us-treasury-fund/USD",
         "path": "price",
         "value": 1.001,
-        "pair": "THB/USD"
+        "pair": "theo-short-duration-us-treasury-fund/USD"
       },
       {
         "provider": "coinbase",
@@ -7284,10 +7284,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/THETA-TOKEN/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/theta-token/USD",
         "path": "price",
         "value": 0.666831,
-        "pair": "THETA/USD"
+        "pair": "theta-token/USD"
       },
       {
         "provider": "coinbase",
@@ -7329,10 +7329,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/UMA/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/uma/USD",
         "path": "price",
         "value": 1.16,
-        "pair": "UMA/USD"
+        "pair": "uma/USD"
       },
       {
         "provider": "coinbase",
@@ -7381,10 +7381,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ARBITRUM-BRIDGED-WBTC-ARBITRUM-ONE/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/arbitrum-bridged-wbtc-arbitrum-one/USD",
         "path": "price",
         "value": 113608,
-        "pair": "WBTC/USD"
+        "pair": "arbitrum-bridged-wbtc-arbitrum-one/USD"
       },
       {
         "provider": "coinbase",
@@ -7426,10 +7426,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/MONERO/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/monero/USD",
         "path": "price",
         "value": 294.16,
-        "pair": "XMR/USD"
+        "pair": "monero/USD"
       },
       {
         "provider": "kraken",
@@ -7486,10 +7486,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ZCASH/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/zcash/USD",
         "path": "price",
         "value": 73.58,
-        "pair": "ZEC/USD"
+        "pair": "zcash/USD"
       },
       {
         "provider": "coinbase",
@@ -7546,10 +7546,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ONE-PLAY/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/one-play/USD",
         "path": "price",
         "value": 0.00001113,
-        "pair": "OP/USD"
+        "pair": "one-play/USD"
       },
       {
         "provider": "coinbase",
@@ -7590,10 +7590,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/MSOL/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/msol/USD",
         "path": "price",
         "value": 272.51,
-        "pair": "MSOL/USD"
+        "pair": "msol/USD"
       },
       {
         "provider": "coinbase",
