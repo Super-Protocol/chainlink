@@ -182,11 +182,14 @@ shutdown_all() {
   kill_if_alive "${CL_PID:-}"
   kill_if_alive "${PG_PID:-}"
 
-  [ -n "${CL_PID:-}" ] && wait "${CL_PID}" 2>/dev/null || true
-  [ -n "${PG_PID:-}" ] && wait "${PG_PID}" 2>/dev/null || true
-
   # Give a moment and force kill if needed
-  sleep 20
+  for _ in $(seq 1 20); do
+    if ! is_pid_alive "${CL_PID:-}" && ! is_pid_alive "${PG_PID:-}"; then
+      break
+    fi
+    sleep 1
+  done
+
   kill9_if_alive "${CL_PID:-}"
   kill9_if_alive "${PG_PID:-}"
 
