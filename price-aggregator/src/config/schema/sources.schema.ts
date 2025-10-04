@@ -146,6 +146,14 @@ const createSourceSchema = ({
             'Enable automatic refetch of price data when cache expires',
           default: false,
         }),
+        staleTriggerBeforeExpiry: Type.Optional(
+          Type.Integer({
+            minimum: 100,
+            maximum: 60000,
+            description:
+              'Milliseconds before expiry to trigger stale event. If not set, uses global refetch.staleTriggerBeforeExpiry',
+          }),
+        ),
         stream: Type.Optional(streamOptionsSchema),
         ...(baseUrlDefault && {
           baseUrl: Type.String({
@@ -296,3 +304,4 @@ export const sourcesSchema = Type.Object(
 );
 
 export type SourcesConfig = Static<typeof sourcesSchema>;
+export type SourceConfig = SourcesConfig[keyof SourcesConfig];

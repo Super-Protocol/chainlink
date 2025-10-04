@@ -1,5 +1,7 @@
 import { QuoteStreamService } from './quote-stream.interface';
+import { SourceConfig as SourceAdapterConfig } from '../config/schema/sources.schema';
 
+export type { SourceAdapterConfig };
 export type Pair = [string, string];
 
 export interface Quote {
@@ -26,10 +28,7 @@ export interface SourceConfig {
 }
 
 export interface SourceAdapter {
-  isEnabled(): boolean;
-  getTtl(): number;
-  isRefetchEnabled(): boolean;
-  getMaxBatchSize?(): number;
+  getConfig(): SourceAdapterConfig;
   fetchQuote(pair: Pair): Promise<Quote>;
   getPairs?(): Promise<Pair[]>;
   fetchQuotes?(pairs: Pair[]): Promise<Quote[]>;

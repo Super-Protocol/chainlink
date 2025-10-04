@@ -7,7 +7,12 @@ import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
 import { PriceNotFoundException, SourceApiException } from '../../exceptions';
 import { QuoteStreamService } from '../../quote-stream.interface';
-import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  SourceAdapterConfig,
+} from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const API_PATH = '/api/v3/ticker/price';
@@ -16,46 +21,24 @@ const EXCHANGE_INFO_PATH = '/api/v3/exchangeInfo';
 @Injectable()
 export class BinanceAdapter implements SourceAdapter {
   readonly name = SourceName.BINANCE;
-  private readonly enabled: boolean;
-  private readonly ttl: number;
-  private readonly refetch: boolean;
-  private readonly maxBatchSize: number;
+  private readonly sourceConfig: SourceAdapterConfig;
   private readonly httpClient: HttpClient;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
-    private readonly binanceStreamService: BinanceStreamService, // Injected
+    private readonly binanceStreamService: BinanceStreamService,
   ) {
-    const sourceConfig = configService.get('sources.binance');
-    const { enabled, ttl, refetch, maxBatchSize, baseUrl } = sourceConfig;
-
-    this.enabled = enabled;
-    this.ttl = ttl;
-    this.refetch = refetch;
-    this.maxBatchSize = maxBatchSize;
+    this.sourceConfig = configService.get('sources.binance');
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
-      ...sourceConfig,
-      baseUrl,
+      ...this.sourceConfig,
     });
   }
 
-  isEnabled(): boolean {
-    return this.enabled;
-  }
-
-  getTtl(): number {
-    return this.ttl;
-  }
-
-  isRefetchEnabled(): boolean {
-    return this.refetch;
-  }
-
-  getMaxBatchSize(): number {
-    return this.maxBatchSize;
+  getConfig(): SourceAdapterConfig {
+    return this.sourceConfig;
   }
 
   @HandleSourceError()

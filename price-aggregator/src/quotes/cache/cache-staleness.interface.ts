@@ -18,6 +18,7 @@ export interface CacheMetadata {
   cachedAt: Date;
   expiresAt: Date;
   ttl: number;
+  staleTriggerBeforeExpiry: number;
   lastRefreshed?: Date;
 }
 

@@ -11,7 +11,12 @@ import {
   SourceApiException,
 } from '../../exceptions';
 import { QuoteStreamService } from '../../quote-stream.interface';
-import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  SourceAdapterConfig,
+} from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://min-api.cryptocompare.com';
@@ -24,12 +29,8 @@ type CryptoCompareMultiResponse = Record<string, Record<string, number>>;
 @Injectable()
 export class CryptoCompareAdapter implements SourceAdapter {
   readonly name = SourceName.CRYPTOCOMPARE;
-  private readonly enabled: boolean;
-  private readonly ttl: number;
-  private readonly refetch: boolean;
-  private readonly maxBatchSize: number;
+  private readonly sourceConfig: SourceAdapterConfig;
   private readonly httpClient: HttpClient;
-  private readonly apiKey: string;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
@@ -37,43 +38,28 @@ export class CryptoCompareAdapter implements SourceAdapter {
     private readonly cryptoCompareStreamService: CryptoCompareStreamService,
   ) {
     const sourceConfig = configService.get('sources.cryptocompare');
-    const { enabled, ttl, refetch, maxBatchSize, apiKey } = sourceConfig;
-
-    this.apiKey = apiKey;
-    this.enabled = enabled && !!this.apiKey;
-    this.ttl = ttl;
-    this.refetch = refetch;
-    this.maxBatchSize = maxBatchSize;
+    this.sourceConfig = {
+      ...sourceConfig,
+      enabled: sourceConfig.enabled && !!sourceConfig.apiKey,
+    };
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
       ...sourceConfig,
       baseUrl: BASE_URL,
       defaultParams: {
-        api_key: this.apiKey,
+        api_key: sourceConfig.apiKey,
       },
     });
   }
 
-  isEnabled(): boolean {
-    return this.enabled;
-  }
-
-  getTtl(): number {
-    return this.ttl;
-  }
-
-  isRefetchEnabled(): boolean {
-    return this.refetch;
-  }
-
-  getMaxBatchSize(): number {
-    return this.maxBatchSize;
+  getConfig(): SourceAdapterConfig {
+    return this.sourceConfig;
   }
 
   @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
-    if (!this.apiKey) {
+    if (!this.sourceConfig.apiKey) {
       throw new SourceApiException(
         this.name,
         new Error('API key is not configured'),
@@ -117,7 +103,7 @@ export class CryptoCompareAdapter implements SourceAdapter {
 
   @HandleSourceError()
   async fetchQuotes(pairs: Pair[]): Promise<Quote[]> {
-    if (!this.apiKey) {
+    if (!this.sourceConfig.apiKey) {
       throw new SourceApiException(
         this.name,
         new Error('API key is not configured'),
@@ -129,10 +115,10 @@ export class CryptoCompareAdapter implements SourceAdapter {
       return [];
     }
 
-    if (pairs.length > this.maxBatchSize) {
+    if (pairs.length > this.sourceConfig.maxBatchSize!) {
       throw new BatchSizeExceededException(
         pairs.length,
-        this.maxBatchSize,
+        this.sourceConfig.maxBatchSize!,
         this.name,
       );
     }
