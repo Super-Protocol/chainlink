@@ -17,16 +17,11 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://coincodex.com/api/v1/coins/get_coin_ranges_currency/PUFETH?currency=ETH"];
-    ds1_parse [type=jsonparse path="unknown"];
+    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=pufeth&vs_currencies=eth"];
+    ds1_parse [type=jsonparse path="pufeth.eth"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=pufeth&vs_currencies=eth"];
-    ds2_parse [type=jsonparse path="pufeth.eth"];
-    ds2_multiply [type=multiply times=100000000];
     median [type=median];
 
     ds1 -> ds1_parse -> ds1_multiply;
-    ds2 -> ds2_parse -> ds2_multiply;
     ds1_multiply -> median;
-    ds2_multiply -> median;
 """
