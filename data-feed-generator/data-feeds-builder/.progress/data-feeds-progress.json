@@ -2747,22 +2747,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/SPY/USD",
-        "path": "price",
-        "value": 0.001307,
-        "pair": "SPY/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/SMARTY-PAY/USD",
-        "path": "price",
-        "value": 0.00031515,
-        "pair": "SPY/USD"
-      }
-    ]
+    "dataSources": []
   },
   "ZRO / USD": {
     "name": "ZRO / USD",
