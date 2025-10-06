@@ -1577,15 +1577,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/8-bit-coin/USD",
-        "path": "price",
-        "value": 0.00004013,
-        "pair": "8-bit-coin/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "COMP / ETH",

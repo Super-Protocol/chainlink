@@ -968,15 +968,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/8-BIT-COIN/USD",
-        "path": "price",
-        "value": 0.00004013,
-        "pair": "COIN/USD"
-      }
-    ]
+    "dataSources": []
   },
   "COMP / USD": {
     "name": "COMP / USD",
