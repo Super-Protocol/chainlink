@@ -1507,10 +1507,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/FX-USD-SAVING/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/frax-share/USD",
         "path": "price",
         "value": 1.053,
-        "pair": "FXS/USD"
+        "pair": "frax-share/USD"
       },
       {
         "provider": "kraken",
