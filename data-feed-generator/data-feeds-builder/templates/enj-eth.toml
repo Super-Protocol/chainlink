@@ -24,7 +24,7 @@ observationSource = """
     ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=ENJ-ETH"];
-    ds3_parse [type=jsonparse path="unknown"];
+    ds3_parse [type=jsonparse path="data.price"];
     ds3_multiply [type=multiply times=100000000];
     ds4 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=ENJ&tsyms=ETH"];
     ds4_parse [type=jsonparse path="ETH"];

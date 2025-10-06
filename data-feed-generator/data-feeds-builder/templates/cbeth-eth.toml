@@ -20,8 +20,8 @@ observationSource = """
     ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=coinbase-wrapped-staked-eth&vs_currencies=eth"];
     ds1_parse [type=jsonparse path="coinbase-wrapped-staked-eth.eth"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://api.coinbase.com/v2/exchange-rates?currency=CBETH"];
-    ds2_parse [type=jsonparse path="data.rates.ETH"];
+    ds2 [type=http method=GET url="https://api.coinbase.com/v2/prices/CBETH-ETH/spot"];
+    ds2_parse [type=jsonparse path="data.amount"];
     ds2_multiply [type=multiply times=100000000];
     ds3 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=CBETH&tsyms=ETH"];
     ds3_parse [type=jsonparse path="ETH"];
