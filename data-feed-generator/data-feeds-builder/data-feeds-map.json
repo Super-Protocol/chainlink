@@ -3975,13 +3975,6 @@
     "alphaPPB": "5000000",
     "dataSources": [
       {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/MKR/USDT",
-        "path": "price",
-        "value": 1750,
-        "pair": "MKR/USDT"
-      },
-      {
         "provider": "cryptocompare",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/MKR/USD",
         "path": "price",
