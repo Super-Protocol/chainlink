@@ -3941,15 +3941,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/meta-2/USD",
-        "path": "price",
-        "value": 1776.61,
-        "pair": "meta-2/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "mETH / ETH",
