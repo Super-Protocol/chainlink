@@ -1,0 +1,23 @@
+{
+  "name": "chainlink-internal-tools",
+  "version": "1.0.0",
+  "description": "Internal tools for Chainlink data feed management and validation",
+  "main": "index.js",
+  "scripts": {
+    "generate-mapping": "node src/generate_feed_mapping.js",
+    "validate-prices": "node src/validate_feed_prices.js",
+    "find-unhandled": "node src/get-unhandled-feeds.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "chainlink",
+    "oracle",
+    "data-feeds",
+    "validation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^5.7.2"
+  }
+}
