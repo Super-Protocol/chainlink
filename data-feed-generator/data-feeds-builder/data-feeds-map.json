@@ -2587,22 +2587,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/FB/USD",
-        "path": "price",
-        "value": 0.4192,
-        "pair": "FB/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/fenerbahce-token/USD",
-        "path": "price",
-        "value": 0.375383,
-        "pair": "fenerbahce-token/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "FBTC / BTC Exchange Rate",
