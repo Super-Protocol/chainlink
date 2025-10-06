@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "IB01 / USD"
-externalJobID = "e0031911-c920-4c55-be47-4f0928c20e9a"
+name = "C3M / EUR"
+externalJobID = "e2f3g4h5-i6j7-8901-efgh-i23456789012"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
@@ -17,16 +17,11 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=backed-ib01-treasury-bond-0-1yr&vs_currencies=usd"];
-    ds1_parse [type=jsonparse path="backed-ib01-treasury-bond-0-1yr.usd"];
+    ds1 [type=http method=GET url="https://query1.finance.yahoo.com/v8/finance/chart/C3M.PA"];
+    ds1_parse [type=jsonparse path="chart.result.0.meta.regularMarketPrice"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://query1.finance.yahoo.com/v8/finance/chart/IB01.L"];
-    ds2_parse [type=jsonparse path="chart.result.0.meta.regularMarketPrice"];
-    ds2_multiply [type=multiply times=100000000];
     median [type=median];
 
     ds1 -> ds1_parse -> ds1_multiply;
-    ds2 -> ds2_parse -> ds2_multiply;
     ds1_multiply -> median;
-    ds2_multiply -> median;
 """
