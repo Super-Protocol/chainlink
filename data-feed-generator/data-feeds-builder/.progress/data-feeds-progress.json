@@ -1774,13 +1774,6 @@
     "alphaPPB": "2000000",
     "dataSources": [
       {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/INR/USD",
-        "path": "price",
-        "value": 0.01201,
-        "pair": "INR/USD"
-      },
-      {
         "provider": "coinbase",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/INR/USD",
         "path": "price",
