@@ -1042,22 +1042,11 @@ async function checkAlphaVantage(base, quote, timeoutMs) {
 // -------------------------------
 // Main
 // -------------------------------
-// Helper: collect (and cache in progress) USD(/USDT for Binance) quotes for a single symbol.
-// We normalize the feed name as `${SYMBOL} / USD` inside progress, so that subsequent runs/cross-course
-// calculations can reuse underlying data without re-fetching.
-async function getOrFetchUsdFeed(symbol, args, coinsList, progress) {
-  if (!symbol) return [];
+// Shared: collect USD(/USDT for Binance) quotes for a single symbol using all providers.
+async function collectUsdDataSources(symbol, args, coinsList) {
   const upper = symbol.toUpperCase();
-  const feedName = `${upper} / USD`;
-  const cached = progress[feedName];
-  if (cached && Array.isArray(cached.dataSources) && cached.dataSources.length > 0) {
-    // Assume existing data are valid; do NOT refetch (per requirements)
-    return cached.dataSources;
-  }
-
-  console.log(`Fetching underlying USD quotes for ${upper}`);
   const checks = await Promise.all([
-    // Binance uses USDT – that's acceptable per spec (USD or USDT)
+    // Binance uses USDT – acceptable per spec (USD or USDT)
     checkBinance(upper, args.timeoutMs, args.verbose),
     checkCryptoCompare(upper, args.timeoutMs, args.verbose),
     checkCoinGecko(upper, coinsList, args.timeoutMs, args.verbose),
@@ -1081,15 +1070,38 @@ async function getOrFetchUsdFeed(symbol, args, coinsList, progress) {
       });
     }
   }
-  // Store minimal progress entry (even if not part of input list) for reuse.
-  progress[feedName] = {
-    name: feedName,
-    decimals: null,
-    smartDataFeed: false,
-    deltaC: null,
-    alphaPPB: null,
-    dataSources,
-  };
+  return dataSources;
+}
+
+// Helper: collect (and cache) USD(/USDT for Binance) quotes for a single symbol for cross-course reuse.
+// Stores synthetic USD quotes in a dedicated progress.__usdCache to avoid overwriting real feed entries.
+async function getOrFetchUsdFeed(symbol, args, coinsList, progress) {
+  if (!symbol) return [];
+  const upper = symbol.toUpperCase();
+  const feedName = `${upper} / USD`;
+  // Ensure dedicated USD cache bucket exists
+  if (!progress.__usdCache || typeof progress.__usdCache !== 'object') {
+    progress.__usdCache = {};
+  }
+  const usdCache = progress.__usdCache;
+  const cached = usdCache[feedName];
+  if (cached && Array.isArray(cached.dataSources) && cached.dataSources.length > 0) {
+    // Assume existing data are valid; do NOT refetch (per requirements)
+    return cached.dataSources;
+  }
+
+  // Backward compatibility: migrate legacy synthetic data from progress[feedName] if present
+  const legacy = progress[feedName];
+  if (legacy && Array.isArray(legacy.dataSources) && legacy.dataSources.length > 0) {
+    usdCache[feedName] = { dataSources: legacy.dataSources };
+    writeJsonAtomicSync(args.state, progress);
+    return legacy.dataSources;
+  }
+
+  console.log(`Fetching underlying USD quotes for ${upper}`);
+  const dataSources = await collectUsdDataSources(upper, args, coinsList);
+  // Store only in dedicated USD cache for cross-course reuse
+  usdCache[feedName] = { dataSources };
   writeJsonAtomicSync(args.state, progress);
   return dataSources;
 }
@@ -1215,7 +1227,31 @@ async function main() {
         );
       if (cacheable) {
         console.log(`Skipping (cached): ${name}`);
-        resultsArray.push(cached);
+        // Merge cfg metadata to ensure correctness even if cached was minimal
+        const merged = {
+          ...cached,
+          name,
+          decimals:
+            cached.decimals !== undefined && cached.decimals !== null
+              ? cached.decimals
+              : (cfg.decimals ?? null),
+          smartDataFeed:
+            typeof cached.smartDataFeed === 'boolean'
+              ? cached.smartDataFeed
+              : Boolean(cfg.smartDataFeed),
+          deltaC:
+            cached.deltaC !== undefined && cached.deltaC !== null
+              ? cached.deltaC
+              : (cfg.deltaC ?? null),
+          alphaPPB:
+            cached.alphaPPB !== undefined && cached.alphaPPB !== null
+              ? cached.alphaPPB
+              : (cfg.alphaPPB ?? null),
+          dataSources: ds,
+        };
+        progress[name] = merged;
+        writeJsonAtomicSync(args.state, progress);
+        resultsArray.push(merged);
         processedCount++;
         printProgress(processedCount, name);
         continue;
@@ -1229,30 +1265,8 @@ async function main() {
     let dataSources = [];
 
     if (Boolean(baseSymbol) && isUsdQuote === true && cfg.smartDataFeed === false) {
-      // Original USD feed logic (unchanged except for minor formatting)
-      const quote = 'USD';
-      const checks = await Promise.all([
-        checkBinance(baseSymbol, args.timeoutMs, args.verbose),
-        checkCryptoCompare(baseSymbol, args.timeoutMs, args.verbose),
-        checkCoinGecko(baseSymbol, coinsList, args.timeoutMs, args.verbose),
-        checkCoinbase(baseSymbol, quote, args.timeoutMs),
-        checkKraken(baseSymbol, quote, args.timeoutMs),
-        checkOKX(baseSymbol, quote, args.timeoutMs),
-        checkFrankfurter(baseSymbol, quote, args.timeoutMs),
-        checkExchangerateHost(baseSymbol, quote, args.timeoutMs),
-        checkAlphaVantage(baseSymbol, quote, args.timeoutMs),
-      ]);
-      for (const res of checks) {
-        if (!res) continue;
-        if (typeof res === 'object') {
-          const provider = res.provider || 'unknown';
-          const url = typeof res.url === 'string' ? res.url : '';
-          const path = typeof res.path === 'string' ? res.path : null;
-          const pair = typeof res.pair === 'string' ? res.pair : null;
-            const value = typeof res.value === 'number' && isFinite(res.value) ? res.value : null;
-          if (url) dataSources.push({ provider, url, path, value, pair });
-        }
-      }
+      // Use cached-or-fetch path for USD feeds to reuse __usdCache when available
+      dataSources = await getOrFetchUsdFeed(baseSymbol, args, coinsList, progress);
       if (dataSources.length > 0) {
         console.log(`Quotes for ${name}:`);
         for (const ds of dataSources) {
