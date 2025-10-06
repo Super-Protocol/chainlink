@@ -11,7 +11,12 @@ import {
   SourceApiException,
 } from '../../exceptions';
 import { QuoteStreamService } from '../../quote-stream.interface';
-import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  SourceAdapterConfig,
+} from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://api.kraken.com';
@@ -21,10 +26,7 @@ const ASSET_PAIRS_PATH = '/0/public/AssetPairs';
 @Injectable()
 export class KrakenAdapter implements SourceAdapter {
   readonly name = SourceName.KRAKEN;
-  private readonly enabled: boolean;
-  private readonly ttl: number;
-  private readonly refetch: boolean;
-  private readonly maxBatchSize: number;
+  private readonly sourceConfig: SourceAdapterConfig;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -32,35 +34,17 @@ export class KrakenAdapter implements SourceAdapter {
     configService: AppConfigService,
     private readonly krakenStreamService: KrakenStreamService,
   ) {
-    const sourceConfig = configService.get('sources.kraken');
-    const { enabled, ttl, refetch, maxBatchSize } = sourceConfig;
-
-    this.enabled = enabled;
-    this.ttl = ttl;
-    this.refetch = refetch;
-    this.maxBatchSize = maxBatchSize;
+    this.sourceConfig = configService.get('sources.kraken');
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
-      ...sourceConfig,
+      ...this.sourceConfig,
       baseUrl: BASE_URL,
     });
   }
 
-  isEnabled(): boolean {
-    return this.enabled;
-  }
-
-  getTtl(): number {
-    return this.ttl;
-  }
-
-  isRefetchEnabled(): boolean {
-    return this.refetch;
-  }
-
-  getMaxBatchSize(): number {
-    return this.maxBatchSize;
+  getConfig(): SourceAdapterConfig {
+    return this.sourceConfig;
   }
 
   @HandleSourceError()
@@ -118,10 +102,10 @@ export class KrakenAdapter implements SourceAdapter {
       return [];
     }
 
-    if (pairs.length > this.maxBatchSize) {
+    if (pairs.length > this.sourceConfig.maxBatchSize!) {
       throw new BatchSizeExceededException(
         pairs.length,
-        this.maxBatchSize,
+        this.sourceConfig.maxBatchSize!,
         this.name,
       );
     }

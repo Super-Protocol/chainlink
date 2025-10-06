@@ -83,9 +83,17 @@ export class CacheService implements OnModuleDestroy {
     try {
       const cacheTtlMs = this.resolveTtl(source, pair, ttl);
       const serializedQuote = this.serializeQuote(quote);
+      const staleTriggerBeforeExpiry =
+        this.resolveStaleTriggerBeforeExpiry(source);
 
       this.cache.set(key, serializedQuote, Math.floor(cacheTtlMs / 1000));
-      this.stalenessService.trackCacheEntry(key, source, pair, cacheTtlMs);
+      this.stalenessService.trackCacheEntry(
+        key,
+        source,
+        pair,
+        cacheTtlMs,
+        staleTriggerBeforeExpiry,
+      );
       this.updateCacheSizeMetrics();
       this.logger.verbose(`Cached quote for ${key} with TTL ${cacheTtlMs}ms`);
     } catch (error) {
@@ -127,6 +135,13 @@ export class CacheService implements OnModuleDestroy {
       ttl ??
       this.getPairSpecificTtl(source, pair) ??
       this.sourcesManager.getTtl(source)
+    );
+  }
+
+  private resolveStaleTriggerBeforeExpiry(source: SourceName): number {
+    return (
+      this.sourcesManager.getStaleTriggerBeforeExpiry(source) ??
+      this.configService.get('refetch.staleTriggerBeforeExpiry')
     );
   }
 

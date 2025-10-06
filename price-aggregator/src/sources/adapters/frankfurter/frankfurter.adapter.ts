@@ -4,7 +4,12 @@ import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
 import { PriceNotFoundException } from '../../exceptions';
-import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  SourceAdapterConfig,
+} from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://api.frankfurter.app';
@@ -20,38 +25,24 @@ interface FrankfurterResponse {
 @Injectable()
 export class FrankfurterAdapter implements SourceAdapter {
   readonly name = SourceName.FRANKFURTER;
-  private readonly enabled: boolean;
-  private readonly ttl: number;
-  private readonly refetch: boolean;
+  private readonly sourceConfig: SourceAdapterConfig;
   private readonly httpClient: HttpClient;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
-    const sourceConfig = configService.get('sources.frankfurter');
-    const { enabled, ttl, refetch } = sourceConfig;
-    this.enabled = enabled;
-    this.ttl = ttl;
-    this.refetch = refetch;
+    this.sourceConfig = configService.get('sources.frankfurter');
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
-      ...sourceConfig,
+      ...this.sourceConfig,
       baseUrl: BASE_URL,
     });
   }
 
-  isEnabled(): boolean {
-    return this.enabled;
-  }
-
-  getTtl(): number {
-    return this.ttl;
-  }
-
-  isRefetchEnabled(): boolean {
-    return this.refetch;
+  getConfig(): SourceAdapterConfig {
+    return this.sourceConfig;
   }
 
   @HandleSourceError()

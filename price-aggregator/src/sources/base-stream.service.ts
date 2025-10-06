@@ -433,7 +433,6 @@ export abstract class BaseStreamService implements QuoteStreamService {
         const timeDiff = (now - lastUpdateTime) / 1000;
         this.metricsService.priceUpdateFrequency.observe(
           {
-            pair: pairKey,
             source: this.getSourceName(),
           },
           timeDiff,

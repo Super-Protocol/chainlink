@@ -8,7 +8,12 @@ import {
   SourceApiException,
   SourceUnauthorizedException,
 } from '../../exceptions';
-import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  SourceAdapterConfig,
+} from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://api.exchangerate.host';
@@ -34,41 +39,27 @@ interface ExchangeRateHostErrorResponse {
 @Injectable()
 export class ExchangeRateHostAdapter implements SourceAdapter {
   readonly name = SourceName.EXCHANGERATE_HOST;
-  private readonly enabled: boolean;
-  private readonly ttl: number;
-  private readonly refetch: boolean;
+  private readonly sourceConfig: SourceAdapterConfig;
   private readonly httpClient: HttpClient;
-  private readonly apiKey?: string;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
-    const sourceConfig = configService.get('sources.exchangeratehost');
-    const { enabled, ttl, refetch, apiKey } = sourceConfig;
-    this.enabled = enabled;
-    this.ttl = ttl;
-    this.refetch = refetch;
-    this.apiKey = apiKey;
+    this.sourceConfig = configService.get('sources.exchangeratehost');
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
-      ...sourceConfig,
+      ...this.sourceConfig,
       baseUrl: BASE_URL,
-      defaultParams: this.apiKey ? { access_key: this.apiKey } : {},
+      defaultParams: this.sourceConfig.apiKey
+        ? { access_key: this.sourceConfig.apiKey }
+        : {},
     });
   }
 
-  isEnabled(): boolean {
-    return this.enabled;
-  }
-
-  getTtl(): number {
-    return this.ttl;
-  }
-
-  isRefetchEnabled(): boolean {
-    return this.refetch;
+  getConfig(): SourceAdapterConfig {
+    return this.sourceConfig;
   }
 
   private mapErrorCodeToHttpStatus(errorCode: number): number {

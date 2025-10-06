@@ -11,7 +11,12 @@ import {
   SourceApiException,
 } from './exceptions';
 import { QuoteStreamService } from './quote-stream.interface';
-import { SourceAdapter, Quote, Pair } from './source-adapter.interface';
+import {
+  SourceAdapter,
+  Quote,
+  Pair,
+  SourceAdapterConfig,
+} from './source-adapter.interface';
 import { SourceName } from './source-name.enum';
 import { SOURCES_MAP } from './sources.providers';
 import { SingleFlight } from '../common';
@@ -210,8 +215,7 @@ export class SourcesManagerService {
 
   isEnabled(sourceName: SourceName | string): boolean {
     try {
-      const adapter = this.getAdapterByName(sourceName);
-      return adapter.isEnabled();
+      return this.getConfig(sourceName).enabled;
     } catch (error) {
       if (error instanceof SourceDisabledException) {
         return false;
@@ -220,23 +224,33 @@ export class SourcesManagerService {
     }
   }
 
+  getConfig(sourceName: SourceName | string): SourceAdapterConfig {
+    return this.getAdapterByName(sourceName).getConfig();
+  }
+
   getTtl(sourceName: SourceName | string): number {
-    return this.getAdapterByName(sourceName).getTtl();
+    return this.getConfig(sourceName).ttl;
   }
 
   isRefetchEnabled(sourceName: SourceName | string): boolean {
-    return this.getAdapterByName(sourceName).isRefetchEnabled();
+    return this.getConfig(sourceName).refetch;
+  }
+
+  getStaleTriggerBeforeExpiry(
+    sourceName: SourceName | string,
+  ): number | undefined {
+    return this.getConfig(sourceName).staleTriggerBeforeExpiry;
   }
 
   getMaxBatchSize(sourceName: SourceName | string): number {
-    const adapter = this.getAdapterByName(sourceName);
-    return adapter.getMaxBatchSize?.() ?? 100;
+    return this.getConfig(sourceName).maxBatchSize ?? 100;
   }
 
   private getAdapter(sourceName: SourceName): SourceAdapter {
     if (this.adaptersCache.has(sourceName)) {
       const cachedAdapter = this.adaptersCache.get(sourceName)!;
-      if (!cachedAdapter.isEnabled()) {
+      const { enabled } = cachedAdapter.getConfig();
+      if (!enabled) {
         throw new SourceDisabledException(sourceName);
       }
       return cachedAdapter;
@@ -248,8 +262,9 @@ export class SourcesManagerService {
     }
 
     const adapter = this.moduleRef.get<SourceAdapter>(AdapterClass);
+    const { enabled } = adapter.getConfig();
 
-    if (!adapter.isEnabled()) {
+    if (!enabled) {
       throw new SourceDisabledException(sourceName);
     }
 
