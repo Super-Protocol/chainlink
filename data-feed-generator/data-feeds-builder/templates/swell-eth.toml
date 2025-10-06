@@ -19,56 +19,56 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         coinbase_swell_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/SWELL/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_swell_usd_parse    [type="jsonparse" path="price"]
-        coinbase_swell_usd_multiply [type="multiply" times=1000000000000000000]
     
         coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_eth_usd_parse    [type="jsonparse" path="price"]
-        coinbase_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        coinbase_swell_eth_divide    [type="divide" input="$(coinbase_swell_usd_multiply)" divisor="$(coinbase_eth_usd_multiply)" times=1000000000000000000]
+        coinbase_swell_eth_divide    [type="divide" input="$(coinbase_swell_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
+        coinbase_swell_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         coingecko_swell_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/layerzero-bridged-swell/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_swell_usd_parse    [type="jsonparse" path="price"]
-        coingecko_swell_usd_multiply [type="multiply" times=1000000000000000000]
     
         coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_usd_parse    [type="jsonparse" path="price"]
-        coingecko_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        coingecko_swell_eth_divide    [type="divide" input="$(coingecko_swell_usd_multiply)" divisor="$(coingecko_eth_usd_multiply)" times=1000000000000000000]
+        coingecko_swell_eth_divide    [type="divide" input="$(coingecko_swell_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+        coingecko_swell_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         cryptocompare_swell_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/SWELL/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_swell_usd_parse    [type="jsonparse" path="price"]
-        cryptocompare_swell_usd_multiply [type="multiply" times=1000000000000000000]
     
         cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
-        cryptocompare_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        cryptocompare_swell_eth_divide    [type="divide" input="$(cryptocompare_swell_usd_multiply)" divisor="$(cryptocompare_eth_usd_multiply)" times=1000000000000000000]
+        cryptocompare_swell_eth_divide    [type="divide" input="$(cryptocompare_swell_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
+        cryptocompare_swell_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         kraken_swell_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/SWELL/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_swell_usd_parse    [type="jsonparse" path="price"]
-        kraken_swell_usd_multiply [type="multiply" times=1000000000000000000]
     
         kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_eth_usd_parse    [type="jsonparse" path="price"]
-        kraken_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        kraken_swell_eth_divide    [type="divide" input="$(kraken_swell_usd_multiply)" divisor="$(kraken_eth_usd_multiply)" times=1000000000000000000]
+        kraken_swell_eth_divide    [type="divide" input="$(kraken_swell_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
+        kraken_swell_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         median [type=median];
     
-    coinbase_swell_usd -> coinbase_swell_usd_parse -> coinbase_swell_usd_multiply -> coinbase_swell_eth_divide
-    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_eth_usd_multiply -> coinbase_swell_eth_divide
-    coingecko_swell_usd -> coingecko_swell_usd_parse -> coingecko_swell_usd_multiply -> coingecko_swell_eth_divide
-    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_eth_usd_multiply -> coingecko_swell_eth_divide
-    cryptocompare_swell_usd -> cryptocompare_swell_usd_parse -> cryptocompare_swell_usd_multiply -> cryptocompare_swell_eth_divide
-    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_eth_usd_multiply -> cryptocompare_swell_eth_divide
-    kraken_swell_usd -> kraken_swell_usd_parse -> kraken_swell_usd_multiply -> kraken_swell_eth_divide
-    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_eth_usd_multiply -> kraken_swell_eth_divide
-    coinbase_swell_eth_divide -> median;
-    coingecko_swell_eth_divide -> median;
-    cryptocompare_swell_eth_divide -> median;
-    kraken_swell_eth_divide -> median;
+    coinbase_swell_usd -> coinbase_swell_usd_parse -> coinbase_swell_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_swell_eth_divide
+    coinbase_swell_eth_divide -> coinbase_swell_eth_divide_multiply
+    coingecko_swell_usd -> coingecko_swell_usd_parse -> coingecko_swell_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_swell_eth_divide
+    coingecko_swell_eth_divide -> coingecko_swell_eth_divide_multiply
+    cryptocompare_swell_usd -> cryptocompare_swell_usd_parse -> cryptocompare_swell_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_swell_eth_divide
+    cryptocompare_swell_eth_divide -> cryptocompare_swell_eth_divide_multiply
+    kraken_swell_usd -> kraken_swell_usd_parse -> kraken_swell_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_swell_eth_divide
+    kraken_swell_eth_divide -> kraken_swell_eth_divide_multiply
+    coinbase_swell_eth_divide_multiply -> median;
+    coingecko_swell_eth_divide_multiply -> median;
+    cryptocompare_swell_eth_divide_multiply -> median;
+    kraken_swell_eth_divide_multiply -> median;
 """

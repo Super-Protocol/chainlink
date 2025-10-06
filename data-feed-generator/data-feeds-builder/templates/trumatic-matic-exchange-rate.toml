@@ -19,17 +19,17 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         coingecko_trumatic_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-matic-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_trumatic_usd_parse    [type="jsonparse" path="price"]
-        coingecko_trumatic_usd_multiply [type="multiply" times=1000000000000000000]
     
         coingecko_matic_exchange_rate_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/trufin-staked-matic/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_matic_exchange_rate_usd_parse    [type="jsonparse" path="price"]
-        coingecko_matic_exchange_rate_usd_multiply [type="multiply" times=1000000000000000000]
     
-        coingecko_trumatic_matic_exchange_rate_divide    [type="divide" input="$(coingecko_trumatic_usd_multiply)" divisor="$(coingecko_matic_exchange_rate_usd_multiply)" times=1000000000000000000]
+        coingecko_trumatic_matic_exchange_rate_divide    [type="divide" input="$(coingecko_trumatic_usd_parse)" divisor="$(coingecko_matic_exchange_rate_usd_parse)"]
+        coingecko_trumatic_matic_exchange_rate_divide_multiply [type="multiply" times=1000000000000000000]
     
         median [type=median];
     
-    coingecko_trumatic_usd -> coingecko_trumatic_usd_parse -> coingecko_trumatic_usd_multiply -> coingecko_trumatic_matic_exchange_rate_divide
-    coingecko_matic_exchange_rate_usd -> coingecko_matic_exchange_rate_usd_parse -> coingecko_matic_exchange_rate_usd_multiply -> coingecko_trumatic_matic_exchange_rate_divide
-    coingecko_trumatic_matic_exchange_rate_divide -> median;
+    coingecko_trumatic_usd -> coingecko_trumatic_usd_parse -> coingecko_trumatic_matic_exchange_rate_divide
+    coingecko_matic_exchange_rate_usd -> coingecko_matic_exchange_rate_usd_parse -> coingecko_trumatic_matic_exchange_rate_divide
+    coingecko_trumatic_matic_exchange_rate_divide -> coingecko_trumatic_matic_exchange_rate_divide_multiply
+    coingecko_trumatic_matic_exchange_rate_divide_multiply -> median;
 """

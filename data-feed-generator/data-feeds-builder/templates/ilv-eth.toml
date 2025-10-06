@@ -19,69 +19,69 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         binance_ilv_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ILV/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_ilv_usdt_parse    [type="jsonparse" path="price"]
-        binance_ilv_usdt_multiply [type="multiply" times=1000000000000000000]
     
         binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_eth_usdt_parse    [type="jsonparse" path="price"]
-        binance_eth_usdt_multiply [type="multiply" times=1000000000000000000]
     
-        binance_ilv_eth_divide    [type="divide" input="$(binance_ilv_usdt_multiply)" divisor="$(binance_eth_usdt_multiply)" times=1000000000000000000]
+        binance_ilv_eth_divide    [type="divide" input="$(binance_ilv_usdt_parse)" divisor="$(binance_eth_usdt_parse)"]
+        binance_ilv_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         coinbase_ilv_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ILV/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_ilv_usd_parse    [type="jsonparse" path="price"]
-        coinbase_ilv_usd_multiply [type="multiply" times=1000000000000000000]
     
         coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_eth_usd_parse    [type="jsonparse" path="price"]
-        coinbase_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        coinbase_ilv_eth_divide    [type="divide" input="$(coinbase_ilv_usd_multiply)" divisor="$(coinbase_eth_usd_multiply)" times=1000000000000000000]
+        coinbase_ilv_eth_divide    [type="divide" input="$(coinbase_ilv_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
+        coinbase_ilv_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         coingecko_ilv_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/illuvium/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_ilv_usd_parse    [type="jsonparse" path="price"]
-        coingecko_ilv_usd_multiply [type="multiply" times=1000000000000000000]
     
         coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_usd_parse    [type="jsonparse" path="price"]
-        coingecko_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        coingecko_ilv_eth_divide    [type="divide" input="$(coingecko_ilv_usd_multiply)" divisor="$(coingecko_eth_usd_multiply)" times=1000000000000000000]
+        coingecko_ilv_eth_divide    [type="divide" input="$(coingecko_ilv_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+        coingecko_ilv_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         cryptocompare_ilv_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ILV/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_ilv_usd_parse    [type="jsonparse" path="price"]
-        cryptocompare_ilv_usd_multiply [type="multiply" times=1000000000000000000]
     
         cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
-        cryptocompare_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        cryptocompare_ilv_eth_divide    [type="divide" input="$(cryptocompare_ilv_usd_multiply)" divisor="$(cryptocompare_eth_usd_multiply)" times=1000000000000000000]
+        cryptocompare_ilv_eth_divide    [type="divide" input="$(cryptocompare_ilv_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
+        cryptocompare_ilv_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         okx_ilv_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ILV/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_ilv_usd_parse    [type="jsonparse" path="price"]
-        okx_ilv_usd_multiply [type="multiply" times=1000000000000000000]
     
         okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_eth_usd_parse    [type="jsonparse" path="price"]
-        okx_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        okx_ilv_eth_divide    [type="divide" input="$(okx_ilv_usd_multiply)" divisor="$(okx_eth_usd_multiply)" times=1000000000000000000]
+        okx_ilv_eth_divide    [type="divide" input="$(okx_ilv_usd_parse)" divisor="$(okx_eth_usd_parse)"]
+        okx_ilv_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         median [type=median];
     
-    binance_ilv_usdt -> binance_ilv_usdt_parse -> binance_ilv_usdt_multiply -> binance_ilv_eth_divide
-    binance_eth_usdt -> binance_eth_usdt_parse -> binance_eth_usdt_multiply -> binance_ilv_eth_divide
-    coinbase_ilv_usd -> coinbase_ilv_usd_parse -> coinbase_ilv_usd_multiply -> coinbase_ilv_eth_divide
-    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_eth_usd_multiply -> coinbase_ilv_eth_divide
-    coingecko_ilv_usd -> coingecko_ilv_usd_parse -> coingecko_ilv_usd_multiply -> coingecko_ilv_eth_divide
-    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_eth_usd_multiply -> coingecko_ilv_eth_divide
-    cryptocompare_ilv_usd -> cryptocompare_ilv_usd_parse -> cryptocompare_ilv_usd_multiply -> cryptocompare_ilv_eth_divide
-    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_eth_usd_multiply -> cryptocompare_ilv_eth_divide
-    okx_ilv_usd -> okx_ilv_usd_parse -> okx_ilv_usd_multiply -> okx_ilv_eth_divide
-    okx_eth_usd -> okx_eth_usd_parse -> okx_eth_usd_multiply -> okx_ilv_eth_divide
-    binance_ilv_eth_divide -> median;
-    coinbase_ilv_eth_divide -> median;
-    coingecko_ilv_eth_divide -> median;
-    cryptocompare_ilv_eth_divide -> median;
-    okx_ilv_eth_divide -> median;
+    binance_ilv_usdt -> binance_ilv_usdt_parse -> binance_ilv_eth_divide
+    binance_eth_usdt -> binance_eth_usdt_parse -> binance_ilv_eth_divide
+    binance_ilv_eth_divide -> binance_ilv_eth_divide_multiply
+    coinbase_ilv_usd -> coinbase_ilv_usd_parse -> coinbase_ilv_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_ilv_eth_divide
+    coinbase_ilv_eth_divide -> coinbase_ilv_eth_divide_multiply
+    coingecko_ilv_usd -> coingecko_ilv_usd_parse -> coingecko_ilv_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_ilv_eth_divide
+    coingecko_ilv_eth_divide -> coingecko_ilv_eth_divide_multiply
+    cryptocompare_ilv_usd -> cryptocompare_ilv_usd_parse -> cryptocompare_ilv_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_ilv_eth_divide
+    cryptocompare_ilv_eth_divide -> cryptocompare_ilv_eth_divide_multiply
+    okx_ilv_usd -> okx_ilv_usd_parse -> okx_ilv_eth_divide
+    okx_eth_usd -> okx_eth_usd_parse -> okx_ilv_eth_divide
+    okx_ilv_eth_divide -> okx_ilv_eth_divide_multiply
+    binance_ilv_eth_divide_multiply -> median;
+    coinbase_ilv_eth_divide_multiply -> median;
+    coingecko_ilv_eth_divide_multiply -> median;
+    cryptocompare_ilv_eth_divide_multiply -> median;
+    okx_ilv_eth_divide_multiply -> median;
 """

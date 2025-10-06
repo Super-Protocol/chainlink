@@ -19,69 +19,69 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         coinbase_usdt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/USDT/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_usdt_usd_parse    [type="jsonparse" path="price"]
-        coinbase_usdt_usd_multiply [type="multiply" times=1000000000000000000]
     
         coinbase_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_bnb_usd_parse    [type="jsonparse" path="price"]
-        coinbase_bnb_usd_multiply [type="multiply" times=1000000000000000000]
     
-        coinbase_usdt_bnb_divide    [type="divide" input="$(coinbase_usdt_usd_multiply)" divisor="$(coinbase_bnb_usd_multiply)" times=1000000000000000000]
+        coinbase_usdt_bnb_divide    [type="divide" input="$(coinbase_usdt_usd_parse)" divisor="$(coinbase_bnb_usd_parse)"]
+        coinbase_usdt_bnb_divide_multiply [type="multiply" times=1000000000000000000]
     
         coingecko_usdt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/abstract-bridged-usdt-abstract/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_usdt_usd_parse    [type="jsonparse" path="price"]
-        coingecko_usdt_usd_multiply [type="multiply" times=1000000000000000000]
     
         coingecko_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_bnb_usd_parse    [type="jsonparse" path="price"]
-        coingecko_bnb_usd_multiply [type="multiply" times=1000000000000000000]
     
-        coingecko_usdt_bnb_divide    [type="divide" input="$(coingecko_usdt_usd_multiply)" divisor="$(coingecko_bnb_usd_multiply)" times=1000000000000000000]
+        coingecko_usdt_bnb_divide    [type="divide" input="$(coingecko_usdt_usd_parse)" divisor="$(coingecko_bnb_usd_parse)"]
+        coingecko_usdt_bnb_divide_multiply [type="multiply" times=1000000000000000000]
     
         cryptocompare_usdt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/USDT/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_usdt_usd_parse    [type="jsonparse" path="price"]
-        cryptocompare_usdt_usd_multiply [type="multiply" times=1000000000000000000]
     
         cryptocompare_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_bnb_usd_parse    [type="jsonparse" path="price"]
-        cryptocompare_bnb_usd_multiply [type="multiply" times=1000000000000000000]
     
-        cryptocompare_usdt_bnb_divide    [type="divide" input="$(cryptocompare_usdt_usd_multiply)" divisor="$(cryptocompare_bnb_usd_multiply)" times=1000000000000000000]
+        cryptocompare_usdt_bnb_divide    [type="divide" input="$(cryptocompare_usdt_usd_parse)" divisor="$(cryptocompare_bnb_usd_parse)"]
+        cryptocompare_usdt_bnb_divide_multiply [type="multiply" times=1000000000000000000]
     
         kraken_usdt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/USDT/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_usdt_usd_parse    [type="jsonparse" path="price"]
-        kraken_usdt_usd_multiply [type="multiply" times=1000000000000000000]
     
         kraken_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_bnb_usd_parse    [type="jsonparse" path="price"]
-        kraken_bnb_usd_multiply [type="multiply" times=1000000000000000000]
     
-        kraken_usdt_bnb_divide    [type="divide" input="$(kraken_usdt_usd_multiply)" divisor="$(kraken_bnb_usd_multiply)" times=1000000000000000000]
+        kraken_usdt_bnb_divide    [type="divide" input="$(kraken_usdt_usd_parse)" divisor="$(kraken_bnb_usd_parse)"]
+        kraken_usdt_bnb_divide_multiply [type="multiply" times=1000000000000000000]
     
         okx_usdt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/USDT/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_usdt_usd_parse    [type="jsonparse" path="price"]
-        okx_usdt_usd_multiply [type="multiply" times=1000000000000000000]
     
         okx_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_bnb_usd_parse    [type="jsonparse" path="price"]
-        okx_bnb_usd_multiply [type="multiply" times=1000000000000000000]
     
-        okx_usdt_bnb_divide    [type="divide" input="$(okx_usdt_usd_multiply)" divisor="$(okx_bnb_usd_multiply)" times=1000000000000000000]
+        okx_usdt_bnb_divide    [type="divide" input="$(okx_usdt_usd_parse)" divisor="$(okx_bnb_usd_parse)"]
+        okx_usdt_bnb_divide_multiply [type="multiply" times=1000000000000000000]
     
         median [type=median];
     
-    coinbase_usdt_usd -> coinbase_usdt_usd_parse -> coinbase_usdt_usd_multiply -> coinbase_usdt_bnb_divide
-    coinbase_bnb_usd -> coinbase_bnb_usd_parse -> coinbase_bnb_usd_multiply -> coinbase_usdt_bnb_divide
-    coingecko_usdt_usd -> coingecko_usdt_usd_parse -> coingecko_usdt_usd_multiply -> coingecko_usdt_bnb_divide
-    coingecko_bnb_usd -> coingecko_bnb_usd_parse -> coingecko_bnb_usd_multiply -> coingecko_usdt_bnb_divide
-    cryptocompare_usdt_usd -> cryptocompare_usdt_usd_parse -> cryptocompare_usdt_usd_multiply -> cryptocompare_usdt_bnb_divide
-    cryptocompare_bnb_usd -> cryptocompare_bnb_usd_parse -> cryptocompare_bnb_usd_multiply -> cryptocompare_usdt_bnb_divide
-    kraken_usdt_usd -> kraken_usdt_usd_parse -> kraken_usdt_usd_multiply -> kraken_usdt_bnb_divide
-    kraken_bnb_usd -> kraken_bnb_usd_parse -> kraken_bnb_usd_multiply -> kraken_usdt_bnb_divide
-    okx_usdt_usd -> okx_usdt_usd_parse -> okx_usdt_usd_multiply -> okx_usdt_bnb_divide
-    okx_bnb_usd -> okx_bnb_usd_parse -> okx_bnb_usd_multiply -> okx_usdt_bnb_divide
-    coinbase_usdt_bnb_divide -> median;
-    coingecko_usdt_bnb_divide -> median;
-    cryptocompare_usdt_bnb_divide -> median;
-    kraken_usdt_bnb_divide -> median;
-    okx_usdt_bnb_divide -> median;
+    coinbase_usdt_usd -> coinbase_usdt_usd_parse -> coinbase_usdt_bnb_divide
+    coinbase_bnb_usd -> coinbase_bnb_usd_parse -> coinbase_usdt_bnb_divide
+    coinbase_usdt_bnb_divide -> coinbase_usdt_bnb_divide_multiply
+    coingecko_usdt_usd -> coingecko_usdt_usd_parse -> coingecko_usdt_bnb_divide
+    coingecko_bnb_usd -> coingecko_bnb_usd_parse -> coingecko_usdt_bnb_divide
+    coingecko_usdt_bnb_divide -> coingecko_usdt_bnb_divide_multiply
+    cryptocompare_usdt_usd -> cryptocompare_usdt_usd_parse -> cryptocompare_usdt_bnb_divide
+    cryptocompare_bnb_usd -> cryptocompare_bnb_usd_parse -> cryptocompare_usdt_bnb_divide
+    cryptocompare_usdt_bnb_divide -> cryptocompare_usdt_bnb_divide_multiply
+    kraken_usdt_usd -> kraken_usdt_usd_parse -> kraken_usdt_bnb_divide
+    kraken_bnb_usd -> kraken_bnb_usd_parse -> kraken_usdt_bnb_divide
+    kraken_usdt_bnb_divide -> kraken_usdt_bnb_divide_multiply
+    okx_usdt_usd -> okx_usdt_usd_parse -> okx_usdt_bnb_divide
+    okx_bnb_usd -> okx_bnb_usd_parse -> okx_usdt_bnb_divide
+    okx_usdt_bnb_divide -> okx_usdt_bnb_divide_multiply
+    coinbase_usdt_bnb_divide_multiply -> median;
+    coingecko_usdt_bnb_divide_multiply -> median;
+    cryptocompare_usdt_bnb_divide_multiply -> median;
+    kraken_usdt_bnb_divide_multiply -> median;
+    okx_usdt_bnb_divide_multiply -> median;
 """

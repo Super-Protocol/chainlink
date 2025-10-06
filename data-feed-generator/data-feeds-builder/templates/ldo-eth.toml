@@ -19,82 +19,82 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         binance_ldo_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/LDO/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_ldo_usdt_parse    [type="jsonparse" path="price"]
-        binance_ldo_usdt_multiply [type="multiply" times=1000000000000000000]
     
         binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_eth_usdt_parse    [type="jsonparse" path="price"]
-        binance_eth_usdt_multiply [type="multiply" times=1000000000000000000]
     
-        binance_ldo_eth_divide    [type="divide" input="$(binance_ldo_usdt_multiply)" divisor="$(binance_eth_usdt_multiply)" times=1000000000000000000]
+        binance_ldo_eth_divide    [type="divide" input="$(binance_ldo_usdt_parse)" divisor="$(binance_eth_usdt_parse)"]
+        binance_ldo_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         coinbase_ldo_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/LDO/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_ldo_usd_parse    [type="jsonparse" path="price"]
-        coinbase_ldo_usd_multiply [type="multiply" times=1000000000000000000]
     
         coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_eth_usd_parse    [type="jsonparse" path="price"]
-        coinbase_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        coinbase_ldo_eth_divide    [type="divide" input="$(coinbase_ldo_usd_multiply)" divisor="$(coinbase_eth_usd_multiply)" times=1000000000000000000]
+        coinbase_ldo_eth_divide    [type="divide" input="$(coinbase_ldo_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
+        coinbase_ldo_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         coingecko_ldo_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/lido-dao/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_ldo_usd_parse    [type="jsonparse" path="price"]
-        coingecko_ldo_usd_multiply [type="multiply" times=1000000000000000000]
     
         coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_usd_parse    [type="jsonparse" path="price"]
-        coingecko_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        coingecko_ldo_eth_divide    [type="divide" input="$(coingecko_ldo_usd_multiply)" divisor="$(coingecko_eth_usd_multiply)" times=1000000000000000000]
+        coingecko_ldo_eth_divide    [type="divide" input="$(coingecko_ldo_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+        coingecko_ldo_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         cryptocompare_ldo_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/LDO/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_ldo_usd_parse    [type="jsonparse" path="price"]
-        cryptocompare_ldo_usd_multiply [type="multiply" times=1000000000000000000]
     
         cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
-        cryptocompare_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        cryptocompare_ldo_eth_divide    [type="divide" input="$(cryptocompare_ldo_usd_multiply)" divisor="$(cryptocompare_eth_usd_multiply)" times=1000000000000000000]
+        cryptocompare_ldo_eth_divide    [type="divide" input="$(cryptocompare_ldo_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
+        cryptocompare_ldo_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         kraken_ldo_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/LDO/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_ldo_usd_parse    [type="jsonparse" path="price"]
-        kraken_ldo_usd_multiply [type="multiply" times=1000000000000000000]
     
         kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_eth_usd_parse    [type="jsonparse" path="price"]
-        kraken_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        kraken_ldo_eth_divide    [type="divide" input="$(kraken_ldo_usd_multiply)" divisor="$(kraken_eth_usd_multiply)" times=1000000000000000000]
+        kraken_ldo_eth_divide    [type="divide" input="$(kraken_ldo_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
+        kraken_ldo_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         okx_ldo_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/LDO/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_ldo_usd_parse    [type="jsonparse" path="price"]
-        okx_ldo_usd_multiply [type="multiply" times=1000000000000000000]
     
         okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_eth_usd_parse    [type="jsonparse" path="price"]
-        okx_eth_usd_multiply [type="multiply" times=1000000000000000000]
     
-        okx_ldo_eth_divide    [type="divide" input="$(okx_ldo_usd_multiply)" divisor="$(okx_eth_usd_multiply)" times=1000000000000000000]
+        okx_ldo_eth_divide    [type="divide" input="$(okx_ldo_usd_parse)" divisor="$(okx_eth_usd_parse)"]
+        okx_ldo_eth_divide_multiply [type="multiply" times=1000000000000000000]
     
         median [type=median];
     
-    binance_ldo_usdt -> binance_ldo_usdt_parse -> binance_ldo_usdt_multiply -> binance_ldo_eth_divide
-    binance_eth_usdt -> binance_eth_usdt_parse -> binance_eth_usdt_multiply -> binance_ldo_eth_divide
-    coinbase_ldo_usd -> coinbase_ldo_usd_parse -> coinbase_ldo_usd_multiply -> coinbase_ldo_eth_divide
-    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_eth_usd_multiply -> coinbase_ldo_eth_divide
-    coingecko_ldo_usd -> coingecko_ldo_usd_parse -> coingecko_ldo_usd_multiply -> coingecko_ldo_eth_divide
-    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_eth_usd_multiply -> coingecko_ldo_eth_divide
-    cryptocompare_ldo_usd -> cryptocompare_ldo_usd_parse -> cryptocompare_ldo_usd_multiply -> cryptocompare_ldo_eth_divide
-    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_eth_usd_multiply -> cryptocompare_ldo_eth_divide
-    kraken_ldo_usd -> kraken_ldo_usd_parse -> kraken_ldo_usd_multiply -> kraken_ldo_eth_divide
-    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_eth_usd_multiply -> kraken_ldo_eth_divide
-    okx_ldo_usd -> okx_ldo_usd_parse -> okx_ldo_usd_multiply -> okx_ldo_eth_divide
-    okx_eth_usd -> okx_eth_usd_parse -> okx_eth_usd_multiply -> okx_ldo_eth_divide
-    binance_ldo_eth_divide -> median;
-    coinbase_ldo_eth_divide -> median;
-    coingecko_ldo_eth_divide -> median;
-    cryptocompare_ldo_eth_divide -> median;
-    kraken_ldo_eth_divide -> median;
-    okx_ldo_eth_divide -> median;
+    binance_ldo_usdt -> binance_ldo_usdt_parse -> binance_ldo_eth_divide
+    binance_eth_usdt -> binance_eth_usdt_parse -> binance_ldo_eth_divide
+    binance_ldo_eth_divide -> binance_ldo_eth_divide_multiply
+    coinbase_ldo_usd -> coinbase_ldo_usd_parse -> coinbase_ldo_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_ldo_eth_divide
+    coinbase_ldo_eth_divide -> coinbase_ldo_eth_divide_multiply
+    coingecko_ldo_usd -> coingecko_ldo_usd_parse -> coingecko_ldo_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_ldo_eth_divide
+    coingecko_ldo_eth_divide -> coingecko_ldo_eth_divide_multiply
+    cryptocompare_ldo_usd -> cryptocompare_ldo_usd_parse -> cryptocompare_ldo_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_ldo_eth_divide
+    cryptocompare_ldo_eth_divide -> cryptocompare_ldo_eth_divide_multiply
+    kraken_ldo_usd -> kraken_ldo_usd_parse -> kraken_ldo_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_ldo_eth_divide
+    kraken_ldo_eth_divide -> kraken_ldo_eth_divide_multiply
+    okx_ldo_usd -> okx_ldo_usd_parse -> okx_ldo_eth_divide
+    okx_eth_usd -> okx_eth_usd_parse -> okx_ldo_eth_divide
+    okx_ldo_eth_divide -> okx_ldo_eth_divide_multiply
+    binance_ldo_eth_divide_multiply -> median;
+    coinbase_ldo_eth_divide_multiply -> median;
+    coingecko_ldo_eth_divide_multiply -> median;
+    cryptocompare_ldo_eth_divide_multiply -> median;
+    kraken_ldo_eth_divide_multiply -> median;
+    okx_ldo_eth_divide_multiply -> median;
 """

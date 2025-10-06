@@ -19,17 +19,17 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         coingecko_ezeth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_ezeth_usd_parse    [type="jsonparse" path="price"]
-        coingecko_ezeth_usd_multiply [type="multiply" times=1000000000000000000]
     
         coingecko_eth_exchange_rate_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/renzo-restaked-eth/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_exchange_rate_usd_parse    [type="jsonparse" path="price"]
-        coingecko_eth_exchange_rate_usd_multiply [type="multiply" times=1000000000000000000]
     
-        coingecko_ezeth_eth_exchange_rate_divide    [type="divide" input="$(coingecko_ezeth_usd_multiply)" divisor="$(coingecko_eth_exchange_rate_usd_multiply)" times=1000000000000000000]
+        coingecko_ezeth_eth_exchange_rate_divide    [type="divide" input="$(coingecko_ezeth_usd_parse)" divisor="$(coingecko_eth_exchange_rate_usd_parse)"]
+        coingecko_ezeth_eth_exchange_rate_divide_multiply [type="multiply" times=1000000000000000000]
     
         median [type=median];
     
-    coingecko_ezeth_usd -> coingecko_ezeth_usd_parse -> coingecko_ezeth_usd_multiply -> coingecko_ezeth_eth_exchange_rate_divide
-    coingecko_eth_exchange_rate_usd -> coingecko_eth_exchange_rate_usd_parse -> coingecko_eth_exchange_rate_usd_multiply -> coingecko_ezeth_eth_exchange_rate_divide
-    coingecko_ezeth_eth_exchange_rate_divide -> median;
+    coingecko_ezeth_usd -> coingecko_ezeth_usd_parse -> coingecko_ezeth_eth_exchange_rate_divide
+    coingecko_eth_exchange_rate_usd -> coingecko_eth_exchange_rate_usd_parse -> coingecko_ezeth_eth_exchange_rate_divide
+    coingecko_ezeth_eth_exchange_rate_divide -> coingecko_ezeth_eth_exchange_rate_divide_multiply
+    coingecko_ezeth_eth_exchange_rate_divide_multiply -> median;
 """

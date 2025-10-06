@@ -82,7 +82,7 @@ function buildObservationSource(dataSources, decimalsRaw) {
     const i = idx + 1;
     const ds = `ds${i}`;
     const parse = `${ds}_parse`;
-    const mult = `${ds}_multiply`;
+  const mult = `${ds}_multiply`;
 
     // Support legacy string URL entries and new object entries with { url, path }
     let url = '';
@@ -179,6 +179,7 @@ function buildObservationSource(dataSources, decimalsRaw) {
   all.push(...lines);
   all.push('');
   all.push(...edges);
+  // each multiplied source feeds median via edges above
   return all.join('\n');
 }
 
@@ -289,12 +290,11 @@ function buildCrossCourseObservationSource(feed, contractAddress) {
     const baseNode = buildNodePrefix(baseEntry, base);
     const denomNode = buildNodePrefix(denomEntry, denom);
     const baseParse = `${baseNode}_parse`;
-    const baseMultiply = `${baseNode}_multiply`;
     const denomParse = `${denomNode}_parse`;
-    const denomMultiply = `${denomNode}_multiply`;
     const divideNode = `${provider}_${normalizeSymbol(base)}_${normalizeSymbol(
       denom
     )}_divide`;
+    const divideMultiply = `${divideNode}_multiply`;
 
     // Base (comments removed per requirement)
     lines.push(
@@ -302,9 +302,6 @@ function buildCrossCourseObservationSource(feed, contractAddress) {
     );
     lines.push(
       `    ${baseParse}    [type="jsonparse" path="${baseEntry.path || 'price'}"]`
-    );
-    lines.push(
-      `    ${baseMultiply} [type="multiply" times=${timesStr}]`
     );
 
     // Denom
@@ -315,24 +312,27 @@ function buildCrossCourseObservationSource(feed, contractAddress) {
     lines.push(
       `    ${denomParse}    [type="jsonparse" path="${denomEntry.path || 'price'}"]`
     );
-    lines.push(
-      `    ${denomMultiply} [type="multiply" times=${timesStr}]`
-    );
 
     // Divide
     lines.push('');
     lines.push(
-      `    ${divideNode}    [type="divide" input="$(${baseMultiply})" divisor="$(${denomMultiply})" times=${timesStr}]`
+      `    ${divideNode}    [type="divide" input="$(${baseParse})" divisor="$(${denomParse})"]`
+    );
+    lines.push(
+      `    ${divideMultiply} [type="multiply" times=${timesStr}]`
     );
 
     // Edges
     edges.push(
-      `    ${baseNode} -> ${baseParse} -> ${baseMultiply} -> ${divideNode}`
+      `    ${baseNode} -> ${baseParse} -> ${divideNode}`
     );
     edges.push(
-      `    ${denomNode} -> ${denomParse} -> ${denomMultiply} -> ${divideNode}`
+      `    ${denomNode} -> ${denomParse} -> ${divideNode}`
     );
-    divideNodes.push(divideNode);
+    edges.push(
+      `    ${divideNode} -> ${divideMultiply}`
+    );
+    divideNodes.push(divideMultiply);
     lines.push('');
   }
 
