@@ -7024,20 +7024,6 @@
         "path": "price",
         "value": 0.02053,
         "pair": "QUICK/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/QUICK/USD",
-        "path": "price",
-        "value": 21.58,
-        "pair": "QUICK/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/QUICK/USD",
-        "path": "price",
-        "value": 21.644023931949363,
-        "pair": "QUICK/USD"
       }
     ]
   },
