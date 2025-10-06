@@ -2183,13 +2183,6 @@
     "alphaPPB": "10000000",
     "dataSources": [
       {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/DPI/USD",
-        "path": "price",
-        "value": 102.53,
-        "pair": "DPI/USD"
-      },
-      {
         "provider": "coingecko",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/defipulse-index/USD",
         "path": "price",
