@@ -7035,20 +7035,6 @@
     "alphaPPB": "3000000",
     "dataSources": [
       {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/SEK/USD",
-        "path": "price",
-        "value": 0.154,
-        "pair": "SEK/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/SEKA/USD",
-        "path": "price",
-        "value": 0.00020836,
-        "pair": "SEK/USD"
-      },
-      {
         "provider": "coinbase",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/SEK/USD",
         "path": "price",
