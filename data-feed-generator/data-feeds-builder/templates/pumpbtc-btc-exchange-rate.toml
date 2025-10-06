@@ -20,13 +20,8 @@ observationSource = """
     ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=pumpbtc&vs_currencies=btc"];
     ds1_parse [type=jsonparse path="pumpbtc.btc"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://data.chain.link/feeds/ethereum/mainnet/pumpbtc-btc-exchange-rate"];
-    ds2_parse [type=jsonparse path="unknown"];
-    ds2_multiply [type=multiply times=100000000];
     median [type=median];
 
     ds1 -> ds1_parse -> ds1_multiply;
-    ds2 -> ds2_parse -> ds2_multiply;
     ds1_multiply -> median;
-    ds2_multiply -> median;
 """

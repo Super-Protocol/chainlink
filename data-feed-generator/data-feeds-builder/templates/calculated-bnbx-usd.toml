@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "Calculated BNBx / USD"
-externalJobID = "7cd453ae-70e8-4154-a1ae-c24f8269da8b"
+externalJobID = "4a50b7c9-8e89-5b1e-8fc1-549136aa515c"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
@@ -17,11 +17,11 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=stader-bnbx&vs_currencies=usd"];
-    ds1_parse [type=jsonparse path="stader-bnbx.usd"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/stader-bnbx/USD"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
     ds2 [type=http method=GET url="https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BNBx&CMC_PRO_API_KEY=12913f9a-4d3d-4529-876a-8f2dd395c95f"];
-    ds2_parse [type=jsonparse path="unknown"];
+    ds2_parse [type=jsonparse path="data.BNBX.quote.USD.price"];
     ds2_multiply [type=multiply times=100000000];
     median [type=median];
 

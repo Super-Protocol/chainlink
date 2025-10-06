@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "Calculated stMATIC / USD"
-externalJobID = "ca9e11e3-eb06-421c-9df8-ad4728b329d5"
+externalJobID = "931d10ba-dd91-5ec9-9ab5-e206d6ce8a96"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
@@ -17,11 +17,11 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=lido-staked-matic&vs_currencies=usd"];
-    ds1_parse [type=jsonparse path="lido-staked-matic.usd"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/lido-staked-matic/USD"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
     ds2 [type=http method=GET url="https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=stMATIC&CMC_PRO_API_KEY=12913f9a-4d3d-4529-876a-8f2dd395c95f"];
-    ds2_parse [type=jsonparse path="unknown"];
+    ds2_parse [type=jsonparse path="data.stMATIC.quote.USD.price"];
     ds2_multiply [type=multiply times=100000000];
     median [type=median];
 
