@@ -2271,15 +2271,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DINARI-NFLX-DSHARES/USD",
-        "path": "price",
-        "value": 1.243e-9,
-        "pair": "NFLX/USD"
-      }
-    ]
+    "dataSources": []
   },
   "NVDA / USD": {
     "name": "NVDA / USD",
