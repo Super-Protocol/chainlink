@@ -693,13 +693,6 @@
         "path": "price",
         "value": 0.009454,
         "pair": "BSW/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/BASEDSWAP/USD",
-        "path": "price",
-        "value": 0.00029063,
-        "pair": "BSW/USD"
       }
     ]
   },
