@@ -2852,15 +2852,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/TSLA6900/USD",
-        "path": "price",
-        "value": 8.7147e-8,
-        "pair": "TSLA/USD"
-      }
-    ]
+    "dataSources": []
   },
   "TUSD / USD": {
     "name": "TUSD / USD",
