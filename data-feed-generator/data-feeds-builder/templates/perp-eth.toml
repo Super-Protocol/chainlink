@@ -19,10 +19,10 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
     ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=perpetual-protocol&vs_currencies=eth"];
     ds1_parse [type=jsonparse path="perpetual-protocol.eth"];
-    ds1_multiply [type=multiply times=100000000];
+    ds1_multiply [type=multiply times=1000000000000000000];
     ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=PERP&tsyms=ETH"];
     ds2_parse [type=jsonparse path="ETH"];
-    ds2_multiply [type=multiply times=100000000];
+    ds2_multiply [type=multiply times=1000000000000000000];
     median [type=median];
 
     ds1 -> ds1_parse -> ds1_multiply;
