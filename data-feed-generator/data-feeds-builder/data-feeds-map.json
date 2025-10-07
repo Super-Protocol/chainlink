@@ -3007,15 +3007,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/alphabet-class-a-ondo-tokenized-stock/USD",
-        "path": "price",
-        "value": 240.75,
-        "pair": "alphabet-class-a-ondo-tokenized-stock/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "GRT / ETH",
