@@ -2223,15 +2223,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/TWIN-ASSET-TOKEN-NVDA-LONG/USD",
-        "path": "price",
-        "value": 137.9,
-        "pair": "NVDA/USD"
-      }
-    ]
+    "dataSources": []
   },
   "ONG / USD": {
     "name": "ONG / USD",
