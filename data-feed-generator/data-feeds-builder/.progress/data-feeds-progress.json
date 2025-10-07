@@ -2111,15 +2111,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/MIRRORSTAGE/USD",
-        "path": "price",
-        "value": 0.00040844,
-        "pair": "MS/USD"
-      }
-    ]
+    "dataSources": []
   },
   "MSFT / USD": {
     "name": "MSFT / USD",
