@@ -2119,15 +2119,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/DINARI-MSFT-DSHARES/USD",
-        "path": "price",
-        "value": 5.1357e-10,
-        "pair": "MSFT/USD"
-      }
-    ]
+    "dataSources": []
   },
   "MXN / USD": {
     "name": "MXN / USD",
