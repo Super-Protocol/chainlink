@@ -4684,15 +4684,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/invesco-qqq-etf-ondo-tokenized-etf/USD",
-        "path": "price",
-        "value": 598.98,
-        "pair": "invesco-qqq-etf-ondo-tokenized-etf/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "QUICK / USD",
