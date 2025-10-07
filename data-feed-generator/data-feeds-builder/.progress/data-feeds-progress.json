@@ -5614,15 +5614,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "10000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/LIFT-DOLLAR/USD",
-        "path": "price",
-        "value": 0.998872,
-        "pair": "USDL/USD"
-      }
-    ]
+    "dataSources": []
   },
   "USDP / USD": {
     "name": "USDP / USD",
