@@ -17,19 +17,11 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-        coingecko_oeth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        coingecko_oeth_usd_parse    [type="jsonparse" path="price"]
-    
-        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/orbit-bridge-klaytn-ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
-    
-        coingecko_oeth_eth_divide    [type="divide" input="$(coingecko_oeth_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
-        coingecko_oeth_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
-        median [type=median];
-    
-    coingecko_oeth_usd -> coingecko_oeth_usd_parse -> coingecko_oeth_eth_divide
-    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_oeth_eth_divide
-    coingecko_oeth_eth_divide -> coingecko_oeth_eth_divide_multiply
-    coingecko_oeth_eth_divide_multiply -> median;
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/origin-ether/eth"];
+    ds1_parse [type=jsonparse path="price"];
+    ds1_multiply [type=multiply times=1000000000000000000];
+    median [type=median];
+
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds1_multiply -> median;
 """

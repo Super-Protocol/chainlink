@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "Calculated MaticX / USD"
-externalJobID = "b10fa7c7-afd1-5417-994c-0f5d995ea047"
+name = "IBTA / USD"
+externalJobID = "1817ae13-53d7-4f6f-a78d-4c8dd41726be"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
@@ -17,16 +17,11 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/stader-maticx/USD"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/backed-ibta-treasury-bond-1-3yr/usd"];
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/MATICX/USD"];
-    ds2_parse [type=jsonparse path="price"];
-    ds2_multiply [type=multiply times=100000000];
     median [type=median];
 
     ds1 -> ds1_parse -> ds1_multiply;
-    ds2 -> ds2_parse -> ds2_multiply;
     ds1_multiply -> median;
-    ds2_multiply -> median;
 """

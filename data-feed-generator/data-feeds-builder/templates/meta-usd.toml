@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "Calculated MaticX / USD"
-externalJobID = "b10fa7c7-afd1-5417-994c-0f5d995ea047"
+name = "META / USD"
+externalJobID = "3e3b3990-36ed-5ff6-8e3c-6bd20ea5f734"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
@@ -17,10 +17,10 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/stader-maticx/USD"];
-    ds1_parse [type=jsonparse path="price"];
+    ds1 [type=http method=GET url="https://query1.finance.yahoo.com/v8/finance/chart/META"];
+    ds1_parse [type=jsonparse path="chart.result.0.meta.regularMarketPrice"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/MATICX/USD"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/meta-platforms-ondo-tokenized-stock/USD"];
     ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
     median [type=median];

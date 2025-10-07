@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "rETH / ETH Exchange Rate"
-externalJobID = "c832cd36-3d1e-5483-bf9a-a8cb2b9d65ed"
+externalJobID = "462aac08-d0d5-4a04-be1e-c984eb7c66bb"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
@@ -17,16 +17,11 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/gnosis-bridged-reth-gnosis/USD"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/rocket-pool-eth/eth"];
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=1000000000000000000];
-    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD"];
-    ds2_parse [type=jsonparse path="price"];
-    ds2_multiply [type=multiply times=1000000000000000000];
     median [type=median];
-    
+
     ds1 -> ds1_parse -> ds1_multiply;
-    ds2 -> ds2_parse -> ds2_multiply;
     ds1_multiply -> median;
-    ds2_multiply -> median;
 """

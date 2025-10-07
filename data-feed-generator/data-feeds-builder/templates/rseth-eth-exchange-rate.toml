@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "rsETH / ETH Exchange Rate"
-externalJobID = "f61b76aa-520e-5790-86d6-42590d140c85"
+externalJobID = "55139f4c-7e4a-4369-a469-26028b95caaf"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
@@ -17,16 +17,11 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/kelpdao-bridged-rseth-arbitrum/USD"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/kelp-dao-restaked-eth/eth"];
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=1000000000000000000];
-    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD"];
-    ds2_parse [type=jsonparse path="price"];
-    ds2_multiply [type=multiply times=1000000000000000000];
     median [type=median];
-    
+
     ds1 -> ds1_parse -> ds1_multiply;
-    ds2 -> ds2_parse -> ds2_multiply;
     ds1_multiply -> median;
-    ds2_multiply -> median;
 """

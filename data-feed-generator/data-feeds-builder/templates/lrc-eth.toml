@@ -17,84 +17,16 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-        binance_lrc_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/LRC/USDT" allowUnrestrictedNetworkAccess=true retries=3]
-        binance_lrc_usdt_parse    [type="jsonparse" path="price"]
-    
-        binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
-        binance_eth_usdt_parse    [type="jsonparse" path="price"]
-    
-        binance_lrc_eth_divide    [type="divide" input="$(binance_lrc_usdt_parse)" divisor="$(binance_eth_usdt_parse)"]
-        binance_lrc_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
-        coinbase_lrc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/LRC/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        coinbase_lrc_usd_parse    [type="jsonparse" path="price"]
-    
-        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
-    
-        coinbase_lrc_eth_divide    [type="divide" input="$(coinbase_lrc_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
-        coinbase_lrc_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
-        coingecko_lrc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/loopring/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        coingecko_lrc_usd_parse    [type="jsonparse" path="price"]
-    
-        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
-    
-        coingecko_lrc_eth_divide    [type="divide" input="$(coingecko_lrc_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
-        coingecko_lrc_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
-        cryptocompare_lrc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/LRC/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        cryptocompare_lrc_usd_parse    [type="jsonparse" path="price"]
-    
-        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
-    
-        cryptocompare_lrc_eth_divide    [type="divide" input="$(cryptocompare_lrc_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
-        cryptocompare_lrc_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
-        kraken_lrc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/LRC/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        kraken_lrc_usd_parse    [type="jsonparse" path="price"]
-    
-        kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        kraken_eth_usd_parse    [type="jsonparse" path="price"]
-    
-        kraken_lrc_eth_divide    [type="divide" input="$(kraken_lrc_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
-        kraken_lrc_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
-        okx_lrc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/LRC/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        okx_lrc_usd_parse    [type="jsonparse" path="price"]
-    
-        okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        okx_eth_usd_parse    [type="jsonparse" path="price"]
-    
-        okx_lrc_eth_divide    [type="divide" input="$(okx_lrc_usd_parse)" divisor="$(okx_eth_usd_parse)"]
-        okx_lrc_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
-        median [type=median];
-    
-    binance_lrc_usdt -> binance_lrc_usdt_parse -> binance_lrc_eth_divide
-    binance_eth_usdt -> binance_eth_usdt_parse -> binance_lrc_eth_divide
-    binance_lrc_eth_divide -> binance_lrc_eth_divide_multiply
-    coinbase_lrc_usd -> coinbase_lrc_usd_parse -> coinbase_lrc_eth_divide
-    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_lrc_eth_divide
-    coinbase_lrc_eth_divide -> coinbase_lrc_eth_divide_multiply
-    coingecko_lrc_usd -> coingecko_lrc_usd_parse -> coingecko_lrc_eth_divide
-    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_lrc_eth_divide
-    coingecko_lrc_eth_divide -> coingecko_lrc_eth_divide_multiply
-    cryptocompare_lrc_usd -> cryptocompare_lrc_usd_parse -> cryptocompare_lrc_eth_divide
-    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_lrc_eth_divide
-    cryptocompare_lrc_eth_divide -> cryptocompare_lrc_eth_divide_multiply
-    kraken_lrc_usd -> kraken_lrc_usd_parse -> kraken_lrc_eth_divide
-    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_lrc_eth_divide
-    kraken_lrc_eth_divide -> kraken_lrc_eth_divide_multiply
-    okx_lrc_usd -> okx_lrc_usd_parse -> okx_lrc_eth_divide
-    okx_eth_usd -> okx_eth_usd_parse -> okx_lrc_eth_divide
-    okx_lrc_eth_divide -> okx_lrc_eth_divide_multiply
-    binance_lrc_eth_divide_multiply -> median;
-    coinbase_lrc_eth_divide_multiply -> median;
-    coingecko_lrc_eth_divide_multiply -> median;
-    cryptocompare_lrc_eth_divide_multiply -> median;
-    kraken_lrc_eth_divide_multiply -> median;
-    okx_lrc_eth_divide_multiply -> median;
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/loopring/eth"];
+    ds1_parse [type=jsonparse path="price"];
+    ds1_multiply [type=multiply times=1000000000000000000];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/LRC/ETH"];
+    ds2_parse [type=jsonparse path="price"];
+    ds2_multiply [type=multiply times=1000000000000000000];
+    median [type=median];
+
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
+    ds1_multiply -> median;
+    ds2_multiply -> median;
 """

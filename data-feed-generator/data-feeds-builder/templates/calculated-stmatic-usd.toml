@@ -21,7 +21,7 @@ observationSource = """
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
     median [type=median];
-    
+
     ds1 -> ds1_parse -> ds1_multiply;
     ds1_multiply -> median;
 """
