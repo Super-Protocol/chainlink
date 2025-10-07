@@ -442,11 +442,11 @@ export abstract class BaseStreamService implements QuoteStreamService {
       this.lastUpdateTimes.set(pairKey, now);
     }
 
-    this.subscriptions.forEach((sub) => {
+    for (const sub of this.subscriptions.values()) {
       if (sub.identifier === identifier) {
         sub.onQuote(fullQuote);
       }
-    });
+    }
   }
 
   private splitIdentifiers(identifiers: string[]): string[][] {

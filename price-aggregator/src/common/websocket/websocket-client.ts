@@ -87,7 +87,6 @@ export class WebSocketClient extends EventEmitter {
           const rawString = data.toString();
 
           if (!rawString || rawString.trim() === '') {
-            this.logger.warn('Received empty WebSocket message');
             return;
           }
 
