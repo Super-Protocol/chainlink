@@ -171,15 +171,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/twin-asset-token-aapl/USD",
-        "path": "price",
-        "value": 201.91,
-        "pair": "twin-asset-token-aapl/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "AAVE / ETH",
@@ -572,15 +564,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/amazon-ondo-tokenized-stock/USD",
-        "path": "price",
-        "value": 219.1,
-        "pair": "amazon-ondo-tokenized-stock/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "APE / ETH",
@@ -1883,13 +1867,6 @@
         "path": "price",
         "value": 0.009454,
         "pair": "BSW/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/basedswap/USD",
-        "path": "price",
-        "value": 0.00029063,
-        "pair": "basedswap/USD"
       }
     ]
   },
@@ -2337,15 +2314,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/stader-bnbx/USD",
-        "path": "price",
-        "value": 1109.96,
-        "pair": "stader-bnbx/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "Calculated MaticX / USD",
@@ -2376,15 +2345,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/benqi-liquid-staked-avax/USD",
-        "path": "price",
-        "value": 35.78,
-        "pair": "benqi-liquid-staked-avax/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "Calculated stMATIC / USD",
@@ -2706,15 +2667,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/8-bit-coin/USD",
-        "path": "price",
-        "value": 0.00004013,
-        "pair": "8-bit-coin/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "COMP / ETH",
@@ -3836,13 +3789,6 @@
     "alphaPPB": "10000000",
     "dataSources": [
       {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/DPI/USD",
-        "path": "price",
-        "value": 102.53,
-        "pair": "DPI/USD"
-      },
-      {
         "provider": "coingecko",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/defipulse-index/USD",
         "path": "price",
@@ -4451,22 +4397,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/FB/USD",
-        "path": "price",
-        "value": 0.4192,
-        "pair": "FB/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/fenerbahce-token/USD",
-        "path": "price",
-        "value": 0.375383,
-        "pair": "fenerbahce-token/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "FBTC / BTC Exchange Rate",
@@ -4734,13 +4665,6 @@
     "alphaPPB": "3000000",
     "dataSources": [
       {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/FRAX/USD",
-        "path": "price",
-        "value": 2.09,
-        "pair": "FRAX/USD"
-      },
-      {
         "provider": "coingecko",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/frax/USD",
         "path": "price",
@@ -4856,10 +4780,10 @@
     "dataSources": [
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/fx-usd-saving/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/frax-share/USD",
         "path": "price",
         "value": 1.053,
-        "pair": "fx-usd-saving/USD"
+        "pair": "frax-share/USD"
       },
       {
         "provider": "kraken",
@@ -5067,22 +4991,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/GME/USD",
-        "path": "price",
-        "value": 0.001098,
-        "pair": "GME/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/dumbmoney/USD",
-        "path": "price",
-        "value": 0.00125039,
-        "pair": "dumbmoney/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "GMT / USD",
@@ -5157,15 +5066,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/alphabet-class-a-ondo-tokenized-stock/USD",
-        "path": "price",
-        "value": 240.75,
-        "pair": "alphabet-class-a-ondo-tokenized-stock/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "GRT / ETH",
@@ -5665,13 +5566,6 @@
     "deltaC": "1200000000000",
     "alphaPPB": "2000000",
     "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/INR/USD",
-        "path": "price",
-        "value": 0.01201,
-        "pair": "INR/USD"
-      },
       {
         "provider": "coinbase",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/INR/USD",
@@ -6942,15 +6836,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/meta-2/USD",
-        "path": "price",
-        "value": 1776.61,
-        "pair": "meta-2/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "mETH / ETH",
@@ -7078,13 +6964,6 @@
     "alphaPPB": "5000000",
     "dataSources": [
       {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/MKR/USDT",
-        "path": "price",
-        "value": 1750,
-        "pair": "MKR/USDT"
-      },
-      {
         "provider": "cryptocompare",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/MKR/USD",
         "path": "price",
@@ -7201,15 +7080,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/mirrorstage/USD",
-        "path": "price",
-        "value": 0.00040844,
-        "pair": "mirrorstage/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "MSFT / USD",
@@ -7217,15 +7088,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/dinari-msft-dshares/USD",
-        "path": "price",
-        "value": 5.1357e-10,
-        "pair": "dinari-msft-dshares/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "mSOL / USD",
@@ -7409,15 +7272,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/dinari-nflx-dshares/USD",
-        "path": "price",
-        "value": 1.243e-9,
-        "pair": "dinari-nflx-dshares/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "NVDA / USD",
@@ -7425,15 +7280,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/twin-asset-token-nvda-long/USD",
-        "path": "price",
-        "value": 137.9,
-        "pair": "twin-asset-token-nvda-long/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "NZD / USD",
@@ -8064,15 +7911,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/invesco-qqq-etf-ondo-tokenized-etf/USD",
-        "path": "price",
-        "value": 598.98,
-        "pair": "invesco-qqq-etf-ondo-tokenized-etf/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "QUICK / USD",
@@ -8086,20 +7925,6 @@
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/QUICK/USD",
         "path": "price",
         "value": 0.02053,
-        "pair": "QUICK/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/quick/USD",
-        "path": "price",
-        "value": 21.58,
-        "pair": "quick/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/QUICK/USD",
-        "path": "price",
-        "value": 21.644023931949363,
         "pair": "QUICK/USD"
       }
     ]
@@ -8389,20 +8214,6 @@
     "deltaC": "86400000000000",
     "alphaPPB": "3000000",
     "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/SEK/USD",
-        "path": "price",
-        "value": 0.154,
-        "pair": "SEK/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/seka/USD",
-        "path": "price",
-        "value": 0.00020836,
-        "pair": "seka/USD"
-      },
       {
         "provider": "coinbase",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/SEK/USD",
@@ -8952,22 +8763,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/SPY/USD",
-        "path": "price",
-        "value": 0.001307,
-        "pair": "SPY/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/smarty-pay/USD",
-        "path": "price",
-        "value": 0.00031515,
-        "pair": "smarty-pay/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "stBTC / BTC Exchange Rate",
@@ -9812,15 +9608,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/tsla6900/USD",
-        "path": "price",
-        "value": 8.7147e-8,
-        "pair": "tsla6900/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "TUSD / ETH",
@@ -10630,15 +10418,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "10000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/lift-dollar/USD",
-        "path": "price",
-        "value": 0.998872,
-        "pair": "lift-dollar/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "USDP / USD",
@@ -11345,15 +11125,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/wrapped-club-tigres-uanl-kayen/USD",
-        "path": "price",
-        "value": 0.130953,
-        "pair": "wrapped-club-tigres-uanl-kayen/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "XAG / USD",
@@ -11361,15 +11133,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/XAG/USD",
-        "path": "price",
-        "value": 46.59687852170471,
-        "pair": "XAG/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "XAU / USD",
@@ -11377,22 +11141,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/xau9999/USD",
-        "path": "price",
-        "value": 3.4377e-11,
-        "pair": "xau9999/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/XAU/USD",
-        "path": "price",
-        "value": 3843.5536217098775,
-        "pair": "XAU/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "XCN / USD",
@@ -11518,22 +11267,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/XPT/USD",
-        "path": "price",
-        "value": 0.00004,
-        "pair": "XPT/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/XPT/USD",
-        "path": "price",
-        "value": 1583.4386329957274,
-        "pair": "XPT/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "XRP / BNB",

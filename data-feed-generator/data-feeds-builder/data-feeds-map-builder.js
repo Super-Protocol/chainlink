@@ -1165,6 +1165,26 @@ async function main() {
   ensureDirSync(path.dirname(args.state));
   ensureDirSync(args.cacheDir);
 
+  // Load removed pairs and provider removals configuration
+  const removedConfigPath = path.resolve(
+    __dirname,
+    'removed-feeds.json'
+  );
+  /** @type {{removedPairs?: string[], sourceRemovals?: Record<string, string[]>}} */
+  const removedCfg = readJsonSafe(removedConfigPath, {
+    removedPairs: [],
+    sourceRemovals: {},
+  });
+  const removedPairsSet = new Set(
+    Array.isArray(removedCfg.removedPairs) ? removedCfg.removedPairs : []
+  );
+  const removedSourcesMap = new Map(
+    Object.entries(removedCfg.sourceRemovals || {}).map(([pair, arr]) => [
+      pair,
+      new Set((arr || []).map((s) => String(s).toLowerCase())),
+    ])
+  );
+
   // Load input feeds
   const inputPath = path.resolve(__dirname, '../data-feeds.json');
   if (!fs.existsSync(inputPath)) {
@@ -1205,6 +1225,16 @@ async function main() {
     startedAt
   );
   for (const [name, cfg] of entries) {
+    // Skip completely removed pairs
+    if (removedPairsSet.has(name)) {
+      console.log(`Skipping (removed pair): ${name}`);
+      // Ensure any previous progress is dropped for removed pairs
+      if (progress[name]) {
+        delete progress[name];
+        writeJsonAtomicSync(args.state, progress);
+      }
+      continue;
+    }
     if (!isPairName(name)) {
       console.log(`Skipping (not a pair): ${name}`);
       if (progress[name]) {
@@ -1215,17 +1245,20 @@ async function main() {
     }
     const cached = progress[name];
     if (cached) {
-      const ds = Array.isArray(cached.dataSources) ? cached.dataSources : [];
-      // New format stores objects: { provider, url, path, value, pair }.
-      // Old legacy format might have plain URL strings. Treat either as cacheable.
-      const cacheable =
-        ds.length > 0 &&
-        ds.every(
-          (s) =>
-            (typeof s === 'string' && s.startsWith('http')) ||
-            (s && typeof s === 'object' && typeof s.url === 'string')
-        );
-      if (cacheable) {
+      let ds = Array.isArray(cached.dataSources) ? cached.dataSources : [];
+      // Filter out removed providers for this pair (from cache)
+      const rm = removedSourcesMap.get(name);
+      if (rm && ds.length > 0) {
+        ds = ds.filter((s) => {
+          const prov = (s && s.provider ? String(s.provider) : '').toLowerCase();
+          return prov && !rm.has(prov);
+        });
+        cached.dataSources = ds;
+      }
+      const hasFullUrls =
+        ds.length === 0 ||
+        ds.every((s) => typeof s === 'string' && s.startsWith('http'));
+      if (hasFullUrls) {
         console.log(`Skipping (cached): ${name}`);
         // Merge cfg metadata to ensure correctness even if cached was minimal
         const merged = {
@@ -1264,9 +1297,64 @@ async function main() {
     const { baseSymbol, quoteSymbol, isUsdQuote, isCrossCourse } = parseName(name);
     let dataSources = [];
 
-    if (Boolean(baseSymbol) && isUsdQuote === true && cfg.smartDataFeed === false) {
-      // Use cached-or-fetch path for USD feeds to reuse __usdCache when available
-      dataSources = await getOrFetchUsdFeed(baseSymbol, args, coinsList, progress);
+    const shouldCheckApis =
+      Boolean(baseSymbol) && isUsdQuote === true && cfg.smartDataFeed === false;
+    if (shouldCheckApis) {
+      const quote = 'USD';
+      const rmSet = removedSourcesMap.get(name) || new Set();
+      const promises = [];
+      if (!rmSet.has('binance'))
+        promises.push(checkBinance(baseSymbol, args.timeoutMs, args.verbose));
+      if (!rmSet.has('cryptocompare'))
+        promises.push(
+          checkCryptoCompare(baseSymbol, args.timeoutMs, args.verbose)
+        );
+      if (!rmSet.has('coingecko'))
+        promises.push(
+          checkCoinGecko(baseSymbol, coinsList, args.timeoutMs, args.verbose)
+        );
+      if (!rmSet.has('coinbase'))
+        promises.push(checkCoinbase(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('kraken'))
+        promises.push(checkKraken(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('okx'))
+        promises.push(checkOKX(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('frankfurter'))
+        promises.push(checkFrankfurter(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('exchangerate-host'))
+        promises.push(
+          checkExchangerateHost(baseSymbol, quote, args.timeoutMs)
+        );
+      if (!rmSet.has('alphavantage'))
+        promises.push(checkAlphaVantage(baseSymbol, quote, args.timeoutMs));
+
+      const checks = await Promise.all(promises);
+      for (const res of checks) {
+        if (!res) continue;
+        if (typeof res === 'string') {
+          dataSources.push({
+            provider: 'unknown',
+            url: res,
+            path: null,
+            value: null,
+          });
+        } else if (res && typeof res === 'object') {
+          const provider =
+            typeof res.provider === 'string' && res.provider
+              ? res.provider
+              : 'unknown';
+          const url = typeof res.url === 'string' ? res.url : '';
+          const path = typeof res.path === 'string' ? res.path : null;
+          const pair = typeof res.pair === 'string' ? res.pair : null;
+          const value =
+            typeof res.value === 'number' && isFinite(res.value)
+              ? res.value
+              : null;
+          if (url) dataSources.push({ provider, url, path, value, pair });
+        }
+      }
+
+      // Print collected quotes for this pair
       if (dataSources.length > 0) {
         console.log(`Quotes for ${name}:`);
         for (const ds of dataSources) {
@@ -1296,6 +1384,15 @@ async function main() {
     } else {
       if (args.verbose)
         console.log(`  Skipping API checks (name format, smartDataFeed, or unsupported quote): ${name}`);
+    }
+
+    // Apply provider removals to newly collected dataSources
+    const rm = removedSourcesMap.get(name);
+    if (rm && dataSources.length > 0) {
+      dataSources = dataSources.filter((s) => {
+        const prov = (s && s.provider ? String(s.provider) : '').toLowerCase();
+        return prov && !rm.has(prov);
+      });
     }
 
     const item = {

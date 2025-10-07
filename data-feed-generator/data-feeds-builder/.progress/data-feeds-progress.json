@@ -2265,13 +2265,6 @@
     "alphaPPB": "3000000",
     "dataSources": [
       {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/FRAX/USD",
-        "path": "price",
-        "value": 2.09,
-        "pair": "FRAX/USD"
-      },
-      {
         "provider": "coingecko",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/frax/USD",
         "path": "price",
@@ -2555,13 +2548,6 @@
     "deltaC": "1200000000000",
     "alphaPPB": "2000000",
     "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/INR/USD",
-        "path": "price",
-        "value": 0.01201,
-        "pair": "INR/USD"
-      },
       {
         "provider": "coinbase",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/INR/USD",
@@ -4670,15 +4656,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/XAG/USD",
-        "path": "price",
-        "value": 46.59687852170471,
-        "pair": "XAG/USD"
-      }
-    ]
+    "dataSources": []
   },
   "XAU / USD": {
     "name": "XAU / USD",
@@ -6868,6 +6846,30 @@
       },
       {
         "provider": "coinbase",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
+        "path": "price",
+        "value": 4131.605,
+        "pair": "ETH/USD"
+      }
+    ],
+    "type": "cross-course"
+  },
+  "DPI / USD": {
+    "name": "DPI / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "10000000",
+    "dataSources": [
+      {
+        "provider": "coingecko",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/defipulse-index/USD",
+        "path": "price",
+        "value": 98.28,
+        "pair": "defipulse-index/USD"
+      },
+      {
+        "provider": "coinbase",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/DPI/USD",
         "path": "price",
         "value": 99.3191502307423,
@@ -8323,6 +8325,44 @@
         "value": 1750,
         "pair": "MKR/USDT"
       },
+      {
+        "provider": "cryptocompare",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/MKR/USD",
+        "path": "price",
+        "value": 1561.03,
+        "pair": "MKR/USD"
+      },
+      {
+        "provider": "cryptocompare",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
+        "path": "price",
+        "value": 4131.7,
+        "pair": "ETH/USD"
+      },
+      {
+        "provider": "coingecko",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/maker/USD",
+        "path": "price",
+        "value": 1569.92,
+        "pair": "maker/USD"
+      },
+      {
+        "provider": "coinbase",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
+        "path": "price",
+        "value": 4131.605,
+        "pair": "ETH/USD"
+      }
+    ],
+    "type": "cross-course"
+  },
+  "MKR / USD": {
+    "name": "MKR / USD",
+    "decimals": "8",
+    "smartDataFeed": false,
+    "deltaC": "86400000000000",
+    "alphaPPB": "5000000",
+    "dataSources": [
       {
         "provider": "cryptocompare",
         "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/MKR/USD",
@@ -12236,22 +12276,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/XPT/USD",
-        "path": "price",
-        "value": 0.00004,
-        "pair": "XPT/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/XPT/USD",
-        "path": "price",
-        "value": 1583.4386329957274,
-        "pair": "XPT/USD"
-      }
-    ]
+    "dataSources": []
   },
   "ZEC / USD": {
     "name": "ZEC / USD",
