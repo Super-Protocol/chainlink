@@ -17,11 +17,11 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.coinbase.com/v2/exchange-rates?currency=FBTC"];
-    ds1_parse [type=jsonparse path="data.rates.FBTC"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/FBTC/USD"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=1000000000000000000];
-    ds2 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=ignition-fbtc&vs_currencies=btc"];
-    ds2_parse [type=jsonparse path="ignition-fbtc.btc"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ignition-fbtc/btc"];
+    ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=1000000000000000000];
     median [type=median];
 

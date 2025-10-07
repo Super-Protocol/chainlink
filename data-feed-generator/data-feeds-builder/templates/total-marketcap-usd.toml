@@ -17,8 +17,8 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=TCAP&tsyms=USDT"];
-    ds1_parse [type=jsonparse path="USDT"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/TCAP/USDT"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
     median [type=median];
 

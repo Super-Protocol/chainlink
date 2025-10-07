@@ -17,11 +17,11 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.coingecko.com/api/v3/simple/price?ids=melon&vs_currencies=eth"];
-    ds1_parse [type=jsonparse path="melon.eth"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/melon/eth"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=1000000000000000000];
-    ds2 [type=http method=GET url="https://min-api.cryptocompare.com/data/price?fsym=MLN&tsyms=ETH"];
-    ds2_parse [type=jsonparse path="ETH"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/MLN/ETH"];
+    ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=1000000000000000000];
     median [type=median];
 
