@@ -13,7 +13,12 @@ import {
   SourceApiException,
   SourceUnauthorizedException,
 } from '../../exceptions';
-import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  SourceAdapterConfig,
+} from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const PRO_BASE_URL = 'https://pro-api.coingecko.com';
@@ -25,50 +30,27 @@ type CoinGeckoResponse = Record<string, Record<string, number>>;
 @Injectable()
 export class CoinGeckoAdapter implements SourceAdapter {
   readonly name = SourceName.COINGECKO;
-  private readonly enabled: boolean;
-  private readonly ttl: number;
-  private readonly refetch: boolean;
-  private readonly maxBatchSize: number;
+  private readonly sourceConfig: SourceAdapterConfig;
   private readonly httpClient: HttpClient;
-  private readonly apiKey?: string;
   private readonly coinIdMap: Promise<Map<string, string>>;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
-    const sourceConfig = configService.get('sources.coingecko');
-    const { enabled, ttl, refetch, maxBatchSize, apiKey } = sourceConfig;
-
-    this.enabled = enabled;
-    this.ttl = ttl;
-    this.refetch = refetch;
-    this.maxBatchSize = maxBatchSize;
-    this.apiKey = apiKey;
+    this.sourceConfig = configService.get('sources.coingecko');
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
-      ...sourceConfig,
-      baseUrl: this.apiKey ? PRO_BASE_URL : FREE_BASE_URL,
+      ...this.sourceConfig,
+      baseUrl: this.sourceConfig.apiKey ? PRO_BASE_URL : FREE_BASE_URL,
     });
 
     this.coinIdMap = getCoinIdMap(this.httpClient);
   }
 
-  isEnabled(): boolean {
-    return this.enabled;
-  }
-
-  getTtl(): number {
-    return this.ttl;
-  }
-
-  isRefetchEnabled(): boolean {
-    return this.refetch;
-  }
-
-  getMaxBatchSize(): number {
-    return this.maxBatchSize;
+  getConfig(): SourceAdapterConfig {
+    return this.sourceConfig;
   }
 
   @HandleSourceError()
@@ -84,8 +66,8 @@ export class CoinGeckoAdapter implements SourceAdapter {
       vs_currencies: quoteLc,
     });
 
-    if (this.apiKey) {
-      params.append('x_cg_pro_api_key', this.apiKey);
+    if (this.sourceConfig.apiKey) {
+      params.append('x_cg_pro_api_key', this.sourceConfig.apiKey);
     }
 
     const { data } = await this.httpClient.get<CoinGeckoResponse>(
@@ -111,10 +93,10 @@ export class CoinGeckoAdapter implements SourceAdapter {
       return [];
     }
 
-    if (pairs.length > this.maxBatchSize) {
+    if (pairs.length > this.sourceConfig.maxBatchSize!) {
       throw new BatchSizeExceededException(
         pairs.length,
-        this.maxBatchSize,
+        this.sourceConfig.maxBatchSize!,
         this.name,
       );
     }
@@ -132,8 +114,8 @@ export class CoinGeckoAdapter implements SourceAdapter {
       vs_currencies: currencies.map((c) => c.toLowerCase()).join(','),
     });
 
-    if (this.apiKey) {
-      params.append('x_cg_pro_api_key', this.apiKey);
+    if (this.sourceConfig.apiKey) {
+      params.append('x_cg_pro_api_key', this.sourceConfig.apiKey);
     }
 
     try {

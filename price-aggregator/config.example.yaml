@@ -82,6 +82,7 @@ sources:
     # useProxy: "https://user:pass@proxy.example.com:8080" # Custom proxy URL for this source only
     useProxy: false
     refetch: true # Enable automatic cache refresh when data expires
+    staleTriggerBeforeExpiry: 5000 # Optional: Override global refetch.staleTriggerBeforeExpiry (3000ms) for this source
     maxBatchSize: 500 # Maximum pairs in single batch request
     stream:
       autoReconnect: true # Enable automatic reconnection on disconnect

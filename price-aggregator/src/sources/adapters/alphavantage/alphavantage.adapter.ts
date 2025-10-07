@@ -8,7 +8,12 @@ import {
   SourceApiException,
   SourceUnauthorizedException,
 } from '../../exceptions';
-import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  SourceAdapterConfig,
+} from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://www.alphavantage.co';
@@ -38,48 +43,36 @@ function splitPair(pair: Pair): { base: string; quote: string } {
 @Injectable()
 export class AlphaVantageAdapter implements SourceAdapter {
   readonly name = SourceName.ALPHAVANTAGE;
-  private readonly enabled: boolean;
-  private readonly ttl: number;
-  private readonly refetch: boolean;
+  private readonly sourceConfig: SourceAdapterConfig;
   private readonly httpClient: HttpClient;
-  private readonly apiKey: string;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
   ) {
     const sourceConfig = configService.get('sources.alphavantage');
-    const { apiKey, enabled, ttl, refetch } = sourceConfig;
-    this.apiKey = apiKey || '';
-    this.enabled = enabled && !!this.apiKey;
-    this.ttl = ttl;
-    this.refetch = refetch;
+    this.sourceConfig = {
+      ...sourceConfig,
+      enabled: sourceConfig.enabled && !!sourceConfig.apiKey,
+    };
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
       ...sourceConfig,
       baseUrl: BASE_URL,
       defaultParams: {
-        apikey: this.apiKey,
+        apikey: sourceConfig.apiKey,
       },
     });
   }
 
-  isEnabled(): boolean {
-    return this.enabled;
-  }
-
-  getTtl(): number {
-    return this.ttl;
-  }
-
-  isRefetchEnabled(): boolean {
-    return this.refetch;
+  getConfig(): SourceAdapterConfig {
+    return this.sourceConfig;
   }
 
   @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
-    if (!this.apiKey) {
+    if (!this.sourceConfig.apiKey) {
       throw new SourceApiException(
         this.name,
         new Error('API key is not configured'),

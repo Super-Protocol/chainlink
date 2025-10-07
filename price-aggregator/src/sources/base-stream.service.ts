@@ -433,7 +433,6 @@ export abstract class BaseStreamService implements QuoteStreamService {
         const timeDiff = (now - lastUpdateTime) / 1000;
         this.metricsService.priceUpdateFrequency.observe(
           {
-            pair: pairKey,
             source: this.getSourceName(),
           },
           timeDiff,
@@ -443,11 +442,11 @@ export abstract class BaseStreamService implements QuoteStreamService {
       this.lastUpdateTimes.set(pairKey, now);
     }
 
-    this.subscriptions.forEach((sub) => {
+    for (const sub of this.subscriptions.values()) {
       if (sub.identifier === identifier) {
         sub.onQuote(fullQuote);
       }
-    });
+    }
   }
 
   private splitIdentifiers(identifiers: string[]): string[][] {

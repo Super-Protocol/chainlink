@@ -18,7 +18,6 @@ kill_if_alive() {
 }
 
 shutdown_all() {
-  kill_if_alive "${SET_CONFIG_PID:-}"
   kill_if_alive "${PUBLISH_JOBS_PID:-}"
 }
 
@@ -60,7 +59,6 @@ SP_SECRETS_DIR="${SP_SECRETS_DIR:-/sp/secrets}"
 CL_SHARED_DIR="$SP_SECRETS_DIR/cl-secrets"
 TMP_DIR="/tmp/node-${NODE_NUMBER}"
 PUBLISH_JOBS_PID=
-SET_CONFIG_PID=
 
 mkdir -p "$TMP_DIR"
 
@@ -114,13 +112,6 @@ else
   log "skip generate-secrets: node=$NODE_NUMBER, leader=$leader"
 fi
 
-node /scripts/secrets/balance-top-up.js
-
-if [ "$NODE_NUMBER" = "$leader" ]; then
-  bash -c 'node /scripts/secrets/register-admin.js; /scripts/bash/set-config-for-all-feeds.sh' 2>&1 &
-  SET_CONFIG_PID=$!
-fi
-
 # Workers: wait until ALL bootstrap nodes are ready (API /readyz responds)
 is_bootstrap=false
 for b in "${bs_nodes[@]}"; do
@@ -168,6 +159,7 @@ wait_for_node_payload $NODE_NUMBER
 
 bash -c '
   /scripts/bash/wait-node.sh
+  node /scripts/secrets/balance-top-up.js
   if [ "'"${FIRST_START}"'" = "'"true"'" ]; then
     /scripts/bash/import-keys.sh
     # Signal supervisor to restart chainlink after first import

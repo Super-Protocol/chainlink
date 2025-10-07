@@ -96,6 +96,10 @@ export class QuotesService {
     }
 
     this.metricsService.cacheMisses.inc({ source });
+    this.metricsService.cacheMissByPair.inc({
+      source,
+      pair: pair.join('/'),
+    });
 
     if (this.sourcesManager.isFetchQuotesSupported(source)) {
       return await this.fetchWithBatch(source, pair);

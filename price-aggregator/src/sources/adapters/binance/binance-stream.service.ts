@@ -64,32 +64,28 @@ export class BinanceStreamService extends BaseStreamService {
       command,
     });
 
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
+      this.pendingCommands.delete(commandId);
+      this.logger.debug(
+        `Subscribe confirmation timeout for streams: ${streams.join(', ')} (this is OK, subscription may still work)`,
+      );
+    }, 10000);
+
+    this.pendingCommands.set(commandId, {
+      resolve: () => {
+        clearTimeout(timeout);
         this.pendingCommands.delete(commandId);
-        this.logger.warn(
-          `Subscribe timeout for streams: ${streams.join(', ')}`,
-        );
-        reject(new Error('Subscribe timeout'));
-      }, 10000);
-
-      this.pendingCommands.set(commandId, {
-        resolve: () => {
-          clearTimeout(timeout);
-          this.pendingCommands.delete(commandId);
-          this.logger.debug(`Subscribed to: ${streams.join(', ')}`);
-          resolve();
-        },
-        reject: (error: Error) => {
-          clearTimeout(timeout);
-          this.pendingCommands.delete(commandId);
-          reject(error);
-        },
-        timeout,
-      });
-
-      this.wsClient?.send(command);
+        this.logger.debug(`Subscribed to: ${streams.join(', ')}`);
+      },
+      reject: (error: Error) => {
+        clearTimeout(timeout);
+        this.pendingCommands.delete(commandId);
+        this.logger.warn(`Subscribe error for ${streams.join(', ')}`, error);
+      },
+      timeout,
     });
+
+    this.wsClient?.send(command);
   }
 
   protected async sendUnsubscribeMessage(streams: string[]): Promise<void> {

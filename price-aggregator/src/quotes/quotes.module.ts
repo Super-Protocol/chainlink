@@ -4,6 +4,7 @@ import { BatchQuotesService } from './batch-quotes.service';
 import { CacheService, CacheStalenessService } from './cache';
 import { PairCleanupService } from './pair-cleanup.service';
 import { PairService } from './pair.service';
+import { QuoteBatchProcessorService } from './quote-batch-processor.service';
 import { QuotesController } from './quotes.controller';
 import { QuotesService } from './quotes.service';
 import { RefetchService } from './refetch.service';
@@ -23,6 +24,7 @@ import { SourcesModule } from '../sources/sources.module';
     CacheStalenessService,
     RefetchService,
     StreamingQuotesService,
+    QuoteBatchProcessorService,
   ],
   exports: [QuotesService, PairService],
 })
