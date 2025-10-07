@@ -24,8 +24,8 @@ export class MetricsService {
     help: 'Duration of HTTP requests in seconds',
     labelNames: ['route', 'method', 'status'],
     buckets: [
-      0.01, 0.1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8,
-      8.5, 9, 9.5, 10, 15, 20, 30, 45, 60,
+      0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5,
+      6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 15, 20, 30, 45, 60,
     ],
   });
 
@@ -169,6 +169,12 @@ export class MetricsService {
     labelNames: ['source'],
   });
 
+  public readonly quoteDataAge = new Gauge({
+    name: 'quote_data_age_seconds',
+    help: 'Age of quote data returned by API (current time - receivedAt)',
+    labelNames: ['source', 'pair'],
+  });
+
   private lastUpdateTimes = new Map<string, number>();
 
   updateSourceLastUpdate(source: string, pair: string[]): void {
@@ -192,10 +198,24 @@ export class MetricsService {
     this.quoteRequestErrors.remove({ source, pair: pairKey });
     this.cacheMissByPair.remove({ source, pair: pairKey });
     this.priceUpdateFrequency.remove({ source });
+    this.quoteDataAge.remove({ source, pair: pairKey });
 
     this.lastUpdateTimes.delete(`${source}-${pairKey}`);
 
     this.logger.debug({ source, pair: pairKey }, 'Removed metrics for pair');
+  }
+
+  updateQuoteDataAge(source: SourceName, pair: Pair, receivedAt: Date): void {
+    const now = Date.now();
+    const receivedAtMs = receivedAt.getTime();
+    const ageSeconds = (now - receivedAtMs) / 1000;
+    const pairKey = pair.join('-');
+
+    if (ageSeconds < 0) {
+      this.quoteDataAge.set({ source, pair: pairKey }, 0);
+    } else {
+      this.quoteDataAge.set({ source, pair: pairKey }, ageSeconds);
+    }
   }
 
   updateAllSourceAgeMetrics(): void {
