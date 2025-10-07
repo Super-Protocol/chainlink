@@ -2917,22 +2917,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/GME/USD",
-        "path": "price",
-        "value": 0.001098,
-        "pair": "GME/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/dumbmoney/USD",
-        "path": "price",
-        "value": 0.00125039,
-        "pair": "dumbmoney/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "GMT / USD",
