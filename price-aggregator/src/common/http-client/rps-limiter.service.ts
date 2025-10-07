@@ -77,11 +77,15 @@ export class RpsLimiterService {
     limiter.on('failed', async (error, jobInfo) => {
       const shouldRetry = shouldRetryError(error);
       const statusCode = isAxiosError(error)
-        ? error.response?.status
+        ? (error.response?.status ?? 'network-error')
         : 'unknown';
 
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const errorCode = isAxiosError(error) ? error.code : undefined;
+
       this.logger.warn(
-        `Request failed for ${key}, retries: ${jobInfo.retryCount}, status: ${statusCode}, shouldRetry: ${shouldRetry}`,
+        `Request failed for ${key}, retries: ${jobInfo.retryCount}, status: ${statusCode}, code: ${errorCode}, shouldRetry: ${shouldRetry}, error: ${errorMessage}`,
       );
 
       const maxRetries = options.maxRetries;

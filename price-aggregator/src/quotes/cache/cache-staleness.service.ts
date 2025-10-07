@@ -42,6 +42,7 @@ export class CacheStalenessService
     source: SourceName,
     pair: Pair,
     ttl: number,
+    staleTriggerBeforeExpiry: number,
   ): void {
     const now = new Date();
     const metadata: CacheMetadata = {
@@ -50,6 +51,7 @@ export class CacheStalenessService
       cachedAt: now,
       expiresAt: new Date(now.getTime() + ttl),
       ttl,
+      staleTriggerBeforeExpiry,
       lastRefreshed: now,
     };
 
@@ -91,7 +93,7 @@ export class CacheStalenessService
   private scheduleStaleCheck(key: string, metadata: CacheMetadata): void {
     this.clearTimer(key);
 
-    const timeUntilStale = metadata.ttl - this.config.staleTriggerBeforeExpiry;
+    const timeUntilStale = metadata.ttl - metadata.staleTriggerBeforeExpiry;
     if (timeUntilStale <= 0) {
       return;
     }

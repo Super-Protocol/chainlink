@@ -5,10 +5,9 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 
-import { CacheService, CachedQuote } from './cache';
 import { PairService } from './pair.service';
+import { QuoteBatchProcessorService } from './quote-batch-processor.service';
 import { SingleFlight } from '../common';
-import { AppConfigService } from '../config';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import {
@@ -46,9 +45,8 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly sourcesManager: SourcesManagerService,
     private readonly pairService: PairService,
-    private readonly cacheService: CacheService,
     private readonly metricsService: MetricsService,
-    private readonly configService: AppConfigService,
+    private readonly quoteBatchProcessor: QuoteBatchProcessorService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -111,6 +109,8 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
     this.subscriptionTimers.clear();
     this.pendingSubscriptions.clear();
 
+    await this.quoteBatchProcessor.flush();
+
     for (const [source, streamService] of this.streamServiceBySource) {
       try {
         await streamService.unsubscribeAll();
@@ -153,17 +153,7 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
 
   private async handleQuote(source: SourceName, quote: Quote): Promise<void> {
     try {
-      const cached: CachedQuote = {
-        source,
-        pair: quote.pair,
-        price: quote.price,
-        receivedAt: quote.receivedAt,
-        cachedAt: new Date(),
-      };
-      await this.cacheService.set(cached);
-      this.pairService.trackSuccessfulFetch(quote.pair, source);
-      this.metricsService.quoteThroughput.inc({ source, status: 'success' });
-      this.metricsService.updateSourceLastUpdate(source, quote.pair);
+      this.quoteBatchProcessor.enqueueQuote(source, quote);
     } catch (error) {
       this.metricsService.quoteThroughput.inc({ source, status: 'error' });
       this.logger.error(

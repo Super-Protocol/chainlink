@@ -6,7 +6,12 @@ import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
 import { PriceNotFoundException, SourceApiException } from '../../exceptions';
 import { QuoteStreamService } from '../../quote-stream.interface';
-import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  SourceAdapterConfig,
+} from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://www.okx.com';
@@ -68,10 +73,7 @@ interface OkxInstrumentsResponse {
 @Injectable()
 export class OkxAdapter implements SourceAdapter {
   readonly name = SourceName.OKX;
-  private readonly enabled: boolean;
-  private readonly ttl: number;
-  private readonly refetch: boolean;
-  private readonly maxBatchSize: number;
+  private readonly sourceConfig: SourceAdapterConfig;
   private readonly httpClient: HttpClient;
 
   constructor(
@@ -79,35 +81,17 @@ export class OkxAdapter implements SourceAdapter {
     configService: AppConfigService,
     private readonly okxStreamService: OkxStreamService,
   ) {
-    const sourceConfig = configService.get('sources.okx');
-    const { enabled, ttl, refetch, maxBatchSize } = sourceConfig;
-
-    this.enabled = enabled;
-    this.ttl = ttl;
-    this.refetch = refetch;
-    this.maxBatchSize = maxBatchSize;
+    this.sourceConfig = configService.get('sources.okx');
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
-      ...sourceConfig,
+      ...this.sourceConfig,
       baseUrl: BASE_URL,
     });
   }
 
-  isEnabled(): boolean {
-    return this.enabled;
-  }
-
-  getTtl(): number {
-    return this.ttl;
-  }
-
-  isRefetchEnabled(): boolean {
-    return this.refetch;
-  }
-
-  getMaxBatchSize(): number {
-    return this.maxBatchSize;
+  getConfig(): SourceAdapterConfig {
+    return this.sourceConfig;
   }
 
   @HandleSourceError()

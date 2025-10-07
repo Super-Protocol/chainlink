@@ -83,13 +83,67 @@ export class CacheService implements OnModuleDestroy {
     try {
       const cacheTtlMs = this.resolveTtl(source, pair, ttl);
       const serializedQuote = this.serializeQuote(quote);
+      const staleTriggerBeforeExpiry =
+        this.resolveStaleTriggerBeforeExpiry(source);
 
       this.cache.set(key, serializedQuote, Math.floor(cacheTtlMs / 1000));
-      this.stalenessService.trackCacheEntry(key, source, pair, cacheTtlMs);
-      this.updateCacheSizeMetrics();
+      this.stalenessService.trackCacheEntry(
+        key,
+        source,
+        pair,
+        cacheTtlMs,
+        staleTriggerBeforeExpiry,
+      );
       this.logger.verbose(`Cached quote for ${key} with TTL ${cacheTtlMs}ms`);
     } catch (error) {
       this.logger.error(`Error setting cache for ${key}:`, error);
+    }
+  }
+
+  async setMany(quotes: CachedQuote[]): Promise<void> {
+    const entriesToSet: Array<{
+      key: string;
+      value: SerializedCachedQuote;
+      ttl: number;
+      source: SourceName;
+      pair: Pair;
+      cacheTtlMs: number;
+      staleTriggerBeforeExpiry: number;
+    }> = [];
+
+    for (const quote of quotes) {
+      const { source, pair } = quote;
+      const key = this.generateCacheKey(source, pair);
+      const cacheTtlMs = this.resolveTtl(source, pair);
+      const serializedQuote = this.serializeQuote(quote);
+      const staleTriggerBeforeExpiry =
+        this.resolveStaleTriggerBeforeExpiry(source);
+
+      entriesToSet.push({
+        key,
+        value: serializedQuote,
+        ttl: Math.floor(cacheTtlMs / 1000),
+        source,
+        pair,
+        cacheTtlMs,
+        staleTriggerBeforeExpiry,
+      });
+    }
+
+    try {
+      for (const entry of entriesToSet) {
+        this.cache.set(entry.key, entry.value, entry.ttl);
+        this.stalenessService.trackCacheEntry(
+          entry.key,
+          entry.source,
+          entry.pair,
+          entry.cacheTtlMs,
+          entry.staleTriggerBeforeExpiry,
+        );
+      }
+      this.logger.verbose(`Batch cached ${quotes.length} quotes`);
+    } catch (error) {
+      this.logger.error('Error batch setting cache:', error);
     }
   }
 
@@ -127,6 +181,13 @@ export class CacheService implements OnModuleDestroy {
       ttl ??
       this.getPairSpecificTtl(source, pair) ??
       this.sourcesManager.getTtl(source)
+    );
+  }
+
+  private resolveStaleTriggerBeforeExpiry(source: SourceName): number {
+    return (
+      this.sourcesManager.getStaleTriggerBeforeExpiry(source) ??
+      this.configService.get('refetch.staleTriggerBeforeExpiry')
     );
   }
 
@@ -187,5 +248,9 @@ export class CacheService implements OnModuleDestroy {
     sourceCounts.forEach((count, source) => {
       this.metricsService.cacheSize.set({ source }, count);
     });
+  }
+
+  deferredUpdateCacheSizeMetrics(): void {
+    this.updateCacheSizeMetrics();
   }
 }

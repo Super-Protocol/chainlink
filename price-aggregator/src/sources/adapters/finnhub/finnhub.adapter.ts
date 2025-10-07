@@ -7,7 +7,12 @@ import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
 import { PriceNotFoundException, SourceApiException } from '../../exceptions';
 import { QuoteStreamService } from '../../quote-stream.interface';
-import { Pair, Quote, SourceAdapter } from '../../source-adapter.interface';
+import {
+  Pair,
+  Quote,
+  SourceAdapter,
+  SourceAdapterConfig,
+} from '../../source-adapter.interface';
 import { SourceName } from '../../source-name.enum';
 
 const BASE_URL = 'https://finnhub.io';
@@ -27,44 +32,28 @@ interface FinnhubResponse {
 @Injectable()
 export class FinnhubAdapter implements SourceAdapter {
   readonly name = SourceName.FINNHUB;
-  private readonly enabled: boolean;
-  private readonly ttl: number;
-  private readonly refetch: boolean;
+  private readonly sourceConfig: SourceAdapterConfig;
   private readonly httpClient: HttpClient;
-  private readonly apiKey: string;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
     configService: AppConfigService,
     private readonly finnhubStreamService: FinnhubStreamService,
   ) {
-    const sourceConfig = configService.get('sources.finnhub');
-    const { apiKey, enabled, ttl, refetch } = sourceConfig;
-    this.apiKey = apiKey;
-    this.enabled = enabled;
-    this.ttl = ttl;
-    this.refetch = refetch;
+    this.sourceConfig = configService.get('sources.finnhub');
 
     this.httpClient = httpClientBuilder.build({
       sourceName: this.name,
-      ...sourceConfig,
+      ...this.sourceConfig,
       baseUrl: BASE_URL,
       defaultParams: {
-        token: this.apiKey,
+        token: this.sourceConfig.apiKey,
       },
     });
   }
 
-  isEnabled(): boolean {
-    return this.enabled;
-  }
-
-  getTtl(): number {
-    return this.ttl;
-  }
-
-  isRefetchEnabled(): boolean {
-    return this.refetch;
+  getConfig(): SourceAdapterConfig {
+    return this.sourceConfig;
   }
 
   @HandleSourceError()
