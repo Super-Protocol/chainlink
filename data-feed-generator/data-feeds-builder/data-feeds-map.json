@@ -1313,15 +1313,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/benqi-liquid-staked-avax/USD",
-        "path": "price",
-        "value": 35.78,
-        "pair": "benqi-liquid-staked-avax/USD"
-      }
-    ]
+    "dataSources": []
   },
   {
     "name": "Calculated stMATIC / USD",
