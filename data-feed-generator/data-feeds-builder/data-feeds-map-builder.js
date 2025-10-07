@@ -1048,6 +1048,26 @@ async function main() {
   ensureDirSync(path.dirname(args.state));
   ensureDirSync(args.cacheDir);
 
+  // Load removed pairs and provider removals configuration
+  const removedConfigPath = path.resolve(
+    __dirname,
+    'removed-feeds.json'
+  );
+  /** @type {{removedPairs?: string[], sourceRemovals?: Record<string, string[]>}} */
+  const removedCfg = readJsonSafe(removedConfigPath, {
+    removedPairs: [],
+    sourceRemovals: {},
+  });
+  const removedPairsSet = new Set(
+    Array.isArray(removedCfg.removedPairs) ? removedCfg.removedPairs : []
+  );
+  const removedSourcesMap = new Map(
+    Object.entries(removedCfg.sourceRemovals || {}).map(([pair, arr]) => [
+      pair,
+      new Set((arr || []).map((s) => String(s).toLowerCase())),
+    ])
+  );
+
   // Load input feeds
   const inputPath = path.resolve(__dirname, '../data-feeds.json');
   if (!fs.existsSync(inputPath)) {
@@ -1088,6 +1108,16 @@ async function main() {
     startedAt
   );
   for (const [name, cfg] of entries) {
+    // Skip completely removed pairs
+    if (removedPairsSet.has(name)) {
+      console.log(`Skipping (removed pair): ${name}`);
+      // Ensure any previous progress is dropped for removed pairs
+      if (progress[name]) {
+        delete progress[name];
+        writeJsonAtomicSync(args.state, progress);
+      }
+      continue;
+    }
     if (!isPairName(name)) {
       console.log(`Skipping (not a pair): ${name}`);
       if (progress[name]) {
@@ -1098,7 +1128,16 @@ async function main() {
     }
     const cached = progress[name];
     if (cached) {
-      const ds = Array.isArray(cached.dataSources) ? cached.dataSources : [];
+      let ds = Array.isArray(cached.dataSources) ? cached.dataSources : [];
+      // Filter out removed providers for this pair (from cache)
+      const rm = removedSourcesMap.get(name);
+      if (rm && ds.length > 0) {
+        ds = ds.filter((s) => {
+          const prov = (s && s.provider ? String(s.provider) : '').toLowerCase();
+          return prov && !rm.has(prov);
+        });
+        cached.dataSources = ds;
+      }
       const hasFullUrls =
         ds.length === 0 ||
         ds.every((s) => typeof s === 'string' && s.startsWith('http'));
@@ -1121,17 +1160,34 @@ async function main() {
       Boolean(baseSymbol) && isUsdQuote === true && cfg.smartDataFeed === false;
     if (shouldCheckApis) {
       const quote = 'USD';
-      const checks = await Promise.all([
-        checkBinance(baseSymbol, args.timeoutMs, args.verbose),
-        checkCryptoCompare(baseSymbol, args.timeoutMs, args.verbose),
-        checkCoinGecko(baseSymbol, coinsList, args.timeoutMs, args.verbose),
-        checkCoinbase(baseSymbol, quote, args.timeoutMs),
-        checkKraken(baseSymbol, quote, args.timeoutMs),
-        checkOKX(baseSymbol, quote, args.timeoutMs),
-        checkFrankfurter(baseSymbol, quote, args.timeoutMs),
-        checkExchangerateHost(baseSymbol, quote, args.timeoutMs),
-        checkAlphaVantage(baseSymbol, quote, args.timeoutMs),
-      ]);
+      const rmSet = removedSourcesMap.get(name) || new Set();
+      const promises = [];
+      if (!rmSet.has('binance'))
+        promises.push(checkBinance(baseSymbol, args.timeoutMs, args.verbose));
+      if (!rmSet.has('cryptocompare'))
+        promises.push(
+          checkCryptoCompare(baseSymbol, args.timeoutMs, args.verbose)
+        );
+      if (!rmSet.has('coingecko'))
+        promises.push(
+          checkCoinGecko(baseSymbol, coinsList, args.timeoutMs, args.verbose)
+        );
+      if (!rmSet.has('coinbase'))
+        promises.push(checkCoinbase(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('kraken'))
+        promises.push(checkKraken(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('okx'))
+        promises.push(checkOKX(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('frankfurter'))
+        promises.push(checkFrankfurter(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('exchangerate-host'))
+        promises.push(
+          checkExchangerateHost(baseSymbol, quote, args.timeoutMs)
+        );
+      if (!rmSet.has('alphavantage'))
+        promises.push(checkAlphaVantage(baseSymbol, quote, args.timeoutMs));
+
+      const checks = await Promise.all(promises);
       for (const res of checks) {
         if (!res) continue;
         if (typeof res === 'string') {
@@ -1175,6 +1231,15 @@ async function main() {
         console.log(
           `  Skipping API checks (name format or smartDataFeed): ${name}`
         );
+    }
+
+    // Apply provider removals to newly collected dataSources
+    const rm = removedSourcesMap.get(name);
+    if (rm && dataSources.length > 0) {
+      dataSources = dataSources.filter((s) => {
+        const prov = (s && s.provider ? String(s.provider) : '').toLowerCase();
+        return prov && !rm.has(prov);
+      });
     }
 
     const item = {

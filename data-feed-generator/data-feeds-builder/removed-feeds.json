@@ -1,0 +1,49 @@
+{
+  "removedPairs": [
+    "USDL / USD",
+    "TSLA / USD",
+    "QQQ / USD",
+    "NVDA / USD",
+    "MSFT / USD",
+    "MS / USD",
+    "GOOGL / USD",
+    "Calculated SAVAX / USD",
+    "Calculated BNBx / USD",
+    "COIN / USD",
+    "AMZN / USD",
+    "NFLX / USD",
+    "META / USD",
+    "WTI / USD",
+    "XAG / USD",
+    "XPT / USD",
+    "XAU / USD",
+    "SPY / USD",
+    "FB / USD",
+    "AAPL / USD"
+  ],
+  "sourceRemovals": {
+    "SEK / USD": [
+      "cryptocompare",
+      "coingecko"
+    ],
+    "QUICK / USD": [
+      "coingecko",
+      "coinbase"
+    ],
+    "MKR / USD": [
+      "binance"
+    ],
+    "INR / USD": [
+      "cryptocompare"
+    ],
+    "FRAX / USD": [
+      "cryptocompare"
+    ],
+    "DPI / USD": [
+      "cryptocompare"
+    ],
+    "BSW / USD": [
+      "coingecko"
+    ]
+  }
+}
