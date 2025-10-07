@@ -2423,50 +2423,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "3000000",
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/CBETH/USD",
-        "path": "price",
-        "value": 4888.58,
-        "pair": "CBETH/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/coinbase-wrapped-staked-eth/USD",
-        "path": "price",
-        "value": 4896.43,
-        "pair": "coinbase-wrapped-staked-eth/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/CBETH/USD",
-        "path": "price",
-        "value": 4890.29,
-        "pair": "CBETH/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -3861,92 +3818,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ENJ/USDT",
-        "path": "price",
-        "value": 0.0696,
-        "pair": "ENJ/USDT"
-      },
-      {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT",
-        "path": "price",
-        "value": 4131.67,
-        "pair": "ETH/USDT"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ENJ/USD",
-        "path": "price",
-        "value": 0.06372,
-        "pair": "ENJ/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/enjincoin/USD",
-        "path": "price",
-        "value": 0.06385,
-        "pair": "enjincoin/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ENJ/USD",
-        "path": "price",
-        "value": 0.0638639353597564,
-        "pair": "ENJ/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ENJ/USD",
-        "path": "price",
-        "value": 0.0637,
-        "pair": "ENJ/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD",
-        "path": "price",
-        "value": 4132.5,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ENJ/USD",
-        "path": "price",
-        "value": 0.06442,
-        "pair": "ENJ/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD",
-        "path": "price",
-        "value": 4132.25,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -4349,22 +4221,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/renzo-restaked-eth/USD",
-        "path": "price",
-        "value": 4713.06,
-        "pair": "renzo-restaked-eth/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -5397,78 +5254,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ILV/USDT",
-        "path": "price",
-        "value": 15.47,
-        "pair": "ILV/USDT"
-      },
-      {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT",
-        "path": "price",
-        "value": 4131.67,
-        "pair": "ETH/USDT"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ILV/USD",
-        "path": "price",
-        "value": 15.32,
-        "pair": "ILV/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/illuvium/USD",
-        "path": "price",
-        "value": 15.3,
-        "pair": "illuvium/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ILV/USD",
-        "path": "price",
-        "value": 15.31,
-        "pair": "ILV/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ILV/USD",
-        "path": "price",
-        "value": 15.388,
-        "pair": "ILV/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD",
-        "path": "price",
-        "value": 4132.25,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -5867,92 +5653,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/LDO/USDT",
-        "path": "price",
-        "value": 1.231,
-        "pair": "LDO/USDT"
-      },
-      {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT",
-        "path": "price",
-        "value": 4131.67,
-        "pair": "ETH/USDT"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/LDO/USD",
-        "path": "price",
-        "value": 1.239,
-        "pair": "LDO/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/lido-dao/USD",
-        "path": "price",
-        "value": 1.24,
-        "pair": "lido-dao/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/LDO/USD",
-        "path": "price",
-        "value": 1.2415,
-        "pair": "LDO/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/LDO/USD",
-        "path": "price",
-        "value": 1.236,
-        "pair": "LDO/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD",
-        "path": "price",
-        "value": 4132.5,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/LDO/USD",
-        "path": "price",
-        "value": 1.2381,
-        "pair": "LDO/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD",
-        "path": "price",
-        "value": 4132.25,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -6289,92 +5990,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/LRC/USDT",
-        "path": "price",
-        "value": 0.0889,
-        "pair": "LRC/USDT"
-      },
-      {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT",
-        "path": "price",
-        "value": 4131.67,
-        "pair": "ETH/USDT"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/LRC/USD",
-        "path": "price",
-        "value": 0.0879,
-        "pair": "LRC/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/loopring/USD",
-        "path": "price",
-        "value": 0.087745,
-        "pair": "loopring/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/LRC/USD",
-        "path": "price",
-        "value": 0.0879,
-        "pair": "LRC/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/LRC/USD",
-        "path": "price",
-        "value": 0.0885,
-        "pair": "LRC/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD",
-        "path": "price",
-        "value": 4132.5,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/LRC/USD",
-        "path": "price",
-        "value": 0.08893,
-        "pair": "LRC/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD",
-        "path": "price",
-        "value": 4132.25,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -6383,64 +5999,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/LSETH/USD",
-        "path": "price",
-        "value": 4861.85,
-        "pair": "LSETH/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/liquid-staked-ethereum/USD",
-        "path": "price",
-        "value": 4804.57,
-        "pair": "liquid-staked-ethereum/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/LSETH/USD",
-        "path": "price",
-        "value": 4873.695,
-        "pair": "LSETH/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/LSETH/USD",
-        "path": "price",
-        "value": 4863.4,
-        "pair": "LSETH/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD",
-        "path": "price",
-        "value": 4132.5,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -6844,50 +6403,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/METH/USD",
-        "path": "price",
-        "value": 4797.17,
-        "pair": "METH/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/etherbutts/USD",
-        "path": "price",
-        "value": 0.00000883,
-        "pair": "etherbutts/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/METH/USD",
-        "path": "price",
-        "value": 4866.4,
-        "pair": "METH/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD",
-        "path": "price",
-        "value": 4132.5,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -6992,78 +6508,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/MLN/USD",
-        "path": "price",
-        "value": 7.92,
-        "pair": "MLN/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/melon/USD",
-        "path": "price",
-        "value": 7.9,
-        "pair": "melon/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/MLN/USD",
-        "path": "price",
-        "value": 7.88,
-        "pair": "MLN/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/MLN/USD",
-        "path": "price",
-        "value": 7.934,
-        "pair": "MLN/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD",
-        "path": "price",
-        "value": 4132.5,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/MLN/USD",
-        "path": "price",
-        "value": 7.55,
-        "pair": "MLN/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD",
-        "path": "price",
-        "value": 4132.25,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -7318,22 +6763,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/orbit-bridge-klaytn-ethereum/USD",
-        "path": "price",
-        "value": 309.47,
-        "pair": "orbit-bridge-klaytn-ethereum/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -7615,78 +7045,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/PERP/USD",
-        "path": "price",
-        "value": 0.2978,
-        "pair": "PERP/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/perpetual-protocol/USD",
-        "path": "price",
-        "value": 0.297703,
-        "pair": "perpetual-protocol/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/PERP/USD",
-        "path": "price",
-        "value": 0.29785,
-        "pair": "PERP/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/PERP/USD",
-        "path": "price",
-        "value": 0.2983,
-        "pair": "PERP/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD",
-        "path": "price",
-        "value": 4132.5,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/PERP/USD",
-        "path": "price",
-        "value": 0.3059,
-        "pair": "PERP/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD",
-        "path": "price",
-        "value": 4132.25,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -7821,36 +7180,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/pufeth/USD",
-        "path": "price",
-        "value": 4699.8,
-        "pair": "pufeth/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/PUFETH/USD",
-        "path": "price",
-        "value": 4720.425627558999,
-        "pair": "PUFETH/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -7972,22 +7302,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/gnosis-bridged-reth-gnosis/USD",
-        "path": "price",
-        "value": 5119.07,
-        "pair": "gnosis-bridged-reth-gnosis/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -8094,22 +7409,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "500000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/kelpdao-bridged-rseth-arbitrum/USD",
-        "path": "price",
-        "value": 4697.78,
-        "pair": "kelpdao-bridged-rseth-arbitrum/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -9003,92 +8303,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/SUSHI/USDT",
-        "path": "price",
-        "value": 0.666,
-        "pair": "SUSHI/USDT"
-      },
-      {
-        "provider": "binance",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT",
-        "path": "price",
-        "value": 4131.67,
-        "pair": "ETH/USDT"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/SUSHI/USD",
-        "path": "price",
-        "value": 0.6559,
-        "pair": "SUSHI/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/sushi/USD",
-        "path": "price",
-        "value": 0.656714,
-        "pair": "sushi/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/SUSHI/USD",
-        "path": "price",
-        "value": 0.6564,
-        "pair": "SUSHI/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/SUSHI/USD",
-        "path": "price",
-        "value": 0.6567,
-        "pair": "SUSHI/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD",
-        "path": "price",
-        "value": 4132.5,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/SUSHI/USD",
-        "path": "price",
-        "value": 0.6614,
-        "pair": "SUSHI/USD"
-      },
-      {
-        "provider": "okx",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD",
-        "path": "price",
-        "value": 4132.25,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -9148,64 +8363,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/SWELL/USD",
-        "path": "price",
-        "value": 0.008837,
-        "pair": "SWELL/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/layerzero-bridged-swell/USD",
-        "path": "price",
-        "value": 0.00876253,
-        "pair": "layerzero-bridged-swell/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/SWELL/USD",
-        "path": "price",
-        "value": 0.00884,
-        "pair": "SWELL/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/SWELL/USD",
-        "path": "price",
-        "value": 0.00881,
-        "pair": "SWELL/USD"
-      },
-      {
-        "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD",
-        "path": "price",
-        "value": 4132.5,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -9719,36 +8877,7 @@
     "smartDataFeed": false,
     "deltaC": null,
     "alphaPPB": null,
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/TWT/USD",
-        "path": "price",
-        "value": 1.353,
-        "pair": "TWT/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/BNB/USD",
-        "path": "price",
-        "value": 1003.36,
-        "pair": "BNB/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/trust-wallet-token/USD",
-        "path": "price",
-        "value": 1.35,
-        "pair": "trust-wallet-token/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
-        "path": "price",
-        "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
@@ -10922,50 +10051,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/WEETH/USD",
-        "path": "price",
-        "value": 4805.66,
-        "pair": "WEETH/USD"
-      },
-      {
-        "provider": "cryptocompare",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD",
-        "path": "price",
-        "value": 4131.7,
-        "pair": "ETH/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/arbitrum-bridged-wrapped-eeth/USD",
-        "path": "price",
-        "value": 4795.22,
-        "pair": "arbitrum-bridged-wrapped-eeth/USD"
-      },
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
-        "path": "price",
-        "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/WEETH/USD",
-        "path": "price",
-        "value": 4800.99004823432,
-        "pair": "WEETH/USD"
-      },
-      {
-        "provider": "coinbase",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD",
-        "path": "price",
-        "value": 4131.605,
-        "pair": "ETH/USD"
-      }
-    ],
+    "dataSources": [],
     "type": "cross-course"
   },
   {
