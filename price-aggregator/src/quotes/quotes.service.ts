@@ -8,7 +8,7 @@ import {
   AllRegistrationsResponseDto,
 } from './dto';
 import { PairService } from './pair.service';
-import { SingleFlight } from '../common';
+import { formatPairLabel, formatPairKey, SingleFlight } from '../common';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import {
@@ -74,21 +74,23 @@ export class QuotesService {
 
   private handlePriceNotFound(pair: Pair, source: SourceName): void {
     this.logger.warn(
-      `Pair ${pair.join('/')} not found for source ${source}, removing from registrations`,
+      `Pair ${formatPairLabel(pair)} not found for source ${source}, removing from registrations`,
     );
     this.pairService.removePairSource(pair, source);
   }
 
-  @SingleFlight((source, pair) => `${source}-${pair.join('-')}`)
+  @SingleFlight((source, pair) => `${source}-${formatPairKey(pair)}`)
   async getQuote(source: SourceName, pair: Pair): Promise<QuoteResponseDto> {
-    this.logger.debug(`Getting quote from ${source} for ${pair.join('/')}`);
+    this.logger.debug(
+      `Getting quote from ${source} for ${formatPairLabel(pair)}`,
+    );
 
     this.pairService.trackQuoteRequest(pair, source);
 
     const cachedQuote = await this.cacheService.get(source, pair);
     if (cachedQuote) {
       this.logger.debug(
-        `Returning cached quote for ${source}:${pair.join('/')}`,
+        `Returning cached quote for ${source}:${formatPairLabel(pair)}`,
       );
       this.pairService.trackResponse(pair, source);
       this.metricsService.cacheHits.inc({ source });
@@ -98,7 +100,7 @@ export class QuotesService {
     this.metricsService.cacheMisses.inc({ source });
     this.metricsService.cacheMissByPair.inc({
       source,
-      pair: pair.join('/'),
+      pair: formatPairLabel(pair),
     });
 
     if (this.sourcesManager.isFetchQuotesSupported(source)) {
@@ -149,12 +151,12 @@ export class QuotesService {
       if (error instanceof PriceNotFoundException) {
         this.metricsService.priceNotFoundCount.inc({
           source,
-          pair: pair.join('/'),
+          pair: formatPairLabel(pair),
         });
         this.handlePriceNotFound(pair, source);
       } else if (error instanceof SourceUnauthorizedException) {
         this.logger.warn(
-          `Source ${source} is unauthorized, removing pair ${pair.join('/')}`,
+          `Source ${source} is unauthorized, removing pair ${formatPairLabel(pair)}`,
         );
         this.pairService.removePairSource(pair, source);
       }

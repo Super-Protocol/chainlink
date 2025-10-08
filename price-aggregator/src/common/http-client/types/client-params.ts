@@ -9,8 +9,10 @@ export interface ClientParams {
   maxRetries: number;
   baseUrl?: string;
   defaultParams?: Record<string, unknown>;
+  customHeaders?: Record<string, string>;
 }
 
 export interface ClientOptions extends Omit<ClientParams, 'useProxy'> {
   proxyUrl?: string;
+  customHeaders?: Record<string, string>;
 }

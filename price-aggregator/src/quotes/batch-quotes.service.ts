@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CacheService, CachedQuote } from './cache';
 import { QuoteResponseDto } from './dto';
 import { PairService } from './pair.service';
+import { formatPairLabel } from '../common';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import { PriceNotFoundException } from '../sources/exceptions';
@@ -46,14 +47,14 @@ export class BatchQuotesService {
     quotes: Quote[],
     requestedPair: Pair,
   ): Promise<QuoteResponseDto | null> {
-    const requestedPairKey = requestedPair.join('/');
+    const requestedPairKey = formatPairLabel(requestedPair);
 
     for (const quote of quotes) {
       await this.cacheAndTrackQuote(source, quote);
     }
 
     const requestedQuote = quotes.find(
-      (q) => q.pair.join('/') === requestedPairKey,
+      (q) => formatPairLabel(q.pair) === requestedPairKey,
     );
     return requestedQuote
       ? this.createQuoteResponse(source, requestedQuote)
@@ -61,7 +62,7 @@ export class BatchQuotesService {
   }
 
   buildBatch(source: SourceName, pair: Pair): Pair[] {
-    const requestedPairKey = pair.join('/');
+    const requestedPairKey = formatPairLabel(pair);
     const batch = [pair];
 
     const maxBatchSize = this.sourcesManager.getMaxBatchSize(source);
@@ -74,7 +75,7 @@ export class BatchQuotesService {
     );
 
     for (const registration of sortedByOldest) {
-      if (registration.pair.join('/') === requestedPairKey) continue;
+      if (formatPairLabel(registration.pair) === requestedPairKey) continue;
       batch.push(registration.pair);
       if (batch.length >= maxBatchSize) break;
     }

@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MetricsInterceptor } from './common/interceptors';
 import { AppConfigModule, AppConfigService } from './config';
+import { MarketDataModule } from './market-data';
 import { MetricsModule } from './metrics/metrics.module';
 import { QuotesModule } from './quotes';
 import { SourcesModule } from './sources';
@@ -25,6 +26,18 @@ import { SourcesModule } from './sources';
               verbose: 10,
             },
             useOnlyCustomLevels: false,
+            customLogLevel: (_req, res, err) => {
+              if (err) return 'error';
+              if (res.statusCode >= 500) return 'error';
+              if (res.statusCode >= 400) return 'warn';
+              return 'debug';
+            },
+            customSuccessMessage: (req) => {
+              return `request completed - ${req.method} ${req.url}`;
+            },
+            customErrorMessage: (req, res, err) => {
+              return `request failed - ${req.method} ${req.url}: ${err.message}`;
+            },
             serializers: {
               req: () => undefined,
             },
@@ -36,6 +49,7 @@ import { SourcesModule } from './sources';
     SourcesModule,
     QuotesModule,
     MetricsModule,
+    MarketDataModule,
   ],
   controllers: [AppController],
   providers: [
