@@ -14,5 +14,4 @@ export interface ClientParams {
 
 export interface ClientOptions extends Omit<ClientParams, 'useProxy'> {
   proxyUrl?: string;
-  customHeaders?: Record<string, string>;
 }

@@ -287,7 +287,9 @@ export class PairService implements OnModuleInit {
       return undefined;
     }
 
-    const [base, quote, ...rest] = value.split('/').map((part) => part.trim());
+    const [base, quote, ...rest] = parsePairLabel(value).map((part) =>
+      part.trim(),
+    );
 
     if (!base || !quote || rest.length > 0) {
       return undefined;
