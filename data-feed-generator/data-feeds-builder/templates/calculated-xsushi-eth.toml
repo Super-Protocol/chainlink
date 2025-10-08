@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "Calculated XSUSHI / ETH"
-externalJobID = "1e85ec03-81e4-5353-bb6c-afb11c2f7e34"
+externalJobID = "71f69004-d657-45d3-9ed2-745af1e82d4f"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

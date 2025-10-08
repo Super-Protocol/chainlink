@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "IBTA / USD"
-externalJobID = "1817ae13-53d7-4f6f-a78d-4c8dd41726be"
+externalJobID = "effca0e4-a0ce-4510-adf6-e726ee553c00"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

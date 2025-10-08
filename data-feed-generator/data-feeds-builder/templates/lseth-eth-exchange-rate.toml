@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "LsETH / ETH Exchange Rate"
-externalJobID = "80ac6042-8a09-5d99-8b42-296be608304c"
+externalJobID = "dcd68c7e-8eea-4f85-a35f-d934a1ead3c3"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

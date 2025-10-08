@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "MLN / ETH"
-externalJobID = "eed8ff39-68dd-5d04-aa8a-853e1c92bb01"
+externalJobID = "edfc17e0-5831-4b1b-8f2e-8ee82b11d06b"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

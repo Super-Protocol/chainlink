@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "PFE / USD"
-externalJobID = "h5i6j7k8-l9m0-1234-hijk-l56789012345"
+externalJobID = "f2ef1fd4-0aaa-46bf-93d2-d6262a7c7113"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

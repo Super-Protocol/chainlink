@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "C3M / EUR"
-externalJobID = "e2f3g4h5-i6j7-8901-efgh-i23456789012"
+externalJobID = "9eb93e41-f6f3-4994-8eb3-778a7109bcbb"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

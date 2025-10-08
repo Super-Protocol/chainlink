@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "PERP / ETH"
-externalJobID = "91bc6acb-5893-5511-bb4d-2a88be6a9283"
+externalJobID = "ce7acc50-ee4a-46ff-b706-44e585215404"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

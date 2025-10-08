@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "uniBTC / BTC Exchange Rate"
-externalJobID = "4e23010e-76b3-457b-b8f8-8f5976fd3ae1"
+externalJobID = "0bb9661d-4eea-4d61-baf6-65db150d526a"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

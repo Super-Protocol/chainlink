@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "CBETH / ETH"
-externalJobID = "1da76d87-e995-5db4-a409-0d06a2754b35"
+externalJobID = "f6bca9ca-2e6d-4401-91cc-78bf12a46f56"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

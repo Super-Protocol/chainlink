@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "RETH / ETH"
-externalJobID = "75299c57-18e1-4c5e-bdc1-16162296ab07"
+externalJobID = "60b9d921-ad31-40b4-a056-2312572a6347"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

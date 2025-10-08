@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "ezETH / ETH Exchange Rate"
-externalJobID = "1dd7b315-b55e-529b-8271-bd10740454fc"
+externalJobID = "f98e436a-9bbe-41f9-9ad8-873a0c15dfec"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

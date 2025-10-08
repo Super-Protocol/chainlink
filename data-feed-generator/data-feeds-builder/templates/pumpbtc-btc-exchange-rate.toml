@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "PumpBTC / BTC Exchange Rate"
-externalJobID = "fdd28b14-8069-4ebc-ad46-61d600f0bc11"
+externalJobID = "61f24871-da7b-47e7-8974-c44de7f95f97"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

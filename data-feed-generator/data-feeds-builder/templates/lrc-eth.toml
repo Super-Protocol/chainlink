@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "LRC / ETH"
-externalJobID = "cc066d9e-b58e-5b13-8f79-5c8348730a54"
+externalJobID = "3624268e-8c85-4e8b-b55f-7df8941a376c"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

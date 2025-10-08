@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "SHV / USD"
-externalJobID = "i6j7k8l9-m0n1-2345-ijkl-m67890123456"
+externalJobID = "d8ba906b-ed17-4017-bb82-597d9f862d47"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

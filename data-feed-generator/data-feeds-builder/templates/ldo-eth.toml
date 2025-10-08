@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "LDO / ETH"
-externalJobID = "22477eec-6541-5b31-99e6-56a3126a7639"
+externalJobID = "76a7fd0a-145a-4365-9f80-bd7aa18cdc0a"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

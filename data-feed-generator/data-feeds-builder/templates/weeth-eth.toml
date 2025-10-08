@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "weETH / ETH"
-externalJobID = "8238e8cb-b413-5143-8454-6494e48538c4"
+externalJobID = "66b3ef32-ed22-4355-82a2-ae6d807407c8"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "stBTC / BTC Exchange Rate"
-externalJobID = "ad3e511d-df03-4bbb-b27e-414e8ed8b8d6"
+externalJobID = "c6ff3aff-4208-4096-99e3-80c3aaecd523"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

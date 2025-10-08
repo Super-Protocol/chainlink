@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "SWELL / ETH"
-externalJobID = "aed53e8d-5fdd-5313-a750-e25b94dc9d3e"
+externalJobID = "107b0713-5cd0-445d-8749-337d48dc7b6d"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

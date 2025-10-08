@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "FBTC / BTC Exchange Rate"
-externalJobID = "b2e5ba97-1326-42a8-a8d8-e7836a6219a4"
+externalJobID = "fb8d7b6d-c200-4d1d-bbb5-fcad5016654f"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

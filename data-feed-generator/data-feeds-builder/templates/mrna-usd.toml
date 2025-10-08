@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "MRNA / USD"
-externalJobID = "g4h5i6j7-k8l9-0123-ghij-k45678901234"
+externalJobID = "13293e10-35e2-41ec-ae2b-5ac915fa0d56"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

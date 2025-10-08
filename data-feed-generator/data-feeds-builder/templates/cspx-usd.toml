@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "CSPX / USD"
-externalJobID = "d1e2f3g4-h5i6-7890-defg-h12345678901"
+externalJobID = "f2ac3462-06e4-4761-a361-956d61b1c481"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

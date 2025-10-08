@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "INJ / USD"
-externalJobID = "531584dc-f80c-5c05-9e47-39549835cfa7"
+externalJobID = "cf05bcf9-c533-4b83-834c-ed8e4bf46471"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
@@ -30,7 +30,7 @@ observationSource = """
     ds4_parse [type=jsonparse path="price"];
     ds4_multiply [type=multiply times=100000000];
     median [type=median];
-    
+
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
     ds3 -> ds3_parse -> ds3_multiply;

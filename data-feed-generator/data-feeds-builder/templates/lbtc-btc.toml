@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "LBTC / BTC"
-externalJobID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+externalJobID = "2bd61c5a-c142-4089-b3ec-22702d67884f"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

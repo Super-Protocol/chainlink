@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "ILV / ETH"
-externalJobID = "5540e985-46af-5526-8f5f-5be9988ea889"
+externalJobID = "eddf0a4c-e6b0-4eb4-ae8c-5bf9e290e37e"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

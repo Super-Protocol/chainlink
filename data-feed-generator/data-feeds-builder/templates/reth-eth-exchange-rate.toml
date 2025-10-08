@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "rETH / ETH Exchange Rate"
-externalJobID = "462aac08-d0d5-4a04-be1e-c984eb7c66bb"
+externalJobID = "b1dae969-e3fe-45d3-ba9a-b0dea09fcd72"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

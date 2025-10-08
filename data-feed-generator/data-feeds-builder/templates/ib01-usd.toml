@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "IB01 / USD"
-externalJobID = "e0031911-c920-4c55-be47-4f0928c20e9a"
+externalJobID = "43118146-c262-493d-b480-30b3b2b2f4cd"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

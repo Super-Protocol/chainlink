@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "solvBTC / BTC"
-externalJobID = "63d39abf-1df4-41b4-bf2e-8fcc43bebd59"
+externalJobID = "7895e0fc-1ad8-44b7-947a-a4bb4cdc13d4"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

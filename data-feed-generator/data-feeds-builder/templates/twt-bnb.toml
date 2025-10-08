@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "TWT / BNB"
-externalJobID = "f26a0cfb-a79b-53ee-828e-79864996eb12"
+externalJobID = "64014a9a-7cf5-4ac7-97f3-1906017d6993"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

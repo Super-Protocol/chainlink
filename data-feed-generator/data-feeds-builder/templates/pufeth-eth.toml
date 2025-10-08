@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "pufETH / ETH"
-externalJobID = "783da439-e016-590c-8b08-e66fb80d0c95"
+externalJobID = "b4fbbea0-93c6-4114-b978-4dcf566d1dfb"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"

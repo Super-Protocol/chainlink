@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
 name = "JPM / USD"
-externalJobID = "f3g4h5i6-j7k8-9012-fghi-j34567890123"
+externalJobID = "1df44f3e-4ed7-4105-b16f-9d2432b7edd9"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
