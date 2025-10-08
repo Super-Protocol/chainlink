@@ -17,7 +17,7 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://query1.finance.yahoo.com/v8/finance/chart/AAPL"];
+    ds1 [type=http method=GET url="https://query1.finance.yahoo.com/v8/finance/chart/AAPL" headers="[\\"User-Agent\\", \\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\\"]"];
     ds1_parse [type=jsonparse path="chart,result,0,meta,regularMarketPrice"];
     ds1_multiply [type=multiply times=100000000];
     ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/apple-ondo-tokenized-stock/USD"];
