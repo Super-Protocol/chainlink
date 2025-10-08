@@ -103,15 +103,12 @@ export class ConfiguredHttpClient implements HttpClient {
         ...clientConfig.defaultParams,
         ...baseConfig.params,
       },
+      headers: {
+        ...clientConfig.customHeaders,
+        ...baseConfig.headers,
+      },
       timeout: clientConfig.timeoutMs,
     };
-
-    if (clientConfig.customHeaders) {
-      config.headers = {
-        ...config.headers,
-        ...clientConfig.customHeaders,
-      };
-    }
 
     if (clientConfig.proxyUrl) {
       config.httpsAgent = new HttpsProxyAgent(clientConfig.proxyUrl);

@@ -47,11 +47,13 @@ export class YahooFinanceAdapter implements SourceAdapter {
 
     try {
       const userAgent = new UserAgent();
+      const userAgentString = userAgent.toString();
+
       const { data } = await this.httpClient.get<YahooFinanceResponse>(
         `${CHART_PATH}/${symbol}`,
         {
           headers: {
-            'User-Agent': userAgent.toString(),
+            'User-Agent': userAgentString,
           },
         },
       );
