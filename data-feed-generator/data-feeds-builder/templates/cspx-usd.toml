@@ -18,7 +18,7 @@ observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
     ds1 [type=http method=GET url="https://query1.finance.yahoo.com/v8/finance/chart/CSPX.L"];
-    ds1_parse [type=jsonparse path="chart.result.0.meta.regularMarketPrice"];
+    ds1_parse [type=jsonparse path="chart,result,0,meta,regularMarketPrice"];
     ds1_multiply [type=multiply times=100000000];
     median [type=median];
 

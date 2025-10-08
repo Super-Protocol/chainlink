@@ -21,7 +21,7 @@ observationSource = """
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=1000000000000000000];
     ds2 [type=http method=GET url="https://api.bybit.com/v5/market/tickers?category=spot&symbol=METHETH"];
-    ds2_parse [type=jsonparse path="result.list.0.lastPrice"];
+    ds2_parse [type=jsonparse path="result,list,0,lastPrice"];
     ds2_multiply [type=multiply times=1000000000000000000];
     ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/METH/ETH"];
     ds3_parse [type=jsonparse path="price"];
