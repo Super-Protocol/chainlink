@@ -158,6 +158,7 @@ fi
 wait_for_node_payload $NODE_NUMBER
 
 bash -c '
+  export JOB_RENDERS_DIR="'"${JOB_RENDERS_DIR:-/tmp/node-${NODE_NUMBER}/job-renders}"'"
   /scripts/bash/wait-node.sh
   node /scripts/secrets/balance-top-up.js
   if [ "'"${FIRST_START}"'" = "'"true"'" ]; then
@@ -167,7 +168,6 @@ bash -c '
     sleep 5
     /scripts/bash/wait-node.sh
   else
-    export JOB_RENDERS_DIR="'"${JOB_RENDERS_DIR:-/tmp/node-${NODE_NUMBER}/job-renders}"'"
     /scripts/bash/publish-jobs.sh
   fi
 
