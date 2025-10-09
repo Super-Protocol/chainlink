@@ -91,6 +91,7 @@ mkdir -p "\$STATE_DIR"
 count=\$(cat "\$COUNT_FILE" 2>/dev/null || echo 0)
 count=\$((count+1))
 echo "\$count" > "\$COUNT_FILE"
+date +%s > "\$STATE_DIR/last-restart"
 
 echo "[\${SERVICE_NAME}] crash count: \$count/\${MAX_RESTARTS}"
 

@@ -14,6 +14,9 @@ count=$(cat "$COUNT_FILE" 2>/dev/null || echo 0)
 count=$((count+1))
 echo "$count" > "$COUNT_FILE"
 
+# Record last restart timestamp
+date +%s > "$STATE_DIR/last-restart"
+
 echo "[price-aggregator] crash count: $count/${MAX_RESTARTS}"
 
 if [ "$count" -ge "$MAX_RESTARTS" ]; then

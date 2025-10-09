@@ -31,4 +31,6 @@ fi
 mkdir -p /var/log/price-aggregator
 exec > >(s6-log n10 s10485760 /var/log/price-aggregator) 2>&1
 
+export PROCESS_METRICS_TTL_SECONDS=259200
+
 exec node dist/main
