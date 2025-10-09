@@ -1,0 +1,35 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "FRAX / ETH"
+externalJobID = "5c455e68-cc67-53d0-88d5-3b1f72be903c"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        coingecko_frax_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/frax/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_frax_usd_parse    [type="jsonparse" path="price"]
+
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+
+        coingecko_frax_eth_divide    [type="divide" input="$(coingecko_frax_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+        coingecko_frax_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        median [type=median];
+
+    coingecko_frax_usd -> coingecko_frax_usd_parse -> coingecko_frax_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_frax_eth_divide
+    coingecko_frax_eth_divide -> coingecko_frax_eth_divide_multiply
+    coingecko_frax_eth_divide_multiply -> median;
+"""

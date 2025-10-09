@@ -1,0 +1,74 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "MKR / ETH"
+externalJobID = "2bc7df11-bdcf-5263-83d2-b50ad44d962d"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        binance_mkr_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/MKR/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_mkr_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_eth_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_mkr_eth_divide    [type="divide" input="$(binance_mkr_usdt_parse)" divisor="$(binance_eth_usdt_parse)"]
+        binance_mkr_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_mkr_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/MKR/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_mkr_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_mkr_eth_divide    [type="divide" input="$(coinbase_mkr_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
+        coinbase_mkr_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_mkr_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/maker/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_mkr_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_mkr_eth_divide    [type="divide" input="$(coingecko_mkr_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+        coingecko_mkr_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_mkr_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/MKR/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_mkr_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_mkr_eth_divide    [type="divide" input="$(cryptocompare_mkr_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
+        cryptocompare_mkr_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        median [type=median];
+    
+    binance_mkr_usdt -> binance_mkr_usdt_parse -> binance_mkr_eth_divide
+    binance_eth_usdt -> binance_eth_usdt_parse -> binance_mkr_eth_divide
+    binance_mkr_eth_divide -> binance_mkr_eth_divide_multiply
+    coinbase_mkr_usd -> coinbase_mkr_usd_parse -> coinbase_mkr_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_mkr_eth_divide
+    coinbase_mkr_eth_divide -> coinbase_mkr_eth_divide_multiply
+    coingecko_mkr_usd -> coingecko_mkr_usd_parse -> coingecko_mkr_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_mkr_eth_divide
+    coingecko_mkr_eth_divide -> coingecko_mkr_eth_divide_multiply
+    cryptocompare_mkr_usd -> cryptocompare_mkr_usd_parse -> cryptocompare_mkr_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_mkr_eth_divide
+    cryptocompare_mkr_eth_divide -> cryptocompare_mkr_eth_divide_multiply
+    binance_mkr_eth_divide_multiply -> median;
+    coinbase_mkr_eth_divide_multiply -> median;
+    coingecko_mkr_eth_divide_multiply -> median;
+    cryptocompare_mkr_eth_divide_multiply -> median;
+"""

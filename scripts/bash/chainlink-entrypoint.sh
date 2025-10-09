@@ -158,6 +158,7 @@ fi
 wait_for_node_payload $NODE_NUMBER
 
 bash -c '
+  export JOB_RENDERS_DIR="'"${JOB_RENDERS_DIR:-/tmp/node-${NODE_NUMBER}/job-renders}"'"
   /scripts/bash/wait-node.sh
   node /scripts/secrets/balance-top-up.js
   if [ "'"${FIRST_START}"'" = "'"true"'" ]; then
@@ -166,9 +167,10 @@ bash -c '
     touch "'"${TMP_DIR}"'"/restart-chainlink || true
     sleep 5
     /scripts/bash/wait-node.sh
+  else
+    /scripts/bash/publish-jobs.sh
   fi
-  export JOB_RENDERS_DIR="'"${JOB_RENDERS_DIR:-/tmp/node-${NODE_NUMBER}/job-renders}"'"
-  /scripts/bash/publish-jobs.sh
+
   if [ "'"${NODE_NUMBER}"'" = "'"${leader}"'" ]; then
     node /scripts/secrets/register-admin.js
     /scripts/bash/set-config-for-all-feeds.sh

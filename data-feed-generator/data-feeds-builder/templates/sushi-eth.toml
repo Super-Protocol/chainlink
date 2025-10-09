@@ -1,0 +1,100 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "SUSHI / ETH"
+externalJobID = "a909f072-9d1f-5eca-a41a-556157f3cf0f"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        binance_sushi_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/SUSHI/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_sushi_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_eth_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_sushi_eth_divide    [type="divide" input="$(binance_sushi_usdt_parse)" divisor="$(binance_eth_usdt_parse)"]
+        binance_sushi_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_sushi_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/SUSHI/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_sushi_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_sushi_eth_divide    [type="divide" input="$(coinbase_sushi_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
+        coinbase_sushi_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_sushi_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/sushi/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_sushi_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_sushi_eth_divide    [type="divide" input="$(coingecko_sushi_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+        coingecko_sushi_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_sushi_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/SUSHI/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_sushi_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_sushi_eth_divide    [type="divide" input="$(cryptocompare_sushi_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
+        cryptocompare_sushi_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_sushi_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/SUSHI/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_sushi_usd_parse    [type="jsonparse" path="price"]
+    
+        kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        kraken_sushi_eth_divide    [type="divide" input="$(kraken_sushi_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
+        kraken_sushi_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        okx_sushi_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/SUSHI/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_sushi_usd_parse    [type="jsonparse" path="price"]
+    
+        okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        okx_sushi_eth_divide    [type="divide" input="$(okx_sushi_usd_parse)" divisor="$(okx_eth_usd_parse)"]
+        okx_sushi_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        median [type=median];
+    
+    binance_sushi_usdt -> binance_sushi_usdt_parse -> binance_sushi_eth_divide
+    binance_eth_usdt -> binance_eth_usdt_parse -> binance_sushi_eth_divide
+    binance_sushi_eth_divide -> binance_sushi_eth_divide_multiply
+    coinbase_sushi_usd -> coinbase_sushi_usd_parse -> coinbase_sushi_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_sushi_eth_divide
+    coinbase_sushi_eth_divide -> coinbase_sushi_eth_divide_multiply
+    coingecko_sushi_usd -> coingecko_sushi_usd_parse -> coingecko_sushi_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_sushi_eth_divide
+    coingecko_sushi_eth_divide -> coingecko_sushi_eth_divide_multiply
+    cryptocompare_sushi_usd -> cryptocompare_sushi_usd_parse -> cryptocompare_sushi_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_sushi_eth_divide
+    cryptocompare_sushi_eth_divide -> cryptocompare_sushi_eth_divide_multiply
+    kraken_sushi_usd -> kraken_sushi_usd_parse -> kraken_sushi_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_sushi_eth_divide
+    kraken_sushi_eth_divide -> kraken_sushi_eth_divide_multiply
+    okx_sushi_usd -> okx_sushi_usd_parse -> okx_sushi_eth_divide
+    okx_eth_usd -> okx_eth_usd_parse -> okx_sushi_eth_divide
+    okx_sushi_eth_divide -> okx_sushi_eth_divide_multiply
+    binance_sushi_eth_divide_multiply -> median;
+    coinbase_sushi_eth_divide_multiply -> median;
+    coingecko_sushi_eth_divide_multiply -> median;
+    cryptocompare_sushi_eth_divide_multiply -> median;
+    kraken_sushi_eth_divide_multiply -> median;
+    okx_sushi_eth_divide_multiply -> median;
+"""

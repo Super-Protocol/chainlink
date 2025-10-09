@@ -1,0 +1,74 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "LINK / MATIC"
+externalJobID = "656008b7-bdc4-57e6-a7b8-fea75f5c19b3"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        binance_link_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/LINK/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_link_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_matic_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/MATIC/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_matic_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_link_matic_divide    [type="divide" input="$(binance_link_usdt_parse)" divisor="$(binance_matic_usdt_parse)"]
+        binance_link_matic_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_link_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/LINK/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_link_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_matic_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/MATIC/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_matic_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_link_matic_divide    [type="divide" input="$(coinbase_link_usd_parse)" divisor="$(coinbase_matic_usd_parse)"]
+        coinbase_link_matic_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_link_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/chainlink/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_link_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_matic_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-matic-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_matic_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_link_matic_divide    [type="divide" input="$(coingecko_link_usd_parse)" divisor="$(coingecko_matic_usd_parse)"]
+        coingecko_link_matic_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_link_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/LINK/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_link_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_matic_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/MATIC/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_matic_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_link_matic_divide    [type="divide" input="$(cryptocompare_link_usd_parse)" divisor="$(cryptocompare_matic_usd_parse)"]
+        cryptocompare_link_matic_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        median [type=median];
+    
+    binance_link_usdt -> binance_link_usdt_parse -> binance_link_matic_divide
+    binance_matic_usdt -> binance_matic_usdt_parse -> binance_link_matic_divide
+    binance_link_matic_divide -> binance_link_matic_divide_multiply
+    coinbase_link_usd -> coinbase_link_usd_parse -> coinbase_link_matic_divide
+    coinbase_matic_usd -> coinbase_matic_usd_parse -> coinbase_link_matic_divide
+    coinbase_link_matic_divide -> coinbase_link_matic_divide_multiply
+    coingecko_link_usd -> coingecko_link_usd_parse -> coingecko_link_matic_divide
+    coingecko_matic_usd -> coingecko_matic_usd_parse -> coingecko_link_matic_divide
+    coingecko_link_matic_divide -> coingecko_link_matic_divide_multiply
+    cryptocompare_link_usd -> cryptocompare_link_usd_parse -> cryptocompare_link_matic_divide
+    cryptocompare_matic_usd -> cryptocompare_matic_usd_parse -> cryptocompare_link_matic_divide
+    cryptocompare_link_matic_divide -> cryptocompare_link_matic_divide_multiply
+    binance_link_matic_divide_multiply -> median;
+    coinbase_link_matic_divide_multiply -> median;
+    coingecko_link_matic_divide_multiply -> median;
+    cryptocompare_link_matic_divide_multiply -> median;
+"""

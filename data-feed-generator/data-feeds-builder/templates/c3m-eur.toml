@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "XAU / USD"
-externalJobID = "e509f051-1e02-5538-aea2-84a71f84a0a8"
+name = "C3M / EUR"
+externalJobID = "9eb93e41-f6f3-4994-8eb3-778a7109bcbb"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
@@ -17,16 +17,11 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/xau9999/USD"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/yahoofinance/C3M.PA/EUR" headers="[\\"User-Agent\\", \\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\\"]"];
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/XAU/USD"];
-    ds2_parse [type=jsonparse path="price"];
-    ds2_multiply [type=multiply times=100000000];
     median [type=median];
-    
+
     ds1 -> ds1_parse -> ds1_multiply;
-    ds2 -> ds2_parse -> ds2_multiply;
     ds1_multiply -> median;
-    ds2_multiply -> median;
 """

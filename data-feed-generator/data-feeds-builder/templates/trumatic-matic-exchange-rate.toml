@@ -1,0 +1,35 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "TRUMATIC / MATIC Exchange Rate"
+externalJobID = "c779550f-b58d-59e0-a5d7-a8fa5c0e837f"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        coingecko_trumatic_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-matic-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_trumatic_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_matic_exchange_rate_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/trufin-staked-matic/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_matic_exchange_rate_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_trumatic_matic_exchange_rate_divide    [type="divide" input="$(coingecko_trumatic_usd_parse)" divisor="$(coingecko_matic_exchange_rate_usd_parse)"]
+        coingecko_trumatic_matic_exchange_rate_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        median [type=median];
+    
+    coingecko_trumatic_usd -> coingecko_trumatic_usd_parse -> coingecko_trumatic_matic_exchange_rate_divide
+    coingecko_matic_exchange_rate_usd -> coingecko_matic_exchange_rate_usd_parse -> coingecko_trumatic_matic_exchange_rate_divide
+    coingecko_trumatic_matic_exchange_rate_divide -> coingecko_trumatic_matic_exchange_rate_divide_multiply
+    coingecko_trumatic_matic_exchange_rate_divide_multiply -> median;
+"""

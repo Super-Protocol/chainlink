@@ -1,7 +1,7 @@
 type = "offchainreporting"
 schemaVersion = 1
-name = "Calculated SAVAX / USD"
-externalJobID = "7cab242d-e465-540b-9f5a-fded11639649"
+name = "LRC / ETH"
+externalJobID = "3624268e-8c85-4e8b-b55f-7df8941a376c"
 forwardingAllowed = false
 maxTaskDuration = "0s"
 blockchainTimeout = "20s"
@@ -17,11 +17,16 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/benqi-liquid-staked-avax/USD"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/loopring/eth"];
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=1000000000000000000];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/LRC/ETH"];
+    ds2_parse [type=jsonparse path="price"];
+    ds2_multiply [type=multiply times=1000000000000000000];
     median [type=median];
-    
+
     ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
     ds1_multiply -> median;
+    ds2_multiply -> median;
 """

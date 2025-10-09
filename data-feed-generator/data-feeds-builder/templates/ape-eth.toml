@@ -1,0 +1,100 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "APE / ETH"
+externalJobID = "6cd4e31c-7a48-5a5a-82a4-bacaea589330"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        binance_ape_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/APE/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_ape_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_eth_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_ape_eth_divide    [type="divide" input="$(binance_ape_usdt_parse)" divisor="$(binance_eth_usdt_parse)"]
+        binance_ape_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_ape_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/APE/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_ape_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_ape_eth_divide    [type="divide" input="$(coinbase_ape_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
+        coinbase_ape_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_ape_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ape-3/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_ape_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_ape_eth_divide    [type="divide" input="$(coingecko_ape_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+        coingecko_ape_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_ape_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/APE/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_ape_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_ape_eth_divide    [type="divide" input="$(cryptocompare_ape_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
+        cryptocompare_ape_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_ape_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/APE/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_ape_usd_parse    [type="jsonparse" path="price"]
+    
+        kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        kraken_ape_eth_divide    [type="divide" input="$(kraken_ape_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
+        kraken_ape_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        okx_ape_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/APE/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_ape_usd_parse    [type="jsonparse" path="price"]
+    
+        okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        okx_ape_eth_divide    [type="divide" input="$(okx_ape_usd_parse)" divisor="$(okx_eth_usd_parse)"]
+        okx_ape_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        median [type=median];
+    
+    binance_ape_usdt -> binance_ape_usdt_parse -> binance_ape_eth_divide
+    binance_eth_usdt -> binance_eth_usdt_parse -> binance_ape_eth_divide
+    binance_ape_eth_divide -> binance_ape_eth_divide_multiply
+    coinbase_ape_usd -> coinbase_ape_usd_parse -> coinbase_ape_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_ape_eth_divide
+    coinbase_ape_eth_divide -> coinbase_ape_eth_divide_multiply
+    coingecko_ape_usd -> coingecko_ape_usd_parse -> coingecko_ape_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_ape_eth_divide
+    coingecko_ape_eth_divide -> coingecko_ape_eth_divide_multiply
+    cryptocompare_ape_usd -> cryptocompare_ape_usd_parse -> cryptocompare_ape_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_ape_eth_divide
+    cryptocompare_ape_eth_divide -> cryptocompare_ape_eth_divide_multiply
+    kraken_ape_usd -> kraken_ape_usd_parse -> kraken_ape_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_ape_eth_divide
+    kraken_ape_eth_divide -> kraken_ape_eth_divide_multiply
+    okx_ape_usd -> okx_ape_usd_parse -> okx_ape_eth_divide
+    okx_eth_usd -> okx_eth_usd_parse -> okx_ape_eth_divide
+    okx_ape_eth_divide -> okx_ape_eth_divide_multiply
+    binance_ape_eth_divide_multiply -> median;
+    coinbase_ape_eth_divide_multiply -> median;
+    coingecko_ape_eth_divide_multiply -> median;
+    cryptocompare_ape_eth_divide_multiply -> median;
+    kraken_ape_eth_divide_multiply -> median;
+    okx_ape_eth_divide_multiply -> median;
+"""

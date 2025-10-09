@@ -1,0 +1,100 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "XTZ / BNB"
+externalJobID = "5db68f32-d26c-5fdb-9db7-f10817a713b9"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        binance_xtz_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/XTZ/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_xtz_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_bnb_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/BNB/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_bnb_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_xtz_bnb_divide    [type="divide" input="$(binance_xtz_usdt_parse)" divisor="$(binance_bnb_usdt_parse)"]
+        binance_xtz_bnb_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_xtz_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/XTZ/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_xtz_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_bnb_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_xtz_bnb_divide    [type="divide" input="$(coinbase_xtz_usd_parse)" divisor="$(coinbase_bnb_usd_parse)"]
+        coinbase_xtz_bnb_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_xtz_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-tezos-token/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_xtz_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_bnb_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_xtz_bnb_divide    [type="divide" input="$(coingecko_xtz_usd_parse)" divisor="$(coingecko_bnb_usd_parse)"]
+        coingecko_xtz_bnb_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_xtz_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/XTZ/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_xtz_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_bnb_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_xtz_bnb_divide    [type="divide" input="$(cryptocompare_xtz_usd_parse)" divisor="$(cryptocompare_bnb_usd_parse)"]
+        cryptocompare_xtz_bnb_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_xtz_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/XTZ/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_xtz_usd_parse    [type="jsonparse" path="price"]
+    
+        kraken_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_bnb_usd_parse    [type="jsonparse" path="price"]
+    
+        kraken_xtz_bnb_divide    [type="divide" input="$(kraken_xtz_usd_parse)" divisor="$(kraken_bnb_usd_parse)"]
+        kraken_xtz_bnb_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        okx_xtz_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/XTZ/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_xtz_usd_parse    [type="jsonparse" path="price"]
+    
+        okx_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_bnb_usd_parse    [type="jsonparse" path="price"]
+    
+        okx_xtz_bnb_divide    [type="divide" input="$(okx_xtz_usd_parse)" divisor="$(okx_bnb_usd_parse)"]
+        okx_xtz_bnb_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        median [type=median];
+    
+    binance_xtz_usdt -> binance_xtz_usdt_parse -> binance_xtz_bnb_divide
+    binance_bnb_usdt -> binance_bnb_usdt_parse -> binance_xtz_bnb_divide
+    binance_xtz_bnb_divide -> binance_xtz_bnb_divide_multiply
+    coinbase_xtz_usd -> coinbase_xtz_usd_parse -> coinbase_xtz_bnb_divide
+    coinbase_bnb_usd -> coinbase_bnb_usd_parse -> coinbase_xtz_bnb_divide
+    coinbase_xtz_bnb_divide -> coinbase_xtz_bnb_divide_multiply
+    coingecko_xtz_usd -> coingecko_xtz_usd_parse -> coingecko_xtz_bnb_divide
+    coingecko_bnb_usd -> coingecko_bnb_usd_parse -> coingecko_xtz_bnb_divide
+    coingecko_xtz_bnb_divide -> coingecko_xtz_bnb_divide_multiply
+    cryptocompare_xtz_usd -> cryptocompare_xtz_usd_parse -> cryptocompare_xtz_bnb_divide
+    cryptocompare_bnb_usd -> cryptocompare_bnb_usd_parse -> cryptocompare_xtz_bnb_divide
+    cryptocompare_xtz_bnb_divide -> cryptocompare_xtz_bnb_divide_multiply
+    kraken_xtz_usd -> kraken_xtz_usd_parse -> kraken_xtz_bnb_divide
+    kraken_bnb_usd -> kraken_bnb_usd_parse -> kraken_xtz_bnb_divide
+    kraken_xtz_bnb_divide -> kraken_xtz_bnb_divide_multiply
+    okx_xtz_usd -> okx_xtz_usd_parse -> okx_xtz_bnb_divide
+    okx_bnb_usd -> okx_bnb_usd_parse -> okx_xtz_bnb_divide
+    okx_xtz_bnb_divide -> okx_xtz_bnb_divide_multiply
+    binance_xtz_bnb_divide_multiply -> median;
+    coinbase_xtz_bnb_divide_multiply -> median;
+    coingecko_xtz_bnb_divide_multiply -> median;
+    cryptocompare_xtz_bnb_divide_multiply -> median;
+    kraken_xtz_bnb_divide_multiply -> median;
+    okx_xtz_bnb_divide_multiply -> median;
+"""

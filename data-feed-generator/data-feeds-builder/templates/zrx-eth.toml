@@ -1,0 +1,100 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "ZRX / ETH"
+externalJobID = "112bcdf0-4728-59bc-94da-bc663d91c1cd"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        binance_zrx_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ZRX/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_zrx_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_eth_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_zrx_eth_divide    [type="divide" input="$(binance_zrx_usdt_parse)" divisor="$(binance_eth_usdt_parse)"]
+        binance_zrx_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_zrx_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ZRX/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_zrx_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_zrx_eth_divide    [type="divide" input="$(coinbase_zrx_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
+        coinbase_zrx_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coingecko_zrx_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/0x/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_zrx_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        coingecko_zrx_eth_divide    [type="divide" input="$(coingecko_zrx_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+        coingecko_zrx_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_zrx_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ZRX/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_zrx_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_zrx_eth_divide    [type="divide" input="$(cryptocompare_zrx_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
+        cryptocompare_zrx_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_zrx_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ZRX/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_zrx_usd_parse    [type="jsonparse" path="price"]
+    
+        kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        kraken_zrx_eth_divide    [type="divide" input="$(kraken_zrx_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
+        kraken_zrx_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        okx_zrx_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ZRX/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_zrx_usd_parse    [type="jsonparse" path="price"]
+    
+        okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        okx_zrx_eth_divide    [type="divide" input="$(okx_zrx_usd_parse)" divisor="$(okx_eth_usd_parse)"]
+        okx_zrx_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        median [type=median];
+    
+    binance_zrx_usdt -> binance_zrx_usdt_parse -> binance_zrx_eth_divide
+    binance_eth_usdt -> binance_eth_usdt_parse -> binance_zrx_eth_divide
+    binance_zrx_eth_divide -> binance_zrx_eth_divide_multiply
+    coinbase_zrx_usd -> coinbase_zrx_usd_parse -> coinbase_zrx_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_zrx_eth_divide
+    coinbase_zrx_eth_divide -> coinbase_zrx_eth_divide_multiply
+    coingecko_zrx_usd -> coingecko_zrx_usd_parse -> coingecko_zrx_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_zrx_eth_divide
+    coingecko_zrx_eth_divide -> coingecko_zrx_eth_divide_multiply
+    cryptocompare_zrx_usd -> cryptocompare_zrx_usd_parse -> cryptocompare_zrx_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_zrx_eth_divide
+    cryptocompare_zrx_eth_divide -> cryptocompare_zrx_eth_divide_multiply
+    kraken_zrx_usd -> kraken_zrx_usd_parse -> kraken_zrx_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_zrx_eth_divide
+    kraken_zrx_eth_divide -> kraken_zrx_eth_divide_multiply
+    okx_zrx_usd -> okx_zrx_usd_parse -> okx_zrx_eth_divide
+    okx_eth_usd -> okx_eth_usd_parse -> okx_zrx_eth_divide
+    okx_zrx_eth_divide -> okx_zrx_eth_divide_multiply
+    binance_zrx_eth_divide_multiply -> median;
+    coinbase_zrx_eth_divide_multiply -> median;
+    coingecko_zrx_eth_divide_multiply -> median;
+    cryptocompare_zrx_eth_divide_multiply -> median;
+    kraken_zrx_eth_divide_multiply -> median;
+    okx_zrx_eth_divide_multiply -> median;
+"""
