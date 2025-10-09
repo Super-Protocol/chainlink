@@ -14,6 +14,7 @@ ENV CONFIGURATION_PUBLIC_KEY=$CONFIGURATION_PUBLIC_KEY
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    make \
     gettext \
     jq \
     postgresql-17 \
