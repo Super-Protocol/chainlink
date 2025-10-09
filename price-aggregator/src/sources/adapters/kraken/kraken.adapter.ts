@@ -50,6 +50,7 @@ export class KrakenAdapter implements SourceAdapter {
   @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     const krakenPair = this.pairToKrakenFormat(pair);
+
     const { data } = await this.httpClient.get<KrakenResponse>(API_PATH, {
       params: {
         pair: krakenPair,
@@ -111,6 +112,7 @@ export class KrakenAdapter implements SourceAdapter {
     }
 
     const krakenPairs = pairs.map((pair) => this.pairToKrakenFormat(pair));
+
     const { data } = await this.httpClient.get<KrakenResponse>(API_PATH, {
       params: {
         pair: krakenPairs.join(','),

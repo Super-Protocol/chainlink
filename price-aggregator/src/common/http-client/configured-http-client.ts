@@ -9,6 +9,7 @@ import { HttpClient } from './interfaces/http-client.interface';
 import { RpsLimiterService } from './rps-limiter.service';
 import { ClientOptions } from './types/client-params';
 import { sanitizeUrlForLogging } from './url-sanitizer';
+import { getRandomUserAgent } from '../utils';
 
 export class ConfiguredHttpClient implements HttpClient {
   private readonly logger = new Logger(ConfiguredHttpClient.name);
@@ -104,6 +105,7 @@ export class ConfiguredHttpClient implements HttpClient {
         ...baseConfig.params,
       },
       headers: {
+        'User-Agent': getRandomUserAgent(),
         ...clientConfig.customHeaders,
         ...baseConfig.headers,
       },

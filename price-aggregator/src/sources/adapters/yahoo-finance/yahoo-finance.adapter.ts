@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { isAxiosError } from 'axios';
-import UserAgent = require('user-agents');
 
 import { YahooFinanceResponse } from './yahoo-finance.types';
 import { HttpClient, HttpClientBuilder } from '../../../common';
@@ -46,17 +45,11 @@ export class YahooFinanceAdapter implements SourceAdapter {
     const symbol = this.pairToYahooSymbol(pair);
 
     try {
-      const userAgent = new UserAgent();
-      const userAgentString = userAgent.toString();
-
       const { data } = await this.httpClient.get<YahooFinanceResponse>(
         `${CHART_PATH}/${symbol}`,
         {
           params: {
             interval: '1d',
-          },
-          headers: {
-            'User-Agent': `${userAgentString} ${Date.now()}`,
           },
         },
       );
