@@ -20,8 +20,8 @@ observationSource = """
     ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/backed-ib01-treasury-bond-0-1yr/usd"];
     ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
-    ds2 [type=http method=GET url="https://query1.finance.yahoo.com/v8/finance/chart/IB01.L?interval=1d" headers="[\\"User-Agent\\", \\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\\"]"];
-    ds2_parse [type=jsonparse path="chart,result,0,meta,regularMarketPrice"];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/yahoofinance/IB01.L/USD" headers="[\\"User-Agent\\", \\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36\\"]"];
+    ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
     median [type=median];
 

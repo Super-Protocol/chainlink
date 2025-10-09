@@ -17,8 +17,8 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-    ds1 [type=http method=GET url="https://api.bybit.com/v5/market/tickers?category=spot&symbol=WEETHETH"];
-    ds1_parse [type=jsonparse path="result,list,0,lastPrice"];
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/bybit/WEETH/ETH"];
+    ds1_parse [type=jsonparse path="price"];
     ds1_multiply [type=multiply times=100000000];
     median [type=median];
 
