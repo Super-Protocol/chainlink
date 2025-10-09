@@ -4611,15 +4611,7 @@
     "smartDataFeed": false,
     "deltaC": "86400000000000",
     "alphaPPB": "5000000",
-    "dataSources": [
-      {
-        "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/wrapped-club-tigres-uanl-kayen/USD",
-        "path": "price",
-        "value": 0.130953,
-        "pair": "wrapped-club-tigres-uanl-kayen/USD"
-      }
-    ]
+    "dataSources": []
   },
   "XAG / USD": {
     "name": "XAG / USD",
