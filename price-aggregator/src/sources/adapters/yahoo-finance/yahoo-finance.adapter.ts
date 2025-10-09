@@ -52,8 +52,11 @@ export class YahooFinanceAdapter implements SourceAdapter {
       const { data } = await this.httpClient.get<YahooFinanceResponse>(
         `${CHART_PATH}/${symbol}`,
         {
+          params: {
+            interval: '1d',
+          },
           headers: {
-            'User-Agent': userAgentString,
+            'User-Agent': `${userAgentString} ${Date.now()}`,
           },
         },
       );
@@ -100,11 +103,12 @@ export class YahooFinanceAdapter implements SourceAdapter {
 
   private pairToYahooSymbol(pair: Pair): string {
     const [base, quote] = pair;
+    const upperBase = base.toUpperCase();
 
-    if (quote.toUpperCase() === 'USD') {
-      return base.toUpperCase();
+    if (quote.toUpperCase() === 'USD' || quote.toUpperCase() === 'EUR') {
+      return upperBase;
     }
 
-    return `${base.toUpperCase()}-${quote.toUpperCase()}`;
+    return `${upperBase}-${quote.toUpperCase()}`;
   }
 }
