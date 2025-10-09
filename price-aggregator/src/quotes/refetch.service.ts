@@ -53,12 +53,17 @@ export class RefetchService
     this.logger.log('Refetch service initialized with config:', this.config);
   }
 
-  async onApplicationBootstrap(): Promise<void> {
+  onApplicationBootstrap(): void {
     if (!this.config.enabled) {
       return;
     }
 
-    await this.loadInitialQuotes();
+    this.loadInitialQuotes().catch((error) => {
+      this.logger.error(
+        { error: String(error) },
+        'Failed to load initial quotes',
+      );
+    });
   }
 
   onModuleDestroy(): void {
