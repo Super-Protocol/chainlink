@@ -129,10 +129,11 @@ export class CoinbaseStreamService extends BaseStreamService {
     );
 
     if (message.channel === 'ticker') {
+      const receivedTimestamp = new Date().toISOString();
       message.events.forEach((event) => {
         if (this.isTickerEvent(event)) {
           event.tickers.forEach((ticker) => {
-            this.handleTickerData(ticker, message.timestamp);
+            this.handleTickerData(ticker, receivedTimestamp);
           });
         }
       });

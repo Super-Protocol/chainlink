@@ -128,7 +128,7 @@ export class OkxStreamService extends BaseStreamService {
             const quote: Quote = {
               pair,
               price: String(tickerData.last),
-              receivedAt: new Date(parseInt(tickerData.ts, 10)),
+              receivedAt: new Date(),
             };
 
             this.emitQuote(tickerData.instId, quote);
