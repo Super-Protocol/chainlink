@@ -308,10 +308,19 @@ async function setConfigForContract(contractAddr) {
   }]);
 
   // Execute raw transaction via TxManager when available; fallback to ethers otherwise
-  let receipt;
   const transactionOptions = { from: _actionAddress };
-  receipt = await TxManager.publishTransaction({ to: normalizedAddr, data }, transactionOptions);
-  console.log('Mined', receipt?.transactionHash);
+  let receipt;
+  try {
+    receipt = await TxManager.publishTransaction({to: normalizedAddr, data}, transactionOptions);
+  } catch (err) {
+    console.error('Failed to publish transaction via TxManager:', err);
+    throw new Error(`TxManager transaction failed: ${err.message}`);
+  }
+
+  if (!receipt || !receipt.transactionHash) {
+    throw new Error('Transaction receipt is missing or invalid');
+  }
+  console.log('Mined', receipt.transactionHash);
 
   // Stage comparable DON config in memory; actual write is deferred
   markCacheUpdated(normalizedAddr, comparableDonConfig, cacheFile);
