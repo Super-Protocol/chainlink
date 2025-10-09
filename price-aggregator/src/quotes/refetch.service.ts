@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 
 import { CacheService, StaleBatch } from './cache';
+import { formatPairLabel } from '../common';
 import { SourceName } from '../sources';
 import { PairService } from './pair.service';
 import { AppConfigService } from '../config/config.service';
@@ -52,12 +53,17 @@ export class RefetchService
     this.logger.log('Refetch service initialized with config:', this.config);
   }
 
-  async onApplicationBootstrap(): Promise<void> {
+  onApplicationBootstrap(): void {
     if (!this.config.enabled) {
       return;
     }
 
-    await this.loadInitialQuotes();
+    this.loadInitialQuotes().catch((error) => {
+      this.logger.error(
+        { error: String(error) },
+        'Failed to load initial quotes',
+      );
+    });
   }
 
   onModuleDestroy(): void {
@@ -186,7 +192,7 @@ export class RefetchService
   }
 
   private getRefreshKey(source: SourceName, pair: Pair): string {
-    return `${source}:${pair.join('/')}`;
+    return `${source}:${formatPairLabel(pair)}`;
   }
 
   private async refreshSourcePairs(
@@ -195,7 +201,7 @@ export class RefetchService
   ): Promise<void> {
     const startTime = Date.now();
     this.logger.debug(
-      `Starting refresh for ${source}: ${pairs.length} pairs [${pairs.map((p) => p.join('/')).join(', ')}]`,
+      `Starting refresh for ${source}: ${pairs.length} pairs [${pairs.map((p) => formatPairLabel(p)).join(', ')}]`,
     );
 
     try {

@@ -1,6 +1,7 @@
 export enum SourceName {
   ALPHAVANTAGE = 'alphavantage',
   BINANCE = 'binance',
+  BYBIT = 'bybit',
   COINBASE = 'coinbase',
   COINGECKO = 'coingecko',
   CRYPTOCOMPARE = 'cryptocompare',
@@ -8,5 +9,7 @@ export enum SourceName {
   FINNHUB = 'finnhub',
   FRANKFURTER = 'frankfurter',
   KRAKEN = 'kraken',
+  KUCOIN = 'kucoin',
   OKX = 'okx',
+  YAHOO_FINANCE = 'yahoofinance',
 }

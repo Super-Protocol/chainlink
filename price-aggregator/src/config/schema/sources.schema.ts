@@ -287,6 +287,29 @@ export const frankfurterSourceSchema = createSourceSchema({
   rpsDefault: 10,
 });
 
+export const yahooFinanceSourceSchema = createSourceSchema({
+  sourceName: 'yahoofinance',
+  apiKeyRequired: false,
+  apiKeyDescription: 'No API key required for Yahoo Finance',
+  rpsDefault: 10,
+});
+
+export const kucoinSourceSchema = createSourceSchema({
+  sourceName: 'kucoin',
+  apiKeyRequired: false,
+  apiKeyDescription:
+    'Optional API key for KuCoin (not required for public market data)',
+  rpsDefault: 30,
+});
+
+export const bybitSourceSchema = createSourceSchema({
+  sourceName: 'bybit',
+  apiKeyRequired: false,
+  apiKeyDescription:
+    'Optional API key for Bybit (not required for public market data)',
+  rpsDefault: 120,
+});
+
 export const sourcesSchema = Type.Object(
   {
     binance: binanceSourceSchema,
@@ -299,6 +322,9 @@ export const sourcesSchema = Type.Object(
     kraken: krakenSourceSchema,
     coinbase: coinbaseSourceSchema,
     frankfurter: frankfurterSourceSchema,
+    yahoofinance: yahooFinanceSourceSchema,
+    kucoin: kucoinSourceSchema,
+    bybit: bybitSourceSchema,
   },
   { default: {} },
 );

@@ -218,3 +218,38 @@ sources:
     maxConcurrent: 10
     useProxy: false
     refetch: true # Useful for keeping forex rates fresh
+
+  yahoofinance:
+    enabled: true
+    ttl: 15000 # 15 seconds cache
+    timeoutMs: 10000
+    rps: 10 # Conservative rate, no official limits
+    maxConcurrent: 10
+    useProxy: true # Recommended to use proxy to avoid 429 errors
+    refetch: true
+    # Note: Requires User-Agent header (automatically set in adapter)
+
+  kucoin:
+    enabled: true
+    ttl: 10000
+    timeoutMs: 10000
+    rps: 30 # 1800 requests/minute limit
+    maxConcurrent: 10
+    useProxy: false
+    refetch: true
+
+  bybit:
+    enabled: true
+    ttl: 10000
+    timeoutMs: 10000
+    rps: 120 # 600 requests per 5 seconds limit
+    maxConcurrent: 10
+    useProxy: false
+    refetch: true
+
+# Global market data configuration
+marketData:
+  coingeckoGlobal:
+    enabled: true # Enable fetching global crypto market data
+    refreshIntervalMs: 60000 # Refresh every 60 seconds (1 minute)
+    useProxy: true # Use proxy for global market data requests

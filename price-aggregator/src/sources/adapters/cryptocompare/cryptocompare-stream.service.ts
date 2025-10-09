@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { MESSAGE_TYPES } from './cryptocompare.types';
-import { WebSocketClient } from '../../../common';
+import { formatPairLabel, WebSocketClient } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { MetricsService } from '../../../metrics/metrics.service';
 import { BaseStreamService } from '../../base-stream.service';
@@ -146,7 +146,9 @@ export class CryptoCompareStreamService extends BaseStreamService {
       this.unsupportedIdentifiers.add(identifier);
 
       const pair = this.getPairByIdentifier(identifier);
-      const pairStr = pair ? pair.join('/') : `${fromSymbol}/${toSymbol}`;
+      const pairStr = pair
+        ? formatPairLabel(pair)
+        : `${fromSymbol}/${toSymbol}`;
 
       this.logger.warn(
         { pair: pairStr, exchange, errorType, errorMessage },
@@ -166,7 +168,7 @@ export class CryptoCompareStreamService extends BaseStreamService {
     const supportedIdentifiers = identifiers.filter((identifier) => {
       if (this.unsupportedIdentifiers.has(identifier)) {
         const pair = this.getPairByIdentifier(identifier);
-        const pairStr = pair ? pair.join('/') : identifier;
+        const pairStr = pair ? formatPairLabel(pair) : identifier;
         this.logger.debug(
           { pair: pairStr },
           `Skipping subscription to unsupported pair: ${pairStr}`,

@@ -90,11 +90,10 @@ export class RpsLimiterService {
 
       const maxRetries = options.maxRetries;
       if (shouldRetry && jobInfo.retryCount < maxRetries) {
-        const delay = 100 * Math.pow(2, jobInfo.retryCount);
         this.logger.debug(
-          `Retrying request for ${key} in ${delay}ms (attempt ${jobInfo.retryCount + 1}/${maxRetries})`,
+          `Retrying request for ${key} immediately (attempt ${jobInfo.retryCount + 1}/${maxRetries})`,
         );
-        return delay;
+        return 0;
       }
 
       if (!shouldRetry) {

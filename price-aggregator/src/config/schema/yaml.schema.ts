@@ -2,6 +2,7 @@ import { Type } from '@sinclair/typebox';
 
 import { NODE_ENVIRONMENTS } from '../constants';
 import { loggerSchema } from './logger.schema';
+import { marketDataSchema } from './market-data.schema';
 import { metricsPushSchema } from './metrics-push.schema';
 import { pairCleanupSchema } from './pair-cleanup.schema';
 import { pairsTtlSchema } from './pairs-ttl.schema';
@@ -38,6 +39,7 @@ export const yamlValidationSchema = Type.Object(
     refetch: refetchSchema,
     pairCleanup: pairCleanupSchema,
     pairsTtl: Type.Optional(pairsTtlSchema),
+    marketData: marketDataSchema,
   },
   {
     default: {},
