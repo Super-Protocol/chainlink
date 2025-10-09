@@ -1,12 +1,15 @@
+import * as https from 'https';
+
 import { HttpService } from '@nestjs/axios';
 import { Logger } from '@nestjs/common';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { HttpsProxyAgent } from 'https-proxy-agent';
+import { HttpsProxyAgent as HpHttpsProxyAgent } from 'hpagent';
 
 import { HttpClient } from './interfaces/http-client.interface';
 import { RpsLimiterService } from './rps-limiter.service';
 import { ClientOptions } from './types/client-params';
 import { sanitizeUrlForLogging } from './url-sanitizer';
+import { getRandomUserAgent } from '../utils';
 
 export class ConfiguredHttpClient implements HttpClient {
   private readonly logger = new Logger(ConfiguredHttpClient.name);
@@ -71,17 +74,6 @@ export class ConfiguredHttpClient implements HttpClient {
     );
     const limiterKey = this.generateLimiterKey(requestUrl, this.clientConfig);
 
-    const requestFn = () => {
-      const safeUrlForLog = sanitizeUrlForLogging(requestUrl);
-      this.logger.debug(`HTTP ${method} ${safeUrlForLog}`);
-      return this.httpService.axiosRef.request<T>({
-        method,
-        url: requestUrl,
-        data,
-        ...enhancedConfig,
-      });
-    };
-
     return this.rpsLimiter.executeWithLimit(
       limiterKey,
       {
@@ -89,7 +81,16 @@ export class ConfiguredHttpClient implements HttpClient {
         maxConcurrent: this.clientConfig.maxConcurrent,
         maxRetries: this.clientConfig.maxRetries,
       },
-      requestFn,
+      () => {
+        const safeUrlForLog = sanitizeUrlForLogging(requestUrl);
+        this.logger.debug(`HTTP ${method} ${safeUrlForLog}`);
+        return this.httpService.axiosRef.request<T>({
+          method,
+          url: requestUrl,
+          data,
+          ...enhancedConfig,
+        });
+      },
     );
   }
 
@@ -103,11 +104,29 @@ export class ConfiguredHttpClient implements HttpClient {
         ...clientConfig.defaultParams,
         ...baseConfig.params,
       },
+      headers: {
+        'User-Agent': getRandomUserAgent(),
+        ...clientConfig.customHeaders,
+        ...baseConfig.headers,
+      },
       timeout: clientConfig.timeoutMs,
     };
 
+    const tlsOptions: https.AgentOptions = {
+      keepAlive: false,
+      maxVersion: 'TLSv1.3' as const,
+      ciphers: 'ECDHE-RSA-AES128-GCM-SHA256',
+    };
+
     if (clientConfig.proxyUrl) {
-      config.httpsAgent = new HttpsProxyAgent(clientConfig.proxyUrl);
+      config.httpsAgent = new HpHttpsProxyAgent({
+        proxy: clientConfig.proxyUrl,
+        keepAlive: Boolean(tlsOptions.keepAlive),
+        maxVersion: tlsOptions.maxVersion,
+        ciphers: tlsOptions.ciphers,
+      });
+    } else {
+      config.httpsAgent = new https.Agent(tlsOptions);
     }
 
     return config;

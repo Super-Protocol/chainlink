@@ -4,6 +4,7 @@ import * as NodeCache from 'node-cache';
 import { StaleBatch } from './cache-staleness.interface';
 import { CacheStalenessService } from './cache-staleness.service';
 import { CachedQuote, SerializedCachedQuote } from './cache.interface';
+import { formatPairLabel } from '../../common';
 import { AppConfigService } from '../../config/config.service';
 import { MetricsService } from '../../metrics/metrics.service';
 import { SourceName } from '../../sources';
@@ -173,7 +174,7 @@ export class CacheService implements OnModuleDestroy {
   }
 
   private generateCacheKey(source: SourceName, pair: Pair): string {
-    return `quote:${source}:${pair.join('/')}`;
+    return `quote:${source}:${formatPairLabel(pair)}`;
   }
 
   private resolveTtl(source: SourceName, pair: Pair, ttl?: number): number {

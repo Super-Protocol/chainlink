@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { KrakenStreamService } from './kraken-stream.service';
 import { KrakenResponse, KrakenAssetPairsResponse } from './kraken.types';
-import { HttpClient, HttpClientBuilder } from '../../../common';
+import { HttpClient, HttpClientBuilder, parsePairLabel } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
 import {
@@ -50,6 +50,7 @@ export class KrakenAdapter implements SourceAdapter {
   @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     const krakenPair = this.pairToKrakenFormat(pair);
+
     const { data } = await this.httpClient.get<KrakenResponse>(API_PATH, {
       params: {
         pair: krakenPair,
@@ -90,7 +91,7 @@ export class KrakenAdapter implements SourceAdapter {
 
     const pairs: Pair[] = [];
     for (const [, pairInfo] of Object.entries(data.result)) {
-      pairs.push(pairInfo.wsname.split('/') as Pair);
+      pairs.push(parsePairLabel(pairInfo.wsname));
     }
 
     return pairs;
@@ -111,6 +112,7 @@ export class KrakenAdapter implements SourceAdapter {
     }
 
     const krakenPairs = pairs.map((pair) => this.pairToKrakenFormat(pair));
+
     const { data } = await this.httpClient.get<KrakenResponse>(API_PATH, {
       params: {
         pair: krakenPairs.join(','),

@@ -4,6 +4,7 @@ import { isAbsolute, resolve } from 'node:path';
 
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 
+import { formatPairLabel, parsePairLabel } from '../common';
 import { AppConfigService } from '../config';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
@@ -57,7 +58,7 @@ export class PairService implements OnModuleInit {
     if (existing) {
       existing.lastRequestAt = now;
       this.logger.verbose(
-        `Updated request time for pair ${pair.join('/')} from source ${source}`,
+        `Updated request time for pair ${formatPairLabel(pair)} from source ${source}`,
       );
     } else {
       this.createRegistration(pair, source, {
@@ -67,7 +68,7 @@ export class PairService implements OnModuleInit {
         lastRequestAt: now,
       });
       this.logger.debug(
-        `Started tracking pair ${pair.join('/')} for source ${source}`,
+        `Started tracking pair ${formatPairLabel(pair)} for source ${source}`,
       );
       this.eventEmitter.emit('pair-added', { pair, source });
     }
@@ -80,11 +81,11 @@ export class PairService implements OnModuleInit {
     if (existing) {
       existing.lastFetchAt = new Date();
       this.logger.verbose(
-        `Updated fetch time for pair ${pair.join('/')} from source ${source}`,
+        `Updated fetch time for pair ${formatPairLabel(pair)} from source ${source}`,
       );
     } else {
       this.logger.debug(
-        `Skipping fetch tracking for unregistered pair ${pair.join('/')} from source ${source}`,
+        `Skipping fetch tracking for unregistered pair ${formatPairLabel(pair)} from source ${source}`,
       );
     }
   }
@@ -96,11 +97,11 @@ export class PairService implements OnModuleInit {
     if (existing) {
       existing.lastResponseAt = new Date();
       this.logger.verbose(
-        `Updated response time for pair ${pair.join('/')} from source ${source}`,
+        `Updated response time for pair ${formatPairLabel(pair)} from source ${source}`,
       );
     } else {
       this.logger.debug(
-        `Skipping response tracking for unregistered pair ${pair.join('/')} from source ${source}`,
+        `Skipping response tracking for unregistered pair ${formatPairLabel(pair)} from source ${source}`,
       );
     }
   }
@@ -111,7 +112,7 @@ export class PairService implements OnModuleInit {
       return [];
     }
 
-    return Array.from(pairKeys).map((pairKey) => pairKey.split('/') as Pair);
+    return Array.from(pairKeys).map((pairLabel) => parsePairLabel(pairLabel));
   }
 
   getPairsBySourceWithTimestamps(source: SourceName): PairSourceRegistration[] {
@@ -121,8 +122,8 @@ export class PairService implements OnModuleInit {
     }
 
     const registrations: PairSourceRegistration[] = [];
-    for (const pairKey of pairKeys) {
-      const pair: Pair = pairKey.split('/') as Pair;
+    for (const pairLabel of pairKeys) {
+      const pair = parsePairLabel(pairLabel);
       const registrationKey = this.getPairSourceKey(pair, source);
       const registration = this.registrations.get(registrationKey);
       if (registration) {
@@ -151,7 +152,9 @@ export class PairService implements OnModuleInit {
     if (removed) {
       this.removeFromIndices(pair, source);
       this.metricsService.removePairMetrics(pair, source);
-      this.logger.debug(`Removed pair ${pair.join('/')} for source ${source}`);
+      this.logger.debug(
+        `Removed pair ${formatPairLabel(pair)} for source ${source}`,
+      );
       this.eventEmitter.emit('pair-removed', { pair, source });
     }
   }
@@ -188,7 +191,7 @@ export class PairService implements OnModuleInit {
   }
 
   private getPairKey(pair: Pair): string {
-    return pair.join('/');
+    return formatPairLabel(pair);
   }
 
   private getPairSourceKey(pair: Pair, source: SourceName): string {
@@ -284,7 +287,9 @@ export class PairService implements OnModuleInit {
       return undefined;
     }
 
-    const [base, quote, ...rest] = value.split('/').map((part) => part.trim());
+    const [base, quote, ...rest] = parsePairLabel(value).map((part) =>
+      part.trim(),
+    );
 
     if (!base || !quote || rest.length > 0) {
       return undefined;
@@ -310,7 +315,7 @@ export class PairService implements OnModuleInit {
     });
 
     this.logger.debug(
-      { source, pair: pair.join('/') },
+      { source, pair: formatPairLabel(pair) },
       'Preloaded pair registration created',
     );
 
@@ -350,6 +355,8 @@ export class PairService implements OnModuleInit {
       this.sourcesByPair.set(pairKey, new Set());
     }
     this.sourcesByPair.get(pairKey)?.add(source);
+
+    this.metricsService.registeredPairs.set({ pair: pairKey, source }, 1);
 
     this.updateMetrics();
   }
