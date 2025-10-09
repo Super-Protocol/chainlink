@@ -89,6 +89,10 @@
     "ZEC/USDT",
     "ZRX/USDT"
   ],
+  "bybit": [
+    "METH/ETH",
+    "WEETH/ETH"
+  ],
   "coinbase": [
     "1INCH/USD",
     "AAVE/USD",
@@ -343,7 +347,6 @@
     "maker/USD",
     "mantle-staked-ether/eth",
     "mantra-dao/USD",
-    "melon/eth",
     "meta-platforms-ondo-tokenized-stock/USD",
     "microsoft-ondo-tokenized-stock/USD",
     "monerium-gbp-emoney/USD",
@@ -364,7 +367,6 @@
     "pfizer-ondo-tokenized-stock/USD",
     "plearn/USD",
     "pufeth/eth",
-    "pumpbtc/btc",
     "quant-network/USD",
     "radiant-capital/USD",
     "renzo-restaked-eth/USD",
@@ -700,6 +702,9 @@
     "ZRO/USD",
     "ZRX/USD"
   ],
+  "kucoin": [
+    "ENJ/ETH"
+  ],
   "okx": [
     "1INCH/USD",
     "AAVE/USD",
@@ -775,5 +780,25 @@
     "YFI/USD",
     "ZRO/USD",
     "ZRX/USD"
+  ],
+  "yahoofinance": [
+    "AAPL/USD",
+    "AMZN/USD",
+    "C3M.PA/EUR",
+    "COIN/USD",
+    "CSPX.L/USD",
+    "GOOGL/USD",
+    "IB01.L/USD",
+    "JPM/USD",
+    "META/USD",
+    "MRNA/USD",
+    "MS/USD",
+    "MSFT/USD",
+    "NFLX/USD",
+    "NVDA/USD",
+    "PFE/USD",
+    "QQQ/USD",
+    "SHV/USD",
+    "TSLA/USD"
   ]
 }
