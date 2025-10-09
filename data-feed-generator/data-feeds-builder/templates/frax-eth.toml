@@ -19,30 +19,17 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         coingecko_frax_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/frax/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_frax_usd_parse    [type="jsonparse" path="price"]
-    
+
         coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         coingecko_frax_eth_divide    [type="divide" input="$(coingecko_frax_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
         coingecko_frax_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
-        cryptocompare_frax_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/FRAX/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        cryptocompare_frax_usd_parse    [type="jsonparse" path="price"]
-    
-        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
-    
-        cryptocompare_frax_eth_divide    [type="divide" input="$(cryptocompare_frax_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
-        cryptocompare_frax_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         median [type=median];
-    
+
     coingecko_frax_usd -> coingecko_frax_usd_parse -> coingecko_frax_eth_divide
     coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_frax_eth_divide
     coingecko_frax_eth_divide -> coingecko_frax_eth_divide_multiply
-    cryptocompare_frax_usd -> cryptocompare_frax_usd_parse -> cryptocompare_frax_eth_divide
-    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_frax_eth_divide
-    cryptocompare_frax_eth_divide -> cryptocompare_frax_eth_divide_multiply
     coingecko_frax_eth_divide_multiply -> median;
-    cryptocompare_frax_eth_divide_multiply -> median;
 """
