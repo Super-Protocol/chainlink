@@ -154,9 +154,7 @@ export class BinanceStreamService extends BaseStreamService {
           });
           this.emitQuote(stream, {
             price: String(tickerData.c),
-            receivedAt: new Date(
-              typeof tickerData.E === 'number' ? tickerData.E : Date.now(),
-            ),
+            receivedAt: new Date(),
           });
         }
       } else if (
@@ -170,9 +168,7 @@ export class BinanceStreamService extends BaseStreamService {
         });
         this.emitQuote(stream, {
           price: String(message.c),
-          receivedAt: new Date(
-            typeof message.E === 'number' ? message.E : Date.now(),
-          ),
+          receivedAt: new Date(),
         });
       } else {
         this.logger.debug('Unhandled message format', { message });

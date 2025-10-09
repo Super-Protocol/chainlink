@@ -91,7 +91,7 @@ export class FinnhubStreamService extends BaseStreamService {
     const symbol = trade.s;
     this.emitQuote(symbol, {
       price: String(trade.p),
-      receivedAt: new Date(trade.t),
+      receivedAt: new Date(),
     });
   }
 

@@ -94,6 +94,11 @@ export class QuotesService {
       );
       this.pairService.trackResponse(pair, source);
       this.metricsService.cacheHits.inc({ source });
+      this.metricsService.updateQuoteDataAge(
+        source,
+        pair,
+        cachedQuote.receivedAt,
+      );
       return this.createQuoteResponseFromCached(cachedQuote);
     }
 
@@ -104,9 +109,13 @@ export class QuotesService {
     });
 
     if (this.sourcesManager.isFetchQuotesSupported(source)) {
-      return await this.fetchWithBatch(source, pair);
+      const quote = await this.fetchWithBatch(source, pair);
+      this.metricsService.updateQuoteDataAge(source, pair, quote.receivedAt);
+      return quote;
     } else {
-      return await this.fetchSingle(source, pair);
+      const quote = await this.fetchSingle(source, pair);
+      this.metricsService.updateQuoteDataAge(source, pair, quote.receivedAt);
+      return quote;
     }
   }
 
