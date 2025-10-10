@@ -17,15 +17,6 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-        coinbase_ftt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/FTT/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        coinbase_ftt_usd_parse    [type="jsonparse" path="price"]
-
-        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
-        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
-
-        coinbase_ftt_eth_divide    [type="divide" input="$(coinbase_ftt_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
-        coinbase_ftt_eth_divide_multiply [type="multiply" times=1000000000000000000]
-
         coingecko_ftt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ftx-token/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_ftt_usd_parse    [type="jsonparse" path="price"]
 
@@ -46,16 +37,12 @@ observationSource = """
 
         median [type=median];
 
-    coinbase_ftt_usd -> coinbase_ftt_usd_parse -> coinbase_ftt_eth_divide
-    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_ftt_eth_divide
-    coinbase_ftt_eth_divide -> coinbase_ftt_eth_divide_multiply
     coingecko_ftt_usd -> coingecko_ftt_usd_parse -> coingecko_ftt_eth_divide
     coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_ftt_eth_divide
     coingecko_ftt_eth_divide -> coingecko_ftt_eth_divide_multiply
     cryptocompare_ftt_usd -> cryptocompare_ftt_usd_parse -> cryptocompare_ftt_eth_divide
     cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_ftt_eth_divide
     cryptocompare_ftt_eth_divide -> cryptocompare_ftt_eth_divide_multiply
-    coinbase_ftt_eth_divide_multiply -> median;
     coingecko_ftt_eth_divide_multiply -> median;
     cryptocompare_ftt_eth_divide_multiply -> median;
 """

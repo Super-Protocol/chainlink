@@ -20,7 +20,7 @@ observationSource = """
         binance_link_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/LINK/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_link_usdt_parse    [type="jsonparse" path="price"]
 
-        binance_matic_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/MATIC/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_matic_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/POL/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_matic_usdt_parse    [type="jsonparse" path="price"]
 
         binance_link_matic_divide    [type="divide" input="$(binance_link_usdt_parse)" divisor="$(binance_matic_usdt_parse)"]
