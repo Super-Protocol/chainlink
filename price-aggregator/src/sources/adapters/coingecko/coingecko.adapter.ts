@@ -31,7 +31,6 @@ export class CoinGeckoAdapter implements SourceAdapter {
   readonly name = SourceName.COINGECKO;
   private readonly sourceConfig: SourceAdapterConfig;
   private readonly httpClient: HttpClient;
-  private readonly apiKey?: string;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
