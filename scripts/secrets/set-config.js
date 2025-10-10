@@ -5,19 +5,12 @@ const crypto = require('crypto');
 const nacl = require('tweetnacl'); // X25519 via scalarMult
 const { ethers } = require('ethers');
 const { BlockchainConnector } = require('@super-protocol/sdk-js');
-// Note: Avoid deep imports from @super-protocol/sdk-js to prevent exports errors
+const { hexToBuf, keccak256, aes128EcbEncryptBlock, decryptEvmKeystore } = require('./crypto-utils');
+const aggregatorAbi = require('./abis/AccessControlledOffchainAggregator.json').abi;
 
 const { singleFlight } = require('../utils/single-flight');
 
-let TxManager;
-try {
-  // Using CJS build explicitly to avoid ESM interop issues
-  TxManager = require('@super-protocol/sdk-js/dist/cjs/utils/TxManager.js').default;
-} catch (_) {
-  TxManager = null;
-}
-const { hexToBuf, keccak256, aes128EcbEncryptBlock, decryptEvmKeystore } = require('./crypto-utils');
-const aggregatorAbi = require('./abis/AccessControlledOffchainAggregator.json').abi;
+const TxManager = require('../node_modules/@super-protocol/sdk-js/dist/cjs/utils/TxManager.js').default;
 
 function hexToBufLocal(h) { return hexToBuf(h); }
 
@@ -315,20 +308,19 @@ async function setConfigForContract(contractAddr) {
   }]);
 
   // Execute raw transaction via TxManager when available; fallback to ethers otherwise
+  const transactionOptions = { from: _actionAddress };
   let receipt;
-  if (TxManager && typeof TxManager.publishTransaction === 'function') {
-    const transactionOptions = { from: _actionAddress };
-    receipt = await TxManager.publishTransaction({ to: normalizedAddr, data }, transactionOptions);
-    console.log('Mined', receipt?.transactionHash);
-  } else {
-    const provider = new ethers.JsonRpcProvider(rpcUrl);
-    if (!_derivedPkHexGlobal) throw new Error('Connector not initialized with derived private key; cannot fallback to ethers signer');
-    const sender = new ethers.Wallet(_derivedPkHexGlobal, provider);
-    const tx = await sender.sendTransaction({ to: normalizedAddr, data, value: 0 });
-    console.log('Submitted tx', tx.hash);
-    receipt = await tx.wait();
-    console.log('Mined', receipt?.hash || receipt?.transactionHash);
+  try {
+    receipt = await TxManager.publishTransaction({to: normalizedAddr, data}, transactionOptions);
+  } catch (err) {
+    console.error('Failed to publish transaction via TxManager:', err);
+    throw new Error(`TxManager transaction failed: ${err.message}`);
   }
+
+  if (!receipt || !receipt.transactionHash) {
+    throw new Error('Transaction receipt is missing or invalid');
+  }
+  console.log('Mined', receipt.transactionHash);
 
   // Stage comparable DON config in memory; actual write is deferred
   markCacheUpdated(normalizedAddr, comparableDonConfig, cacheFile);

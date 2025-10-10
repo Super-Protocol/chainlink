@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Counter, Histogram, Gauge, collectDefaultMetrics } from 'prom-client';
 
+import { formatPairLabel, formatPairKey } from '../common';
 import type { SourceName } from '../sources';
 import type { Pair } from '../sources/source-adapter.interface';
 
@@ -24,8 +25,8 @@ export class MetricsService {
     help: 'Duration of HTTP requests in seconds',
     labelNames: ['route', 'method', 'status'],
     buckets: [
-      0.01, 0.1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8,
-      8.5, 9, 9.5, 10, 15, 20, 30, 45, 60,
+      0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5,
+      6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 15, 20, 30, 45, 60,
     ],
   });
 
@@ -75,6 +76,12 @@ export class MetricsService {
   public readonly totalPairs = new Gauge({
     name: 'pairs_total',
     help: 'Total number of unique currency pairs across all sources',
+  });
+
+  public readonly registeredPairs = new Gauge({
+    name: 'registered_pairs',
+    help: 'Registry of all registered currency pairs (value is always 1)',
+    labelNames: ['pair', 'source'],
   });
 
   public readonly priceNotFoundCount = new Counter({
@@ -169,11 +176,17 @@ export class MetricsService {
     labelNames: ['source'],
   });
 
+  public readonly quoteDataAge = new Gauge({
+    name: 'quote_data_age_seconds',
+    help: 'Age of quote data returned by API (current time - receivedAt)',
+    labelNames: ['source', 'pair'],
+  });
+
   private lastUpdateTimes = new Map<string, number>();
 
   updateSourceLastUpdate(source: string, pair: string[]): void {
     const now = Date.now();
-    const pairKey = pair.join('-');
+    const pairKey = formatPairKey(pair as Pair);
     const lastUpdateTime = this.lastUpdateTimes.get(`${source}-${pairKey}`);
 
     if (lastUpdateTime !== undefined && lastUpdateTime > 0) {
@@ -185,17 +198,33 @@ export class MetricsService {
   }
 
   removePairMetrics(pair: Pair, source: SourceName): void {
-    const pairKey = pair.join('-');
+    const pairKey = formatPairKey(pair);
+    const pairLabel = formatPairLabel(pair);
 
-    this.sourceLastUpdateAge.remove({ source, pair: pairKey });
-    this.priceNotFoundCount.remove({ source, pair: pairKey });
-    this.quoteRequestErrors.remove({ source, pair: pairKey });
-    this.cacheMissByPair.remove({ source, pair: pairKey });
+    this.sourceLastUpdateAge.remove({ source, pair: pairLabel });
+    this.priceNotFoundCount.remove({ source, pair: pairLabel });
+    this.quoteRequestErrors.remove({ source, pair: pairLabel });
+    this.cacheMissByPair.remove({ source, pair: pairLabel });
     this.priceUpdateFrequency.remove({ source });
+    this.registeredPairs.remove({ source, pair: pairLabel });
+    this.quoteDataAge.remove({ source, pair: pairKey });
 
     this.lastUpdateTimes.delete(`${source}-${pairKey}`);
 
-    this.logger.debug({ source, pair: pairKey }, 'Removed metrics for pair');
+    this.logger.debug({ source, pair: pairLabel }, 'Removed metrics for pair');
+  }
+
+  updateQuoteDataAge(source: SourceName, pair: Pair, receivedAt: Date): void {
+    const now = Date.now();
+    const receivedAtMs = receivedAt.getTime();
+    const ageSeconds = (now - receivedAtMs) / 1000;
+    const pairKey = pair.join('-');
+
+    if (ageSeconds < 0) {
+      this.quoteDataAge.set({ source, pair: pairKey }, 0);
+    } else {
+      this.quoteDataAge.set({ source, pair: pairKey }, ageSeconds);
+    }
   }
 
   updateAllSourceAgeMetrics(): void {
@@ -204,9 +233,33 @@ export class MetricsService {
     for (const [key, lastUpdateTime] of this.lastUpdateTimes.entries()) {
       const ageSeconds = (now - lastUpdateTime) / 1000;
       const [source, ...pairParts] = key.split('-');
-      const pairKey = pairParts.join('-');
+      const pair = pairParts as Pair;
+      const pairLabel = formatPairLabel(pair);
 
-      this.sourceLastUpdateAge.set({ source, pair: pairKey }, ageSeconds);
+      this.sourceLastUpdateAge.set({ source, pair: pairLabel }, ageSeconds);
     }
+  }
+
+  public readonly globalMarketDataLastUpdate = new Gauge({
+    name: 'global_market_data_last_update_timestamp',
+    help: 'Timestamp of last global market data update',
+  });
+
+  public readonly globalMarketDataAge = new Gauge({
+    name: 'global_market_data_age_seconds',
+    help: 'Age of cached global market data in seconds',
+  });
+
+  public readonly globalMarketDataErrors = new Counter({
+    name: 'global_market_data_refresh_errors_total',
+    help: 'Total number of errors while refreshing global market data',
+  });
+
+  updateGlobalMarketDataMetrics(data: { updatedAt: Date }): void {
+    const timestamp = data.updatedAt.getTime() / 1000;
+    const ageSeconds = (Date.now() - data.updatedAt.getTime()) / 1000;
+
+    this.globalMarketDataLastUpdate.set(timestamp);
+    this.globalMarketDataAge.set(ageSeconds);
   }
 }

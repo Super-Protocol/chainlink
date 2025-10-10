@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { CachedQuote, CacheService } from './cache';
 import { PairService } from './pair.service';
+import { formatPairLabel } from '../common';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import { Pair, Quote } from '../sources/source-adapter.interface';
@@ -98,7 +99,7 @@ export class QuoteBatchProcessorService {
 
       cacheWrites.push({ cachedQuote });
 
-      const pairKey = `${source}:${quote.pair.join('/')}`;
+      const pairKey = `${source}:${formatPairLabel(quote.pair)}`;
       pairUpdates.set(pairKey, { pair: quote.pair, source });
 
       const count = metricsUpdates.get(source) || 0;

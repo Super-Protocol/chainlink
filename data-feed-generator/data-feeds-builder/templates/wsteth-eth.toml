@@ -1,0 +1,48 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "WSTETH / ETH"
+externalJobID = "69c2766a-4541-5e14-b211-0aa23d9a2298"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    coingecko_wsteth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/arbitrum-bridged-wsteth-arbitrum/USD" allowUnrestrictedNetworkAccess=true retries=3]
+    coingecko_wsteth_usd_parse    [type="jsonparse" path="price"]
+
+    coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
+    coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+
+    coingecko_wsteth_eth_divide    [type="divide" input="$(coingecko_wsteth_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+    coingecko_wsteth_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+    coinbase_wsteth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/WSTETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+    coinbase_wsteth_usd_parse    [type="jsonparse" path="price"]
+
+    coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+    coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+
+    coinbase_wsteth_eth_divide    [type="divide" input="$(coinbase_wsteth_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
+    coinbase_wsteth_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+    median [type=median];
+
+    coingecko_wsteth_usd -> coingecko_wsteth_usd_parse -> coingecko_wsteth_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_wsteth_eth_divide
+    coingecko_wsteth_eth_divide -> coingecko_wsteth_eth_divide_multiply
+    coinbase_wsteth_usd -> coinbase_wsteth_usd_parse -> coinbase_wsteth_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_wsteth_eth_divide
+    coinbase_wsteth_eth_divide -> coinbase_wsteth_eth_divide_multiply
+    coingecko_wsteth_eth_divide_multiply -> median;
+    coinbase_wsteth_eth_divide_multiply -> median;
+"""

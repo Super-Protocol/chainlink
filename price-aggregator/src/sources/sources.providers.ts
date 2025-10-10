@@ -1,6 +1,7 @@
 import { AlphaVantageAdapter } from './adapters/alphavantage';
 import { BinanceAdapter } from './adapters/binance';
 import { BinanceStreamService } from './adapters/binance/binance-stream.service';
+import { BybitAdapter } from './adapters/bybit';
 import { CoinbaseAdapter } from './adapters/coinbase';
 import { CoinbaseStreamService } from './adapters/coinbase/coinbase-stream.service';
 import { CoinGeckoAdapter } from './adapters/coingecko';
@@ -12,8 +13,10 @@ import { FinnhubStreamService } from './adapters/finnhub/finnhub-stream.service'
 import { FrankfurterAdapter } from './adapters/frankfurter';
 import { KrakenAdapter } from './adapters/kraken';
 import { KrakenStreamService } from './adapters/kraken/kraken-stream.service';
+import { KucoinAdapter } from './adapters/kucoin';
 import { OkxAdapter } from './adapters/okx';
 import { OkxStreamService } from './adapters/okx/okx-stream.service';
+import { YahooFinanceAdapter } from './adapters/yahoo-finance';
 import { SourceAdapter } from './source-adapter.interface';
 import { SourceName } from './source-name.enum';
 
@@ -23,6 +26,7 @@ export const SOURCES_MAP: Record<
 > = {
   [SourceName.ALPHAVANTAGE]: AlphaVantageAdapter,
   [SourceName.BINANCE]: BinanceAdapter,
+  [SourceName.BYBIT]: BybitAdapter,
   [SourceName.COINBASE]: CoinbaseAdapter,
   [SourceName.COINGECKO]: CoinGeckoAdapter,
   [SourceName.CRYPTOCOMPARE]: CryptoCompareAdapter,
@@ -30,7 +34,9 @@ export const SOURCES_MAP: Record<
   [SourceName.FINNHUB]: FinnhubAdapter,
   [SourceName.FRANKFURTER]: FrankfurterAdapter,
   [SourceName.KRAKEN]: KrakenAdapter,
+  [SourceName.KUCOIN]: KucoinAdapter,
   [SourceName.OKX]: OkxAdapter,
+  [SourceName.YAHOO_FINANCE]: YahooFinanceAdapter,
 };
 
 export const STREAM_PROVIDERS = [

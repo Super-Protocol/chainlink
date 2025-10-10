@@ -1042,11 +1042,148 @@ async function checkAlphaVantage(base, quote, timeoutMs) {
 // -------------------------------
 // Main
 // -------------------------------
+// Shared: collect USD(/USDT for Binance) quotes for a single symbol using all providers.
+async function collectUsdDataSources(symbol, args, coinsList) {
+  const upper = symbol.toUpperCase();
+  const checks = await Promise.all([
+    // Binance uses USDT – acceptable per spec (USD or USDT)
+    checkBinance(upper, args.timeoutMs, args.verbose),
+    checkCryptoCompare(upper, args.timeoutMs, args.verbose),
+    checkCoinGecko(upper, coinsList, args.timeoutMs, args.verbose),
+    checkCoinbase(upper, 'USD', args.timeoutMs),
+    checkKraken(upper, 'USD', args.timeoutMs),
+    checkOKX(upper, 'USD', args.timeoutMs),
+    checkFrankfurter(upper, 'USD', args.timeoutMs),
+    checkExchangerateHost(upper, 'USD', args.timeoutMs),
+    checkAlphaVantage(upper, 'USD', args.timeoutMs),
+  ]);
+  const dataSources = [];
+  for (const res of checks) {
+    if (!res) continue;
+    if (typeof res === 'object' && res.url) {
+      dataSources.push({
+        provider: res.provider || 'unknown',
+        url: res.url,
+        path: res.path || null,
+        value: typeof res.value === 'number' && isFinite(res.value) ? res.value : null,
+        pair: res.pair || null,
+      });
+    }
+  }
+  return dataSources;
+}
+
+// Helper: collect (and cache) USD(/USDT for Binance) quotes for a single symbol for cross-course reuse.
+// Stores synthetic USD quotes in a dedicated progress.__usdCache to avoid overwriting real feed entries.
+async function getOrFetchUsdFeed(symbol, args, coinsList, progress) {
+  if (!symbol) return [];
+  const upper = symbol.toUpperCase();
+  const feedName = `${upper} / USD`;
+  // Ensure dedicated USD cache bucket exists
+  if (!progress.__usdCache || typeof progress.__usdCache !== 'object') {
+    progress.__usdCache = {};
+  }
+  const usdCache = progress.__usdCache;
+  const cached = usdCache[feedName];
+  if (cached && Array.isArray(cached.dataSources) && cached.dataSources.length > 0) {
+    // Assume existing data are valid; do NOT refetch (per requirements)
+    return cached.dataSources;
+  }
+
+  // Backward compatibility: migrate legacy synthetic data from progress[feedName] if present
+  const legacy = progress[feedName];
+  if (legacy && Array.isArray(legacy.dataSources) && legacy.dataSources.length > 0) {
+    usdCache[feedName] = { dataSources: legacy.dataSources };
+    writeJsonAtomicSync(args.state, progress);
+    return legacy.dataSources;
+  }
+
+  console.log(`Fetching underlying USD quotes for ${upper}`);
+  const dataSources = await collectUsdDataSources(upper, args, coinsList);
+  // Store only in dedicated USD cache for cross-course reuse
+  usdCache[feedName] = { dataSources };
+  writeJsonAtomicSync(args.state, progress);
+  return dataSources;
+}
+
+// Compute cross-course (e.g., ADA / BNB) by dividing base/USD (or base/USDT for Binance) by quote/USD (or quote/USDT) per provider.
+async function computeCrossCourseDataSources(baseSymbol, quoteSymbol, args, coinsList, progress) {
+  const baseSources = await getOrFetchUsdFeed(baseSymbol, args, coinsList, progress);
+  const quoteSources = await getOrFetchUsdFeed(quoteSymbol, args, coinsList, progress);
+  if (baseSources.length === 0 || quoteSources.length === 0) return [];
+
+  // Index quote sources by provider (allow multiple; pick first with numeric value)
+  const pickFirstNumeric = (list) => {
+    for (const ds of list) {
+      if (ds && typeof ds.value === 'number' && isFinite(ds.value) && ds.value > 0) return ds;
+    }
+    return null;
+  };
+  const quoteByProvider = {};
+  for (const qs of quoteSources) {
+    if (!qs || !qs.provider) continue;
+    if (!quoteByProvider[qs.provider]) quoteByProvider[qs.provider] = [];
+    quoteByProvider[qs.provider].push(qs);
+  }
+
+  const baseByProvider = {};
+  for (const bs of baseSources) {
+    if (!bs || !bs.provider) continue;
+    if (!baseByProvider[bs.provider]) baseByProvider[bs.provider] = [];
+    baseByProvider[bs.provider].push(bs);
+  }
+
+  const providers = new Set([
+    ...Object.keys(baseByProvider),
+    ...Object.keys(quoteByProvider),
+  ]);
+  const results = [];
+  for (const prov of providers) {
+    const b = pickFirstNumeric(baseByProvider[prov] || []);
+    const q = pickFirstNumeric(quoteByProvider[prov] || []);
+    if (!b || !q) continue; // Need both sides per spec
+    const ratio = q.value === 0 ? null : b.value / q.value;
+    if (!ratio || !isFinite(ratio)) continue;
+    // Underlying base and quote USD(/USDT) legs only (computed cross removed per request)
+    // Clone to avoid accidental mutation of progress objects
+    const clone = (o) => ({
+      provider: o.provider || prov,
+      url: o.url,
+      path: o.path || 'price',
+      value: typeof o.value === 'number' && isFinite(o.value) ? o.value : null,
+      pair: o.pair || null,
+    });
+    results.push(clone(b));
+    results.push(clone(q));
+  }
+  return results;
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   ensureDirSync(path.dirname(args.out));
   ensureDirSync(path.dirname(args.state));
   ensureDirSync(args.cacheDir);
+
+  // Load removed pairs and provider removals configuration
+  const removedConfigPath = path.resolve(
+    __dirname,
+    'removed-feeds.json'
+  );
+  /** @type {{removedPairs?: string[], sourceRemovals?: Record<string, string[]>}} */
+  const removedCfg = readJsonSafe(removedConfigPath, {
+    removedPairs: [],
+    sourceRemovals: {},
+  });
+  const removedPairsSet = new Set(
+    Array.isArray(removedCfg.removedPairs) ? removedCfg.removedPairs : []
+  );
+  const removedSourcesMap = new Map(
+    Object.entries(removedCfg.sourceRemovals || {}).map(([pair, arr]) => [
+      pair,
+      new Set((arr || []).map((s) => String(s).toLowerCase())),
+    ])
+  );
 
   // Load input feeds
   const inputPath = path.resolve(__dirname, '../data-feeds.json');
@@ -1088,6 +1225,16 @@ async function main() {
     startedAt
   );
   for (const [name, cfg] of entries) {
+    // Skip completely removed pairs
+    if (removedPairsSet.has(name)) {
+      console.log(`Skipping (removed pair): ${name}`);
+      // Ensure any previous progress is dropped for removed pairs
+      if (progress[name]) {
+        delete progress[name];
+        writeJsonAtomicSync(args.state, progress);
+      }
+      continue;
+    }
     if (!isPairName(name)) {
       console.log(`Skipping (not a pair): ${name}`);
       if (progress[name]) {
@@ -1098,13 +1245,46 @@ async function main() {
     }
     const cached = progress[name];
     if (cached) {
-      const ds = Array.isArray(cached.dataSources) ? cached.dataSources : [];
+      let ds = Array.isArray(cached.dataSources) ? cached.dataSources : [];
+      // Filter out removed providers for this pair (from cache)
+      const rm = removedSourcesMap.get(name);
+      if (rm && ds.length > 0) {
+        ds = ds.filter((s) => {
+          const prov = (s && s.provider ? String(s.provider) : '').toLowerCase();
+          return prov && !rm.has(prov);
+        });
+        cached.dataSources = ds;
+      }
       const hasFullUrls =
         ds.length === 0 ||
         ds.every((s) => typeof s === 'string' && s.startsWith('http'));
       if (hasFullUrls) {
         console.log(`Skipping (cached): ${name}`);
-        resultsArray.push(cached);
+        // Merge cfg metadata to ensure correctness even if cached was minimal
+        const merged = {
+          ...cached,
+          name,
+          decimals:
+            cached.decimals !== undefined && cached.decimals !== null
+              ? cached.decimals
+              : (cfg.decimals ?? null),
+          smartDataFeed:
+            typeof cached.smartDataFeed === 'boolean'
+              ? cached.smartDataFeed
+              : Boolean(cfg.smartDataFeed),
+          deltaC:
+            cached.deltaC !== undefined && cached.deltaC !== null
+              ? cached.deltaC
+              : (cfg.deltaC ?? null),
+          alphaPPB:
+            cached.alphaPPB !== undefined && cached.alphaPPB !== null
+              ? cached.alphaPPB
+              : (cfg.alphaPPB ?? null),
+          dataSources: ds,
+        };
+        progress[name] = merged;
+        writeJsonAtomicSync(args.state, progress);
+        resultsArray.push(merged);
         processedCount++;
         printProgress(processedCount, name);
         continue;
@@ -1114,24 +1294,41 @@ async function main() {
     }
 
     console.log(`Processing: ${name}`);
-    const { baseSymbol, isUsdQuote } = parseName(name);
+    const { baseSymbol, quoteSymbol, isUsdQuote, isCrossCourse } = parseName(name);
     let dataSources = [];
 
     const shouldCheckApis =
       Boolean(baseSymbol) && isUsdQuote === true && cfg.smartDataFeed === false;
     if (shouldCheckApis) {
       const quote = 'USD';
-      const checks = await Promise.all([
-        checkBinance(baseSymbol, args.timeoutMs, args.verbose),
-        checkCryptoCompare(baseSymbol, args.timeoutMs, args.verbose),
-        checkCoinGecko(baseSymbol, coinsList, args.timeoutMs, args.verbose),
-        checkCoinbase(baseSymbol, quote, args.timeoutMs),
-        checkKraken(baseSymbol, quote, args.timeoutMs),
-        checkOKX(baseSymbol, quote, args.timeoutMs),
-        checkFrankfurter(baseSymbol, quote, args.timeoutMs),
-        checkExchangerateHost(baseSymbol, quote, args.timeoutMs),
-        checkAlphaVantage(baseSymbol, quote, args.timeoutMs),
-      ]);
+      const rmSet = removedSourcesMap.get(name) || new Set();
+      const promises = [];
+      if (!rmSet.has('binance'))
+        promises.push(checkBinance(baseSymbol, args.timeoutMs, args.verbose));
+      if (!rmSet.has('cryptocompare'))
+        promises.push(
+          checkCryptoCompare(baseSymbol, args.timeoutMs, args.verbose)
+        );
+      if (!rmSet.has('coingecko'))
+        promises.push(
+          checkCoinGecko(baseSymbol, coinsList, args.timeoutMs, args.verbose)
+        );
+      if (!rmSet.has('coinbase'))
+        promises.push(checkCoinbase(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('kraken'))
+        promises.push(checkKraken(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('okx'))
+        promises.push(checkOKX(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('frankfurter'))
+        promises.push(checkFrankfurter(baseSymbol, quote, args.timeoutMs));
+      if (!rmSet.has('exchangerate-host'))
+        promises.push(
+          checkExchangerateHost(baseSymbol, quote, args.timeoutMs)
+        );
+      if (!rmSet.has('alphavantage'))
+        promises.push(checkAlphaVantage(baseSymbol, quote, args.timeoutMs));
+
+      const checks = await Promise.all(promises);
       for (const res of checks) {
         if (!res) continue;
         if (typeof res === 'string') {
@@ -1170,11 +1367,32 @@ async function main() {
       } else {
         console.log(`No quotes collected for ${name}`);
       }
+    } else if (Boolean(baseSymbol) && Boolean(quoteSymbol) && isCrossCourse) {
+      // Cross-course feed: compute ratio from underlying USD(/USDT) quotes.
+      console.log(`Computing cross-course feed ${name}`);
+      dataSources = await computeCrossCourseDataSources(baseSymbol, quoteSymbol, args, coinsList, progress);
+      if (dataSources.length > 0) {
+        console.log(`Cross-course quotes for ${name}:`);
+        for (const ds of dataSources) {
+          const provider = ds.provider || 'unknown';
+          const v = typeof ds.value === 'number' ? ds.value : 'N/A';
+          console.log(`  - ${provider}: value=${v} url=${ds.url}`);
+        }
+      } else {
+        console.log(`No cross-course quotes collected for ${name}`);
+      }
     } else {
       if (args.verbose)
-        console.log(
-          `  Skipping API checks (name format or smartDataFeed): ${name}`
-        );
+        console.log(`  Skipping API checks (name format, smartDataFeed, or unsupported quote): ${name}`);
+    }
+
+    // Apply provider removals to newly collected dataSources
+    const rm = removedSourcesMap.get(name);
+    if (rm && dataSources.length > 0) {
+      dataSources = dataSources.filter((s) => {
+        const prov = (s && s.provider ? String(s.provider) : '').toLowerCase();
+        return prov && !rm.has(prov);
+      });
     }
 
     const item = {
@@ -1184,6 +1402,7 @@ async function main() {
       deltaC: cfg.deltaC ?? null,
       alphaPPB: cfg.alphaPPB ?? null,
       dataSources,
+      ...(isCrossCourse ? { type: 'cross-course' } : {}),
     };
 
     // Save to progress immediately for resumability
@@ -1213,10 +1432,11 @@ function parseName(name) {
   const base = parts[0].trim();
   const quote = parts[1].trim();
   const isUsd = quote.toUpperCase() === 'USD';
+  const isCrossCourse = ['BNB', 'ETH', 'MATIC'].includes(quote.toUpperCase())
   if (!base) return { baseSymbol: null, isUsdQuote: isUsd };
   // Some feeds may include spaces in base (e.g., "Bitcoin Cash"); map to symbol-like token
   // Here we assume the provided name already uses ticker symbols (e.g., BTC, 1INCH, AAPL)
-  return { baseSymbol: base, isUsdQuote: isUsd };
+  return { baseSymbol: base, quoteSymbol: quote, isUsdQuote: isUsd, isCrossCourse };
 }
 
 // Execute if run directly

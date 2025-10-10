@@ -1,0 +1,87 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "GHST / ETH"
+externalJobID = "fddad385-4c78-5dec-b09f-c009d316996c"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        coinbase_ghst_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/GHST/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_ghst_usd_parse    [type="jsonparse" path="price"]
+
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+
+        coinbase_ghst_eth_divide    [type="divide" input="$(coinbase_ghst_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
+        coinbase_ghst_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        coingecko_ghst_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/aavegotchi/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_ghst_usd_parse    [type="jsonparse" path="price"]
+
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+
+        coingecko_ghst_eth_divide    [type="divide" input="$(coingecko_ghst_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+        coingecko_ghst_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        cryptocompare_ghst_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/GHST/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_ghst_usd_parse    [type="jsonparse" path="price"]
+
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+
+        cryptocompare_ghst_eth_divide    [type="divide" input="$(cryptocompare_ghst_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
+        cryptocompare_ghst_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        kraken_ghst_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/GHST/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_ghst_usd_parse    [type="jsonparse" path="price"]
+
+        kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_eth_usd_parse    [type="jsonparse" path="price"]
+
+        kraken_ghst_eth_divide    [type="divide" input="$(kraken_ghst_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
+        kraken_ghst_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        okx_ghst_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/GHST/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_ghst_usd_parse    [type="jsonparse" path="price"]
+
+        okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_eth_usd_parse    [type="jsonparse" path="price"]
+
+        okx_ghst_eth_divide    [type="divide" input="$(okx_ghst_usd_parse)" divisor="$(okx_eth_usd_parse)"]
+        okx_ghst_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        median [type=median];
+
+    coinbase_ghst_usd -> coinbase_ghst_usd_parse -> coinbase_ghst_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_ghst_eth_divide
+    coinbase_ghst_eth_divide -> coinbase_ghst_eth_divide_multiply
+    coingecko_ghst_usd -> coingecko_ghst_usd_parse -> coingecko_ghst_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_ghst_eth_divide
+    coingecko_ghst_eth_divide -> coingecko_ghst_eth_divide_multiply
+    cryptocompare_ghst_usd -> cryptocompare_ghst_usd_parse -> cryptocompare_ghst_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_ghst_eth_divide
+    cryptocompare_ghst_eth_divide -> cryptocompare_ghst_eth_divide_multiply
+    kraken_ghst_usd -> kraken_ghst_usd_parse -> kraken_ghst_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_ghst_eth_divide
+    kraken_ghst_eth_divide -> kraken_ghst_eth_divide_multiply
+    okx_ghst_usd -> okx_ghst_usd_parse -> okx_ghst_eth_divide
+    okx_eth_usd -> okx_eth_usd_parse -> okx_ghst_eth_divide
+    okx_ghst_eth_divide -> okx_ghst_eth_divide_multiply
+    coinbase_ghst_eth_divide_multiply -> median;
+    coingecko_ghst_eth_divide_multiply -> median;
+    cryptocompare_ghst_eth_divide_multiply -> median;
+    kraken_ghst_eth_divide_multiply -> median;
+    okx_ghst_eth_divide_multiply -> median;
+"""

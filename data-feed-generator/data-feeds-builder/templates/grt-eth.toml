@@ -1,0 +1,100 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "GRT / ETH"
+externalJobID = "9dea9e2b-0a13-5b1d-a8c5-8d5ed181f42c"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        binance_grt_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/GRT/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_grt_usdt_parse    [type="jsonparse" path="price"]
+
+        binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_eth_usdt_parse    [type="jsonparse" path="price"]
+
+        binance_grt_eth_divide    [type="divide" input="$(binance_grt_usdt_parse)" divisor="$(binance_eth_usdt_parse)"]
+        binance_grt_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        coinbase_grt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/GRT/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_grt_usd_parse    [type="jsonparse" path="price"]
+
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+
+        coinbase_grt_eth_divide    [type="divide" input="$(coinbase_grt_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
+        coinbase_grt_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        coingecko_grt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/the-graph/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_grt_usd_parse    [type="jsonparse" path="price"]
+
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd_parse    [type="jsonparse" path="price"]
+
+        coingecko_grt_eth_divide    [type="divide" input="$(coingecko_grt_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+        coingecko_grt_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        cryptocompare_grt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/GRT/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_grt_usd_parse    [type="jsonparse" path="price"]
+
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+
+        cryptocompare_grt_eth_divide    [type="divide" input="$(cryptocompare_grt_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
+        cryptocompare_grt_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        kraken_grt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/GRT/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_grt_usd_parse    [type="jsonparse" path="price"]
+
+        kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_eth_usd_parse    [type="jsonparse" path="price"]
+
+        kraken_grt_eth_divide    [type="divide" input="$(kraken_grt_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
+        kraken_grt_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        okx_grt_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/GRT/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_grt_usd_parse    [type="jsonparse" path="price"]
+
+        okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_eth_usd_parse    [type="jsonparse" path="price"]
+
+        okx_grt_eth_divide    [type="divide" input="$(okx_grt_usd_parse)" divisor="$(okx_eth_usd_parse)"]
+        okx_grt_eth_divide_multiply [type="multiply" times=1000000000000000000]
+
+        median [type=median];
+
+    binance_grt_usdt -> binance_grt_usdt_parse -> binance_grt_eth_divide
+    binance_eth_usdt -> binance_eth_usdt_parse -> binance_grt_eth_divide
+    binance_grt_eth_divide -> binance_grt_eth_divide_multiply
+    coinbase_grt_usd -> coinbase_grt_usd_parse -> coinbase_grt_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_grt_eth_divide
+    coinbase_grt_eth_divide -> coinbase_grt_eth_divide_multiply
+    coingecko_grt_usd -> coingecko_grt_usd_parse -> coingecko_grt_eth_divide
+    coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_grt_eth_divide
+    coingecko_grt_eth_divide -> coingecko_grt_eth_divide_multiply
+    cryptocompare_grt_usd -> cryptocompare_grt_usd_parse -> cryptocompare_grt_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_grt_eth_divide
+    cryptocompare_grt_eth_divide -> cryptocompare_grt_eth_divide_multiply
+    kraken_grt_usd -> kraken_grt_usd_parse -> kraken_grt_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_grt_eth_divide
+    kraken_grt_eth_divide -> kraken_grt_eth_divide_multiply
+    okx_grt_usd -> okx_grt_usd_parse -> okx_grt_eth_divide
+    okx_eth_usd -> okx_eth_usd_parse -> okx_grt_eth_divide
+    okx_grt_eth_divide -> okx_grt_eth_divide_multiply
+    binance_grt_eth_divide_multiply -> median;
+    coinbase_grt_eth_divide_multiply -> median;
+    coingecko_grt_eth_divide_multiply -> median;
+    cryptocompare_grt_eth_divide_multiply -> median;
+    kraken_grt_eth_divide_multiply -> median;
+    okx_grt_eth_divide_multiply -> median;
+"""

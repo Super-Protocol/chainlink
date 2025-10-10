@@ -1,0 +1,87 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "CRV / ETH"
+externalJobID = "6e2200f5-1152-5189-a5bd-677d7a787fe8"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+        binance_crv_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/CRV/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_crv_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
+        binance_eth_usdt_parse    [type="jsonparse" path="price"]
+    
+        binance_crv_eth_divide    [type="divide" input="$(binance_crv_usdt_parse)" divisor="$(binance_eth_usdt_parse)"]
+        binance_crv_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        coinbase_crv_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/CRV/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_crv_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coinbase_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        coinbase_crv_eth_divide    [type="divide" input="$(coinbase_crv_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
+        coinbase_crv_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        cryptocompare_crv_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/CRV/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_crv_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        cryptocompare_crv_eth_divide    [type="divide" input="$(cryptocompare_crv_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
+        cryptocompare_crv_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        kraken_crv_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/CRV/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_crv_usd_parse    [type="jsonparse" path="price"]
+    
+        kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        kraken_crv_eth_divide    [type="divide" input="$(kraken_crv_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
+        kraken_crv_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        okx_crv_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/CRV/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_crv_usd_parse    [type="jsonparse" path="price"]
+    
+        okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        okx_eth_usd_parse    [type="jsonparse" path="price"]
+    
+        okx_crv_eth_divide    [type="divide" input="$(okx_crv_usd_parse)" divisor="$(okx_eth_usd_parse)"]
+        okx_crv_eth_divide_multiply [type="multiply" times=1000000000000000000]
+    
+        median [type=median];
+    
+    binance_crv_usdt -> binance_crv_usdt_parse -> binance_crv_eth_divide
+    binance_eth_usdt -> binance_eth_usdt_parse -> binance_crv_eth_divide
+    binance_crv_eth_divide -> binance_crv_eth_divide_multiply
+    coinbase_crv_usd -> coinbase_crv_usd_parse -> coinbase_crv_eth_divide
+    coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_crv_eth_divide
+    coinbase_crv_eth_divide -> coinbase_crv_eth_divide_multiply
+    cryptocompare_crv_usd -> cryptocompare_crv_usd_parse -> cryptocompare_crv_eth_divide
+    cryptocompare_eth_usd -> cryptocompare_eth_usd_parse -> cryptocompare_crv_eth_divide
+    cryptocompare_crv_eth_divide -> cryptocompare_crv_eth_divide_multiply
+    kraken_crv_usd -> kraken_crv_usd_parse -> kraken_crv_eth_divide
+    kraken_eth_usd -> kraken_eth_usd_parse -> kraken_crv_eth_divide
+    kraken_crv_eth_divide -> kraken_crv_eth_divide_multiply
+    okx_crv_usd -> okx_crv_usd_parse -> okx_crv_eth_divide
+    okx_eth_usd -> okx_eth_usd_parse -> okx_crv_eth_divide
+    okx_crv_eth_divide -> okx_crv_eth_divide_multiply
+    binance_crv_eth_divide_multiply -> median;
+    coinbase_crv_eth_divide_multiply -> median;
+    cryptocompare_crv_eth_divide_multiply -> median;
+    kraken_crv_eth_divide_multiply -> median;
+    okx_crv_eth_divide_multiply -> median;
+"""

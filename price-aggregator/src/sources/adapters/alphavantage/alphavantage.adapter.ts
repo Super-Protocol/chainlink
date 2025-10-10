@@ -81,6 +81,7 @@ export class AlphaVantageAdapter implements SourceAdapter {
     }
 
     const { base, quote } = splitPair(pair);
+
     const { data } = await this.httpClient.get<AlphaVantageResponse>(
       GET_QUOTE_ENDPOINT,
       {

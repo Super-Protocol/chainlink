@@ -7,7 +7,7 @@ import {
 
 import { PairService } from './pair.service';
 import { QuoteBatchProcessorService } from './quote-batch-processor.service';
-import { SingleFlight } from '../common';
+import { formatPairLabel, parsePairLabel, SingleFlight } from '../common';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import {
@@ -214,7 +214,7 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
   }
 
   private getPairKey(pair: Pair): string {
-    return pair.join('/');
+    return formatPairLabel(pair);
   }
 
   private async subscribePairs(
@@ -308,7 +308,9 @@ export class StreamingQuotesService implements OnModuleInit, OnModuleDestroy {
     if (!pending || pending.size === 0) return;
 
     const pairKeys = Array.from(pending);
-    const pairs: Pair[] = pairKeys.map((key) => key.split('/') as Pair);
+    const pairs: Pair[] = pairKeys.map((pairLabel) =>
+      parsePairLabel(pairLabel),
+    );
 
     pending.clear();
     this.subscriptionTimers.delete(source);

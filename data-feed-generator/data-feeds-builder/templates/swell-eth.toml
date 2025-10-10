@@ -1,0 +1,32 @@
+type = "offchainreporting"
+schemaVersion = 1
+name = "SWELL / ETH"
+externalJobID = "107b0713-5cd0-445d-8749-337d48dc7b6d"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+blockchainTimeout = "20s"
+contractAddress = "$JOB_CA"
+contractConfigConfirmations = 3
+contractConfigTrackerPollInterval = "1m0s"
+evmChainID = "$EVM_CHAIN_ID"
+isBootstrapPeer = $IS_BOOTSTRAP
+p2pPeerID = "$P2P_PEER_ID"
+p2pBootstrapPeers = $P2P_BOOTSTRAP_PEERS
+# p2pv2Bootstrappers = $P2P_BOOTSTRAP_PEERS
+keyBundleID = "$OCR_KEY_BUNDLE_ID"
+observationTimeout = "10s"
+transmitterAddress = "$TRANSMITTER_ADDRESS"
+observationSource = """
+    ds1 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/swell-network/eth"];
+    ds1_parse [type=jsonparse path="price"];
+    ds1_multiply [type=multiply times=1000000000000000000];
+    ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/SWELL/ETH"];
+    ds2_parse [type=jsonparse path="price"];
+    ds2_multiply [type=multiply times=1000000000000000000];
+    median [type=median];
+
+    ds1 -> ds1_parse -> ds1_multiply;
+    ds2 -> ds2_parse -> ds2_multiply;
+    ds1_multiply -> median;
+    ds2_multiply -> median;
+"""
