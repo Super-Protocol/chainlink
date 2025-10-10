@@ -169,11 +169,11 @@ bash -c '
     /scripts/bash/wait-node.sh
   else
     /scripts/bash/publish-jobs.sh
-  fi
 
-  if [ "'"${NODE_NUMBER}"'" = "'"${leader}"'" ]; then
-    node /scripts/secrets/register-admin.js
-    /scripts/bash/set-config-for-all-feeds.sh
+    if [ "'"${NODE_NUMBER}"'" = "'"${leader}"'" ]; then
+      node /scripts/secrets/register-admin.js
+      /scripts/bash/set-config-for-all-feeds.sh
+    fi
   fi
 ' 2>&1 &
 PUBLISH_JOBS_PID=$!
