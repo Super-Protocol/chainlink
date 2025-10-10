@@ -23,7 +23,7 @@ observationSource = """
         coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/renzo-restaked-eth/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_usd_parse    [type="jsonparse" path="price"]
 
-        coingecko_ezeth_eth_divide    [type="divide" input="$(coingecko_ezeth_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
+        coingecko_ezeth_eth_divide    [type="divide" input="$(coingecko_eth_usd_parse)" divisor="$(coingecko_ezeth_usd_parse)"]
         coingecko_ezeth_eth_divide_multiply [type="multiply" times=1000000000000000000]
 
         median [type=median];
