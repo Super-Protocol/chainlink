@@ -130,7 +130,6 @@ export class QuoteBatchProcessorService {
 
     const quotesToCache = batch.map((item) => item.cachedQuote);
     await this.cacheService.setMany(quotesToCache);
-    this.cacheService.deferredUpdateCacheSizeMetrics();
   }
 
   async flush(): Promise<void> {

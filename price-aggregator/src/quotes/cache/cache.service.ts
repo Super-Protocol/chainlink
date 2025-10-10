@@ -17,6 +17,7 @@ export class CacheService implements OnModuleDestroy {
   private cache: NodeCache;
   private pairTtlCache = new Map<string, number | null>();
   private metricsUpdateInterval: NodeJS.Timeout;
+  private metricsUpdateScheduled = false;
 
   constructor(
     private readonly sourcesManager: SourcesManagerService,
@@ -45,7 +46,7 @@ export class CacheService implements OnModuleDestroy {
     const handleCacheRemoval = (key: string, event: string) => {
       this.logger.debug(`Cache key ${event}: ${key}`);
       this.stalenessService.removeEntry(key);
-      this.updateCacheSizeMetrics();
+      this.scheduleMetricsUpdate();
     };
 
     this.cache.on('expired', (key: string) =>
@@ -95,6 +96,7 @@ export class CacheService implements OnModuleDestroy {
         cacheTtlMs,
         staleTriggerBeforeExpiry,
       );
+      this.scheduleMetricsUpdate();
       this.logger.verbose(`Cached quote for ${key} with TTL ${cacheTtlMs}ms`);
     } catch (error) {
       this.logger.error(`Error setting cache for ${key}:`, error);
@@ -142,6 +144,7 @@ export class CacheService implements OnModuleDestroy {
           entry.staleTriggerBeforeExpiry,
         );
       }
+      this.scheduleMetricsUpdate();
       this.logger.verbose(`Batch cached ${quotes.length} quotes`);
     } catch (error) {
       this.logger.error('Error batch setting cache:', error);
@@ -154,8 +157,6 @@ export class CacheService implements OnModuleDestroy {
     try {
       const affected = this.cache.del(key);
       if (affected > 0) {
-        this.stalenessService.removeEntry(key);
-        this.updateCacheSizeMetrics();
         this.logger.verbose(`Deleted cache for ${key}`);
       }
     } catch (error) {
@@ -235,6 +236,16 @@ export class CacheService implements OnModuleDestroy {
     return ttl;
   }
 
+  private scheduleMetricsUpdate(): void {
+    if (!this.metricsUpdateScheduled) {
+      this.metricsUpdateScheduled = true;
+      setTimeout(() => {
+        this.updateCacheSizeMetrics();
+        this.metricsUpdateScheduled = false;
+      }, 100);
+    }
+  }
+
   private updateCacheSizeMetrics(): void {
     const sourceCounts = Object.values(SourceName).reduce(
       (acc, source) => acc.set(source, 0),
@@ -249,9 +260,5 @@ export class CacheService implements OnModuleDestroy {
     sourceCounts.forEach((count, source) => {
       this.metricsService.cacheSize.set({ source }, count);
     });
-  }
-
-  deferredUpdateCacheSizeMetrics(): void {
-    this.updateCacheSizeMetrics();
   }
 }
