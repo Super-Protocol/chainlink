@@ -23,15 +23,10 @@ observationSource = """
     ds2 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ftx-token/USD"];
     ds2_parse [type=jsonparse path="price"];
     ds2_multiply [type=multiply times=100000000];
-    ds3 [type=http method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/FTT/USD"];
-    ds3_parse [type=jsonparse path="price"];
-    ds3_multiply [type=multiply times=100000000];
     median [type=median];
-    
+
     ds1 -> ds1_parse -> ds1_multiply;
     ds2 -> ds2_parse -> ds2_multiply;
-    ds3 -> ds3_parse -> ds3_multiply;
     ds1_multiply -> median;
     ds2_multiply -> median;
-    ds3_multiply -> median;
 """
