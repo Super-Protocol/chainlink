@@ -3,7 +3,6 @@ import { URLSearchParams } from 'url';
 import { Injectable } from '@nestjs/common';
 import { isAxiosError } from 'axios';
 
-import { getCoinIdMap } from './coingecko.utils';
 import { HttpClient, HttpClientBuilder } from '../../../common';
 import { AppConfigService } from '../../../config';
 import { HandleSourceError } from '../../decorators';
@@ -32,7 +31,6 @@ export class CoinGeckoAdapter implements SourceAdapter {
   readonly name = SourceName.COINGECKO;
   private readonly sourceConfig: SourceAdapterConfig;
   private readonly httpClient: HttpClient;
-  private readonly coinIdMap: Promise<Map<string, string>>;
 
   constructor(
     httpClientBuilder: HttpClientBuilder,
@@ -45,8 +43,6 @@ export class CoinGeckoAdapter implements SourceAdapter {
       ...this.sourceConfig,
       baseUrl: this.sourceConfig.apiKey ? PRO_BASE_URL : FREE_BASE_URL,
     });
-
-    this.coinIdMap = getCoinIdMap(this.httpClient);
   }
 
   getConfig(): SourceAdapterConfig {
@@ -56,10 +52,8 @@ export class CoinGeckoAdapter implements SourceAdapter {
   @HandleSourceError()
   async fetchQuote(pair: Pair): Promise<Quote> {
     const [base, quote] = pair;
-    const coinIdMap = await this.coinIdMap;
-    const coinId = coinIdMap.get(base.toLowerCase()) || base;
 
-    const coinIdLc = coinId.toLowerCase();
+    const coinIdLc = base.toLowerCase();
     const quoteLc = quote.toLowerCase();
     const params = new URLSearchParams({
       ids: coinIdLc,
@@ -101,12 +95,7 @@ export class CoinGeckoAdapter implements SourceAdapter {
       );
     }
 
-    const coinIdMap = await this.coinIdMap;
-    const coinIds = [
-      ...new Set(
-        pairs.map(([base]) => coinIdMap.get(base.toLowerCase()) || base),
-      ),
-    ];
+    const coinIds = [...new Set(pairs.map(([base]) => base))];
     const currencies = [...new Set(pairs.map((pair) => pair[1]))];
 
     const params = new URLSearchParams({
@@ -128,8 +117,7 @@ export class CoinGeckoAdapter implements SourceAdapter {
 
       for (const pair of pairs) {
         const [base, quote] = pair;
-        const coinId = coinIdMap.get(base.toLowerCase()) || base;
-        const price = data?.[coinId]?.[quote.toLowerCase()];
+        const price = data?.[base]?.[quote.toLowerCase()];
 
         if (price !== undefined && price !== null) {
           quotes.push({
