@@ -10555,10 +10555,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-matic-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/polygon-ecosystem-token/USD",
         "path": "price",
         "value": 0.231252,
-        "pair": "bifrost-bridged-matic-bifrost/USD"
+        "pair": "polygon-ecosystem-token/USD"
       },
       {
         "provider": "coinbase",
@@ -11049,10 +11049,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-matic-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/polygon-ecosystem-token/USD",
         "path": "price",
         "value": 0.231252,
-        "pair": "bifrost-bridged-matic-bifrost/USD"
+        "pair": "polygon-ecosystem-token/USD"
       }
     ],
     "type": "cross-course"
@@ -12057,10 +12057,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-matic-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/polygon-ecosystem-token/USD",
         "path": "price",
         "value": 0.231252,
-        "pair": "bifrost-bridged-matic-bifrost/USD"
+        "pair": "polygon-ecosystem-token/USD"
       },
       {
         "provider": "coinbase",
