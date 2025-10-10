@@ -17,17 +17,17 @@ keyBundleID = "$OCR_KEY_BUNDLE_ID"
 observationTimeout = "10s"
 transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
-        coingecko_steth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_steth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_steth_usd_parse    [type="jsonparse" path="price"]
-    
+
         coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/staked-ether/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         coingecko_steth_eth_divide    [type="divide" input="$(coingecko_steth_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
         coingecko_steth_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         median [type=median];
-    
+
     coingecko_steth_usd -> coingecko_steth_usd_parse -> coingecko_steth_eth_divide
     coingecko_eth_usd -> coingecko_eth_usd_parse -> coingecko_steth_eth_divide
     coingecko_steth_eth_divide -> coingecko_steth_eth_divide_multiply

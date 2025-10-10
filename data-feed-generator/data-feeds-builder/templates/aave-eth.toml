@@ -19,69 +19,69 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         alphavantage_aave_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/alphavantage/AAVE/USD" allowUnrestrictedNetworkAccess=true retries=3]
         alphavantage_aave_usd_parse    [type="jsonparse" path="price"]
-    
+
         alphavantage_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/alphavantage/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         alphavantage_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         alphavantage_aave_eth_divide    [type="divide" input="$(alphavantage_aave_usd_parse)" divisor="$(alphavantage_eth_usd_parse)"]
         alphavantage_aave_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         binance_aave_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/AAVE/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_aave_usdt_parse    [type="jsonparse" path="price"]
-    
+
         binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_eth_usdt_parse    [type="jsonparse" path="price"]
-    
+
         binance_aave_eth_divide    [type="divide" input="$(binance_aave_usdt_parse)" divisor="$(binance_eth_usdt_parse)"]
         binance_aave_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         coinbase_aave_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/AAVE/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_aave_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_aave_eth_divide    [type="divide" input="$(coinbase_aave_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
         coinbase_aave_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         coingecko_aave_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/aave/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_aave_usd_parse    [type="jsonparse" path="price"]
-    
-        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         coingecko_aave_eth_divide    [type="divide" input="$(coingecko_aave_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
         coingecko_aave_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         cryptocompare_aave_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/AAVE/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_aave_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_aave_eth_divide    [type="divide" input="$(cryptocompare_aave_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
         cryptocompare_aave_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         kraken_aave_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/AAVE/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_aave_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_aave_eth_divide    [type="divide" input="$(kraken_aave_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
         kraken_aave_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         okx_aave_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/AAVE/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_aave_usd_parse    [type="jsonparse" path="price"]
-    
+
         okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         okx_aave_eth_divide    [type="divide" input="$(okx_aave_usd_parse)" divisor="$(okx_eth_usd_parse)"]
         okx_aave_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         median [type=median];
-    
+
     alphavantage_aave_usd -> alphavantage_aave_usd_parse -> alphavantage_aave_eth_divide
     alphavantage_eth_usd -> alphavantage_eth_usd_parse -> alphavantage_aave_eth_divide
     alphavantage_aave_eth_divide -> alphavantage_aave_eth_divide_multiply

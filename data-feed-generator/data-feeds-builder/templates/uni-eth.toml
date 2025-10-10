@@ -19,60 +19,60 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         binance_uni_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/UNI/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_uni_usdt_parse    [type="jsonparse" path="price"]
-    
+
         binance_eth_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/ETH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_eth_usdt_parse    [type="jsonparse" path="price"]
-    
+
         binance_uni_eth_divide    [type="divide" input="$(binance_uni_usdt_parse)" divisor="$(binance_eth_usdt_parse)"]
         binance_uni_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         coinbase_uni_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/UNI/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_uni_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_uni_eth_divide    [type="divide" input="$(coinbase_uni_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
         coinbase_uni_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         coingecko_uni_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/linea-bridged-uni-linea/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_uni_usd_parse    [type="jsonparse" path="price"]
-    
-        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         coingecko_uni_eth_divide    [type="divide" input="$(coingecko_uni_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
         coingecko_uni_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         cryptocompare_uni_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/UNI/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_uni_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_uni_eth_divide    [type="divide" input="$(cryptocompare_uni_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
         cryptocompare_uni_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         kraken_uni_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/UNI/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_uni_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_uni_eth_divide    [type="divide" input="$(kraken_uni_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
         kraken_uni_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         okx_uni_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/UNI/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_uni_usd_parse    [type="jsonparse" path="price"]
-    
+
         okx_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         okx_uni_eth_divide    [type="divide" input="$(okx_uni_usd_parse)" divisor="$(okx_eth_usd_parse)"]
         okx_uni_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         median [type=median];
-    
+
     binance_uni_usdt -> binance_uni_usdt_parse -> binance_uni_eth_divide
     binance_eth_usdt -> binance_eth_usdt_parse -> binance_uni_eth_divide
     binance_uni_eth_divide -> binance_uni_eth_divide_multiply

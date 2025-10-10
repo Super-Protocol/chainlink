@@ -20,7 +20,7 @@ observationSource = """
         coingecko_frax_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/frax/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_frax_usd_parse    [type="jsonparse" path="price"]
 
-        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_usd_parse    [type="jsonparse" path="price"]
 
         coingecko_frax_eth_divide    [type="divide" input="$(coingecko_frax_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]

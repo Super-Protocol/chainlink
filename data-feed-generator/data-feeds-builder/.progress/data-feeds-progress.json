@@ -175,10 +175,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -248,10 +248,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -568,10 +568,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -720,10 +720,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -851,10 +851,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -1013,10 +1013,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -1107,10 +1107,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -1303,10 +1303,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -1674,10 +1674,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -1900,10 +1900,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -2038,17 +2038,17 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -2756,10 +2756,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -2924,10 +2924,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -4002,10 +4002,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -4184,10 +4184,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -4331,10 +4331,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -4739,10 +4739,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -4884,10 +4884,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -5015,10 +5015,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       }
     ],
     "type": "cross-course"
@@ -5090,10 +5090,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -5283,10 +5283,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       }
     ],
     "type": "cross-course"
@@ -5375,10 +5375,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -5483,10 +5483,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -5614,10 +5614,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -5819,10 +5819,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -5913,10 +5913,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -6058,10 +6058,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -6222,10 +6222,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -6413,10 +6413,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -6523,10 +6523,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -6589,10 +6589,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -6706,10 +6706,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -7040,10 +7040,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -7120,10 +7120,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       }
     ],
     "type": "cross-course"
@@ -7158,10 +7158,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -7247,10 +7247,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -7459,10 +7459,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -7599,10 +7599,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -7734,10 +7734,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -7851,10 +7851,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -8265,10 +8265,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -8418,10 +8418,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -8549,10 +8549,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "okx",
@@ -8906,10 +8906,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "kraken",
@@ -8980,10 +8980,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -9106,10 +9106,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -9248,10 +9248,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -9477,10 +9477,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -9571,10 +9571,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -10304,10 +10304,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -10555,10 +10555,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-matic-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/polygon-ecosystem-token/USD",
         "path": "price",
         "value": 0.231252,
-        "pair": "bifrost-bridged-matic-bifrost/USD"
+        "pair": "polygon-ecosystem-token/USD"
       },
       {
         "provider": "coinbase",
@@ -11049,10 +11049,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-matic-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/polygon-ecosystem-token/USD",
         "path": "price",
         "value": 0.231252,
-        "pair": "bifrost-bridged-matic-bifrost/USD"
+        "pair": "polygon-ecosystem-token/USD"
       }
     ],
     "type": "cross-course"
@@ -11131,10 +11131,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -11220,10 +11220,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       },
       {
         "provider": "coinbase",
@@ -11348,10 +11348,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD",
         "path": "price",
         "value": 4136,
-        "pair": "bifrost-bridged-eth-bifrost/USD"
+        "pair": "ethereum/USD"
       }
     ],
     "type": "cross-course"
@@ -12057,10 +12057,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-matic-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/polygon-ecosystem-token/USD",
         "path": "price",
         "value": 0.231252,
-        "pair": "bifrost-bridged-matic-bifrost/USD"
+        "pair": "polygon-ecosystem-token/USD"
       },
       {
         "provider": "coinbase",

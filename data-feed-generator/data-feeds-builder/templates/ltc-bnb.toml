@@ -19,60 +19,60 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         binance_ltc_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/LTC/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_ltc_usdt_parse    [type="jsonparse" path="price"]
-    
+
         binance_bnb_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/BNB/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_bnb_usdt_parse    [type="jsonparse" path="price"]
-    
+
         binance_ltc_bnb_divide    [type="divide" input="$(binance_ltc_usdt_parse)" divisor="$(binance_bnb_usdt_parse)"]
         binance_ltc_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         coinbase_ltc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/LTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_ltc_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_ltc_bnb_divide    [type="divide" input="$(coinbase_ltc_usd_parse)" divisor="$(coinbase_bnb_usd_parse)"]
         coinbase_ltc_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         coingecko_ltc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-litecoin/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_ltc_usd_parse    [type="jsonparse" path="price"]
-    
-        coingecko_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+
+        coingecko_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         coingecko_ltc_bnb_divide    [type="divide" input="$(coingecko_ltc_usd_parse)" divisor="$(coingecko_bnb_usd_parse)"]
         coingecko_ltc_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         cryptocompare_ltc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/LTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_ltc_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_ltc_bnb_divide    [type="divide" input="$(cryptocompare_ltc_usd_parse)" divisor="$(cryptocompare_bnb_usd_parse)"]
         cryptocompare_ltc_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         kraken_ltc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/LTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_ltc_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_ltc_bnb_divide    [type="divide" input="$(kraken_ltc_usd_parse)" divisor="$(kraken_bnb_usd_parse)"]
         kraken_ltc_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         okx_ltc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/LTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_ltc_usd_parse    [type="jsonparse" path="price"]
-    
+
         okx_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         okx_ltc_bnb_divide    [type="divide" input="$(okx_ltc_usd_parse)" divisor="$(okx_bnb_usd_parse)"]
         okx_ltc_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         median [type=median];
-    
+
     binance_ltc_usdt -> binance_ltc_usdt_parse -> binance_ltc_bnb_divide
     binance_bnb_usdt -> binance_bnb_usdt_parse -> binance_ltc_bnb_divide
     binance_ltc_bnb_divide -> binance_ltc_bnb_divide_multiply
