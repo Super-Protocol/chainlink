@@ -175,10 +175,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -568,10 +568,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -720,10 +720,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -851,10 +851,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -1013,10 +1013,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -1303,10 +1303,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -1674,10 +1674,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -1900,10 +1900,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -2045,10 +2045,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -2756,10 +2756,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -2924,10 +2924,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -4002,10 +4002,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -4184,10 +4184,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -4331,10 +4331,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -4739,10 +4739,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -4884,10 +4884,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",
@@ -5015,10 +5015,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       }
     ],
     "type": "cross-course"
@@ -5090,10 +5090,10 @@
       },
       {
         "provider": "coingecko",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD",
         "path": "price",
         "value": 999.12,
-        "pair": "bifrost-bridged-bnb-bifrost/USD"
+        "pair": "binancecoin/USD"
       },
       {
         "provider": "coinbase",

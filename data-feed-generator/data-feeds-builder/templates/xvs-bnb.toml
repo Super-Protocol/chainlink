@@ -19,24 +19,24 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         coingecko_xvs_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/venus/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_xvs_usd_parse    [type="jsonparse" path="price"]
-    
-        coingecko_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+
+        coingecko_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         coingecko_xvs_bnb_divide    [type="divide" input="$(coingecko_xvs_usd_parse)" divisor="$(coingecko_bnb_usd_parse)"]
         coingecko_xvs_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         cryptocompare_xvs_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/XVS/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_xvs_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_xvs_bnb_divide    [type="divide" input="$(cryptocompare_xvs_usd_parse)" divisor="$(cryptocompare_bnb_usd_parse)"]
         cryptocompare_xvs_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         median [type=median];
-    
+
     coingecko_xvs_usd -> coingecko_xvs_usd_parse -> coingecko_xvs_bnb_divide
     coingecko_bnb_usd -> coingecko_bnb_usd_parse -> coingecko_xvs_bnb_divide
     coingecko_xvs_bnb_divide -> coingecko_xvs_bnb_divide_multiply

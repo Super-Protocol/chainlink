@@ -19,60 +19,60 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         binance_bch_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/BCH/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_bch_usdt_parse    [type="jsonparse" path="price"]
-    
+
         binance_bnb_usdt          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/binance/BNB/USDT" allowUnrestrictedNetworkAccess=true retries=3]
         binance_bnb_usdt_parse    [type="jsonparse" path="price"]
-    
+
         binance_bch_bnb_divide    [type="divide" input="$(binance_bch_usdt_parse)" divisor="$(binance_bnb_usdt_parse)"]
         binance_bch_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         coinbase_bch_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/BCH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_bch_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_bch_bnb_divide    [type="divide" input="$(coinbase_bch_usd_parse)" divisor="$(coinbase_bnb_usd_parse)"]
         coinbase_bch_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         coingecko_bch_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binance-peg-bitcoin-cash/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_bch_usd_parse    [type="jsonparse" path="price"]
-    
-        coingecko_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+
+        coingecko_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         coingecko_bch_bnb_divide    [type="divide" input="$(coingecko_bch_usd_parse)" divisor="$(coingecko_bnb_usd_parse)"]
         coingecko_bch_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         cryptocompare_bch_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/BCH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_bch_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_bch_bnb_divide    [type="divide" input="$(cryptocompare_bch_usd_parse)" divisor="$(cryptocompare_bnb_usd_parse)"]
         cryptocompare_bch_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         kraken_bch_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/BCH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_bch_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_bch_bnb_divide    [type="divide" input="$(kraken_bch_usd_parse)" divisor="$(kraken_bnb_usd_parse)"]
         kraken_bch_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         okx_bch_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/BCH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_bch_usd_parse    [type="jsonparse" path="price"]
-    
+
         okx_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/okx/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         okx_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         okx_bch_bnb_divide    [type="divide" input="$(okx_bch_usd_parse)" divisor="$(okx_bnb_usd_parse)"]
         okx_bch_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         median [type=median];
-    
+
     binance_bch_usdt -> binance_bch_usdt_parse -> binance_bch_bnb_divide
     binance_bnb_usdt -> binance_bnb_usdt_parse -> binance_bch_bnb_divide
     binance_bch_bnb_divide -> binance_bch_bnb_divide_multiply

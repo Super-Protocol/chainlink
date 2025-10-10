@@ -19,42 +19,42 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         coinbase_cake_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/CAKE/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_cake_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_cake_bnb_divide    [type="divide" input="$(coinbase_cake_usd_parse)" divisor="$(coinbase_bnb_usd_parse)"]
         coinbase_cake_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         coingecko_cake_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/pancakeswap-token/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_cake_usd_parse    [type="jsonparse" path="price"]
-    
-        coingecko_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-bnb-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+
+        coingecko_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/binancecoin/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         coingecko_cake_bnb_divide    [type="divide" input="$(coingecko_cake_usd_parse)" divisor="$(coingecko_bnb_usd_parse)"]
         coingecko_cake_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         cryptocompare_cake_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/CAKE/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_cake_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_cake_bnb_divide    [type="divide" input="$(cryptocompare_cake_usd_parse)" divisor="$(cryptocompare_bnb_usd_parse)"]
         cryptocompare_cake_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         kraken_cake_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/CAKE/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_cake_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_bnb_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/BNB/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_bnb_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_cake_bnb_divide    [type="divide" input="$(kraken_cake_usd_parse)" divisor="$(kraken_bnb_usd_parse)"]
         kraken_cake_bnb_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         median [type=median];
-    
+
     coinbase_cake_usd -> coinbase_cake_usd_parse -> coinbase_cake_bnb_divide
     coinbase_bnb_usd -> coinbase_bnb_usd_parse -> coinbase_cake_bnb_divide
     coinbase_cake_bnb_divide -> coinbase_cake_bnb_divide_multiply
