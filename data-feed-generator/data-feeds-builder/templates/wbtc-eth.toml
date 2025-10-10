@@ -19,42 +19,42 @@ transmitterAddress = "$TRANSMITTER_ADDRESS"
 observationSource = """
         coinbase_wbtc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/WBTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_wbtc_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coinbase/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coinbase_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         coinbase_wbtc_eth_divide    [type="divide" input="$(coinbase_wbtc_usd_parse)" divisor="$(coinbase_eth_usd_parse)"]
         coinbase_wbtc_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         coingecko_wbtc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/arbitrum-bridged-wbtc-arbitrum-one/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_wbtc_usd_parse    [type="jsonparse" path="price"]
-    
-        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         coingecko_wbtc_eth_divide    [type="divide" input="$(coingecko_wbtc_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
         coingecko_wbtc_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         cryptocompare_wbtc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/WBTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_wbtc_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/cryptocompare/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         cryptocompare_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         cryptocompare_wbtc_eth_divide    [type="divide" input="$(cryptocompare_wbtc_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
         cryptocompare_wbtc_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         kraken_wbtc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/WBTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_wbtc_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_eth_usd_parse    [type="jsonparse" path="price"]
-    
+
         kraken_wbtc_eth_divide    [type="divide" input="$(kraken_wbtc_usd_parse)" divisor="$(kraken_eth_usd_parse)"]
         kraken_wbtc_eth_divide_multiply [type="multiply" times=1000000000000000000]
-    
+
         median [type=median];
-    
+
     coinbase_wbtc_usd -> coinbase_wbtc_usd_parse -> coinbase_wbtc_eth_divide
     coinbase_eth_usd -> coinbase_eth_usd_parse -> coinbase_wbtc_eth_divide
     coinbase_wbtc_eth_divide -> coinbase_wbtc_eth_divide_multiply

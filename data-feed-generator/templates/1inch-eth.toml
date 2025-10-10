@@ -51,7 +51,7 @@ observationSource = """
         coingecko_1inch_usd_parse    [type="jsonparse" path="price"]
         coingecko_1inch_usd_multiply [type="multiply" times=1000000000000000000]
 
-        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
         coingecko_eth_usd_parse    [type="jsonparse" path="price"]
         coingecko_eth_usd_multiply [type="multiply" times=1000000000000000000]
 

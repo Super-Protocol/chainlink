@@ -20,7 +20,7 @@ observationSource = """
     coingecko_wsteth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/arbitrum-bridged-wsteth-arbitrum/USD" allowUnrestrictedNetworkAccess=true retries=3]
     coingecko_wsteth_usd_parse    [type="jsonparse" path="price"]
 
-    coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/bifrost-bridged-eth-bifrost/USD" allowUnrestrictedNetworkAccess=true retries=3]
+    coingecko_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/coingecko/ethereum/USD" allowUnrestrictedNetworkAccess=true retries=3]
     coingecko_eth_usd_parse    [type="jsonparse" path="price"]
 
     coingecko_wsteth_eth_divide    [type="divide" input="$(coingecko_wsteth_usd_parse)" divisor="$(coingecko_eth_usd_parse)"]
