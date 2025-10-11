@@ -39,6 +39,11 @@ refetch:
   batchInterval: 1000 # Batches multiple stale items to reduce API calls
   minTimeBetweenRefreshes: 2000 # Prevents excessive API calls for same item
 
+# Quote request configuration
+quotes:
+  requestTimeoutMs: 10000 # Maximum time to wait for quote response (default: 10 seconds)
+  # After this timeout, user receives error but request continues in background for caching
+
 # Pair tracking and cleanup configuration
 pairCleanup:
   enabled: true # Enable automatic cleanup of inactive pairs

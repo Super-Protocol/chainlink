@@ -9,6 +9,7 @@ import {
 } from './dto';
 import { PairService } from './pair.service';
 import { formatPairLabel, formatPairKey, SingleFlight } from '../common';
+import { AppConfigService } from '../config/config.service';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import {
@@ -29,6 +30,7 @@ export class QuotesService {
     private readonly cacheService: CacheService,
     private readonly batchQuotesService: BatchQuotesService,
     private readonly metricsService: MetricsService,
+    private readonly configService: AppConfigService,
   ) {}
 
   private createCachedQuote(source: SourceName, quote: Quote): CachedQuote {
@@ -109,7 +111,7 @@ export class QuotesService {
       pair: formatPairLabel(pair),
     });
 
-    const ttl = this.cacheService.resolveTtl(source, pair);
+    const requestTimeout = this.configService.get('quotes.requestTimeoutMs');
 
     const fetchPromise = this.sourcesManager.isFetchQuotesSupported(source)
       ? this.fetchWithBatch(source, pair)
@@ -118,13 +120,18 @@ export class QuotesService {
     this.runBackgroundFetch(fetchPromise, source, pair);
 
     try {
-      const quote = await this.withTimeout(fetchPromise, ttl, source, pair);
+      const quote = await this.withTimeout(
+        fetchPromise,
+        requestTimeout,
+        source,
+        pair,
+      );
       this.metricsService.updateQuoteDataAge(source, pair, quote.receivedAt);
       return quote;
     } catch (error) {
       if (error instanceof QuoteTimeoutException) {
         this.logger.warn(
-          `Quote request timeout for ${source}:${formatPairLabel(pair)} after ${ttl}ms`,
+          `Quote request timeout for ${source}:${formatPairLabel(pair)} after ${requestTimeout}ms`,
         );
         this.metricsService.errorCount.inc({ type: 'quote_timeout', source });
       }
