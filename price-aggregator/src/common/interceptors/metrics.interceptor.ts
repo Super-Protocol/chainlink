@@ -10,6 +10,7 @@ import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 
 import { MetricsService } from '../../metrics/metrics.service';
+import { SourceName } from '../../sources';
 
 @Injectable()
 export class MetricsInterceptor implements NestInterceptor {
@@ -53,6 +54,13 @@ export class MetricsInterceptor implements NestInterceptor {
         .observe(duration);
 
       this.metricsService.requestCount.labels({ route, method, status }).inc();
+
+      const source = request.params?.source;
+      if (source && Object.values(SourceName).includes(source as SourceName)) {
+        this.metricsService.sourceApiLatency
+          .labels({ source, method, status })
+          .observe(duration);
+      }
     }
   }
 

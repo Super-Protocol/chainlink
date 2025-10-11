@@ -61,6 +61,16 @@ export class MetricsService {
     buckets: [0.1, 0.5, 1, 2, 5, 10, 15, 20, 30, 45, 60],
   });
 
+  public readonly sourceApiLatency = new Histogram({
+    name: 'source_api_duration_seconds',
+    help: 'Duration of API requests by source',
+    labelNames: ['source', 'method', 'status'],
+    buckets: [
+      0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5,
+      6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 15, 20, 30, 45, 60,
+    ],
+  });
+
   public readonly cacheSize = new Gauge({
     name: 'cache_size',
     help: 'Current number of items in cache',
