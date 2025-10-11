@@ -9,3 +9,4 @@ export { PriceNotFoundException } from './price-not-found.exception';
 export { FeatureNotImplementedException } from './feature-not-implemented.exception';
 export { SourceApiException } from './source-api.exception';
 export { SourceUnauthorizedException } from './source-unauthorized.exception';
+export { QuoteTimeoutException } from './quote-timeout.exception';
