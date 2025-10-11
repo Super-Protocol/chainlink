@@ -27,7 +27,7 @@ export class CacheService implements OnModuleDestroy {
   ) {
     this.cache = new NodeCache({
       stdTTL: 60,
-      checkperiod: 10,
+      checkperiod: 2,
       useClones: false,
     });
 
@@ -62,6 +62,17 @@ export class CacheService implements OnModuleDestroy {
       const cached = this.cache.get<SerializedCachedQuote>(key);
 
       if (cached) {
+        const maxAgeSeconds = this.resolveTtl(source, pair) / 1000;
+        const ageSeconds = (Date.now() - cached.receivedAt) / 1000;
+
+        if (ageSeconds > maxAgeSeconds) {
+          this.logger.warn(
+            `Dropping stale cached quote for ${key}. Age: ${ageSeconds.toFixed(2)}s, TTL: ${maxAgeSeconds}s`,
+          );
+          await this.del(source, pair);
+          return null;
+        }
+
         this.logger.debug(`Cache hit for ${key}`);
         return {
           ...cached,
@@ -178,7 +189,7 @@ export class CacheService implements OnModuleDestroy {
     return `quote:${source}:${formatPairLabel(pair)}`;
   }
 
-  private resolveTtl(source: SourceName, pair: Pair, ttl?: number): number {
+  resolveTtl(source: SourceName, pair: Pair, ttl?: number): number {
     return (
       ttl ??
       this.getPairSpecificTtl(source, pair) ??
