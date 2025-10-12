@@ -265,6 +265,23 @@ export class MetricsService {
     help: 'Total number of errors while refreshing global market data',
   });
 
+  public readonly failedPairsCount = new Gauge({
+    name: 'failed_pairs_retry_queue_size',
+    help: 'Number of pairs currently in retry queue',
+  });
+
+  public readonly failedPairsRetryAttempts = new Counter({
+    name: 'failed_pairs_retry_attempts_total',
+    help: 'Total number of retry attempts for failed pairs',
+    labelNames: ['source', 'pair'],
+  });
+
+  public readonly failedPairsMaxAttemptsReached = new Counter({
+    name: 'failed_pairs_max_attempts_reached_total',
+    help: 'Total number of pairs that reached maximum retry attempts',
+    labelNames: ['source', 'pair'],
+  });
+
   updateGlobalMarketDataMetrics(data: { updatedAt: Date }): void {
     const timestamp = data.updatedAt.getTime() / 1000;
     const ageSeconds = (Date.now() - data.updatedAt.getTime()) / 1000;

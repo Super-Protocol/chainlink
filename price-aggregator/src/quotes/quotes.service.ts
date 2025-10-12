@@ -7,6 +7,7 @@ import {
   PairsBySourceResponseDto,
   AllRegistrationsResponseDto,
 } from './dto';
+import { FailedPairsRetryService } from './failed-pairs-retry.service';
 import { PairService } from './pair.service';
 import { formatPairLabel, formatPairKey, SingleFlight } from '../common';
 import { AppConfigService } from '../config/config.service';
@@ -31,6 +32,7 @@ export class QuotesService {
     private readonly batchQuotesService: BatchQuotesService,
     private readonly metricsService: MetricsService,
     private readonly configService: AppConfigService,
+    private readonly failedPairsRetryService: FailedPairsRetryService,
   ) {}
 
   private createCachedQuote(source: SourceName, quote: Quote): CachedQuote {
@@ -73,6 +75,7 @@ export class QuotesService {
     this.pairService.trackSuccessfulFetch(quote.pair, source);
     this.pairService.trackResponse(quote.pair, source);
     this.metricsService.updateSourceLastUpdate(source, quote.pair);
+    this.failedPairsRetryService.removeFromRetryQueue(source, quote.pair);
   }
 
   private handlePriceNotFound(pair: Pair, source: SourceName): void {

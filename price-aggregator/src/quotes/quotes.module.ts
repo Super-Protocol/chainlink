@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { BatchQuotesService } from './batch-quotes.service';
 import { CacheService, CacheStalenessService } from './cache';
+import { FailedPairsRetryService } from './failed-pairs-retry.service';
 import { PairCleanupService } from './pair-cleanup.service';
 import { PairService } from './pair.service';
 import { QuoteBatchProcessorService } from './quote-batch-processor.service';
@@ -23,6 +24,7 @@ import { SourcesModule } from '../sources/sources.module';
     CacheService,
     CacheStalenessService,
     RefetchService,
+    FailedPairsRetryService,
     StreamingQuotesService,
     QuoteBatchProcessorService,
   ],

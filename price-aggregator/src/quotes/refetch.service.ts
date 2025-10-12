@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 
 import { CacheService, StaleBatch } from './cache';
+import { FailedPairsRetryService } from './failed-pairs-retry.service';
 import { formatPairLabel } from '../common';
 import { SourceName } from '../sources';
 import { PairService } from './pair.service';
@@ -38,6 +39,7 @@ export class RefetchService
     private readonly sourcesManager: SourcesManagerService,
     private readonly pairService: PairService,
     private readonly metricsService: MetricsService,
+    private readonly failedPairsRetryService: FailedPairsRetryService,
   ) {
     this.config = this.configService.get('refetch');
   }
@@ -49,6 +51,9 @@ export class RefetchService
     }
 
     this.cacheService.onStaleBatch(this.staleBatchHandler);
+    this.failedPairsRetryService.registerRetryCallback(async (pairs) =>
+      this.handleRetryBatch(pairs),
+    );
 
     this.logger.log('Refetch service initialized with config:', this.config);
   }
@@ -169,6 +174,61 @@ export class RefetchService
     const duration = Date.now() - startTime;
     this.logger.debug(
       `Completed stale batch processing: ${validItems.length} items in ${duration}ms`,
+    );
+  }
+
+  private async handleRetryBatch(
+    pairs: Array<{ source: SourceName; pair: Pair }>,
+  ): Promise<void> {
+    const startTime = Date.now();
+
+    const validItems = pairs.filter(({ source, pair }) => {
+      const key = this.getRefreshKey(source, pair);
+
+      if (this.inProgressKeys.has(key)) {
+        this.logger.debug(`Skipping retry for ${key}, already in progress`);
+        return false;
+      }
+
+      if (!this.isRefreshable(source, pair)) {
+        this.logger.debug(`Skipping retry for ${key}, not refreshable`);
+        return false;
+      }
+
+      this.inProgressKeys.add(key);
+      return true;
+    });
+
+    if (validItems.length === 0) {
+      this.logger.debug('No valid items to retry');
+      return;
+    }
+
+    const grouped = this.groupBySource(validItems);
+
+    const sourceStats = Array.from(grouped.entries())
+      .map(([source, pairs]) => `${source}:${pairs.length}`)
+      .join(', ');
+
+    this.logger.debug(
+      { count: validItems.length, sources: grouped.size },
+      `Processing retry batch: ${validItems.length} items across ${grouped.size} sources [${sourceStats}]`,
+    );
+
+    await Promise.all(
+      Array.from(grouped.entries()).map(([source, pairs]) =>
+        this.refreshSourcePairs(source, pairs).finally(() => {
+          pairs.forEach((pair) => {
+            this.inProgressKeys.delete(this.getRefreshKey(source, pair));
+          });
+        }),
+      ),
+    );
+
+    const duration = Date.now() - startTime;
+    this.logger.debug(
+      { count: validItems.length, duration },
+      `Completed retry batch processing: ${validItems.length} items in ${duration}ms`,
     );
   }
 
@@ -293,6 +353,7 @@ export class RefetchService
           { error: String(error), pair: formatPairLabel(pair) },
           `Failed to fetch/cache quote for ${formatPairLabel(pair)} from ${source}`,
         );
+        this.failedPairsRetryService.trackFailedPair(source, pair);
         return false;
       }
     });
@@ -312,17 +373,20 @@ export class RefetchService
     this.pairService.trackSuccessfulFetch(quote.pair, source);
     this.pairService.trackResponse(quote.pair, source);
     this.metricsService.updateSourceLastUpdate(source, quote.pair);
+    this.failedPairsRetryService.removeFromRetryQueue(source, quote.pair);
   }
 
   getRefreshStatus(): {
     enabled: boolean;
     config: RefetchConfig;
     inProgress: string[];
+    retry: ReturnType<FailedPairsRetryService['getRetryStatus']>;
   } {
     return {
       enabled: this.config.enabled,
       config: this.config,
       inProgress: Array.from(this.inProgressKeys),
+      retry: this.failedPairsRetryService.getRetryStatus(),
     };
   }
 
