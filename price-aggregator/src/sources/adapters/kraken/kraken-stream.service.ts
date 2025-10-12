@@ -47,7 +47,7 @@ export class KrakenStreamService extends BaseStreamService {
   protected pairToIdentifier(pair: Pair): string {
     const [base, quote] = pair;
 
-    const wsBase = base === 'BTC' ? 'BTC' : base;
+    const wsBase = base === 'BTC' || base === 'XBT' ? 'BTC' : base;
     const wsQuote = quote === 'USDT' ? 'USDT' : quote;
 
     const symbol = `${wsBase}/${wsQuote}`;
@@ -146,28 +146,44 @@ export class KrakenStreamService extends BaseStreamService {
         );
       }
 
+      if (message.channel === 'ticker' && Array.isArray(message.data)) {
+        const tickerMessage = message as KrakenWebSocketMessage;
+        tickerMessage.data?.forEach((tickerData) => {
+          this.processTickerData(tickerData);
+        });
+        return;
+      }
+
       if (
         message.method &&
         message.req_id &&
         typeof message.req_id === 'number'
       ) {
         this.logger.verbose(
+          { reqId: message.req_id },
           `Processing response for req_id: ${message.req_id}`,
         );
         const pending = this.pendingRequests.get(message.req_id);
         if (pending) {
           const response = message as unknown as KrakenSubscribeResponse;
           this.logger.verbose(
-            `Response details: success=${response.success}, error=${response.error}`,
+            {
+              reqId: message.req_id,
+              success: response.success,
+              error: response.error,
+            },
+            `Response details for req_id: ${message.req_id}`,
           );
           if (response.success) {
             this.logger.verbose(
+              { reqId: message.req_id },
               `Subscription successful for req_id: ${message.req_id}`,
             );
             pending.resolve();
           } else {
             this.logger.error(
-              `Subscription failed for req_id: ${message.req_id}, error: ${response.error}`,
+              { reqId: message.req_id, error: response.error },
+              `Subscription failed for req_id: ${message.req_id}`,
             );
             if (response.error === 'Already subscribed') {
               this.logger.verbose('Treating "Already subscribed" as success');
@@ -176,33 +192,28 @@ export class KrakenStreamService extends BaseStreamService {
               pending.reject(new Error(response.error || 'Unknown error'));
             }
           }
-        } else {
-          this.logger.debug(
-            `No pending request found for req_id: ${message.req_id}`,
-          );
         }
         return;
       }
 
-      if (message.channel === 'ticker' && Array.isArray(message.data)) {
-        const tickerMessage = message as KrakenWebSocketMessage;
-        tickerMessage.data?.forEach((tickerData) => {
-          this.processTickerData(tickerData);
-        });
-      } else if (message.channel !== 'heartbeat') {
+      if (message.channel !== 'heartbeat') {
         this.logger.verbose(
-          `Unhandled message type: channel=${message.channel}, data type=${typeof message.data}`,
+          { channel: message.channel, dataType: typeof message.data },
+          `Unhandled message type: channel=${message.channel}`,
         );
       }
     } catch (error) {
-      this.logger.error('Error handling message', error);
-      this.logger.error(`Raw message data: ${JSON.stringify(data)}`);
+      this.logger.error({ error }, 'Error handling message');
+      this.logger.error({ data }, 'Raw message data');
     }
   }
 
   private processTickerData(tickerData: KrakenTickerData): void {
     const symbol = tickerData.symbol;
-    this.logger.verbose(`Processing ticker data for symbol: ${symbol}`);
+    this.logger.verbose(
+      { symbol },
+      `Processing ticker data for symbol: ${symbol}`,
+    );
 
     if (this.identifierToPairMap.has(symbol)) {
       this.emitQuote(symbol, {
@@ -210,7 +221,10 @@ export class KrakenStreamService extends BaseStreamService {
         receivedAt: new Date(),
       });
     } else {
-      this.logger.warn(`No pair mapping found for symbol: ${symbol}`);
+      this.logger.warn(
+        { symbol },
+        `No pair mapping found for symbol: ${symbol}`,
+      );
     }
   }
 

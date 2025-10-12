@@ -205,13 +205,27 @@ export class RefetchService
     );
 
     try {
-      const quotes = await this.fetchQuotes(source, pairs);
-      await Promise.all(quotes.map((quote) => this.cacheQuote(source, quote)));
+      const supportsBatch = this.sourcesManager.isFetchQuotesSupported(source);
 
-      const duration = Date.now() - startTime;
-      this.logger.debug(
-        `Successfully refreshed ${quotes.length}/${pairs.length} pairs for ${source} in ${duration}ms`,
-      );
+      if (supportsBatch && pairs.length > 1) {
+        const quotes = await this.fetchQuotesBatch(source, pairs);
+        await Promise.all(
+          quotes.map((quote) => this.cacheQuote(source, quote)),
+        );
+
+        const duration = Date.now() - startTime;
+        this.logger.debug(
+          `Successfully refreshed ${quotes.length}/${pairs.length} pairs for ${source} in ${duration}ms`,
+        );
+      } else {
+        const results = await this.fetchAndCacheIndividually(source, pairs);
+        const successCount = results.filter((r) => r).length;
+
+        const duration = Date.now() - startTime;
+        this.logger.debug(
+          `Successfully refreshed ${successCount}/${pairs.length} pairs for ${source} in ${duration}ms`,
+        );
+      }
     } catch (error) {
       const duration = Date.now() - startTime;
       this.logger.error(
@@ -228,56 +242,65 @@ export class RefetchService
     return batches;
   }
 
-  private async fetchQuotes(
+  private async fetchQuotesBatch(
     source: SourceName,
     pairs: Pair[],
   ): Promise<Quote[]> {
-    const supportsBatch = this.sourcesManager.isFetchQuotesSupported(source);
+    const maxBatchSize = this.sourcesManager.getMaxBatchSize(source);
 
-    if (supportsBatch && pairs.length > 1) {
-      const maxBatchSize = this.sourcesManager.getMaxBatchSize(source);
-
-      if (pairs.length <= maxBatchSize) {
-        return this.sourcesManager.fetchQuotes(source, pairs);
-      }
-
-      const batches = this.splitIntoBatches(pairs, maxBatchSize);
-      this.logger.debug(
-        `Splitting ${pairs.length} pairs into ${batches.length} batches for ${source} (max: ${maxBatchSize})`,
-      );
-
-      const batchPromises = batches.map(async (batch, index) => {
-        try {
-          return await this.sourcesManager.fetchQuotes(source, batch);
-        } catch (error) {
-          this.logger.error(
-            `Batch ${index + 1}/${batches.length} failed for ${source}: ${String(error)}`,
-          );
-          return [];
-        }
-      });
-
-      const results = await Promise.allSettled(batchPromises);
-      const allQuotes = results
-        .filter(
-          (result): result is PromiseFulfilledResult<Quote[]> =>
-            result.status === 'fulfilled',
-        )
-        .flatMap((result) => result.value);
-
-      return allQuotes;
+    if (pairs.length <= maxBatchSize) {
+      return this.sourcesManager.fetchQuotes(source, pairs);
     }
 
-    const quotes = await Promise.allSettled(
-      pairs.map((pair) => this.sourcesManager.fetchQuote(source, pair)),
+    const batches = this.splitIntoBatches(pairs, maxBatchSize);
+    this.logger.debug(
+      `Splitting ${pairs.length} pairs into ${batches.length} batches for ${source} (max: ${maxBatchSize})`,
     );
 
-    return quotes
+    const batchPromises = batches.map(async (batch, index) => {
+      try {
+        return await this.sourcesManager.fetchQuotes(source, batch);
+      } catch (error) {
+        this.logger.error(
+          `Batch ${index + 1}/${batches.length} failed for ${source}: ${String(error)}`,
+        );
+        return [];
+      }
+    });
+
+    const results = await Promise.allSettled(batchPromises);
+    const allQuotes = results
       .filter(
-        (result): result is PromiseFulfilledResult<Quote> =>
+        (result): result is PromiseFulfilledResult<Quote[]> =>
           result.status === 'fulfilled',
       )
-      .map((result) => result.value);
+      .flatMap((result) => result.value);
+
+    return allQuotes;
+  }
+
+  private async fetchAndCacheIndividually(
+    source: SourceName,
+    pairs: Pair[],
+  ): Promise<boolean[]> {
+    const promises = pairs.map(async (pair) => {
+      try {
+        const quote = await this.sourcesManager.fetchQuote(source, pair);
+        await this.cacheQuote(source, quote);
+        return true;
+      } catch (error) {
+        this.logger.debug(
+          { error: String(error), pair: formatPairLabel(pair) },
+          `Failed to fetch/cache quote for ${formatPairLabel(pair)} from ${source}`,
+        );
+        return false;
+      }
+    });
+
+    const results = await Promise.allSettled(promises);
+    return results.map((result) =>
+      result.status === 'fulfilled' ? result.value : false,
+    );
   }
 
   private async cacheQuote(source: SourceName, quote: Quote): Promise<void> {
