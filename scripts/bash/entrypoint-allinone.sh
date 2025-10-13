@@ -83,7 +83,7 @@ set -eu
 # Fixed service name using node index from generator time
 SERVICE_NAME="chainlink-node-${i}"
 
-STATE_DIR="/run/\${SERVICE_NAME}"
+STATE_DIR="/run/service/\${SERVICE_NAME}"
 COUNT_FILE="\${STATE_DIR}/restart-count"
 MAX_RESTARTS="\${MAX_RESTARTS:-3}"
 
@@ -91,6 +91,7 @@ mkdir -p "\$STATE_DIR"
 count=\$(cat "\$COUNT_FILE" 2>/dev/null || echo 0)
 count=\$((count+1))
 echo "\$count" > "\$COUNT_FILE"
+date +%s > "\$STATE_DIR/last-restart"
 
 echo "[\${SERVICE_NAME}] crash count: \$count/\${MAX_RESTARTS}"
 
