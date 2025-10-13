@@ -61,6 +61,16 @@ export class MetricsService {
     buckets: [0.1, 0.5, 1, 2, 5, 10, 15, 20, 30, 45, 60],
   });
 
+  public readonly sourceApiLatency = new Histogram({
+    name: 'source_api_duration_seconds',
+    help: 'Duration of API requests by source',
+    labelNames: ['source', 'method', 'status'],
+    buckets: [
+      0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5,
+      6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 15, 20, 30, 45, 60,
+    ],
+  });
+
   public readonly cacheSize = new Gauge({
     name: 'cache_size',
     help: 'Current number of items in cache',
@@ -253,6 +263,23 @@ export class MetricsService {
   public readonly globalMarketDataErrors = new Counter({
     name: 'global_market_data_refresh_errors_total',
     help: 'Total number of errors while refreshing global market data',
+  });
+
+  public readonly failedPairsCount = new Gauge({
+    name: 'failed_pairs_retry_queue_size',
+    help: 'Number of pairs currently in retry queue',
+  });
+
+  public readonly failedPairsRetryAttempts = new Counter({
+    name: 'failed_pairs_retry_attempts_total',
+    help: 'Total number of retry attempts for failed pairs',
+    labelNames: ['source', 'pair'],
+  });
+
+  public readonly failedPairsMaxAttemptsReached = new Counter({
+    name: 'failed_pairs_max_attempts_reached_total',
+    help: 'Total number of pairs that reached maximum retry attempts',
+    labelNames: ['source', 'pair'],
   });
 
   updateGlobalMarketDataMetrics(data: { updatedAt: Date }): void {

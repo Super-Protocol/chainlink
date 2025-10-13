@@ -58,6 +58,8 @@ export class WebSocketClient extends EventEmitter {
   }
 
   connect(): void {
+    this.isClosing = false;
+
     if (
       this.ws &&
       (this.ws.readyState === WebSocket.OPEN ||

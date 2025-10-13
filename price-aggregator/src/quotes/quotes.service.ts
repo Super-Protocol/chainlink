@@ -7,13 +7,16 @@ import {
   PairsBySourceResponseDto,
   AllRegistrationsResponseDto,
 } from './dto';
+import { FailedPairsRetryService } from './failed-pairs-retry.service';
 import { PairService } from './pair.service';
 import { formatPairLabel, formatPairKey, SingleFlight } from '../common';
+import { AppConfigService } from '../config/config.service';
 import { MetricsService } from '../metrics/metrics.service';
 import { SourceName } from '../sources';
 import {
   PriceNotFoundException,
   SourceUnauthorizedException,
+  QuoteTimeoutException,
 } from '../sources/exceptions';
 import { Pair, Quote } from '../sources/source-adapter.interface';
 import { SourcesManagerService } from '../sources/sources-manager.service';
@@ -28,6 +31,8 @@ export class QuotesService {
     private readonly cacheService: CacheService,
     private readonly batchQuotesService: BatchQuotesService,
     private readonly metricsService: MetricsService,
+    private readonly configService: AppConfigService,
+    private readonly failedPairsRetryService: FailedPairsRetryService,
   ) {}
 
   private createCachedQuote(source: SourceName, quote: Quote): CachedQuote {
@@ -70,6 +75,7 @@ export class QuotesService {
     this.pairService.trackSuccessfulFetch(quote.pair, source);
     this.pairService.trackResponse(quote.pair, source);
     this.metricsService.updateSourceLastUpdate(source, quote.pair);
+    this.failedPairsRetryService.removeFromRetryQueue(source, quote.pair);
   }
 
   private handlePriceNotFound(pair: Pair, source: SourceName): void {
@@ -108,15 +114,81 @@ export class QuotesService {
       pair: formatPairLabel(pair),
     });
 
-    if (this.sourcesManager.isFetchQuotesSupported(source)) {
-      const quote = await this.fetchWithBatch(source, pair);
+    const requestTimeout = this.configService.get('quotes.requestTimeoutMs');
+
+    const fetchPromise = this.sourcesManager.isFetchQuotesSupported(source)
+      ? this.fetchWithBatch(source, pair)
+      : this.fetchSingle(source, pair);
+
+    this.runBackgroundFetch(fetchPromise, source, pair);
+
+    try {
+      const quote = await this.withTimeout(
+        fetchPromise,
+        requestTimeout,
+        source,
+        pair,
+      );
       this.metricsService.updateQuoteDataAge(source, pair, quote.receivedAt);
       return quote;
-    } else {
-      const quote = await this.fetchSingle(source, pair);
-      this.metricsService.updateQuoteDataAge(source, pair, quote.receivedAt);
-      return quote;
+    } catch (error) {
+      if (error instanceof QuoteTimeoutException) {
+        this.logger.warn(
+          `Quote request timeout for ${source}:${formatPairLabel(pair)} after ${requestTimeout}ms`,
+        );
+        this.metricsService.errorCount.inc({ type: 'quote_timeout', source });
+      }
+      throw error;
     }
+  }
+
+  private withTimeout<T>(
+    promise: Promise<T>,
+    timeoutMs: number,
+    source: SourceName,
+    pair: Pair,
+  ): Promise<T> {
+    let timeoutId: NodeJS.Timeout;
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(new QuoteTimeoutException(source, pair, timeoutMs));
+      }, timeoutMs);
+    });
+
+    return Promise.race([promise, timeoutPromise]).finally(() => {
+      clearTimeout(timeoutId);
+    });
+  }
+
+  private runBackgroundFetch(
+    fetchPromise: Promise<QuoteResponseDto>,
+    source: SourceName,
+    pair: Pair,
+  ): void {
+    fetchPromise
+      .then((quote) => {
+        this.metricsService.updateQuoteDataAge(source, pair, quote.receivedAt);
+        this.logger.debug(
+          `Background fetch completed for ${source}:${formatPairLabel(pair)}`,
+        );
+      })
+      .catch((error) => {
+        if (error instanceof PriceNotFoundException) {
+          this.logger.debug(
+            `Background fetch: Price not found for ${source}:${formatPairLabel(pair)}`,
+          );
+        } else if (error instanceof SourceUnauthorizedException) {
+          this.logger.warn(
+            `Background fetch: Unauthorized for ${source}:${formatPairLabel(pair)}`,
+          );
+        } else {
+          this.logger.error(
+            `Background fetch failed for ${source}:${formatPairLabel(pair)}`,
+            error instanceof Error ? error.stack : String(error),
+          );
+        }
+      });
   }
 
   private async fetchWithBatch(
