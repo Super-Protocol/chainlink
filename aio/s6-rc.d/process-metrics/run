@@ -1,0 +1,33 @@
+#!/command/with-contenv bash
+set -euo pipefail
+
+echo "[process-metrics] Starting exporter..."
+
+GLOBAL_CONFIG_JSON_PATH="/sp/configurations/configuration.json"
+
+mkdir -p /etc/process-metrics
+CONFIG_FILE_PATH=/etc/process-metrics/config.json
+if [ -f "$GLOBAL_CONFIG_JSON_PATH" ]; then
+  if ! jq -r '.solution.priceAggregatorConfig.metricsPush' "$GLOBAL_CONFIG_JSON_PATH" > "$CONFIG_FILE_PATH" 2>/dev/null; then
+    echo "[process-metrics] WARN: failed to extract priceAggregatorConfig.metricsPush from $GLOBAL_CONFIG_JSON_PATH" >&2
+  fi
+else
+  echo "[process-metrics] WARN: global config not found at $GLOBAL_CONFIG_JSON_PATH; using existing $CONFIG_FILE_PATH if present" >&2
+fi
+
+# Force jobName and groupingLabels.service to "process-metrics"
+if [ -f "$CONFIG_FILE_PATH" ]; then
+  TMP_FILE="$(mktemp)"
+  if ! jq '.jobName = "process-metrics" | .groupingLabels.service = "process-metrics"' "$CONFIG_FILE_PATH" > "$TMP_FILE" 2>/dev/null; then
+    echo "[process-metrics] WARN: failed to rewrite jobName/groupingLabels.service in $CONFIG_FILE_PATH" >&2
+    rm -f "$TMP_FILE"
+  else
+    mv "$TMP_FILE" "$CONFIG_FILE_PATH"
+  fi
+fi
+
+# Route stdout/stderr through s6-log with rotation
+mkdir -p /var/log/process-metrics
+exec > >(s6-log n10 s10485760 /var/log/process-metrics) 2>&1
+
+exec node /scripts/process-metrics-exporter/index.js
