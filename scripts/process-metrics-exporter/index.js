@@ -412,13 +412,15 @@ function pushOnce() {
     headers,
     timeout: PUSH_TIMEOUT_MS,
   };
-  const req = agent.request(options, (res) => {
-    // Drain response silently
-    res.resume();
-  });
-  req.on('error', () => {});
-  req.write(body);
-  req.end();
+  try {
+    const req = agent.request(options, (res) => {
+      // Drain response silently
+      res.resume();
+    });
+    req.on('error', () => {});
+    req.write(body);
+    req.end();
+  } catch {}
 }
 
 let pushTimer;
