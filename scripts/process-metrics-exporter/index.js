@@ -22,7 +22,7 @@ let PUSH_TIMEOUT_MS = Math.max(100, parseInt(process.env.PROCESS_METRICS_PUSH_TI
 let PUSH_HEADERS = {};
 try {
   PUSH_HEADERS = process.env.PROCESS_METRICS_PUSH_HEADERS ? JSON.parse(process.env.PROCESS_METRICS_PUSH_HEADERS) : {};
-} catch (_e) {
+} catch {
   PUSH_HEADERS = {};
 }
 
@@ -32,7 +32,7 @@ let STATIC_LABELS = { exporter: 'chainlink-process-metrics' };
 try {
   const parsed = process.env.PROCESS_METRICS_STATIC_LABELS ? JSON.parse(process.env.PROCESS_METRICS_STATIC_LABELS) : {};
   if (parsed && typeof parsed === 'object') STATIC_LABELS = { ...STATIC_LABELS, ...parsed };
-} catch (_e) {}
+} catch {}
 if (process.env.PROCESS_METRICS_ENV) {
   STATIC_LABELS.env = process.env.PROCESS_METRICS_ENV;
 }
@@ -46,7 +46,7 @@ function sanitizeGroupingLabels(obj) {
     // Do not allow static 'service' in grouping to avoid overwriting dynamic label
     if ('service' in copy) delete copy.service;
     return copy;
-  } catch (_e) {
+  } catch {
     return {};
   }
 }
@@ -56,7 +56,7 @@ let TTL_SECONDS = Math.max(60, parseInt(process.env.PROCESS_METRICS_TTL_SECONDS 
 try {
   const parsed = process.env.PROCESS_METRICS_PUSH_GROUPING_LABELS ? JSON.parse(process.env.PROCESS_METRICS_PUSH_GROUPING_LABELS) : {};
   if (parsed && typeof parsed === 'object') PUSH_GROUPING_LABELS = sanitizeGroupingLabels(parsed);
-} catch (_e) {}
+} catch {}
 
 let latestSnapshot = {
   timestamp: Date.now(),
@@ -66,12 +66,18 @@ let latestSnapshot = {
 // Track spawned child processes to terminate them on shutdown
 const CHILD_PROCS = new Set();
 function execFileTracked(cmd, args, options, cb) {
-  const child = execFile(cmd, args, options, cb);
+  const opts = {
+    timeout: 5000,
+    killSignal: 'SIGKILL',
+    maxBuffer: 512 * 1024,
+    ...options,
+  };
+  const child = execFile(cmd, args, opts, cb);
   try {
     CHILD_PROCS.add(child);
     const cleanup = () => CHILD_PROCS.delete(child);
     child.on('exit', cleanup).on('error', cleanup).on('close', cleanup);
-  } catch (_e) {}
+  } catch {}
   return child;
 }
 
@@ -80,7 +86,7 @@ function readFileInt(p, defaultValue = 0) {
     const data = fs.readFileSync(p, 'utf8').trim();
     const num = parseInt(data, 10);
     return Number.isFinite(num) ? num : defaultValue;
-  } catch (_e) {
+  } catch {
     return defaultValue;
   }
 }
@@ -102,9 +108,9 @@ function refreshServicesNow() {
       try {
         const type = fs.readFileSync(typeFile, 'utf8').trim();
         if (type === 'longrun') discovered.add(service);
-      } catch (_e) {}
+      } catch {}
     }
-  } catch (_e) {}
+  } catch {}
 
   // Discover runtime services created dynamically under /etc/services.d (visible via /run/service)
   try {
@@ -114,7 +120,7 @@ function refreshServicesNow() {
       if (!name || name.startsWith('.')) continue;
       discovered.add(name);
     }
-  } catch (_e) {}
+  } catch {}
 
   const list = Array.from(discovered.values()).sort();
   if (list.length > 0) {
@@ -214,7 +220,7 @@ function buildMetrics() {
   lines.push('# HELP chainlink_s6_service_restart_count Number of restarts detected by s6 finish script');
   lines.push('# TYPE chainlink_s6_service_restart_count counter');
   for (const service of getCachedServices()) {
-    const dir = `/run/${service}`;
+    const dir = `/run/service/${service}`;
     const count = readFileInt(`${dir}/restart-count`, 0);
     const labels = formatLabels({ service: normalizeService(service) });
     lines.push(`chainlink_s6_service_restart_count${labels} ${count}`);
@@ -223,7 +229,7 @@ function buildMetrics() {
   lines.push('# HELP chainlink_s6_service_last_restart_ts Last restart unix timestamp (seconds)');
   lines.push('# TYPE chainlink_s6_service_last_restart_ts gauge');
   for (const service of getCachedServices()) {
-    const dir = `/run/${service}`;
+    const dir = `/run/service/${service}`;
     const ts = readFileInt(`${dir}/last-restart`, 0);
     const labels = formatLabels({ service: normalizeService(service) });
     lines.push(`chainlink_s6_service_last_restart_ts${labels} ${ts}`);
@@ -279,7 +285,7 @@ function sampleNow() {
     samplingInProgress = false;
 
     if (consecutiveSampleFailures >= MAX_SAMPLE_FAILURES) {
-      try { console.error(`[process-metrics] sampling failed ${consecutiveSampleFailures} times in a row; exiting`); } catch (_e) {}
+      try { console.error(`[process-metrics] sampling failed ${consecutiveSampleFailures} times in a row; exiting`); } catch {}
       // Let s6 restart the service; finish script will terminate the tree after repeated failures
       process.exit(1);
     }
@@ -342,7 +348,7 @@ function loadConfigFile() {
       }
       console.log('[process-metrics] loaded push config from file');
     }
-  } catch (_e) {
+  } catch {
     // no file or invalid — ignore
   }
 }
@@ -374,7 +380,7 @@ function resolvePushUrl() {
     const params = base.searchParams;
     if (!params.get('ttl')) params.set('ttl', String(TTL_SECONDS));
     return base;
-  } catch (_e) {
+  } catch {
     return null;
   }
 }
@@ -430,14 +436,14 @@ if (PUSH_ENABLED) {
 
 // Graceful shutdown: stop timers, close server, kill children, then exit
 function shutdown(code = 0) {
-  try { server.close(); } catch (_e) {}
-  try { clearInterval(pushTimer); } catch (_e) {}
-  try { /* sample interval */ } catch (_e) {}
+  try { server.close(); } catch {}
+  try { clearInterval(pushTimer); } catch {}
+  try { /* sample interval */ } catch {}
   try {
     for (const child of Array.from(CHILD_PROCS)) {
-      try { child.kill('SIGKILL'); } catch (_e) {}
+      try { child.kill('SIGKILL'); } catch {}
     }
-  } catch (_e) {}
+  } catch {}
   process.exit(code);
 }
 
@@ -446,10 +452,10 @@ process.on('SIGINT', () => shutdown(0));
 process.on('SIGQUIT', () => shutdown(0));
 process.on('SIGHUP', () => shutdown(0));
 process.on('uncaughtException', (err) => {
-  try { console.error('[process-metrics] uncaughtException', err && err.stack || String(err)); } catch (_e) {}
+  try { console.error('[process-metrics] uncaughtException', err && err.stack || String(err)); } catch {}
   shutdown(1);
 });
 process.on('unhandledRejection', (reason) => {
-  try { console.error('[process-metrics] unhandledRejection', reason); } catch (_e) {}
+  try { console.error('[process-metrics] unhandledRejection', reason); } catch {}
   shutdown(1);
 });

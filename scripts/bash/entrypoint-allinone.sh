@@ -83,7 +83,7 @@ set -eu
 # Fixed service name using node index from generator time
 SERVICE_NAME="chainlink-node-${i}"
 
-STATE_DIR="/run/\${SERVICE_NAME}"
+STATE_DIR="/run/service/\${SERVICE_NAME}"
 COUNT_FILE="\${STATE_DIR}/restart-count"
 MAX_RESTARTS="\${MAX_RESTARTS:-3}"
 

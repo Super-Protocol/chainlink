@@ -1,7 +1,7 @@
 #!/command/with-contenv bash
 set -eu
 
-STATE_DIR="/run/price-aggregator"
+STATE_DIR="/run/service/price-aggregator"
 COUNT_FILE="$STATE_DIR/restart-count"
 MAX_RESTARTS="${MAX_RESTARTS:-3}"
 
@@ -22,7 +22,7 @@ echo "[price-aggregator] crash count: $count/${MAX_RESTARTS}"
 if [ "$count" -ge "$MAX_RESTARTS" ]; then
   echo "[price-aggregator] too many failures, terminating supervision tree"
   # Ask s6-svscan to exit; this will stop the container
-  exec /command/s6-svscanctl -t /run/service
+exec /command/s6-svscanctl -t /run/service
 fi
 
 exit 0
