@@ -17,6 +17,7 @@ export class CacheService implements OnModuleDestroy {
   private cache: NodeCache;
   private pairTtlCache = new Map<string, number | null>();
   private metricsUpdateInterval: NodeJS.Timeout;
+  private metricsUpdateScheduled = false;
 
   constructor(
     private readonly sourcesManager: SourcesManagerService,
@@ -26,7 +27,7 @@ export class CacheService implements OnModuleDestroy {
   ) {
     this.cache = new NodeCache({
       stdTTL: 60,
-      checkperiod: 10,
+      checkperiod: 2,
       useClones: false,
     });
 
@@ -45,7 +46,7 @@ export class CacheService implements OnModuleDestroy {
     const handleCacheRemoval = (key: string, event: string) => {
       this.logger.debug(`Cache key ${event}: ${key}`);
       this.stalenessService.removeEntry(key);
-      this.updateCacheSizeMetrics();
+      this.scheduleMetricsUpdate();
     };
 
     this.cache.on('expired', (key: string) =>
@@ -61,6 +62,17 @@ export class CacheService implements OnModuleDestroy {
       const cached = this.cache.get<SerializedCachedQuote>(key);
 
       if (cached) {
+        const maxAgeSeconds = this.resolveTtl(source, pair) / 1000;
+        const ageSeconds = (Date.now() - cached.receivedAt) / 1000;
+
+        if (ageSeconds > maxAgeSeconds) {
+          this.logger.warn(
+            `Dropping stale cached quote for ${key}. Age: ${ageSeconds.toFixed(2)}s, TTL: ${maxAgeSeconds}s`,
+          );
+          await this.del(source, pair);
+          return null;
+        }
+
         this.logger.debug(`Cache hit for ${key}`);
         return {
           ...cached,
@@ -95,6 +107,7 @@ export class CacheService implements OnModuleDestroy {
         cacheTtlMs,
         staleTriggerBeforeExpiry,
       );
+      this.scheduleMetricsUpdate();
       this.logger.verbose(`Cached quote for ${key} with TTL ${cacheTtlMs}ms`);
     } catch (error) {
       this.logger.error(`Error setting cache for ${key}:`, error);
@@ -142,6 +155,7 @@ export class CacheService implements OnModuleDestroy {
           entry.staleTriggerBeforeExpiry,
         );
       }
+      this.scheduleMetricsUpdate();
       this.logger.verbose(`Batch cached ${quotes.length} quotes`);
     } catch (error) {
       this.logger.error('Error batch setting cache:', error);
@@ -154,8 +168,6 @@ export class CacheService implements OnModuleDestroy {
     try {
       const affected = this.cache.del(key);
       if (affected > 0) {
-        this.stalenessService.removeEntry(key);
-        this.updateCacheSizeMetrics();
         this.logger.verbose(`Deleted cache for ${key}`);
       }
     } catch (error) {
@@ -177,7 +189,7 @@ export class CacheService implements OnModuleDestroy {
     return `quote:${source}:${formatPairLabel(pair)}`;
   }
 
-  private resolveTtl(source: SourceName, pair: Pair, ttl?: number): number {
+  resolveTtl(source: SourceName, pair: Pair, ttl?: number): number {
     return (
       ttl ??
       this.getPairSpecificTtl(source, pair) ??
@@ -235,6 +247,16 @@ export class CacheService implements OnModuleDestroy {
     return ttl;
   }
 
+  private scheduleMetricsUpdate(): void {
+    if (!this.metricsUpdateScheduled) {
+      this.metricsUpdateScheduled = true;
+      setTimeout(() => {
+        this.updateCacheSizeMetrics();
+        this.metricsUpdateScheduled = false;
+      }, 100);
+    }
+  }
+
   private updateCacheSizeMetrics(): void {
     const sourceCounts = Object.values(SourceName).reduce(
       (acc, source) => acc.set(source, 0),
@@ -249,9 +271,5 @@ export class CacheService implements OnModuleDestroy {
     sourceCounts.forEach((count, source) => {
       this.metricsService.cacheSize.set({ source }, count);
     });
-  }
-
-  deferredUpdateCacheSizeMetrics(): void {
-    this.updateCacheSizeMetrics();
   }
 }

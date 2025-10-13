@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 
 import { CacheService, StaleBatch } from './cache';
+import { FailedPairsRetryService } from './failed-pairs-retry.service';
 import { formatPairLabel } from '../common';
 import { SourceName } from '../sources';
 import { PairService } from './pair.service';
@@ -38,6 +39,7 @@ export class RefetchService
     private readonly sourcesManager: SourcesManagerService,
     private readonly pairService: PairService,
     private readonly metricsService: MetricsService,
+    private readonly failedPairsRetryService: FailedPairsRetryService,
   ) {
     this.config = this.configService.get('refetch');
   }
@@ -49,6 +51,9 @@ export class RefetchService
     }
 
     this.cacheService.onStaleBatch(this.staleBatchHandler);
+    this.failedPairsRetryService.registerRetryCallback(async (pairs) =>
+      this.handleRetryBatch(pairs),
+    );
 
     this.logger.log('Refetch service initialized with config:', this.config);
   }
@@ -172,6 +177,61 @@ export class RefetchService
     );
   }
 
+  private async handleRetryBatch(
+    pairs: Array<{ source: SourceName; pair: Pair }>,
+  ): Promise<void> {
+    const startTime = Date.now();
+
+    const validItems = pairs.filter(({ source, pair }) => {
+      const key = this.getRefreshKey(source, pair);
+
+      if (this.inProgressKeys.has(key)) {
+        this.logger.debug(`Skipping retry for ${key}, already in progress`);
+        return false;
+      }
+
+      if (!this.isRefreshable(source, pair)) {
+        this.logger.debug(`Skipping retry for ${key}, not refreshable`);
+        return false;
+      }
+
+      this.inProgressKeys.add(key);
+      return true;
+    });
+
+    if (validItems.length === 0) {
+      this.logger.debug('No valid items to retry');
+      return;
+    }
+
+    const grouped = this.groupBySource(validItems);
+
+    const sourceStats = Array.from(grouped.entries())
+      .map(([source, pairs]) => `${source}:${pairs.length}`)
+      .join(', ');
+
+    this.logger.debug(
+      { count: validItems.length, sources: grouped.size },
+      `Processing retry batch: ${validItems.length} items across ${grouped.size} sources [${sourceStats}]`,
+    );
+
+    await Promise.all(
+      Array.from(grouped.entries()).map(([source, pairs]) =>
+        this.refreshSourcePairs(source, pairs).finally(() => {
+          pairs.forEach((pair) => {
+            this.inProgressKeys.delete(this.getRefreshKey(source, pair));
+          });
+        }),
+      ),
+    );
+
+    const duration = Date.now() - startTime;
+    this.logger.debug(
+      { count: validItems.length, duration },
+      `Completed retry batch processing: ${validItems.length} items in ${duration}ms`,
+    );
+  }
+
   private isRefreshable(source: SourceName, pair: Pair): boolean {
     if (!this.pairService.getSourcesByPair(pair).includes(source)) {
       return false;
@@ -205,13 +265,27 @@ export class RefetchService
     );
 
     try {
-      const quotes = await this.fetchQuotes(source, pairs);
-      await Promise.all(quotes.map((quote) => this.cacheQuote(source, quote)));
+      const supportsBatch = this.sourcesManager.isFetchQuotesSupported(source);
 
-      const duration = Date.now() - startTime;
-      this.logger.debug(
-        `Successfully refreshed ${quotes.length}/${pairs.length} pairs for ${source} in ${duration}ms`,
-      );
+      if (supportsBatch && pairs.length > 1) {
+        const quotes = await this.fetchQuotesBatch(source, pairs);
+        await Promise.all(
+          quotes.map((quote) => this.cacheQuote(source, quote)),
+        );
+
+        const duration = Date.now() - startTime;
+        this.logger.debug(
+          `Successfully refreshed ${quotes.length}/${pairs.length} pairs for ${source} in ${duration}ms`,
+        );
+      } else {
+        const results = await this.fetchAndCacheIndividually(source, pairs);
+        const successCount = results.filter((r) => r).length;
+
+        const duration = Date.now() - startTime;
+        this.logger.debug(
+          `Successfully refreshed ${successCount}/${pairs.length} pairs for ${source} in ${duration}ms`,
+        );
+      }
     } catch (error) {
       const duration = Date.now() - startTime;
       this.logger.error(
@@ -228,56 +302,66 @@ export class RefetchService
     return batches;
   }
 
-  private async fetchQuotes(
+  private async fetchQuotesBatch(
     source: SourceName,
     pairs: Pair[],
   ): Promise<Quote[]> {
-    const supportsBatch = this.sourcesManager.isFetchQuotesSupported(source);
+    const maxBatchSize = this.sourcesManager.getMaxBatchSize(source);
 
-    if (supportsBatch && pairs.length > 1) {
-      const maxBatchSize = this.sourcesManager.getMaxBatchSize(source);
-
-      if (pairs.length <= maxBatchSize) {
-        return this.sourcesManager.fetchQuotes(source, pairs);
-      }
-
-      const batches = this.splitIntoBatches(pairs, maxBatchSize);
-      this.logger.debug(
-        `Splitting ${pairs.length} pairs into ${batches.length} batches for ${source} (max: ${maxBatchSize})`,
-      );
-
-      const batchPromises = batches.map(async (batch, index) => {
-        try {
-          return await this.sourcesManager.fetchQuotes(source, batch);
-        } catch (error) {
-          this.logger.error(
-            `Batch ${index + 1}/${batches.length} failed for ${source}: ${String(error)}`,
-          );
-          return [];
-        }
-      });
-
-      const results = await Promise.allSettled(batchPromises);
-      const allQuotes = results
-        .filter(
-          (result): result is PromiseFulfilledResult<Quote[]> =>
-            result.status === 'fulfilled',
-        )
-        .flatMap((result) => result.value);
-
-      return allQuotes;
+    if (pairs.length <= maxBatchSize) {
+      return this.sourcesManager.fetchQuotes(source, pairs);
     }
 
-    const quotes = await Promise.allSettled(
-      pairs.map((pair) => this.sourcesManager.fetchQuote(source, pair)),
+    const batches = this.splitIntoBatches(pairs, maxBatchSize);
+    this.logger.debug(
+      `Splitting ${pairs.length} pairs into ${batches.length} batches for ${source} (max: ${maxBatchSize})`,
     );
 
-    return quotes
+    const batchPromises = batches.map(async (batch, index) => {
+      try {
+        return await this.sourcesManager.fetchQuotes(source, batch);
+      } catch (error) {
+        this.logger.error(
+          `Batch ${index + 1}/${batches.length} failed for ${source}: ${String(error)}`,
+        );
+        return [];
+      }
+    });
+
+    const results = await Promise.allSettled(batchPromises);
+    const allQuotes = results
       .filter(
-        (result): result is PromiseFulfilledResult<Quote> =>
+        (result): result is PromiseFulfilledResult<Quote[]> =>
           result.status === 'fulfilled',
       )
-      .map((result) => result.value);
+      .flatMap((result) => result.value);
+
+    return allQuotes;
+  }
+
+  private async fetchAndCacheIndividually(
+    source: SourceName,
+    pairs: Pair[],
+  ): Promise<boolean[]> {
+    const promises = pairs.map(async (pair) => {
+      try {
+        const quote = await this.sourcesManager.fetchQuote(source, pair);
+        await this.cacheQuote(source, quote);
+        return true;
+      } catch (error) {
+        this.logger.debug(
+          { error: String(error), pair: formatPairLabel(pair) },
+          `Failed to fetch/cache quote for ${formatPairLabel(pair)} from ${source}`,
+        );
+        this.failedPairsRetryService.trackFailedPair(source, pair);
+        return false;
+      }
+    });
+
+    const results = await Promise.allSettled(promises);
+    return results.map((result) =>
+      result.status === 'fulfilled' ? result.value : false,
+    );
   }
 
   private async cacheQuote(source: SourceName, quote: Quote): Promise<void> {
@@ -289,17 +373,20 @@ export class RefetchService
     this.pairService.trackSuccessfulFetch(quote.pair, source);
     this.pairService.trackResponse(quote.pair, source);
     this.metricsService.updateSourceLastUpdate(source, quote.pair);
+    this.failedPairsRetryService.removeFromRetryQueue(source, quote.pair);
   }
 
   getRefreshStatus(): {
     enabled: boolean;
     config: RefetchConfig;
     inProgress: string[];
+    retry: ReturnType<FailedPairsRetryService['getRetryStatus']>;
   } {
     return {
       enabled: this.config.enabled,
       config: this.config,
       inProgress: Array.from(this.inProgressKeys),
+      retry: this.failedPairsRetryService.getRetryStatus(),
     };
   }
 

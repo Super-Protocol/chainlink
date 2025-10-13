@@ -7,6 +7,7 @@ import { metricsPushSchema } from './metrics-push.schema';
 import { pairCleanupSchema } from './pair-cleanup.schema';
 import { pairsTtlSchema } from './pairs-ttl.schema';
 import { proxySchema } from './proxy.schema';
+import { quotesSchema } from './quotes.schema';
 import { refetchSchema } from './refetch.schema';
 import { sourcesSchema } from './sources.schema';
 import { variantsSchema } from '../utils/schema.util';
@@ -37,6 +38,7 @@ export const yamlValidationSchema = Type.Object(
     sources: sourcesSchema,
     proxy: Type.Optional(proxySchema),
     refetch: refetchSchema,
+    quotes: quotesSchema,
     pairCleanup: pairCleanupSchema,
     pairsTtl: Type.Optional(pairsTtlSchema),
     marketData: marketDataSchema,

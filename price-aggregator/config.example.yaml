@@ -38,6 +38,16 @@ refetch:
   staleTriggerBeforeExpiry: 3000 # Prevents cache misses by refreshing before expiry
   batchInterval: 1000 # Batches multiple stale items to reduce API calls
   minTimeBetweenRefreshes: 2000 # Prevents excessive API calls for same item
+  failedPairsRetry:
+    enabled: true
+    maxAttempts: 50
+    retryDelay: 10000
+    checkInterval: 30000
+
+# Quote request configuration
+quotes:
+  requestTimeoutMs: 10000 # Maximum time to wait for quote response (default: 10 seconds)
+  # After this timeout, user receives error but request continues in background for caching
 
 # Pair tracking and cleanup configuration
 pairCleanup:
