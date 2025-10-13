@@ -172,7 +172,19 @@ bash -c '
 
     if [ "'"${NODE_NUMBER}"'" = "'"${leader}"'" ]; then
       node /scripts/secrets/register-admin.js
-      /scripts/bash/set-config-for-all-feeds.sh
+
+      interval_sec="${SET_CONFIG_INTERVAL_SEC:-10}"
+      while :; do
+        target=$(find "$JOB_RENDERS_DIR" -type f -name '*.toml' 2>/dev/null | wc -l | awk '{print $1}')
+        have=$(jq -r 'keys | length' "$SP_SECRETS_DIR/don-configs.json" 2>/dev/null || echo 0)
+        echo "[set-config-loop] target=$target have=$have"
+        if [ "$have" -ge "$target" ] && [ "$target" -gt 0 ]; then
+          echo "[set-config-loop] done: have ($have) >= target ($target)"
+          break
+        fi
+        /scripts/bash/set-config-for-all-feeds.sh || true
+        sleep "$interval_sec"
+      done
     fi
   fi
 ' 2>&1 &
