@@ -62,7 +62,7 @@ observationSource = """
         cryptocompare_btc_eth_divide    [type="divide" input="$(cryptocompare_btc_usd_parse)" divisor="$(cryptocompare_eth_usd_parse)"]
         cryptocompare_btc_eth_divide_multiply [type="multiply" times=1000000000000000000]
 
-        kraken_btc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/XBT/USD" allowUnrestrictedNetworkAccess=true retries=3]
+        kraken_btc_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/BTC/USD" allowUnrestrictedNetworkAccess=true retries=3]
         kraken_btc_usd_parse    [type="jsonparse" path="price"]
 
         kraken_eth_usd          [type="http" method=GET url="http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/ETH/USD" allowUnrestrictedNetworkAccess=true retries=3]
