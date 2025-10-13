@@ -1034,7 +1034,7 @@
       },
       {
         "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/XBT/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/BTC/USD",
         "path": "price",
         "value": 113237.6,
         "pair": "BTC/USD"
@@ -1128,7 +1128,7 @@
       },
       {
         "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/XBT/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/BTC/USD",
         "path": "price",
         "value": 113237.6,
         "pair": "BTC/USD"
@@ -1208,7 +1208,7 @@
       },
       {
         "provider": "kraken",
-        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/XBT/USD",
+        "url": "http://127.0.0.1:$PRICE_AGGREGATOR_PORT/quote/kraken/BTC/USD",
         "path": "price",
         "value": 113237.6,
         "pair": "BTC/USD"
