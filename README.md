@@ -251,6 +251,12 @@ docker volume ls | grep chainlink
 
 ## Important Notes
 
+### Verification
+
+To verify the authenticity of the Chainlink image and the corresponding order report, see the dedicated guide:
+
+- Verification Guide: [verification/README.md](verification/README.md)
+
 ### Security Warnings ⚠️
 - This setup is for **TESTING ONLY**
 - Never use credentials from this guide in production

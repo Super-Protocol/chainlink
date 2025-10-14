@@ -1,51 +1,83 @@
 # Verification Guide
 
-This guide explains how to verify that the Chainlink image used in a specific order is authentic and matches the expected artifact.
+This guide explains how to verify the Chainlink image using the resource manifest.
 
-- Target order to verify: 255204
-- Marketplace order link: https://marketplace.superprotocol.com/order/255204
-- Resource manifest file: `verification/resource.json`
+- Resource file: [verification/resource.json](resource.json)
+  - Contains the `orderId` and the expected image hash.
 
-## Prerequisites
+## Clone the repository
 
-Install Super Protocol [CLI (spctl)](https://docs.superprotocol.com/cli/)
+If you haven't already, clone this repository and navigate into it:
 
-## Step 1 — Download the resource manifest
+```bash
+git clone https://github.com/Super-Protocol/chainlink.git
+cd chainlink
+```
 
-Download the `resource.json` file using [spctl files download command](https://docs.superprotocol.com/cli/commands/files/download) (optional if you already have the file from this repo):
+## Quick automated verification (script)
+
+Use the helper script to perform all steps automatically. It will download the latest spctl, create `config.json`, download the image if missing, calculate SHA‑256, fetch the order report, and compare the three hashes.
+
+```bash
+cd verification
+chmod +x ./verify.sh
+./verify.sh ./resource.json
+```
+
+Example output:
+
+```
+==> Hashes summary
+    resource.json: <hash>
+    local shasum : <hash>
+    order report : <hash>
+Validation result: OK
+```
+
+If hashes don't match, the script exits non‑zero and prints:
+
+```
+Validation result: FAIL
+```
+
+## Manual step-by-step verification
+
+### Prerequisites
+
+Install Super Protocol [CLI (spctl)](https://docs.superprotocol.com/cli/). You will also need `jq` for reading values from JSON.
+
+### Step 1 — Download the resource and image
+
+Download the Chainlink all‑in‑one image using [verification/resource.json](resource.json) with [spctl files download](https://docs.superprotocol.com/cli/commands/files/download):
 
 ```bash
 spctl files download resource.json .
 ```
 
-This manifest contains the expected SHA-256 hash of the image.
+This command downloads the image tarball to your current directory.
 
-## Step 2 — Calculate the image SHA-256 locally (optional)
+### Step 2 — Calculate the image SHA‑256 locally (optional but recommended)
 
-If you have downloaded the image tarball, compute its SHA-256 checksum and compare it with the hash in `resource.json`.
-
-- Expected image file name (from resource.json): `chainlink-all-in-one-image-mainnet-b18473545264.tar.gz`
-
-Compute SHA-256:
+Compute the SHA‑256 checksum of the downloaded tarball and compare it with `hash.hash` in [verification/resource.json](resource.json).
 
 ```bash
-shasum -a 256 chainlink-all-in-one-image-mainnet-b18473545264.tar.gz
+shasum -a 256 <downloaded-image.tar.gz>
 ```
 
-Compare the resulting hash with `hash.hash` from `resource.json`.
+Ensure the printed hash equals the value in `resource.json` at `hash.hash`.
 
-## Step 3 — Verify the order attestation (workload report)
+### Step 3 — Verify the order attestation (workload report)
 
-Use `spctl` to fetch and verify the report for order [255204](https://marketplace.superprotocol.com/order/255204). This command verifies the [TEE certificate chain](https://www.youtube.com/watch?v=aXotdTZ8oSc) and prints `workloadInfo` with the order parameters, including the image hash.
+Use `spctl` to fetch and verify the report for the order specified in `resource.json`. This command verifies the TEE certificate chain and prints `workloadInfo` with the order parameters, including the image hash.
 
 ```bash
-spctl orders get-report 255204
+ORDER_ID=$(jq -r .orderId resource.json)
+spctl orders get-report "$ORDER_ID"
 ```
 
-- The image hash shown in the report’s `workloadInfo` must match the hash in `resource.json` (and the `shasum` value if you computed it).
-- The report guarantees that the workload for order 255204 is running the exact image in TEE corresponding to that hash.
+The image hash shown in the report’s `workloadInfo` must match the hash in `resource.json` (and the SHA‑256 value if you computed it). This confirms the workload for the order is running the exact image in TEE corresponding to that hash.
 
-## Expected outcomes
+### Expected outcomes
 
-- The SHA-256 checksum printed by `shasum` equals the `hash.hash` value in `resource.json`.
+- The SHA‑256 checksum printed by `shasum` equals the `hash.hash` value in `resource.json`.
 - The `workloadInfo` section in the order report includes the same image hash.
