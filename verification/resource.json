@@ -1,0 +1,25 @@
+{
+  "orderId": 255204,
+  "hash": {
+    "algo": "sha256",
+    "encoding": "hex",
+    "hash": "ae54daa6190b29fb752e2e187a1715945e437705e708a4dcee20945da270163a"
+  },
+  "encryption": {
+    "algo": "AES",
+    "encoding": "base64",
+    "cipher": "aes-256-ctr",
+    "iv": "c6+uoU27tKuLrrYuGXLnDA==",
+    "key": "QsKcpW3hPmJZuUdUXBtZR1UNH3iwkxZT2gTJ+EVNbCU="
+  },
+  "resource": {
+    "type": "STORAGE_PROVIDER",
+    "storageType": "STORJ",
+    "filepath": "chainlink-all-in-one-image-mainnet-b18473545264.tar.gz.encrypted",
+    "credentials": {
+      "token": "1X8kY8zSiKX2wKx7VcNudsKcb53WPetHXKytTyoJLDgB4w8YTZaFoomMC3VPQZQBDQ2pwFPuzbA6QKPtwZjfGptQHbJeudfjQJ1f8EFQKxawLn8jU1ZzVK8dmmTZUbqc3daetDfeZrtY56Vxf3VtCPPxt9hanjh4N2imT1W2zrGvvbWTb4ZQExoaMh88yXiE4s6js41v8A1PJXu3knis5sVfMsWYfvEoTWovqfbQpPFU18RX8wB45sah9XZpRNHSFMU2tWmJg5V7exveJeNHtNGkxvPZVMA5T9c3spfVoDkGhMVc622uof4gPzNUcfc3Bfj2V3cBnjT5u3DddZqvfQCoSSisc6QfbXCJ659DbKivG",
+      "bucket": "inputs-mainnet",
+      "prefix": ""
+    }
+  }
+}
