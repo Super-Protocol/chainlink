@@ -1,51 +1,36 @@
 graph TB
-    subgraph Container["All-in-One Container"]
-        subgraph Init["Initialization"]
-            PBS[postgres-bootstrap<br/>oneshot]
-            PINI[postgres-init<br/>oneshot]
-        end
-
-        subgraph Runtime["Runtime Services"]
-            PG[(PostgreSQL Server<br/>:5432)]
-        end
-
-        subgraph Nodes["Chainlink Nodes"]
-            N1[Bootstrap Node 1]
-            N2[Oracle Node 2]
-            N3[Oracle Node 3]
-            N4[Oracle Node 4]
-            N5[Oracle Node 5]
-        end
-
-        subgraph Databases["Logical Databases"]
-            DB1[(chainlink_node_1)]
-            DB2[(chainlink_node_2)]
-            DB3[(chainlink_node_3)]
-            DB4[(chainlink_node_4)]
-            DB5[(chainlink_node_5)]
-        end
+  subgraph Container["All-in-One Container"]
+    subgraph Init["Initialization"]
+      PBS[postgres-bootstrap<br/>oneshot]
+      PINI[postgres-init<br/>oneshot]
     end
 
-    PBS -->|initdb<br/>create cluster| PG
-    PINI -->|CREATE USER chainlink<br/>CREATE DATABASE x5| PG
+    subgraph Runtime["Runtime Services"]
+      PG[(PostgreSQL Server<br/>:5432)]
+    end
 
-    PG -.->|Contains| DB1
-    PG -.->|Contains| DB2
-    PG -.->|Contains| DB3
-    PG -.->|Contains| DB4
-    PG -.->|Contains| DB5
+    subgraph Nodes["Chainlink Nodes"]
+      N1[Bootstrap Node]
+      N2[Oracle Node 1..4]
+    end
 
-    N1 -->|Read/Write<br/>PGDATABASE=chainlink_node_1| DB1
-    N2 -->|Read/Write<br/>PGDATABASE=chainlink_node_2| DB2
-    N3 -->|Read/Write<br/>PGDATABASE=chainlink_node_3| DB3
-    N4 -->|Read/Write<br/>PGDATABASE=chainlink_node_4| DB4
-    N5 -->|Read/Write<br/>PGDATABASE=chainlink_node_5| DB5
+    subgraph Databases["Logical Databases"]
+      DB1[(chainlink_node_1)]
+      DB2[(chainlink_node_N)]
+    end
+  end
 
-    style PBS fill:#fff3cd
-    style PINI fill:#fff3cd
-    style PG fill:#d4edda
-    style DB1 fill:#e7f3ff
-    style DB2 fill:#e7f3ff
-    style DB3 fill:#e7f3ff
-    style DB4 fill:#e7f3ff
-    style DB5 fill:#e7f3ff
+  PBS -->|initdb<br/>create cluster| PG
+  PINI -->|CREATE USER chainlink<br/>CREATE DATABASE x5| PG
+
+  PG -.-> DB1
+  PG -.-> DB2
+
+  N1 -->|Read/Write| DB1
+  N2 -->|Read/Write| DB2
+
+  style PBS fill:#fff3cd
+  style PINI fill:#fff3cd
+  style PG fill:#d4edda
+  style DB1 fill:#e7f3ff
+  style DB2 fill:#e7f3ff

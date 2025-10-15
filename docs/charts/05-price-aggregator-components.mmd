@@ -1,32 +1,10 @@
-C4Component
-    title Component Diagram - Price Aggregator Architecture
+architecture-beta
+    group pa(cloud)[Price Aggregator]
 
-    Boundary(pa, "Price Aggregator") {
-        Component(controller, "Quotes Controller", "REST API", "Exposes /quotes endpoints")
-        Component(batch, "Batch Quotes Service", "Business Logic", "Handles batch quote requests")
-        Component(cache, "Cache Service", "Storage", "In-memory cache with TTL")
-        Component(staleness, "Cache Staleness Service", "Monitoring", "Detects stale entries")
-        Component(refetch, "Refetch Service", "Automation", "Pre-fetches before expiry")
-        Component(cleanup, "Pair Cleanup Service", "Maintenance", "Removes inactive pairs")
-        Component(streaming, "Streaming Quotes Service", "WebSocket", "Real-time price streams")
-        Component(sources, "Data Source Adapters", "Integration", "13+ source connectors")
-        Component(metrics_svc, "Metrics Service", "Observability", "Prometheus metrics")
-        Component(push, "Push Metrics Service", "Telemetry", "Pushes to remote Prometheus")
-    }
+    service cache(database)[Cache] in pa
 
-    Component_Ext(ext_sources, "External Data Sources", "Binance, OKX, CoinGecko, etc.")
-    Component_Ext(prometheus, "Prometheus/VictoriaMetrics", "Metrics storage")
+    service ext_sources(cloud)[External Data Sources]
+    service prometheus(server)[Prometheus]
 
-    Rel(controller, batch, "Uses")
-    Rel(batch, cache, "Read/Write")
-    Rel(batch, sources, "Fetches missing")
-    Rel(sources, ext_sources, "HTTP/WSS")
-    Rel(staleness, cache, "Monitors")
-    Rel(staleness, refetch, "Triggers")
-    Rel(refetch, sources, "Fetches")
-    Rel(refetch, cache, "Updates")
-    Rel(cleanup, cache, "Removes")
-    Rel(streaming, sources, "Subscribes")
-    Rel(streaming, cache, "Updates")
-    Rel(metrics_svc, push, "Collects")
-    Rel(push, prometheus, "Pushes")
+    cache:T -- B:ext_sources
+    cache:B -- T:prometheus

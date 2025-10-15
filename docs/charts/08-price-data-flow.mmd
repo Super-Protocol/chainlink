@@ -1,70 +1,43 @@
 sequenceDiagram
-    participant DS as External Data Sources<br/>(Binance, OKX, etc.)
-    participant PA as Price Aggregator<br/>(NestJS)
-    participant Cache as In-Memory Cache<br/>(TTL-based)
-    participant O1 as Oracle Node 1
-    participant O2 as Oracle Node 2
-    participant O3 as Oracle Node 3
-    participant O4 as Oracle Node 4
-    participant BC as Blockchain<br/>(opBNB)
+  participant DS as External Data Sources<br/>(Binance, OKX, etc.)
+  participant PA as Price Aggregator<br/>(NestJS)
+  participant Cache as In-Memory Cache<br/>(TTL-based)
+  participant O1 as Oracle Node 1..4
+  participant BC as Blockchain<br/>(opBNB)
 
-    Note over PA: Initialization Phase
-    PA->>DS: Initial fetch for configured pairs
-    DS-->>PA: Price data
-    PA->>Cache: Store with TTL=5min
+  Note over PA: Initialization Phase
+  PA->>DS: Initial fetch for configured pairs
+  DS-->>PA: Price data
+  PA->>Cache: Store with TTL=5min
 
-    Note over PA: Streaming Phase (Real-time)
-    DS--)PA: WebSocket price updates
-    PA->>Cache: Update cached prices
+  Note over PA: Streaming Phase (Real-time)
+  DS--)PA: WebSocket price updates
+  PA->>Cache: Update cached prices
 
-    Note over O1,O4: Job Execution Phase
-    BC->>O1: Job trigger (price update needed)
-    BC->>O2: Job trigger (price update needed)
-    BC->>O3: Job trigger (price update needed)
-    BC->>O4: Job trigger (price update needed)
+  Note over O1: Job Execution Phase
+  BC->>O1: Job trigger (price update needed)
 
-    par All nodes fetch in parallel
-        O1->>PA: GET /quotes/batch?pairs=BTC-USD,ETH-USD
-        PA->>Cache: Check cache
-        alt Cache hit (fresh data)
-            Cache-->>PA: Return cached prices
-        else Cache miss or stale
-            PA->>DS: Fetch fresh data
-            DS-->>PA: Latest prices
-            PA->>Cache: Update cache
-        end
-        PA-->>O1: Return prices with metadata
-
-        O2->>PA: GET /quotes/batch?pairs=BTC-USD,ETH-USD
-        PA->>Cache: Return cached prices
-        PA-->>O2: Return prices with metadata
-
-        O3->>PA: GET /quotes/batch?pairs=BTC-USD,ETH-USD
-        PA->>Cache: Return cached prices
-        PA-->>O3: Return prices with metadata
-
-        O4->>PA: GET /quotes/batch?pairs=BTC-USD,ETH-USD
-        PA->>Cache: Return cached prices
-        PA-->>O4: Return prices with metadata
+  par All nodes fetch in parallel
+    O1->>PA: GET /quotes/batch?pairs=BTC-USD,ETH-USD
+    PA->>Cache: Check cache
+    alt Cache hit (fresh data)
+      Cache-->>PA: Return cached prices
+    else Cache miss or stale
+      PA->>DS: Fetch fresh data
+      DS-->>PA: Latest prices
+      PA->>Cache: Update cache
     end
+    PA-->>O1: Return prices with metadata
 
-    Note over O1,O4: OCR Consensus Phase
-    O1->>O2: Share observation (price + signature)
-    O1->>O3: Share observation
-    O1->>O4: Share observation
-    O2->>O1: Share observation
-    O2->>O3: Share observation
-    O2->>O4: Share observation
-    O3->>O1: Share observation
-    O3->>O2: Share observation
-    O3->>O4: Share observation
-    O4->>O1: Share observation
-    O4->>O2: Share observation
-    O4->>O3: Share observation
+    PA->>Cache: Return cached prices
+  end
 
-    Note over O1,O4: Compute median, build report<br/>Minimum 3/4 nodes must agree
+  Note over O1: OCR Consensus Phase
+  O1->>O1: Share observation (price + signature)
 
-    O2->>BC: Submit aggregated report (transmitter)
-    BC-->>O2: Transaction confirmed
+  Note over O1: Compute median, build report<br/>Minimum 3/4 nodes must agree
 
-    Note over BC: Price data now on-chain
+  O1->>BC: Submit aggregated report (transmitter)
+  BC-->>O1: Transaction confirmed
+
+  Note over BC: Price data now on-chain

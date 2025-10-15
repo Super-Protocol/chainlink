@@ -1,46 +1,34 @@
-C4Container
-    title Container Diagram - All-in-One Container Internal Structure
+architecture-beta
+  group aio(cloud)[All in One Container]
 
-    Container_Boundary(aio, "All-in-One Container") {
-        Container(s6, "s6-overlay", "Process Supervisor", "Service orchestration, dependency management, restart policies")
+  service s6(disk)[s6 overlay] in aio
+  service metrics(server)[Process Metrics Exporter] in aio
 
-        Container(postgres, "PostgreSQL 17", "Database", "Shared database engine with isolated databases per node")
+  group chainlink[chainlink] in aio
+  service bootstrap(server)[Bootstrap Node] in chainlink
+  group oracles[oracles] in chainlink
+  service oracle1(server)[Node 1] in oracles
+  service oracle2(server)[Node 2] in oracles
+  service oracle3(server)[Node 3] in oracles
+  service oracle4(server)[Node 4] in oracles
 
-        Container(bootstrap, "Bootstrap Node", "Chainlink Node", "Coordinates Oracle nodes, provides P2P discovery endpoint")
+  service aggregator(server)[Price Aggregator] in aio
 
-        Container(oracle1, "Oracle Node 1", "Chainlink Node", "Participates in OCR consensus")
-        Container(oracle2, "Oracle Node 2", "Chainlink Node", "Participates in OCR consensus")
-        Container(oracle3, "Oracle Node 3", "Chainlink Node", "Participates in OCR consensus")
-        Container(oracle4, "Oracle Node 4", "Chainlink Node", "Participates in OCR consensus")
+  service postgres(database)[PostgreSQL 17] in aio
 
-        Container(aggregator, "Price Aggregator", "NestJS", "Caches price data from external sources, serves Oracle nodes")
+  metrics:R -- L:s6
 
-        Container(metrics, "Process Metrics Exporter", "Node.js", "Monitors all processes, exports system metrics")
-    }
+  s6:B -- T:bootstrap
 
-    Rel(s6, postgres, "Manages", "")
-    Rel(s6, bootstrap, "Manages", "")
-    Rel(s6, oracle1, "Manages", "")
-    Rel(s6, oracle2, "Manages", "")
-    Rel(s6, oracle3, "Manages", "")
-    Rel(s6, oracle4, "Manages", "")
-    Rel(s6, aggregator, "Manages", "")
-    Rel(s6, metrics, "Manages", "")
+  bootstrap:R -- L:oracle1
+  bootstrap:R -- L:oracle2
+  bootstrap:R -- L:oracle3
+  bootstrap:R -- L:oracle4
 
-    Rel(bootstrap, postgres, "Reads/Writes", "chainlink_node_1 DB")
-    Rel(oracle1, postgres, "Reads/Writes", "chainlink_node_2 DB")
-    Rel(oracle2, postgres, "Reads/Writes", "chainlink_node_3 DB")
-    Rel(oracle3, postgres, "Reads/Writes", "chainlink_node_4 DB")
-    Rel(oracle4, postgres, "Reads/Writes", "chainlink_node_5 DB")
+  oracle1:B -- B:aggregator
+  oracle2:B -- B:aggregator
+  oracle3:B -- B:aggregator
+  oracle4:B -- B:aggregator
 
-    Rel(oracle1, aggregator, "Fetches prices", "HTTP")
-    Rel(oracle2, aggregator, "Fetches prices", "HTTP")
-    Rel(oracle3, aggregator, "Fetches prices", "HTTP")
-    Rel(oracle4, aggregator, "Fetches prices", "HTTP")
-
-    Rel(oracle1, bootstrap, "P2P connection", "TCP")
-    Rel(oracle2, bootstrap, "P2P connection", "TCP")
-    Rel(oracle3, bootstrap, "P2P connection", "TCP")
-    Rel(oracle4, bootstrap, "P2P connection", "TCP")
-
-    Rel(metrics, s6, "Monitors processes", "")
+  aggregator:L -- R:postgres
+  bootstrap:B -- T:postgres

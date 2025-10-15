@@ -1,34 +1,32 @@
 graph TD
-    subgraph Container["All-in-One Container"]
-        subgraph Apps["Application Layer"]
-            PA[Price Aggregator<br/>NestJS]
-            ON[Oracle Nodes<br/>Chainlink]
-        end
-
-        subgraph System["System Layer"]
-            PROC[All Processes<br/>postgres, nodes, etc.]
-        end
-
-        subgraph Metrics["Metrics Collection"]
-            PAM[Metrics Service<br/>Prometheus client]
-            PME[Process Metrics<br/>Exporter]
-        end
+  subgraph Container["All-in-One Container"]
+    subgraph Apps["Application Layer"]
+      PA[Price Aggregator<br/>NestJS]
     end
 
-    subgraph External["External (Outside TEE)"]
-        PROM[VictoriaMetrics<br/>Prometheus]
-        DASH[Grafana<br/>Dashboards]
+    subgraph System["System Layer"]
+      PROC[All Processes<br/>postgres, nodes, etc.]
     end
 
-    PA -->|Application metrics| PAM
-    ON -.->|Job execution logs| PAM
+    subgraph Metrics["Metrics Collection"]
+      PAM[Metrics Service<br/>Prometheus client]
+      PME[Process Metrics<br/>Exporter]
+    end
+  end
 
-    PROC -->|CPU, Memory, PID| PME
+  subgraph External["External (Outside TEE)"]
+    PROM[VictoriaMetrics<br/>Prometheus]
+    DASH[Grafana<br/>Dashboards]
+  end
 
-    PAM -->|HTTP PUT every 15s<br/>Basic Auth| PROM
-    PME -->|HTTP PUT every 5s<br/>Basic Auth| PROM
+  PA -->|Application metrics| PAM
 
-    PROM --> DASH
+  PROC -->|CPU, Memory, PID| PME
 
-    style Container fill:#e1f5ff
-    style External fill:#fff3cd
+  PAM -->|HTTP PUT every 15s<br/>Basic Auth| PROM
+  PME -->|HTTP PUT every 5s<br/>Basic Auth| PROM
+
+  PROM --> DASH
+
+  style Container fill:#e1f5ff
+  style External fill:#fff3cd
