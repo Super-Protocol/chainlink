@@ -7,15 +7,7 @@
 3. [Solution Components](#3-solution-components)
 4. [Network Architecture](#4-network-architecture)
 5. [Data Flow Diagrams](#5-data-flow-diagrams)
-6. [Deployment Architecture](#6-deployment-architecture)
-7. [Monitoring & Observability](#7-monitoring--observability)
-8. [Super Protocol TEE Considerations](#8-super-protocol-tee-considerations)
-9. [Technology Stack](#9-technology-stack)
-10. [Configuration & Secrets](#10-configuration--secrets)
-11. [Architecture Decision Records (ADR)](#11-architecture-decision-records-adr)
-12. [Glossary](#12-glossary)
-13. [Limitations & Trade-offs](#13-limitations--trade-offs)
-14. [Future Considerations](#14-future-considerations)
+6. [Monitoring & Observability](#6-monitoring--observability)
 
 ---
 
@@ -415,69 +407,13 @@ The Price Aggregator supports the following external data sources:
 - Price Aggregator efficiently batches requests to sources
 - Reduces network overhead and latency
 
-### 3.4 Process Metrics Exporter
-
-**Purpose**: Monitors resource usage of all container processes and exports system-level metrics to remote Prometheus.
-
-**Architecture**: Lightweight Node.js service.
-
-**Key Capabilities**:
-
-1. **Process Resource Monitoring**:
-   - CPU usage per process (%)
-   - Memory usage per process (RSS in KB)
-   - Process ID tracking
-   - Process name identification
-
-2. **Service Discovery**:
-   - Discovers s6-overlay managed services from `/etc/s6-overlay/s6-rc.d/`
-   - Discovers runtime services from `/run/service/`
-   - Refreshes service list every 60 seconds (configurable)
-
-3. **Metrics Collection**:
-   - Uses `s6-svstat` to get PIDs
-   - Uses `ps` command to get resource stats
-   - Sampling interval: 5 seconds (configurable)
-
-4. **s6 Service Metrics**:
-   - Service restart count
-   - Last restart timestamp
-   - Helps identify unstable services
-
-**Exported Metrics**:
-
-| Metric Name | Type | Description |
-|-------------|------|-------------|
-| `chainlink_process_list` | gauge | List of tracked processes with PID |
-| `chainlink_process_cpu_percent` | gauge | CPU usage per process |
-| `chainlink_process_memory_rss_kb` | gauge | RSS memory per process |
-| `chainlink_s6_service_restart_count` | counter | Number of service restarts |
-| `chainlink_s6_service_last_restart_ts` | gauge | Unix timestamp of last restart |
-
-**Push Mechanism**:
-- Push protocol: Prometheus Pushgateway format (PUT method)
-- Endpoint format: `/metrics/job/{job}/instance/{instance}/...`
-- TTL support: Metrics include TTL label and query parameter (default 3600s)
-- Configuration via environment or `/etc/process-metrics/config.json`
-
-**Self-Healing**:
-- Exits after 12 consecutive sampling failures
-- s6-overlay restarts the service
-- finish script prevents infinite loops
-
-**Why Process Metrics Matter in TEE**:
-- No SSH access to container
-- No traditional monitoring agents
-- Process metrics are only visibility into system health
-- Critical for detecting resource exhaustion, memory leaks, CPU spikes
-
-### 3.5 Prometheus Metrics
+### 3.4 Prometheus Metrics
 
 **Purpose**: Comprehensive metrics collection from all solution components, exported to remote Prometheus/VictoriaMetrics for monitoring and alerting.
 
 **Push-based Architecture**: Required for TEE environment where inbound connections are not possible.
 
-#### 3.5.1 Price Aggregator Metrics
+#### 3.4.1 Price Aggregator Metrics
 
 **Application Metrics**:
 - Request rates per endpoint
@@ -505,7 +441,7 @@ The Price Aggregator supports the following external data sources:
 - Authentication: Basic Auth
 - Grouping labels: service, instance, environment
 
-#### 3.5.2 Process Metrics
+#### 3.4.2 Process Metrics
 
 **System-Level Metrics**:
 
@@ -529,7 +465,7 @@ The Price Aggregator supports the following external data sources:
 - TTL: 3600 seconds (metrics expire if not updated)
 - Configuration: Environment variables or `/etc/process-metrics/config.json`
 
-#### 3.5.3 Metrics Infrastructure
+#### 3.4.3 Metrics Infrastructure
 
 **Remote Storage**:
 - VictoriaMetrics or Prometheus with remote write capability
@@ -1009,18 +945,30 @@ graph LR
 
 ### 6.3 Dashboards
 
+A public Grafana dashboard is available for monitoring the Multi-node Chainlink Data Feeds solution in real-time. The dashboard provides comprehensive visibility into:
+
+- **Service Overview**: Request rates, latency metrics, error rates across all components
+- **Cache Health**: Hit ratio, cache size trends, stale entries tracking
+- **Data Source Performance**: Individual source availability, response times, error rates
+- **System Resources**: CPU and memory usage per process
+- **Price Data Flow**: End-to-end latency from external sources to on-chain submission
+
+**Public Dashboard**: [View Live Dashboard](https://campaign-mon.superprotocol.com/public-dashboards/f206e63972e349aabf7fa20d80072187?from=now-12h&to=now&timezone=browser)
+
+![Public Grafana Dashboard](images/public-dashboard.png)
+
+The dashboard displays metrics from both the Price Aggregator (application-level) and Process Metrics Exporter (system-level), providing a complete operational picture of the solution running in the Super Protocol TEE environment.
+
 ## Conclusion
 
 This architecture document provides a comprehensive overview of the Multi-node Chainlink Data Feeds solution running in Super Protocol's TEE environment. The All-in-One container design, with its carefully orchestrated services managed by s6-overlay, provides a secure, efficient, and maintainable solution for decentralized oracle operations within the constraints of a Trusted Execution Environment.
 
 Key architectural highlights:
-- **Security**: TEE hardware isolation protects sensitive operations
+- **Security**: TEE hardware isolation protects sensitive operations. The solution guarantees execution of the exact source code embedded in the container, verified through Super Protocol's infrastructure (see [verification/README.md](../verification/README.md)). This verifiable execution guarantee distinguishes it from traditional Chainlink deployments where code execution cannot be independently verified.
 - **Reliability**: Minimum 4-node consensus ensures fault tolerance
 - **Efficiency**: Centralized Price Aggregator reduces API costs by 80%
 - **Observability**: Push-based metrics provide visibility despite TEE isolation
 - **Maintainability**: Single-container deployment simplifies operations
 
 This solution demonstrates that decentralized oracle networks can operate effectively within TEE environments, combining the security benefits of hardware isolation with the reliability requirements of blockchain oracle infrastructure.
-
-For questions, contributions, or support, please refer to the project README.md and contributing guidelines.
 
