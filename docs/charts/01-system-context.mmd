@@ -1,0 +1,13 @@
+architecture-beta
+    group tee(cloud)[Super Protocol TEE]
+
+    service chainlink(server)[Chainlink Data Feeds] in tee
+    service blockchain(database)[Blockchain Network]
+    service datasources(cloud)[External Data Sources]
+    service prometheus(server)[Metrics Storage]
+    service admin(disk)[Administrator]
+
+    chainlink:R -- L:blockchain
+    chainlink:T -- B:datasources
+    chainlink:B -- T:prometheus
+    admin:L -- R:prometheus

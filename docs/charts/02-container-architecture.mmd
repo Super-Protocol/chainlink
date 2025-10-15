@@ -1,0 +1,46 @@
+C4Container
+    title Container Diagram - All-in-One Container Internal Structure
+
+    Container_Boundary(aio, "All-in-One Container") {
+        Container(s6, "s6-overlay", "Process Supervisor", "Service orchestration, dependency management, restart policies")
+
+        Container(postgres, "PostgreSQL 17", "Database", "Shared database engine with isolated databases per node")
+
+        Container(bootstrap, "Bootstrap Node", "Chainlink Node", "Coordinates Oracle nodes, provides P2P discovery endpoint")
+
+        Container(oracle1, "Oracle Node 1", "Chainlink Node", "Participates in OCR consensus")
+        Container(oracle2, "Oracle Node 2", "Chainlink Node", "Participates in OCR consensus")
+        Container(oracle3, "Oracle Node 3", "Chainlink Node", "Participates in OCR consensus")
+        Container(oracle4, "Oracle Node 4", "Chainlink Node", "Participates in OCR consensus")
+
+        Container(aggregator, "Price Aggregator", "NestJS", "Caches price data from external sources, serves Oracle nodes")
+
+        Container(metrics, "Process Metrics Exporter", "Node.js", "Monitors all processes, exports system metrics")
+    }
+
+    Rel(s6, postgres, "Manages", "")
+    Rel(s6, bootstrap, "Manages", "")
+    Rel(s6, oracle1, "Manages", "")
+    Rel(s6, oracle2, "Manages", "")
+    Rel(s6, oracle3, "Manages", "")
+    Rel(s6, oracle4, "Manages", "")
+    Rel(s6, aggregator, "Manages", "")
+    Rel(s6, metrics, "Manages", "")
+
+    Rel(bootstrap, postgres, "Reads/Writes", "chainlink_node_1 DB")
+    Rel(oracle1, postgres, "Reads/Writes", "chainlink_node_2 DB")
+    Rel(oracle2, postgres, "Reads/Writes", "chainlink_node_3 DB")
+    Rel(oracle3, postgres, "Reads/Writes", "chainlink_node_4 DB")
+    Rel(oracle4, postgres, "Reads/Writes", "chainlink_node_5 DB")
+
+    Rel(oracle1, aggregator, "Fetches prices", "HTTP")
+    Rel(oracle2, aggregator, "Fetches prices", "HTTP")
+    Rel(oracle3, aggregator, "Fetches prices", "HTTP")
+    Rel(oracle4, aggregator, "Fetches prices", "HTTP")
+
+    Rel(oracle1, bootstrap, "P2P connection", "TCP")
+    Rel(oracle2, bootstrap, "P2P connection", "TCP")
+    Rel(oracle3, bootstrap, "P2P connection", "TCP")
+    Rel(oracle4, bootstrap, "P2P connection", "TCP")
+
+    Rel(metrics, s6, "Monitors processes", "")

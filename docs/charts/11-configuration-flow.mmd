@@ -1,0 +1,41 @@
+graph LR
+    subgraph SP["Super Protocol Infrastructure"]
+        CONF[Configuration JSON<br/>join-config]
+        SEC[Secrets<br/>Private keys, passwords]
+    end
+
+    subgraph Container["Container Startup"]
+        VOL1["Configuration Volume<br/>configuration.json"]
+        VOL2["Secrets Volume<br/>private keys"]
+
+        ENTRY["Entrypoint Script<br/>entrypoint-allinone.sh"]
+
+        subgraph Services["Services"]
+            PA[Price Aggregator]
+            PM[Process Metrics]
+            N1[Node 1]
+            N2[Node 2]
+            N3[Node 3]
+            N4[Node 4]
+        end
+    end
+
+    CONF -->|Volume mount| VOL1
+    SEC -->|Volume mount| VOL2
+
+    ENTRY -->|Read totalNodes| VOL1
+    ENTRY -->|Generate node services| Services
+
+    PA -->|Read priceAggregatorConfig| VOL1
+    PM -->|Read metricsPush config| VOL1
+    N1 -->|Read all node config| VOL1
+    N1 -->|Load private keys| VOL2
+    N2 -->|Read all node config| VOL1
+    N2 -->|Load private keys| VOL2
+    N3 -->|Read all node config| VOL1
+    N3 -->|Load private keys| VOL2
+    N4 -->|Read all node config| VOL1
+    N4 -->|Load private keys| VOL2
+
+    style SP fill:#fff3cd
+    style Container fill:#e1f5ff

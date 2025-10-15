@@ -1,0 +1,43 @@
+sequenceDiagram
+    participant BC as Blockchain Contract
+    participant O1 as Oracle Node 1
+    participant O2 as Oracle Node 2
+    participant O3 as Oracle Node 3
+    participant O4 as Oracle Node 4
+    participant PA as Price Aggregator
+
+    BC->>O1: Request price update (job spec)
+    BC->>O2: Request price update (job spec)
+    BC->>O3: Request price update (job spec)
+    BC->>O4: Request price update (job spec)
+
+    par Fetch Prices
+        O1->>PA: GET /quotes/batch
+        PA-->>O1: Prices from cache
+        O2->>PA: GET /quotes/batch
+        PA-->>O2: Prices from cache
+        O3->>PA: GET /quotes/batch
+        PA-->>O3: Prices from cache
+        O4->>PA: GET /quotes/batch
+        PA-->>O4: Prices from cache
+    end
+
+    Note over O1,O4: Off-Chain Consensus Phase
+    O1->>O2: Share observation + signature
+    O1->>O3: Share observation + signature
+    O1->>O4: Share observation + signature
+    O2->>O1: Share observation + signature
+    O2->>O3: Share observation + signature
+    O2->>O4: Share observation + signature
+    O3->>O1: Share observation + signature
+    O3->>O2: Share observation + signature
+    O3->>O4: Share observation + signature
+    O4->>O1: Share observation + signature
+    O4->>O2: Share observation + signature
+    O4->>O3: Share observation + signature
+
+    Note over O1,O4: Aggregate observations, compute median
+    Note over O1,O4: Build multi-signature report
+
+    O1->>BC: Submit aggregated report (if selected as transmitter)
+    BC-->>O1: Transaction confirmed

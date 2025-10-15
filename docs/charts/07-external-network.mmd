@@ -1,0 +1,25 @@
+graph LR
+    subgraph TEE["Super Protocol TEE (Intel TDX)"]
+        subgraph Container["All-in-One Container"]
+            ON[Oracle Nodes<br/>4+ nodes]
+            PA[Price Aggregator]
+            PM[Process Metrics]
+        end
+    end
+
+    subgraph External["External Systems"]
+        BC[Blockchain Network<br/>opBNB Testnet]
+        DS[Data Sources<br/>Binance, OKX, etc.]
+        PROM[Prometheus/<br/>VictoriaMetrics]
+    end
+
+    ON -->|Submit prices<br/>HTTPS/WSS| BC
+    ON -.->|Read contracts<br/>HTTPS/WSS| BC
+
+    PA -->|Fetch prices<br/>HTTPS/WSS| DS
+
+    PA -->|Push metrics<br/>HTTPS PUT| PROM
+    PM -->|Push metrics<br/>HTTPS PUT| PROM
+
+    style TEE fill:#e1f5ff,stroke:#0066cc,stroke-width:3px
+    style Container fill:#f0f8ff
