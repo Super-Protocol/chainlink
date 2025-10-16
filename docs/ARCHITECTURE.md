@@ -526,7 +526,7 @@ graph LR
     end
 
     subgraph External["External Systems"]
-        BC[Blockchain Network<br/>opBNB Testnet]
+        BC[Blockchain Network<br/>opBNB]
         DS[Data Sources<br/>Binance, OKX, etc.]
         PROM[Prometheus/<br/>VictoriaMetrics]
     end
@@ -546,10 +546,10 @@ graph LR
 **Connection Details**:
 
 1. **Oracle Nodes → Blockchain Network**:
-   - **HTTP RPC**: `https://opbnb-testnet-rpc.publicnode.com`
+   - **HTTP RPC**: `https://opbnb-rpc.publicnode.com`
      - Purpose: Submit transactions, query state
      - Methods: eth_sendRawTransaction, eth_getTransactionReceipt, etc.
-   - **WebSocket RPC**: `wss://opbnb-testnet-rpc.publicnode.com`
+   - **WebSocket RPC**: `wss://opbnb-rpc.publicnode.com`
      - Purpose: Real-time event monitoring
      - Subscribe to contract events, new blocks
    - **Smart Contracts**:
