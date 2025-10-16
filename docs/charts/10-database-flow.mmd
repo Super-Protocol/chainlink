@@ -1,0 +1,36 @@
+graph TB
+  subgraph Container["All-in-One Container"]
+    subgraph Init["Initialization"]
+      PBS[postgres-bootstrap<br/>oneshot]
+      PINI[postgres-init<br/>oneshot]
+    end
+
+    subgraph Runtime["Runtime Services"]
+      PG[(PostgreSQL Server<br/>:5432)]
+    end
+
+    subgraph Nodes["Chainlink Nodes"]
+      N1[Bootstrap Node]
+      N2[Oracle Node 1..4]
+    end
+
+    subgraph Databases["Logical Databases"]
+      DB1[(chainlink_node_1)]
+      DB2[(chainlink_node_N)]
+    end
+  end
+
+  PBS -->|initdb<br/>create cluster| PG
+  PINI -->|CREATE USER chainlink<br/>CREATE DATABASE x5| PG
+
+  PG -.-> DB1
+  PG -.-> DB2
+
+  N1 -->|Read/Write| DB1
+  N2 -->|Read/Write| DB2
+
+  style PBS fill:#fff3cd
+  style PINI fill:#fff3cd
+  style PG fill:#d4edda
+  style DB1 fill:#e7f3ff
+  style DB2 fill:#e7f3ff

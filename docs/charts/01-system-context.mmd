@@ -1,0 +1,19 @@
+architecture-beta
+  group tee(cloud)[Super Protocol TEE]
+
+  service chainlink(server)[Chainlink Data Feeds] in tee
+  group pa(cloud)[Price Aggregator] in tee
+  service pa_cache(database)[In Memory Cache] in pa
+  service pa_svc(server)[Price aggregator service] in pa
+  service blockchain(database)[opBNB Blockchain Network]
+  service datasources(cloud)[External Data Sources]
+  service prometheus(server)[Metrics Storage]
+  service admin(disk)[Administrator]
+
+  pa_cache:R -- L:pa_svc
+
+  pa_svc:R -- L:chainlink
+  chainlink:R -- L:blockchain
+  pa_svc:T -- B:datasources
+  pa_svc:B -- T:prometheus
+  admin:L -- R:prometheus

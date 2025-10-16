@@ -1,0 +1,20 @@
+sequenceDiagram
+  participant O1 as Oracle Node 1..4
+  participant PA as Price Aggregator
+  participant BC as Blockchain Contract
+
+  Note over O1: Job trigger (time-based or event-based)
+
+  par Fetch Prices
+    O1->>PA: GET /quotes/batch
+    PA-->>O1: Prices from cache
+  end
+
+  Note over O1: Off-Chain Consensus Phase
+  O1->>O1: Share observation + signature
+
+  Note over O1: Aggregate observations, compute median
+  Note over O1: Build multi-signature report
+
+  O1->>BC: Submit aggregated report (if selected as transmitter)
+  BC-->>O1: Transaction confirmed

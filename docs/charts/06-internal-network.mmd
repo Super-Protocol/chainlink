@@ -1,0 +1,55 @@
+graph TB
+    subgraph Container["All-in-One Container"]
+        subgraph Nodes["Chainlink Nodes"]
+            B[Bootstrap Node<br/>:6601 :9901]
+            O1[Oracle Node 2<br/>:6602 :9902]
+            O2[Oracle Node 3<br/>:6603 :9903]
+            O3[Oracle Node 4<br/>:6604 :9904]
+            O4[Oracle Node 5<br/>:6605 :9905]
+        end
+
+        PG[(PostgreSQL<br/>:5432)]
+        PA[Price Aggregator<br/>:3000]
+        PM[Process Metrics<br/>:3003]
+    end
+
+    O1 -->|P2P| B
+    O2 -->|P2P| B
+    O3 -->|P2P| B
+    O4 -->|P2P| B
+
+    O1 -.->|P2P Consensus| O2
+    O1 -.->|P2P Consensus| O3
+    O1 -.->|P2P Consensus| O4
+    O2 -.->|P2P Consensus| O3
+    O2 -.->|P2P Consensus| O4
+    O3 -.->|P2P Consensus| O4
+
+    B -->|SQL| PG
+    O1 -->|SQL| PG
+    O2 -->|SQL| PG
+    O3 -->|SQL| PG
+    O4 -->|SQL| PG
+
+    B -->|HTTP| PA
+    O1 -->|HTTP| PA
+    O2 -->|HTTP| PA
+    O3 -->|HTTP| PA
+    O4 -->|HTTP| PA
+
+    PM -.->|Monitor| B
+    PM -.->|Monitor| O1
+    PM -.->|Monitor| O2
+    PM -.->|Monitor| O3
+    PM -.->|Monitor| O4
+    PM -.->|Monitor| PG
+    PM -.->|Monitor| PA
+
+    style B fill:#cce5ff
+    style O1 fill:#cce5ff
+    style O2 fill:#cce5ff
+    style O3 fill:#cce5ff
+    style O4 fill:#cce5ff
+    style PG fill:#d4edda
+    style PA fill:#fff3cd
+    style PM fill:#f8d7da
