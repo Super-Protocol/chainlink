@@ -755,37 +755,6 @@ graph TB
   style DB2 fill:#e7f3ff
 ```
 
-**Database Initialization Flow**:
-
-1. **postgres-bootstrap** (oneshot):
-   - Check if `/sp/postgresql/data` is empty
-   - If empty, run `initdb` to create database cluster
-   - Apply ephemeral configuration (limited WAL, data checksums)
-   - Set ownership to `postgres` user
-
-2. **postgres** (longrun):
-   - Start PostgreSQL server as `postgres` user
-   - Listen on `localhost:5432`
-   - Load configuration from `postgresql.conf`
-
-3. **postgres-init** (oneshot):
-   - Wait for PostgreSQL to accept connections (`pg_isready`)
-   - Create application user: `CREATE USER chainlink WITH PASSWORD '...'`
-   - Create databases:
-     - `CREATE DATABASE chainlink_node_1 OWNER chainlink`
-     - `CREATE DATABASE chainlink_node_2 OWNER chainlink`
-     - ... (repeat for all nodes)
-
-4. **Chainlink nodes** (longrun):
-   - Connect to PostgreSQL with:
-     - Host: `localhost`
-     - Port: `5432`
-     - User: `chainlink`
-     - Password: from configuration
-     - Database: `chainlink_node_{NODE_NUMBER}`
-   - Each node has exclusive access to its database
-   - Nodes cannot see other nodes' data (database isolation)
-
 **What's Stored in Database**:
 - Job specifications and runs
 - Transaction history
