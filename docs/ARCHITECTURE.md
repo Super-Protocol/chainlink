@@ -83,46 +83,40 @@ The All-in-One container packages all components into a single deployable unit o
 
 ```mermaid
 architecture-beta
-    group aio(cloud)[All in One Container]
+  group aio(cloud)[All in One Container]
 
-    service s6(disk)[s6 overlay] in aio
-    service postgres(database)[PostgreSQL 17] in aio
-    service bootstrap(server)[Bootstrap Node] in aio
-    service oracle1(server)[Oracle Node 1] in aio
-    service oracle2(server)[Oracle Node 2] in aio
-    service oracle3(server)[Oracle Node 3] in aio
-    service oracle4(server)[Oracle Node 4] in aio
-    service aggregator(server)[Price Aggregator] in aio
-    service metrics(server)[Process Metrics Exporter] in aio
+  service s6(disk)[s6 overlay] in aio
+  service metrics(server)[Process Metrics Exporter] in aio
 
-    s6:R -- L:postgres
-    s6:R -- L:bootstrap
-    s6:R -- L:oracle1
-    s6:R -- L:oracle2
-    s6:R -- L:oracle3
-    s6:R -- L:oracle4
-    s6:R -- L:aggregator
-    s6:R -- L:metrics
+  group chainlink[chainlink] in aio
+  service bootstrap(server)[Bootstrap Node] in chainlink
+  group oracles[oracles] in chainlink
+  service oracle1(server)[Node 1] in oracles
+  service oracle2(server)[Node 2] in oracles
+  service oracle3(server)[Node 3] in oracles
+  service oracle4(server)[Node 4] in oracles
 
-    bootstrap:B -- T:postgres
-    oracle1:B -- T:postgres
-    oracle2:B -- T:postgres
-    oracle3:B -- T:postgres
-    oracle4:B -- T:postgres
+  service aggregator(server)[Price Aggregator] in aio
 
-    oracle1:L -- R:aggregator
-    oracle2:L -- R:aggregator
-    oracle3:L -- R:aggregator
-    oracle4:L -- R:aggregator
+  service postgres(database)[PostgreSQL 17] in aio
 
-    oracle1:T -- B:bootstrap
-    oracle2:T -- B:bootstrap
-    oracle3:T -- B:bootstrap
-    oracle4:T -- B:bootstrap
+  metrics:R -- L:s6
 
-    metrics:R -- L:s6
+  s6:B -- T:bootstrap
+
+  bootstrap:R -- L:oracle1
+  bootstrap:R -- L:oracle2
+  bootstrap:R -- L:oracle3
+  bootstrap:R -- L:oracle4
+
+  oracle1:B -- B:aggregator
+  oracle2:B -- B:aggregator
+  oracle3:B -- B:aggregator
+  oracle4:B -- B:aggregator
+
+  aggregator:L -- R:postgres
+  bootstrap:B -- T:postgres
 ```
-
 </details>
 
 ### 2.2 Process Management with s6-overlay
