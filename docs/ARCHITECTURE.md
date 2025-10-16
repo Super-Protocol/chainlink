@@ -417,7 +417,6 @@ sequenceDiagram
 **Push Configuration**:
 - Interval: 15 seconds (configurable)
 - Target: VictoriaMetrics or Prometheus with remote write
-- Authentication: Basic Auth
 - Grouping labels: service, instance, environment
 
 #### 3.4.2 Process Metrics
@@ -586,12 +585,6 @@ The `/sp/secrets/` directory is powered by **Super Protocol Distributed Secrets*
 - No SSH/shell access
 - All management via configuration
 - Single container reduces attack surface vs. multi-container
-
-**Authentication**:
-- PostgreSQL: Username/password authentication
-- Chainlink UI: Email/password (not exposed externally)
-- External APIs: API keys stored in configuration
-- Metrics push: Basic authentication
 
 ---
 
