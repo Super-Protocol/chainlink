@@ -23,38 +23,27 @@ The solution consists of multiple Chainlink Oracle nodes (minimum 4 for consensu
 
 **Diagram**: [charts/01-system-context.mmd](charts/01-system-context.mmd)
 
-![System Context Diagram](charts/01-system-context.mmd.svg)
-
-<details>
-<summary>Mermaid source (click to expand)</summary>
-
 ```mermaid
-graph TD
-  A[s6-init] --> B[postgres-bootstrap]
-  B --> C[postgres longrun]
-  C --> D[postgres-init]
-  A --> E[price-aggregator]
-  A --> F[process-metrics]
-  D --> G[chainlink-node-1<br/>Bootstrap]
-  G --> H[chainlink-node-2<br/>Oracle]
-  G --> I[chainlink-node-3<br/>Oracle]
-  G --> J[chainlink-node-4<br/>Oracle]
-  G --> K[chainlink-node-5<br/>Oracle]
+architecture-beta
+  group tee(cloud)[Super Protocol TEE]
 
-  style A fill:#e1f5ff
-  style B fill:#fff3cd
-  style C fill:#d4edda
-  style D fill:#fff3cd
-  style E fill:#d4edda
-  style F fill:#d4edda
-  style G fill:#cce5ff
-  style H fill:#cce5ff
-  style I fill:#cce5ff
-  style J fill:#cce5ff
-  style K fill:#cce5ff
+  service chainlink(server)[Chainlink Data Feeds] in tee
+  group pa(cloud)[Price Aggregator] in tee
+  service pa_cache(database)[In Memory Cache] in pa
+  service pa_svc(server)[Price aggregator service] in pa
+  service blockchain(database)[opBNB Blockchain Network]
+  service datasources(cloud)[External Data Sources]
+  service prometheus(server)[Metrics Storage]
+  service admin(disk)[Administrator]
+
+  pa_cache:R -- L:pa_svc
+
+  pa_svc:R -- L:chainlink
+  chainlink:R -- L:blockchain
+  pa_svc:T -- B:datasources
+  pa_svc:B -- T:prometheus
+  admin:L -- R:prometheus
 ```
-
-</details>
 
 ### 1.3 Key Characteristics
 
@@ -76,54 +65,42 @@ The All-in-One container packages all components into a single deployable unit o
 
 **Diagram**: [charts/02-container-architecture.mmd](charts/02-container-architecture.mmd)
 
-![Container Architecture](charts/02-container-architecture.mmd.svg)
-
-<details>
-<summary>Mermaid source (click to expand)</summary>
-
 ```mermaid
 architecture-beta
-    group aio(cloud)[All-in-One Container]
+  group aio(cloud)[All in One Container]
 
-    service s6(disk)[s6-overlay] in aio
-    service postgres(database)[PostgreSQL 17] in aio
-    service bootstrap(server)[Bootstrap Node] in aio
-    service oracle1(server)[Oracle Node 1] in aio
-    service oracle2(server)[Oracle Node 2] in aio
-    service oracle3(server)[Oracle Node 3] in aio
-    service oracle4(server)[Oracle Node 4] in aio
-    service aggregator(server)[Price Aggregator] in aio
-    service metrics(server)[Process Metrics Exporter] in aio
+  service s6(disk)[s6 overlay] in aio
+  service metrics(server)[Process Metrics Exporter] in aio
 
-    s6:R -- L:postgres
-    s6:R -- L:bootstrap
-    s6:R -- L:oracle1
-    s6:R -- L:oracle2
-    s6:R -- L:oracle3
-    s6:R -- L:oracle4
-    s6:R -- L:aggregator
-    s6:R -- L:metrics
+  group chainlink[chainlink] in aio
+  service bootstrap(server)[Bootstrap Node] in chainlink
+  group oracles[oracles] in chainlink
+  service oracle1(server)[Node 1] in oracles
+  service oracle2(server)[Node 2] in oracles
+  service oracle3(server)[Node 3] in oracles
+  service oracle4(server)[Node 4] in oracles
 
-    bootstrap:B -- T:postgres
-    oracle1:B -- T:postgres
-    oracle2:B -- T:postgres
-    oracle3:B -- T:postgres
-    oracle4:B -- T:postgres
+  service aggregator(server)[Price Aggregator] in aio
 
-    oracle1:L -- R:aggregator
-    oracle2:L -- R:aggregator
-    oracle3:L -- R:aggregator
-    oracle4:L -- R:aggregator
+  service postgres(database)[PostgreSQL 17] in aio
 
-    oracle1:T -- B:bootstrap
-    oracle2:T -- B:bootstrap
-    oracle3:T -- B:bootstrap
-    oracle4:T -- B:bootstrap
+  metrics:R -- L:s6
 
-    metrics:R -- L:s6
+  s6:B -- T:bootstrap
+
+  bootstrap:R -- L:oracle1
+  bootstrap:R -- L:oracle2
+  bootstrap:R -- L:oracle3
+  bootstrap:R -- L:oracle4
+
+  oracle1:B -- B:aggregator
+  oracle2:B -- B:aggregator
+  oracle3:B -- B:aggregator
+  oracle4:B -- B:aggregator
+
+  aggregator:L -- R:postgres
+  bootstrap:B -- T:postgres
 ```
-
-</details>
 
 ### 2.2 Process Management with s6-overlay
 
@@ -321,6 +298,55 @@ sequenceDiagram
 - Jobs are configured via `join-config` and deployed through admin scripts
 - Each job specifies: data source URL, update frequency, threshold parameters
 - Price Aggregator URL is injected as environment variable
+
+#### 3.1.3 Node config generation (from template)
+
+- When it happens: the `config.toml` for each node is produced at startup of the longrun service `chainlink-node-{i}` (on every container/node start), before the Chainlink binary is launched.
+
+- Script: `scripts/bash/init-chainlink.sh` renders `/chainlink/node-{i}/config.toml` from the template `scripts/bash/config.toml.template` using `envsubst`, then applies post‑processing with `sed`/`awk`.
+
+- Logic and substitutions:
+  - Creates `apicredentials` from `CHAINLINK_EMAIL/CHAINLINK_PASSWORD` if provided; otherwise skips.
+  - Removes any stale `config.toml` and always rebuilds it from the template.
+  - Populates template variables from environment and secrets:
+    - `WebServer.HTTPPort` ← `$CHAINLINK_WEB_SERVER_HTTP_PORT`.
+    - `EVM.ChainID` ← `$CHAINLINK_CHAIN_ID`, `LinkContractAddress` ← `$LINK_CA`.
+    - `EVM.Nodes.{Name,WSURL,HTTPURL}` ← `$CHAINLINK_NODE_NAME`, `$CHAINLINK_RPC_WS_URL`, `$CHAINLINK_RPC_HTTP_URL`.
+    - `P2P.V2.ListenAddresses` ← `['0.0.0.0:$P2P_PORT']` from `$P2P_PORT`.
+    - `P2P.V2.AnnounceAddresses` ← computed as a TOML array string from `ANNOUNCE_ADDRESSES`; if absent, derived from `ANNOUNCE_NODE_ADDRESSES`, or via a static IP scheme: `127.0.0.1:$P2P_PORT` when `ALL_IN_ONE=true`, otherwise `10.5.0.(8+NODE_NUMBER):$P2P_PORT`.
+    - `P2P.V2.DefaultBootstrappers` ← a list of `'peerId@host:port'`, built for non‑bootstrap nodes from secrets `SP_SECRETS_DIR/bootstrap-*.peerid` and `BOOTSTRAP_NODE_ADDRESSES` (or the local addressing scheme when `ALL_IN_ONE=true`).
+    - `OCR.KeyBundleID` ← from `${SP_SECRETS_DIR}/cl-secrets/{NODE_NUMBER}/ocr_key.json`.
+    - `OCR.TransmitterAddress` ← EIP‑55 address from `${SP_SECRETS_DIR}/cl-secrets/{NODE_NUMBER}/evm_key.json` (via `eth-address-formatter.sh`).
+  - Post‑processing of the resulting file:
+    - The node `Name` gets the `-primary` suffix for nodes listed in `PRIMARY_NODES` (or `NODES_LIST`), otherwise `-sendonly`.
+    - For primary nodes: force `SendOnly = false`. For sendonly nodes: delete the `WSURL` line and set `SendOnly = true`.
+    - `AnnounceAddresses` is additionally reset using the static scheme (see above) to match the container’s network layout.
+  - Bootstrap synchronization: for worker (non‑bootstrap) nodes, the script waits for `bootstrap-*.peerid`/`ip` secrets to appear in `SP_SECRETS_DIR` (with a bounded number of attempts) to correctly assemble `DefaultBootstrappers`.
+
+As a result, on every node startup the configuration is re‑generated and updated according to the current environment variables and secrets. If the template is missing, startup proceeds without `config.toml`.
+
+#### 3.1.4 Job generation for each node
+
+- Stage and script: job generation and import is handled by `scripts/bash/publish-jobs.sh` after the node starts and its HTTP API is available (`API_URL`/`API_PORT`). Templates are read from `CL_FEED_TEMPLATES_DIR` (default `/templates`), outputs are written to `JOB_RENDERS_DIR`, then submitted to the node via REST API.
+
+- What is customized during generation (rendering `.toml` templates):
+  - Variables injected via `envsubst`:
+    - `EVM_CHAIN_ID` — from `CHAINLINK_CHAIN_ID` or from the node’s `config.toml`.
+    - `IS_BOOTSTRAP` — whether the current node is the bootstrap.
+    - `P2P_PEER_ID` — from `/v2/keys/p2p` or from `${SP_SECRETS_DIR}/cl-secrets/{NODE_NUMBER}/p2p_key.json`.
+    - `P2P_BOOTSTRAP_PEERS` — an array of multiaddrs (`/ip4|/dns4/host/tcp/port/tls/ws/p2p/<peer>`), assembled from `BOOTSTRAP_NODE_ADDRESSES` and `SP_SECRETS_DIR/bootstrap-*.peerid`, or extracted from `DefaultBootstrappers` in `config.toml`.
+    - `OCR_KEY_BUNDLE_ID` — from `/v2/keys/ocr` or `${SP_SECRETS_DIR}/cl-secrets/{NODE_NUMBER}/ocr_key.json`.
+    - `TRANSMITTER_ADDRESS` — from `/v2/keys/evm` (preferred to preserve EIP55), or from `${SP_SECRETS_DIR}/cl-secrets/{NODE_NUMBER}/evm_key.json`.
+    - `JOB_CA` — contract address looked up in `./data/feed-cas.chainid-<EVM_CHAIN_ID>.json` by the job `name` (generation fails if missing).
+  - Special handling for the bootstrap node (`IS_BOOTSTRAP=true`): remove the `observationSource` block and the `keyBundleID`/`transmitterAddress` fields; force `isBootstrapPeer = true`.
+
+- How jobs are imported into the node:
+  - The script logs into the node HTTP API (`/sessions`) using local `apicredentials` (`email`/`password`).
+  - Fetches a CSRF token (`/v2/csrf`).
+  - For each rendered `.toml`, performs `POST /v2/jobs` with body `{ toml: "..." }`.
+  - If creation fails, it attempts to update an existing job: locates it by `contractAddress` and `evmChainID` via `GET /v2/jobs` and sends `PUT /v2/jobs/{id}` with the same body.
+
+In the end, the set of jobs is reproducibly generated from templates according to the current keys, secrets, and network configuration, then automatically published to the corresponding node’s API.
 
 ### 3.2 PostgreSQL
 
