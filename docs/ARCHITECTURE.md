@@ -23,38 +23,27 @@ The solution consists of multiple Chainlink Oracle nodes (minimum 4 for consensu
 
 **Diagram**: [charts/01-system-context.mmd](charts/01-system-context.mmd)
 
-![System Context Diagram](charts/01-system-context.mmd.svg)
-
-<details>
-<summary>Mermaid source (click to expand)</summary>
-
 ```mermaid
-graph TD
-  A[s6-init] --> B[postgres-bootstrap]
-  B --> C[postgres longrun]
-  C --> D[postgres-init]
-  A --> E[price-aggregator]
-  A --> F[process-metrics]
-  D --> G[chainlink-node-1<br/>Bootstrap]
-  G --> H[chainlink-node-2<br/>Oracle]
-  G --> I[chainlink-node-3<br/>Oracle]
-  G --> J[chainlink-node-4<br/>Oracle]
-  G --> K[chainlink-node-5<br/>Oracle]
+architecture-beta
+  group tee(cloud)[Super Protocol TEE]
 
-  style A fill:#e1f5ff
-  style B fill:#fff3cd
-  style C fill:#d4edda
-  style D fill:#fff3cd
-  style E fill:#d4edda
-  style F fill:#d4edda
-  style G fill:#cce5ff
-  style H fill:#cce5ff
-  style I fill:#cce5ff
-  style J fill:#cce5ff
-  style K fill:#cce5ff
+  service chainlink(server)[Chainlink Data Feeds] in tee
+  group pa(cloud)[Price Aggregator] in tee
+  service pa_cache(database)[In Memory Cache] in pa
+  service pa_svc(server)[Price aggregator service] in pa
+  service blockchain(database)[opBNB Blockchain Network]
+  service datasources(cloud)[External Data Sources]
+  service prometheus(server)[Metrics Storage]
+  service admin(disk)[Administrator]
+
+  pa_cache:R -- L:pa_svc
+
+  pa_svc:R -- L:chainlink
+  chainlink:R -- L:blockchain
+  pa_svc:T -- B:datasources
+  pa_svc:B -- T:prometheus
+  admin:L -- R:prometheus
 ```
-
-</details>
 
 ### 1.3 Key Characteristics
 
@@ -75,11 +64,6 @@ graph TD
 The All-in-One container packages all components into a single deployable unit optimized for TEE deployment. This approach simplifies management, reduces the attack surface, and ensures all components share the same trust boundary.
 
 **Diagram**: [charts/02-container-architecture.mmd](charts/02-container-architecture.mmd)
-
-![Container Architecture](charts/02-container-architecture.mmd.svg)
-
-<details>
-<summary>Mermaid source (click to expand)</summary>
 
 ```mermaid
 architecture-beta
@@ -117,7 +101,6 @@ architecture-beta
   aggregator:L -- R:postgres
   bootstrap:B -- T:postgres
 ```
-</details>
 
 ### 2.2 Process Management with s6-overlay
 
