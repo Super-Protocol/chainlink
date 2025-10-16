@@ -83,9 +83,9 @@ The All-in-One container packages all components into a single deployable unit o
 
 ```mermaid
 architecture-beta
-    group aio(cloud)[All-in-One Container]
+    group aio(cloud)[All in One Container]
 
-    service s6(disk)[s6-overlay] in aio
+    service s6(disk)[s6 overlay] in aio
     service postgres(database)[PostgreSQL 17] in aio
     service bootstrap(server)[Bootstrap Node] in aio
     service oracle1(server)[Oracle Node 1] in aio
