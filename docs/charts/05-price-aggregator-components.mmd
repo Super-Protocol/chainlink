@@ -1,0 +1,10 @@
+architecture-beta
+    group pa(cloud)[Price Aggregator]
+
+    service cache(database)[Cache] in pa
+
+    service ext_sources(cloud)[External Data Sources]
+    service prometheus(server)[Prometheus]
+
+    cache:T -- B:ext_sources
+    cache:B -- T:prometheus

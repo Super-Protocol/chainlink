@@ -1,0 +1,26 @@
+graph TB
+    subgraph TEE["Super Protocol TEE (No Inbound Access)"]
+        subgraph Container["All-in-One Container"]
+            PA[Price Aggregator]
+            PM[Process Metrics<br/>Exporter]
+            ON[Oracle Nodes]
+        end
+    end
+
+    subgraph Monitoring["Monitoring Infrastructure"]
+        PG[Pushgateway/<br/>VictoriaMetrics]
+        PROM[Prometheus/<br/>Long-term storage]
+        GRAF[Grafana<br/>Dashboards]
+        ALERT[Alertmanager<br/>Notifications]
+    end
+
+    PA -->|Push every 15s<br/>HTTPS| PG
+    PM -->|Push every 5s<br/>HTTPS| PG
+
+    PG --> PROM
+    PROM --> GRAF
+    PROM --> ALERT
+
+    style TEE fill:#e1f5ff,stroke:#0066cc,stroke-width:3px
+    style Container fill:#f0f8ff
+    style Monitoring fill:#fff3cd

@@ -1,0 +1,34 @@
+architecture-beta
+  group aio(cloud)[All in One Container]
+
+  service s6(disk)[s6 overlay] in aio
+  service metrics(server)[Process Metrics Exporter] in aio
+
+  group chainlink[chainlink] in aio
+  service bootstrap(server)[Bootstrap Node] in chainlink
+  group oracles[oracles] in chainlink
+  service oracle1(server)[Node 1] in oracles
+  service oracle2(server)[Node 2] in oracles
+  service oracle3(server)[Node 3] in oracles
+  service oracle4(server)[Node 4] in oracles
+
+  service aggregator(server)[Price Aggregator] in aio
+
+  service postgres(database)[PostgreSQL 17] in aio
+
+  metrics:R -- L:s6
+
+  s6:B -- T:bootstrap
+
+  bootstrap:R -- L:oracle1
+  bootstrap:R -- L:oracle2
+  bootstrap:R -- L:oracle3
+  bootstrap:R -- L:oracle4
+
+  oracle1:B -- B:aggregator
+  oracle2:B -- B:aggregator
+  oracle3:B -- B:aggregator
+  oracle4:B -- B:aggregator
+
+  aggregator:L -- R:postgres
+  bootstrap:B -- T:postgres

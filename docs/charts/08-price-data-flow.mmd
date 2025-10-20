@@ -1,0 +1,43 @@
+sequenceDiagram
+  participant DS as External Data Sources<br/>(Binance, OKX, etc.)
+  participant PA as Price Aggregator<br/>(NestJS)
+  participant Cache as In-Memory Cache<br/>(TTL-based)
+  participant O1 as Oracle Node 1..4
+  participant BC as Blockchain<br/>(opBNB)
+
+  Note over PA: Initialization Phase
+  PA->>DS: Initial fetch for configured pairs
+  DS-->>PA: Price data
+  PA->>Cache: Store with TTL=5min
+
+  Note over PA: Streaming Phase (Real-time)
+  DS--)PA: WebSocket price updates
+  PA->>Cache: Update cached prices
+
+  Note over O1: Job Execution Phase
+  BC->>O1: Job trigger (price update needed)
+
+  par All nodes fetch in parallel
+    O1->>PA: GET /quotes/batch?pairs=BTC-USD,ETH-USD
+    PA->>Cache: Check cache
+    alt Cache hit (fresh data)
+      Cache-->>PA: Return cached prices
+    else Cache miss or stale
+      PA->>DS: Fetch fresh data
+      DS-->>PA: Latest prices
+      PA->>Cache: Update cache
+    end
+    PA-->>O1: Return prices with metadata
+
+    PA->>Cache: Return cached prices
+  end
+
+  Note over O1: OCR Consensus Phase
+  O1->>O1: Share observation (price + signature)
+
+  Note over O1: Compute median, build report<br/>Minimum 3/4 nodes must agree
+
+  O1->>BC: Submit aggregated report (transmitter)
+  BC-->>O1: Transaction confirmed
+
+  Note over BC: Price data now on-chain

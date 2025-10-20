@@ -1,0 +1,23 @@
+graph TD
+  A[s6-init] --> B[postgres-bootstrap]
+  B --> C[postgres longrun]
+  C --> D[postgres-init]
+  A --> E[price-aggregator]
+  A --> F[process-metrics]
+  D --> G[chainlink-node-1<br/>Bootstrap]
+  G --> H[chainlink-node-2<br/>Oracle]
+  G --> I[chainlink-node-3<br/>Oracle]
+  G --> J[chainlink-node-4<br/>Oracle]
+  G --> K[chainlink-node-5<br/>Oracle]
+
+  style A fill:#e1f5ff
+  style B fill:#fff3cd
+  style C fill:#d4edda
+  style D fill:#fff3cd
+  style E fill:#d4edda
+  style F fill:#d4edda
+  style G fill:#cce5ff
+  style H fill:#cce5ff
+  style I fill:#cce5ff
+  style J fill:#cce5ff
+  style K fill:#cce5ff
